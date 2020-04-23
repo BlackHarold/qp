@@ -1,0 +1,29 @@
+################################################################################
+# PAGE_emxFrameworkStringResource_en.properties.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate page "${NAME}" {
+    description ""
+    mime ""
+    content "
+# Quality Plan
+emxFramework.Type.IMS_QP=QP
+emxFramework.Type.IMS_QP_DEP=DEP
+emxFramework.Type.IMS_QP_DEPSubStage=DEPSubStage
+emxFramework.Type.IMS_QP_DEPTask=DEPTask
+emxFramework.Type.IMS_Project_QP=QPProject
+emxFramework.State.IMS_Project_QP.Active=Active
+emxFramework.State.IMS_Project_QP.Inactive=Inactive
+emxFramework.State.IMS_QP.Active=Active
+emxFramework.State.IMS_QP.Inactive=Inactive
+emxFramework.State.IMS_QP_DEP.Active=Active
+emxFramework.State.IMS_QP_DEP.Inactive=Inactive
+emxFramework.State.IMS_QP_DEPSubStage.Active=Active
+emxFramework.State.IMS_QP_DEPSubStage=Inactive
+emxFramework.State.IMS_QP_DEPTask.Active=Active
+emxFramework.State.IMS_QP_DEPTask=Inactive
+
+"
+}
