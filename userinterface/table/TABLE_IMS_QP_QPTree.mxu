@@ -1,0 +1,34 @@
+################################################################################
+# TABLE_IMS_QP_QPree.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate table "${NAME}" {
+    symbolicname "table_IMS_QP_QPTree"
+    description ""
+    column {
+        name "Code"
+        label "Code"
+        user "all"
+        setting "Column Type" "programHTMLOutput"
+        setting "Registered Suite" "Framework"
+        setting "function" "getQPTreeObjectCode"
+        setting "program" "IMS_QP_DEPSubStageDEPTasks"
+    }
+    column {
+        name "Name"
+        label "Name"
+        user "all"
+        setting "Column Type" "program"
+        setting "Registered Suite" "Framework"
+        setting "function" "getQPTreeObjectName"
+        setting "program" "IMS_QP_DEPSubStageDEPTasks"
+    }
+    ################################################## Info Start
+    property "author" value "The MxUpdate Team"
+    property "original name" value "IMS_QP_QPTree"
+    property "application" value "Unknown"
+    property "version"
+    ################################################## Info End
+}
