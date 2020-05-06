@@ -1,0 +1,64 @@
+################################################################################
+# TABLE_IMS_QP_DEPTask.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate table "${NAME}" {
+    description ""
+    column {
+        name "Code"
+        label "emxFramework.Label.QP_Code"
+        businessobject "name"
+        user "all"
+        setting "Editable" "false"
+        setting "Registered Suite" "Framework"
+    }
+    column {
+        name "Name"
+        label "emxFramework.Attribute.QP_IMS_Name"
+        businessobject "attribute[IMS_Name]"
+        user "all"
+        setting "Admin Type" "attribute_IMS_Name"
+        setting "Editable" "true"
+        setting "Field Type" "attribute"
+        setting "Registered Suite" "Framework"
+    }
+    column {
+        name "NameRu"
+        label "emxFramework.Attribute.QP_IMS_NameRu"
+        businessobject "attribute[IMS_NameRu]"
+        user "all"
+        setting "Admin Type" "attribute_IMS_NameRu"
+        setting "Editable" "true"
+        setting "Field Type" "attribute"
+    }
+    column {
+        name "DEPTaskInput"
+        label "Input"
+        user "all"
+        setting "Column Type" "programHTMLOutput"
+        setting "Editable" "false"
+        setting "Registered Suite" "Framework"
+        setting "Sortable" "false"
+        setting "Style Function" "getDEPTaskInputCellStyle"
+        setting "Style Program" "IMS_QP_DEPSubStageDEPTasks"
+        setting "Width" "300"
+        setting "function" "getDEPTaskInput"
+        setting "program" "IMS_QP_DEPSubStageDEPTasks"
+    }
+    column {
+        name "DEPTaskOutput"
+        label "Output"
+        user "all"
+        setting "Column Type" "programHTMLOutput"
+        setting "Editable" "false"
+        setting "Registered Suite" "Framework"
+        setting "Sortable" "false"
+        setting "Style Function" "getDEPTaskOutputCellStyle"
+        setting "Style Program" "IMS_QP_DEPSubStageDEPTasks"
+        setting "Width" "300"
+        setting "function" "getDEPTaskOutput"
+        setting "program" "IMS_QP_DEPSubStageDEPTasks"
+    }
+}

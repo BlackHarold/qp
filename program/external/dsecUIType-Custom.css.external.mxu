@@ -361,8 +361,10 @@ font-style: italic;
 /*DPM Project Phase Gate View: End*/
 
 
-/*IMS Start*/
+/*IMS Begin*/
 .IMS_VerticalAlignTop{vertical-align:top;}
+.IMS_QP_DEPTaskInput{vertical-align:top;background-color:aliceblue;}
+.IMS_QP_DEPTaskOutput{vertical-align:top;background-color:#ffecef;}
 /*IMS End*/
 "
 }

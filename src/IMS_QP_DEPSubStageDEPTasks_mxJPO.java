@@ -260,7 +260,7 @@ public class IMS_QP_DEPSubStageDEPTasks_mxJPO {
         return results;
     }
 
-    private Vector getRelatedDEPTasks(Context context, String[] args, boolean in) throws Exception {
+    private Vector getDEPTaskRelatedObjects(Context context, String[] args, boolean in) throws Exception {
         try {
             String virtualRelationship = in ? "in" : "out";
             boolean isRuLocale = IMS_KDD_mxJPO.isRuLocale(args);
@@ -271,20 +271,6 @@ public class IMS_QP_DEPSubStageDEPTasks_mxJPO {
                 StringBuilder sb = new StringBuilder();
                 String rowId = IMS_KDD_mxJPO.getRowId(map);
                 String id = IMS_KDD_mxJPO.getIdFromMap(map);
-
-                sb.append(IMS_DragNDrop_mxJPO.getConnectDropAreaHTML(
-                        PROGRAM_IMS_QP_DEPSubStageDEPTasks, "connectDEPTask",
-                        virtualRelationship, !in,
-                        rowId, id,
-                        IMS_KDD_mxJPO.getRefreshAllRowsFunction(),
-                        in ?
-                                SOURCE_DEPTask :
-                                StringUtils.join(Arrays.asList(SOURCE_DEPTask, SOURCE_DEP), ','),
-                        String.format(
-                                "Drop %s %s here",
-                                in ? "input" : "output",
-                                in ? "DEP Task" : "DEP Task or DEP"),
-                        "26px", "10px"));
 
                 List<Map> relatedMaps = IMS_KDD_mxJPO.getRelatedObjectMaps(
                         context, IMS_KDD_mxJPO.idToObject(context, id),
@@ -310,32 +296,32 @@ public class IMS_QP_DEPSubStageDEPTasks_mxJPO {
                             IMS_KDD_mxJPO.getRefreshAllRowsFunction()));
 
                     if (IMS_KDD_mxJPO.getTypeFromMap(relatedMap).equals(TYPE_IMS_QP_DEPTask)) {
-                        Map depMap = new HashMap();
-                        depMap.put(DomainConstants.SELECT_ID, relatedMap.get(SELECT_DEP_ID));
-                        depMap.put(DomainConstants.SELECT_NAME, relatedMap.get(SELECT_DEP_NAME));
-
-                        sb.append(IMS_KDD_mxJPO.getLinkHTML(
-                                context, depMap, SOURCE_DEP, null,
-                                getIconUrl(TYPE_IMS_QP_DEP),
-                                "12px",
-                                /*(String) relatedMap.get(
-                                        isRuLocale ?
-                                                SELECT_DEP_IMS_NAME_RU :
-                                                SELECT_DEP_IMS_NAME)*/"",
-                                null, true, false, null, true, null, false));
-
-                        sb.append(String.format(
-                                "&#160;&#160;<img src=\"%s\" />&#160;",
-                                IMS_KDD_mxJPO.FUGUE_16x16 + "arrow.png"));
+//                        Map depMap = new HashMap();
+//                        depMap.put(DomainConstants.SELECT_ID, relatedMap.get(SELECT_DEP_ID));
+//                        depMap.put(DomainConstants.SELECT_NAME, relatedMap.get(SELECT_DEP_NAME));
+//
+//                        sb.append(IMS_KDD_mxJPO.getLinkHTML(
+//                                context, depMap, SOURCE_DEP, null,
+//                                getIconUrl(TYPE_IMS_QP_DEP),
+//                                "12px",
+//                                (String) relatedMap.get(
+//                                        isRuLocale ?
+//                                                SELECT_DEP_IMS_NAME_RU :
+//                                                SELECT_DEP_IMS_NAME),
+//                                null, true, false, null, true, null, false));
+//
+//                        sb.append(String.format(
+//                                "&#160;&#160;<img src=\"%s\" />&#160;",
+//                                IMS_KDD_mxJPO.FUGUE_16x16 + "arrow.png"));
 
                         sb.append(IMS_KDD_mxJPO.getLinkHTML(
                                 context, relatedMap, SOURCE_DEPTask, null,
                                 getIconUrl(TYPE_IMS_QP_DEPTask),
                                 "12px",
-                                /*(String) relatedMap.get(DomainObject.getAttributeSelect(
+                                (String) relatedMap.get(DomainObject.getAttributeSelect(
                                         isRuLocale ?
                                                 ATTRIBUTE_IMS_NameRu :
-                                                ATTRIBUTE_IMS_Name))*/"",
+                                                ATTRIBUTE_IMS_Name)),
                                 null, true, false, null, true, null, false));
                     }
                     else if (IMS_KDD_mxJPO.getTypeFromMap(relatedMap).equals(TYPE_IMS_QP_DEP)) {
@@ -343,13 +329,27 @@ public class IMS_QP_DEPSubStageDEPTasks_mxJPO {
                                 context, relatedMap, SOURCE_DEP, null,
                                 getIconUrl(TYPE_IMS_QP_DEP),
                                 "12px",
-                                /*(String) relatedMap.get(DomainObject.getAttributeSelect(
+                                (String) relatedMap.get(DomainObject.getAttributeSelect(
                                         isRuLocale ?
                                                 ATTRIBUTE_IMS_NameRu :
-                                                ATTRIBUTE_IMS_Name))*/"",
+                                                ATTRIBUTE_IMS_Name)),
                                 null, true, false, null, true, null, false));
                     }
                 }
+
+                sb.append(IMS_DragNDrop_mxJPO.getConnectDropAreaHTML(
+                        PROGRAM_IMS_QP_DEPSubStageDEPTasks, "connectDEPTask",
+                        virtualRelationship, !in,
+                        rowId, id,
+                        IMS_KDD_mxJPO.getRefreshAllRowsFunction(),
+                        in ?
+                                SOURCE_DEPTask :
+                                StringUtils.join(Arrays.asList(SOURCE_DEPTask, SOURCE_DEP), ','),
+                        String.format(
+                                "Drop %s %s here",
+                                in ? "input" : "output",
+                                in ? "DEP Task" : "DEP Task or DEP"),
+                        "26px", "10px"));
 
                 results.addElement(sb.toString());
             }
@@ -363,13 +363,13 @@ public class IMS_QP_DEPSubStageDEPTasks_mxJPO {
     }
 
     @SuppressWarnings("unused")
-    public Vector getDEPTaskInDEPTasks(Context context, String[] args) throws Exception {
-        return getRelatedDEPTasks(context, args, true);
+    public Vector getDEPTaskInput(Context context, String[] args) throws Exception {
+        return getDEPTaskRelatedObjects(context, args, true);
     }
 
     @SuppressWarnings("unused")
-    public Vector getDEPTaskOutDEPTasks(Context context, String[] args) throws Exception {
-        return getRelatedDEPTasks(context, args, false);
+    public Vector getDEPTaskOutput(Context context, String[] args) throws Exception {
+        return getDEPTaskRelatedObjects(context, args, false);
     }
 
     @SuppressWarnings("unused")
@@ -412,5 +412,23 @@ public class IMS_QP_DEPSubStageDEPTasks_mxJPO {
                 return "";
             }
         });
+    }
+
+    @SuppressWarnings("unused")
+    public static StringList getDEPTaskInputCellStyle(Context context, String[] args) throws Exception {
+        StringList styles = new StringList();
+        for (Map ignored : IMS_KDD_mxJPO.getObjectListMaps(args)) {
+            styles.add("IMS_QP_DEPTaskInput");
+        }
+        return styles;
+    }
+
+    @SuppressWarnings("unused")
+    public static StringList getDEPTaskOutputCellStyle(Context context, String[] args) throws Exception {
+        StringList styles = new StringList();
+        for (Map ignored : IMS_KDD_mxJPO.getObjectListMaps(args)) {
+            styles.add("IMS_QP_DEPTaskOutput");
+        }
+        return styles;
     }
 }
