@@ -1,0 +1,49 @@
+################################################################################
+# TABLE_IMS_QP_DEP.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate table "${NAME}" {
+    symbolicname "table_IMS_QP_DEP"
+    description ""
+    column {
+        name "Name"
+        label "Code"
+        businessobject "name"
+        href "${COMMON_DIR}/emxTree.jsp"
+        user "all"
+        setting "Registered Suite" "Framework"
+        setting "Show Type Icon" "true"
+        setting "Target Location" "popup"
+    }
+    column {
+        name "Originator"
+        label "emxFramework.Basic.Originator"
+        businessobject "owner"
+        user "all"
+        setting "Registered Suite" "Framework"
+    }
+    column {
+        name "Originated"
+        label "Originated"
+        businessobject "originated"
+        user "all"
+        setting "Access Expression" "true"
+        setting "format" "date"
+    }
+    column {
+        name "Current"
+        label "emxFramework.Basic.Current"
+        businessobject "current"
+        user "all"
+        setting "Admin Type" "State"
+        setting "Registered Suite" "Framework"
+    }
+    ################################################## Info Start
+    property "author" value "IMS Team"
+    property "original name" value "IMS_QP_DEP"
+    property "application" value "IMS"
+    property "version" value "1"
+    ################################################## Info End
+}

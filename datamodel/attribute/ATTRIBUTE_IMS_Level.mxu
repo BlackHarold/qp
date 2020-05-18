@@ -1,0 +1,22 @@
+################################################################################
+# ATTRIBUTE_IMS_Level.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate attribute "${NAME}" {
+    kind integer
+    symbolicname "attribute_IMS_Level"
+    description "IMS_Level"
+    !hidden
+    !multivalue
+    !resetonclone
+    !resetonrevision
+    !rangevalue
+    default ""
+    ################################################## Info Start
+    property "original name" value "IMS_Level"
+    property "application" value "IMS_QP"
+    property "version" value "1"
+    ################################################## Info End
+}
