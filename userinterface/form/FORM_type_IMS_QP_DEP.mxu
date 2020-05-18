@@ -1,0 +1,49 @@
+################################################################################
+# FORM_type_IMS_QP_DEP.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate form "${NAME}" {
+    description "Quality DEP Form"
+    field {
+        name "info"
+        label "Main Information"
+        setting "Field Type" "Section Header"
+        setting "Section Level" "2"
+    }
+    field {
+        name "Name"
+        label "emxComponents.Common.Name"
+        businessobject "name"
+        setting "Access Expression" "true"
+        setting "Editable" "false"
+        setting "Field Type" "basic"
+        setting "Registered Suite" "Components"
+    }
+    field {
+        name "description"
+        label "emxComponents.Common.Description"
+        businessobject "description"
+        setting "Editable" "true"
+        setting "Input Type" "textarea"
+        setting "Registered Suite" "Components"
+    }
+    field {
+        name "Originated"
+        label "emxComponents.Common.Originated"
+        businessobject "originated"
+        setting "Access Expression" "true"
+        setting "Editable" "false"
+        setting "Field Type" "basic"
+        setting "Registered Suite" "Components"
+        setting "format" "date"
+    }
+    field {
+        name "DisciplineCode"
+        label "Discipline code"
+        businessobject "$<to[IMS_QP_Discipline2DEP].from.name>"
+        setting "Access Expression" "true"
+        setting "Editable" "false"
+    }
+}

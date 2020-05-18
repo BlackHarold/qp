@@ -10,20 +10,44 @@ mxUpdate page "${NAME}" {
     content "
 # Quality Plan
 emxFramework.Type.IMS_QP=QP
+emxFramework.Type.IMS_QP_Directory=Directory
+emxFramework.Type.IMS_QP_ResultType=ResultType
 emxFramework.Type.IMS_QP_DEP=DEP
+emxFramework.Type.IMS_Baseline=Baseline
+emxFramework.Type.IMS_DisciplineCode=DisciplineCode
+emxFramework.Type.IMS_ProjectStage=ProjectStage
 emxFramework.Type.IMS_QP_DEPSubStage=DEPSubStage
 emxFramework.Type.IMS_QP_DEPTask=DEPTask
-emxFramework.Type.IMS_Project_QP=QPProject
-emxFramework.State.IMS_Project_QP.Active=Active
-emxFramework.State.IMS_Project_QP.Inactive=Inactive
+emxFramework.Type.IMS_QP_Project=QPProject
+emxFramework.Type.IMS_Family=IMS_Family
+emxFramework.State.IMS_QP_Project.Active=Active
+emxFramework.State.IMS_QP_Project.Inactive=Inactive
 emxFramework.State.IMS_QP.Active=Active
 emxFramework.State.IMS_QP.Inactive=Inactive
 emxFramework.State.IMS_QP_DEP.Active=Active
 emxFramework.State.IMS_QP_DEP.Inactive=Inactive
 emxFramework.State.IMS_QP_DEPSubStage.Active=Active
-emxFramework.State.IMS_QP_DEPSubStage=Inactive
+emxFramework.State.IMS_QP_DEPSubStage.Inactive=Inactive
 emxFramework.State.IMS_QP_DEPTask.Active=Active
-emxFramework.State.IMS_QP_DEPTask=Inactive
+emxFramework.State.IMS_QP_DEPTask.Inactive=Inactive
+emxFramework.State.IMS_QP_DEPProjectStage.Created=Created
+emxFramework.State.IMS_QP_Directory.Created=Created
+emxFramework.State.IMS_QP_ResultType.Created=Created
+emxFramework.State.IMS_ProjectStage.Created=Created
+emxFramework.Type.IMS_QP_DEPProjectStage=ProjectStage
+emxFramework.Attribute.QP_IMS_Name = Name
+emxFramework.Attribute.QP_IMS_NameRu = Name Ru
+emxFramework.Attribute.QP_IMS_DescriptionEn = Description
+emxFramework.Attribute.QP_IMS_DescriptionRu = Description Ru
+emxFramework.Label.QP_Code = Code
+emxFramework.Range.IMS_QP_Direction.From = Input
+emxFramework.Range.IMS_QP_Direction.To = Output
 
+emxFramework.label.Code=Code
+
+emxComponents.Common.Name=Name
+
+emxFramework.Command.COMMAND_IMS_QP_DEPSubStage_create=New DEPSubStage
+emxFramework.Command.COMMAND_IMS_QP_DEP_create=New DEP
 "
 }

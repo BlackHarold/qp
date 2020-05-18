@@ -20,14 +20,10 @@ public class IMS_QP_mxJPO extends DomainObject {
     static final String type_IMS_ProjectStage = "IMS_ProjectStage";
     static final String type_IMS_DisciplineCode = "IMS_DisciplineCode";
     static final String type_IMS_QP_DEP = "IMS_QP_DEP";
-    static final String type_IMS_QP_QPlan = "IMS_QP_QPlan";
     static final String type_IMS_QP_DEPProjectStage = "IMS_QP_DEPProjectStage";
     static final String type_IMS_QP_DEPSubStage = "IMS_QP_DEPSubStage";
     static final String type_IMS_QP_DEPTask = "IMS_QP_DEPTask";
     static final String type_IMS_Family = "IMS_Family";
-    static final String type_IMS_PBSSystem = "IMS_PBSSystem";
-    static final String type_IMS_GBSBuilding = "IMS_GBSBuilding";
-    static final String type_IMS_PBSFunctionalArea = "IMS_PBSFunctionalArea";
 
     static final String relationship_IMS_QP_Project2QP = "IMS_QP_Project2QP";
     static final String relationship_IMS_QP_Project2Directory = "IMS_QP_Project2Directory";
@@ -36,16 +32,11 @@ public class IMS_QP_mxJPO extends DomainObject {
     static final String relationship_IMS_QP_Directory2Baseline = "IMS_QP_Directory2Baseline";
     static final String relationship_IMS_QP_Directory2DisciplineCode = "IMS_QP_Directory2DisciplineCode";
     static final String relationship_IMS_QP_Directory2Directory = "IMS_QP_Directory2Directory";
-    static final String relationship_IMS_QP_Directory2PBSSystem = "IMS_QP_Directory2PBSSystem";
-    static final String relationship_IMS_QP_Directory2GBSBuilding = "IMS_QP_Directory2GBSBuilding";
-    static final String relationship_IMS_QP_Directory2PBSFunctionalArea = "IMS_QP_Directory2PBSFunctionalArea";
     static final String relationship_IMS_QP_QP2DEP = "IMS_QP_QP2DEP";
     static final String relationship_IMS_QP_DEP2DEPProjectStage = "IMS_QP_DEP2DEPProjectStage";
     static final String relationship_IMS_QP_DEPProjectStage2DEPSubStage = "IMS_QP_DEPProjectStage2DEPSubStage";
     static final String relationship_IMS_QP_DEPSubStage2DEPTask = "IMS_QP_DEPSubStage2DEPTask";
     static final String relationship_IMS_QP_ResultType2Family = "IMS_QP_ResultType2Family";
-    static final String relationship_IMS_QP_QP2QPlan = "IMS_QP_QP2QPlan";
-    static final String relationship_IMS_QP_QPlan2QPTask = "IMS_QP_QPlan2QPTask";
 
     public static Logger log = Logger.getLogger("npLogger");
 
@@ -72,7 +63,6 @@ public class IMS_QP_mxJPO extends DomainObject {
                     append(type_IMS_ProjectStage).append(",").
                     append(type_IMS_QP_Directory).append(",").
                     append(type_IMS_QP_ResultType).append(",").
-                    append(type_IMS_QP_QPlan).append(",").
                     append(type_IMS_Family).append(",").
                     append(type_IMS_DisciplineCode).append(",").
                     append(type_IMS_QP_DEPProjectStage).append(",").
@@ -89,7 +79,6 @@ public class IMS_QP_mxJPO extends DomainObject {
                     append(relationship_IMS_QP_Directory2DisciplineCode).append(",").
                     append(relationship_IMS_QP_Directory2Directory).append(",").
                     append(relationship_IMS_QP_QP2DEP).append(",").
-                    append(relationship_IMS_QP_QP2QPlan).append(",").
                     append(relationship_IMS_QP_DEP2DEPProjectStage).append(",").
                     append(relationship_IMS_QP_DEPProjectStage2DEPSubStage).append(",").
                     append(relationship_IMS_QP_DEPSubStage2DEPTask);
@@ -225,34 +214,6 @@ public class IMS_QP_mxJPO extends DomainObject {
     }
 
     /**
-     * It's retrieve DEPs for table IMS_QP_DEP
-     */
-    public MapList getAllSQP(Context context, String[] args) throws Exception {
-
-        Map argsMap = JPO.unpackArgs(args);
-
-        //get objectID
-        String objectId = (String) argsMap.get("objectId");
-        StringList selects = new StringList();
-        selects.add("id");
-
-        DomainObject parent = new DomainObject(objectId);
-        //get all substages
-        MapList result = parent.getRelatedObjects(context,
-                /*relationship*/null,
-                /*type*/"IMS_QP_QPlan",
-                /*object attributes*/ selects,
-                /*relationship selects*/ null,
-                /*getTo*/ false, /*getFrom*/ true,
-                /*recurse to level*/ (short) 1,
-                /*object where*/ null,
-                /*relationship where*/ null,
-                /*limit*/ 0);
-
-        return result;
-    }
-
-    /**
      * It deletes IMS_DEP in the table IMS_QP_DEP
      */
     public Map deleteDEP(Context context,
@@ -304,72 +265,11 @@ public class IMS_QP_mxJPO extends DomainObject {
         if (deletion != null && deletion.length > 0)
             DomainObject.deleteObjects(context, deletion);
 
-        if (message.length()>0)
-            message.append(" have a DEPSubStage!\n");
-
-        if(messageDel.length()>0)
-            message.append(messageDel).append(" were deleted!");
-
-        mapMessage.put("message", message.toString());
-        return mapMessage;
-    }
-
-    /**
-     * It deletes IMS_DEP in the table IMS_QP_QPlan
-     */
-    public Map deleteQPlan(Context context,
-                         String[] args
-    ) throws Exception {
-
-        StringBuffer message = new StringBuffer();
-        StringBuffer messageDel = new StringBuffer();
-        Map mapMessage = new HashMap();
-
-        HashMap paramMap = JPO.unpackArgs(args);
-        String[] rowIDs = (String[]) paramMap.get("emxTableRowId");
-        String[] ids = new String[rowIDs.length];
-        for (int i = 0; i < rowIDs.length; i++) {
-            ids[i] = rowIDs[i].substring(0, rowIDs[i].indexOf("|"));
+        if (message.length()>0) {
+            message.append(" have a DEPSubStages!\n");
+            if(messageDel.length()>0)
+                message.append(messageDel).append(" were deleted!");
         }
-
-        StringList selects = new StringList();
-        selects.add(DomainObject.SELECT_ID);
-        selects.add(DomainObject.SELECT_NAME);
-        selects.add("from[" + relationship_IMS_QP_QPlan2QPTask + "]");
-
-        MapList objectsInfo = DomainObject.getInfo(context, ids, selects);
-
-        ArrayList<String> delObjs = new ArrayList();
-        for (int i = 0; i < objectsInfo.size(); i++) {
-            Map map = (Map) objectsInfo.get(i);
-            String tasks = (String) (map.get("from[" + relationship_IMS_QP_QPlan2QPTask + "]"));
-            if (tasks != null && (tasks).contains("TRUE")) {
-                if(message.length()>0)
-                    message.append(", ");
-                message.append(map.get(DomainObject.SELECT_NAME));
-            } else {
-                if(messageDel.length()>0)
-                    messageDel.append(", ");
-                messageDel.append(map.get(DomainObject.SELECT_NAME));
-                delObjs.add((String) map.get(DomainObject.SELECT_ID));
-            }
-        }
-
-
-        String[] deletion = new String[delObjs.size()];
-        for (int i = 0; i < delObjs.size(); i++) {
-            deletion[i] = delObjs.get(i);
-        }
-
-        if (deletion != null && deletion.length > 0)
-            DomainObject.deleteObjects(context, deletion);
-
-        if (message.length()>0)
-            message.append(" have a task!\n");
-
-        if(messageDel.length()>0)
-            message.append(messageDel).append(" was deleted!");
-
 
         mapMessage.put("message", message.toString());
         return mapMessage;
