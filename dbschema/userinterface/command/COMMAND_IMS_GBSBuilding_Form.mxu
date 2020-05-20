@@ -1,0 +1,18 @@
+################################################################################
+# COMMAND_IMS_GBSBuilding_Form.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate command "${NAME}" {
+    description "GBS building Form"
+    label "GBS Building"
+    href "${COMMON_DIR}/emxForm.jsp?form=type_IMS_GBSBuilding&formHeader='GBS building'"
+    alt ""
+    ################################################## Info Start
+    property "author" value "The IMS Team"
+    property "original name" value "IMS_GBSBuilding_command"
+    property "application" value "IMS_HNH19"
+    property "version" value "1"
+    ################################################## Info End
+}

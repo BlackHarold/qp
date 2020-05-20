@@ -1,0 +1,21 @@
+################################################################################
+# COMMAND_IMS_GBSBuilding_table.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate command "${NAME}" {
+    symbolicname "command_IMS_GBSBuilding_all_command"
+    description "All GBS buildings"
+    label "All GBS buildings"
+    href "${COMMON_DIR}/emxIndentedTable.jsp?program=IMS_QualityPlanBase:getAllGBSBuildingsForTable&table=IMS_GBSBuilding_table&sortColumnName=Name&selection=multiple&formHeader='GBS buildings'"
+    alt ""
+    setting "Access Expression" "name=='GBS Building'"
+    setting "Registered Suite" "Framework"
+    ################################################## Info Start
+    property "author" value "IMS Team"
+    property "original name" value "IMS_GBSBuilding_all_command"
+    property "application" value "IMS_HNH19"
+    property "version" value "1"
+    ################################################## Info End
+}

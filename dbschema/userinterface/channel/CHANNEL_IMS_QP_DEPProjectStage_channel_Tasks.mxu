@@ -1,0 +1,16 @@
+################################################################################
+# CHANNEL_IMS_QP_DEPProjectStage_channel_Tasks.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate channel "${NAME}" {
+    description ""
+    label ""
+    href ""
+    alt ""
+    height 0
+    command "IMS_QP_DEPProjectStage_allSubStage_table"
+    command "1"
+    command "2"
+}

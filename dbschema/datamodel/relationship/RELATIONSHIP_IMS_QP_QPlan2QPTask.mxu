@@ -1,0 +1,30 @@
+################################################################################
+# RELATIONSHIP_IMS_QP_QPlan2QPTask.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate relationship "${NAME}" {
+    symbolicname "relationship_IMS_QP_QPlan2QPTask"
+    description ""
+    !hidden
+    !preventduplicates
+    from {
+        meaning ""
+        cardinality many
+        revision none
+        clone none
+        !propagatemodify
+        propagateconnection
+        type "IMS_QP_QPlan"
+    }
+    to {
+        meaning ""
+        cardinality many
+        revision none
+        clone none
+        !propagatemodify
+        propagateconnection
+        type "IMS_QP_QPTask"
+    }
+}

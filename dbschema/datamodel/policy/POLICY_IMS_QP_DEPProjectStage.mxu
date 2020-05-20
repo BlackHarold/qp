@@ -1,0 +1,35 @@
+################################################################################
+# POLICY_IMS_QP_DEPProjectStage.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate policy "${NAME}" {
+    symbolicname "policy_IMS_QP_DEPProjectStage"
+    description "policy IMS_QP_DEPProjectStage"
+    !hidden
+    type "IMS_QP_DEPProjectStage"
+    defaultformat ""
+    sequence ""
+    store ""
+    allstate {
+        owner {checkin checkout fromconnect fromdisconnect read show toconnect todisconnect viewform}
+        public {checkin checkout fromconnect fromdisconnect read show toconnect todisconnect viewform}
+    }
+    state "Created" {
+        registeredname "state_Created"
+        !enforcereserveaccess
+        majorrevision
+        !minorrevision
+        !version
+        !promote
+        !checkouthistory
+        !published
+    }
+    ################################################## Info Start
+    property "author" value "The MxUpdate Team"
+    property "original name" value "IMS_QP_DEPProjectStage"
+    property "application" value "Unknown"
+    property "version"
+    ################################################## Info End
+}

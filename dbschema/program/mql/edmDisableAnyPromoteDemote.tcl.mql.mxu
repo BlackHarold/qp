@@ -1,0 +1,19 @@
+################################################################################
+# edmDisableAnyPromoteDemote.tcl.mql.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate program "${NAME}" {
+    kind mql
+    description ""
+    code "
+tcl:
+
+
+eval {
+   return 1;
+}
+
+"
+}

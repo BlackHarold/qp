@@ -1,0 +1,12 @@
+################################################################################
+# NUMBERGENERATOR_type_IMS_QP_QPlan.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate numbergenerator "${NAME}" "${REVISION}" {
+    description ""
+    current "Exists"
+    # update of next attribute only if not already set
+    attribute "eService Next Number" "000000"
+}

@@ -1,0 +1,17 @@
+################################################################################
+# ATTRIBUTE_IMS_TypeDocOut.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate attribute "${NAME}" {
+    kind string
+    description "A static type doc for Task"
+    !hidden
+    !multivalue
+    !resetonclone
+    !resetonrevision
+    multiline
+    maxlength 0
+    default ""
+}

@@ -1,0 +1,65 @@
+################################################################################
+# FORM_type_IMS_QP_QPlan.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate form "${NAME}" {
+    description "Quality Plan Form"
+    field {
+        name "name"
+        label "emxComponents.Common.Name"
+        businessobject "name"
+        setting "Access Expression" "true"
+        setting "Field Type" "basic"
+        setting "Registered Suite" "Components"
+        setting "Section Level" "1"
+    }
+    field {
+        name "description"
+        label "emxComponents.Common.Description"
+        businessobject "description"
+        setting "Registered Suite" "Components"
+    }
+    field {
+        name "system"
+        label "System"
+        businessobject "$<from[IMS_QP_QPlan2Object].to.name>"
+        setting "Editable" "false"
+        setting "Field Type" "basic"
+        setting "Registered Suite" "Components"
+    }
+    field {
+        name "dep"
+        label "DEP"
+        businessobject "$<to[IMS_QP_DEP2QPlan].from.name>"
+        setting "Editable" "false"
+        setting "Field Type" "basic"
+        setting "Registered Suite" "Components"
+    }
+    field {
+        name "originator"
+        label "Originator"
+        businessobject "owner"
+        setting "Editable" "false"
+        setting "Field Type" "basic"
+        setting "Registered Suite" "Components"
+        setting "format" "user"
+    }
+    field {
+        name "originated"
+        label "emxComponents.Common.Originated"
+        businessobject "originated"
+        setting "Access Expression" "true"
+        setting "Editable" "false"
+        setting "Field Type" "basic"
+        setting "Registered Suite" "Components"
+        setting "format" "date"
+    }
+    ################################################## Info Start
+    property "author" value "The IMS Team"
+    property "original name" value "IMS_QP_QPlan_form"
+    property "application" value "IMS"
+    property "version" value "1"
+    ################################################## Info End
+}

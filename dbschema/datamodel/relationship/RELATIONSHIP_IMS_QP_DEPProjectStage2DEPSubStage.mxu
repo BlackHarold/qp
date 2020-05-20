@@ -1,0 +1,35 @@
+################################################################################
+# RELATIONSHIP_IMS_QP_DEPProjectStage2DEPSubStage.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate relationship "${NAME}" {
+    symbolicname "relationship_IMS_QP_DEPProjectStage2DEPSubStage"
+    description "connection from DEPProjectStage to DEPSubStage"
+    !hidden
+    !preventduplicates
+    from {
+        meaning ""
+        cardinality many
+        revision none
+        clone none
+        !propagatemodify
+        propagateconnection
+        type "IMS_QP_DEPProjectStage"
+    }
+    to {
+        meaning ""
+        cardinality many
+        revision none
+        clone none
+        !propagatemodify
+        propagateconnection
+        type "IMS_QP_DEPSubStage"
+    }
+    ################################################## Info Start
+    property "original name" value "IMS_QP_DEPProjectStage2DEPSubStage"
+    property "application" value "IMS_HNH"
+    property "version" value "1"
+    ################################################## Info End
+}

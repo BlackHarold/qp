@@ -24,11 +24,11 @@
 <div style="width: 100%; height: 100%">
 
     <div id="leftDiv" style="width: calc(65% - 5px); height: 100%; float: left;">
-        <iframe id="leftFrame" name="leftFrame" src="IMS_IndentedTable.jsp?program=IMS_QP_DEPTask%3AgetRelatedIMSDepTask&table=IMS_QP_DEPTask&selection=multiple&editLink=true&toolbar=IMS_QP_DEPTask&parentOID=<%=request.getParameter(" width="100%" frameborder="0" style="height: calc(100% - 0px)"></iframe>
+        <iframe id="leftFrame" name="leftFrame" src="IMS_IndentedTable.jsp?program=IMS_QP_DEPTask%3AgetRelatedQPTask&table=IMS_QP_QPTask&selection=multiple&editLink=true&toolbar=IMS_QP_QPTask&parentOID=<%=request.getParameter(" width="100%" frameborder="0" style="height: calc(100% - 0px)"></iframe>
     </div>
 
     <div id="rightDiv" style="width: calc(35% - 5px); height: 100%; float: right;">
-        <iframe id="rightFrame" src="emxPortalDisplay.jsp?portal=IMS_QP_DEPSubStageRightPortal&objectId=<%=request.getParameter("objectId")%>" width="100%" frameborder="0" style="height: calc(100% - 0px)"></iframe>
+        <iframe id="rightFrame" src="emxPortalDisplay.jsp?portal=IMS_QP_QPlanRightPortal&objectId=<%=request.getParameter("objectId")%>" width="100%" frameborder="0" style="height: calc(100% - 0px)"></iframe>
     </div>
 </div>
 

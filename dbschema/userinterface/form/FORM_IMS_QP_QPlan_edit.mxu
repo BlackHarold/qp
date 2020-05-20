@@ -1,0 +1,55 @@
+################################################################################
+# FORM_IMS_QP_QPlan_edit.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate form "${NAME}" {
+    symbolicname "FORM_IMS_QP_Qplan_edit"
+    description ""
+    field {
+        name "description"
+        label "emxComponents.Common.Description"
+        businessobject "description"
+        setting "Editable" "true"
+        setting "Input Type" "textarea"
+        setting "Registered Suite" "Components"
+    }
+    field {
+        name "system2"
+        label "System search"
+        businessobject "$<from[IMS_QP_QPlan2Object].to.name>"
+        range "${COMMON_DIR}/emxFullSearch.jsp?field=TYPES=IMS_PBSSystem,IMS_GBSBuilding,PBSFunctionalArea&table=AEFGeneralSearchResults&selection=single&hideHeader=true"
+        setting "Editable" "true"
+        setting "Input Type" "textbox"
+        setting "Registered Suite" "Framework"
+        setting "Required" "false"
+    }
+    field {
+        name "system"
+        label "System"
+        businessobject "$<from[IMS_QP_QPlan2Object].to.name>"
+        setting "Field Type" "attribute"
+        setting "Input Type" "combobox"
+        setting "Range Function" "getSystemNames"
+        setting "Range Program" "IMS_QualityPlanBase"
+        setting "Registered Suite" "Components"
+        setting "Required" "true"
+    }
+    field {
+        name "dep"
+        label "DEP"
+        businessobject "$<to[IMS_QP_DEP2QPlan].from.name>"
+        setting "Field Type" "attribute"
+        setting "Input Type" "combobox"
+        setting "Range Function" "getQPDEPNames"
+        setting "Range Program" "IMS_QualityPlanBase"
+        setting "Registered Suite" "Components"
+    }
+    ################################################## Info Start
+    property "author" value "The MxUpdate Team"
+    property "original name" value "IMS_QP_QPlan_edit"
+    property "application" value "IMS"
+    property "version" value "1"
+    ################################################## Info End
+}

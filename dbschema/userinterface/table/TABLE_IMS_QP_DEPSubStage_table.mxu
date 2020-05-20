@@ -1,0 +1,66 @@
+################################################################################
+# TABLE_IMS_QP_DEPSubStage_table.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate table "${NAME}" {
+    symbolicname "table_IMS_QP_DEPSubStage_table"
+    description ""
+    column {
+        name "Name"
+        label "Code"
+        businessobject "name"
+        href "${COMMON_DIR}/emxTree.jsp"
+        user "all"
+        setting "Registered Suite" "Framework"
+        setting "Show Type Icon" "true"
+        setting "Target Location" "popup"
+    }
+    column {
+        name "IMS_Name"
+        label "Name"
+        businessobject "$<attribute[IMS_Name]>"
+        user "all"
+        setting "Nowrap" "true"
+        setting "Registered Suite" "Framework"
+    }
+    column {
+        name "IMS_NameRU"
+        label "Name RU"
+        businessobject "$<attribute[IMS_NameRu]>"
+        user "all"
+        setting "Nowrap" "true"
+        setting "Registered Suite" "Framework"
+    }
+    column {
+        name "Baseline"
+        label "Baseline"
+        businessobject "$<to[IMS_QP_BaseLine2DEPSubStage].from.name>"
+        href "${COMMON_DIR}/emxTree.jsp"
+        user "all"
+        setting "Alternate OID expression" "$<to[IMS_QP_BaseLine2DEPSubStage].from.id>"
+        setting "Registered Suite" "Framework"
+    }
+    column {
+        name "Originator"
+        label "emxFramework.Basic.Originator"
+        businessobject "owner"
+        user "all"
+        setting "Registered Suite" "Framework"
+    }
+    column {
+        name "Originated"
+        label "Originated"
+        businessobject "originated"
+        user "all"
+        setting "Access Expression" "true"
+        setting "format" "date"
+    }
+    ################################################## Info Start
+    property "author" value "IMS Team"
+    property "original name" value "IMS_QP_DEPSubStage_table"
+    property "application" value "IMS"
+    property "version" value "1"
+    ################################################## Info End
+}

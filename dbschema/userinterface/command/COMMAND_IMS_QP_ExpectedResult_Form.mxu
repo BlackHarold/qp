@@ -1,0 +1,17 @@
+################################################################################
+# COMMAND_IMS_QP_ExpectedResult_Form.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate command "${NAME}" {
+    description "Quality Expected Result form"
+    label "Quality Expected Result Form"
+    href "${COMMON_DIR}/emxFormQP.jsp?form=type_IMS_QP_ExpectedResult&formHeader='Quality Expected Result'&toolbar=IMS_QP_ExpectedResultToolbar"
+    alt ""
+    ################################################## Info Start
+    property "original name" value "IMS_QP_ExpectedResult_Form"
+    property "application" value "IMS_HNH19"
+    property "version" value "1"
+    ################################################## Info End
+}

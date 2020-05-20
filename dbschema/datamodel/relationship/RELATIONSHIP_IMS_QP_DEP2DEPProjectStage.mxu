@@ -1,0 +1,37 @@
+################################################################################
+# RELATIONSHIP_IMS_QP_DEP2DEPProjectStage.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate relationship "${NAME}" {
+    symbolicname "relationship_IMS_QP_DEP2DEPProjectStage"
+    description ""
+    !hidden
+    preventduplicates
+    from {
+        meaning ""
+        cardinality one
+        revision none
+        clone none
+        !propagatemodify
+        propagateconnection
+        type "IMS_QP_DEP"
+    }
+    to {
+        meaning ""
+        cardinality many
+        revision none
+        clone none
+        !propagatemodify
+        propagateconnection
+        type "IMS_QP_DEPProjectStage"
+        type "IMS_QP_DEPSubStage"
+    }
+    ################################################## Info Start
+    property "author" value "IMS_Team"
+    property "original name" value "IMS_QP_DEP2DEPProjectStage"
+    property "application" value "IMS_HNH"
+    property "version" value "1"
+    ################################################## Info End
+}

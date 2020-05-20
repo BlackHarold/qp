@@ -1,0 +1,15 @@
+################################################################################
+# CHANNEL_IMS_QP_QPTask_Channel.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate channel "${NAME}" {
+    description ""
+    label ""
+    href ""
+    alt ""
+    height 260
+    command "IMS_QP_QPlan_form"
+    command "IMS_QP_RelatedQPTask"
+}

@@ -1,0 +1,18 @@
+################################################################################
+# OBJECTGENERATOR_type_IMS_QP_QPlan.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate objectgenerator "${NAME}" "${REVISION}" {
+    description ""
+    current "Exists"
+    attribute "eService Name Prefix" ""
+    attribute "eService Name Suffix" ""
+    attribute "eService Processing Time Limit" "60"
+    attribute "eService Retry Count" "60"
+    attribute "eService Retry Delay" "5"
+    attribute "eService Safety Policy" "policy_IMS_QP_QPlan"
+    attribute "eService Safety Vault" "vault_eServiceAdministration"
+    connection "eService Number Generator" to "eService Number Generator" "type_IMS_QP_QPlan" ""
+}

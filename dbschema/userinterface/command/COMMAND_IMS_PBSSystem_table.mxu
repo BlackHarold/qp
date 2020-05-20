@@ -1,0 +1,21 @@
+################################################################################
+# COMMAND_IMS_PBSSystem_table.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate command "${NAME}" {
+    symbolicname "command_IMS_PBSSystem_all_command"
+    description "All PBS systems"
+    label "All PBS systems"
+    href "${COMMON_DIR}/emxIndentedTable.jsp?program=IMS_QualityPlanBase:getAllPBSSystemsForTable&table=IMS_PBSSystem_table&sortColumnName=Name&selection=multiple&formHeader='PBS Systems'"
+    alt ""
+    setting "Access Expression" "name=='PBS System'"
+    setting "Registered Suite" "Framework"
+    ################################################## Info Start
+    property "author" value "IMS Team"
+    property "original name" value "IMS_PBSSystem_all_command"
+    property "application" value "IMS_HNH19"
+    property "version" value "1"
+    ################################################## Info End
+}

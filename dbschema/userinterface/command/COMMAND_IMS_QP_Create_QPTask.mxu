@@ -1,0 +1,13 @@
+################################################################################
+# COMMAND_IMS_QP_Create_QPTask.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate command "${NAME}" {
+    description ""
+    label "Create"
+    href "${COMMON_DIR}/emxCreate.jsp?type=type_IMS_QP_QPTask&typeChooser=false&form=IMS_QP_Create_QPTask&findMxLink=false&nameField=autoName&relationship=relationship_IMS_QP_QPlan2QPTask&policy=policy_IMS_QP_QPTask&postProcessJPO=IMS_QP_DEPTask:createQPTask&submitAction=refreshCaller"
+    alt ""
+    user "all"
+}

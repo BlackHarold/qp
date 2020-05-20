@@ -1,0 +1,88 @@
+################################################################################
+# FORM_type_IMS_QP_DEPSubStage.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate form "${NAME}" {
+    description "Quality DEP SubStage Form"
+    field {
+        name "info"
+        label "Main Information"
+        setting "Field Type" "Section Header"
+        setting "Section Level" "2"
+    }
+    field {
+        name "Originator"
+        label "Originator"
+        businessobject "owner"
+        setting "Editable" "false"
+        setting "Field Type" "basic"
+        setting "Registered Suite" "Components"
+        setting "format" "user"
+    }
+    field {
+        name "Originated"
+        label "emxComponents.Common.Originated"
+        businessobject "originated"
+        setting "Access Expression" "true"
+        setting "Editable" "false"
+        setting "Field Type" "basic"
+        setting "Registered Suite" "Components"
+        setting "format" "date"
+    }
+    field {
+        name "Stage"
+        label "Stage"
+        businessobject "$<to[IMS_QP_DEPProjectStage2DEPSubStage].from.name>"
+        setting "Editable" "false"
+        setting "Field Type" "basic"
+        setting "Registered Suite" "Components"
+    }
+    field {
+        name "Baseline"
+        label "Baseline"
+        businessobject "$<to[IMS_QP_BaseLine2DEPSubStage].from.name>"
+        setting "Editable" "false"
+        setting "Field Type" "attribute"
+        setting "Registered Suite" "Components"
+    }
+    field {
+        name "Name"
+        label "Name"
+        businessobject "$<attribute[IMS_Name]>"
+        setting "Admin Type" "attribute_IMS_Name"
+        setting "Editable" "true"
+        setting "Field Type" "attribute"
+        setting "Registered Suite" "Components"
+        setting "Required" "true"
+    }
+    field {
+        name "NameRU"
+        label "Name RU"
+        businessobject "$<attribute[IMS_NameRu]>"
+        setting "Admin Type" "attribute_IMS_NameRu"
+        setting "Editable" "false"
+        setting "Field Type" "attribute"
+        setting "Registered Suite" "Components"
+        setting "Required" "true"
+    }
+    field {
+        name "IMS_DescriptionEn"
+        label "Description"
+        businessobject "$<attribute[IMS_DescriptionEn]>"
+        setting "Editable" "true"
+        setting "Field Type" "attribute"
+        setting "Input Type" "textarea"
+        setting "Registered Suite" "Components"
+    }
+    field {
+        name "IMS_DescriptionRu"
+        label "Description RU"
+        businessobject "$<attribute[IMS_DescriptionRu]>"
+        setting "Editable" "true"
+        setting "Field Type" "attribute"
+        setting "Input Type" "textarea"
+        setting "Registered Suite" "Components"
+    }
+}

@@ -1,0 +1,18 @@
+################################################################################
+# COMMAND_IMS_QualityPlan.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate command "${NAME}" {
+    description "Quality plan"
+    label "Quality Plan"
+    href "../common/emxTree.jsp?objectId=24020.5799.38769.46986"
+    alt "Quality plan"
+    setting "Target Location" "content"
+    ################################################## Info Start
+    property "original name" value "IMS_QualityPlan"
+    property "application" value "IMS_HNH19"
+    property "version" value "1"
+    ################################################## Info End
+}

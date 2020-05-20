@@ -1,0 +1,81 @@
+################################################################################
+# TABLE_IMS_QP_ExpectedResult.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate table "${NAME}" {
+    description ""
+    column {
+        name "Code"
+        label "emxFramework.Label.QP_Code"
+        businessobject "name"
+        href "${COMMON_DIR}/emxForm.jsp?form=type_IMS_QP_ExpectedResult&formHeader=Quality Expected Result&toolbar=IMS_QP_ExpectedResultToolbar"
+        user "all"
+        setting "Editable" "false"
+        setting "Registered Suite" "Framework"
+    }
+    column {
+        name "DocCode"
+        label "emxFramework.Attribute.IMS_QP_DocumentCode"
+        businessobject "attribute[IMS_QP_DocumentCode]"
+        user "all"
+        setting "Admin Type" "attribute_IMS_QP_DocumentCode"
+        setting "Editable" "true"
+        setting "Field Type" "attribute"
+        setting "Registered Suite" "Framework"
+    }
+    column {
+        name "Name"
+        label "emxFramework.Attribute.QP_IMS_Name"
+        businessobject "attribute[IMS_Name]"
+        user "all"
+        setting "Admin Type" "attribute_IMS_Name"
+        setting "Editable" "true"
+        setting "Field Type" "attribute"
+        setting "Registered Suite" "Framework"
+    }
+    column {
+        name "NameRu"
+        label "emxFramework.Attribute.QP_IMS_NameRu"
+        businessobject "attribute[IMS_NameRu]"
+        user "all"
+        setting "Admin Type" "attribute_IMS_NameRu"
+        setting "Editable" "true"
+        setting "Field Type" "attribute"
+    }
+    column {
+        name "DescriptionEn"
+        label "emxFramework.attribute.QP_IMS_DescriptionEn"
+        businessobject "attribute[IMS_DescriptionEn]"
+        user "all"
+        setting "Admin Type" "attribute_IMS_DescriptionEn"
+        setting "Editable" "true"
+        setting "Field Type" "attribute"
+        setting "Registered Suite" "Framework"
+    }
+    column {
+        name "DescriptionRu"
+        label "emxFramework.Attribute.QP_IMS_DescriptionRu"
+        businessobject "attribute[IMS_DescriptionRu]"
+        user "all"
+        setting "Admin Type" "attribute_IMS_DescriptionRu"
+        setting "Editable" "true"
+        setting "Field Type" "attribute"
+        setting "Registered Suite" "Framework"
+    }
+    column {
+        name "fromto"
+        label "Direction"
+        user "all"
+        setting "Column Type" "program"
+        setting "function" "getFromTo"
+        setting "program" "IMS_QP_DEPTask"
+    }
+    column {
+        name "Type"
+        label "Type"
+        businessobject "to[IMS_QP_ResultType2ExpectedResult].from.name"
+        user "all"
+    }
+}

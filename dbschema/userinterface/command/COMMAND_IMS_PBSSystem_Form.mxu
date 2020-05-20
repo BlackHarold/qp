@@ -1,0 +1,18 @@
+################################################################################
+# COMMAND_IMS_PBSSystem_Form.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate command "${NAME}" {
+    description "PBS system Form"
+    label "PBS System"
+    href "${COMMON_DIR}/emxForm.jsp?form=type_IMS_PBSSystem&formHeader='PBS system'"
+    alt ""
+    ################################################## Info Start
+    property "author" value "The IMS Team"
+    property "original name" value "IMS_PBSSystem_command"
+    property "application" value "IMS_HNH19"
+    property "version" value "1"
+    ################################################## Info End
+}

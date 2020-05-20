@@ -1,0 +1,65 @@
+################################################################################
+# PAGE_emxFrameworkStringResource_en.properties.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate page "${NAME}" {
+    description ""
+    mime ""
+    content "
+# Quality Plan
+emxFramework.Type.IMS_QP=QP
+emxFramework.Type.IMS_QP_Directory=Directory
+emxFramework.Type.IMS_QP_ResultType=ResultType
+emxFramework.Type.IMS_QP_DEP=DEP
+emxFramework.Type.IMS_QP_QPlan=QPlan
+emxFramework.Type.IMS_Baseline=Baseline
+emxFramework.Type.IMS_DisciplineCode=DisciplineCode
+emxFramework.Type.IMS_ProjectStage=ProjectStage
+emxFramework.Type.IMS_QP_DEPSubStage=DEPSubStage
+emxFramework.Type.IMS_QP_DEPTask=DEPTask
+emxFramework.Type.IMS_QP_Project=QPProject
+emxFramework.Type.IMS_Family=IMS_Family
+emxFramework.Type.IMS_PBSSystem=System
+emxFramework.Type.IMS_GBSBuilding=Building
+emxFramework.Type.IMS_PBSFunctionalArea=FunctionalArea
+emxFramework.Type.IMS_QP_DEPProjectStage=ProjectStage
+
+emxFramework.State.IMS_PBSSystem.Exist=Exist
+emxFramework.State.IMS_GBSBuilding.Exist=Exist
+emxFramework.State.IMS_PBSFunctionalArea.Exist=Exist
+emxFramework.State.IMS_QP_QPlan.Exist=Exist
+emxFramework.State.IMS_QP_Project.Active=Active
+emxFramework.State.IMS_QP_Project.Inactive=Inactive
+emxFramework.State.IMS_QP.Active=Active
+emxFramework.State.IMS_QP.Inactive=Inactive
+emxFramework.State.IMS_QP_DEP.Active=Active
+emxFramework.State.IMS_QP_DEP.Inactive=Inactive
+emxFramework.State.IMS_QP_DEPSubStage.Active=Active
+emxFramework.State.IMS_QP_DEPSubStage.Inactive=Inactive
+emxFramework.State.IMS_QP_DEPTask.Active=Active
+emxFramework.State.IMS_QP_DEPTask.Inactive=Inactive
+emxFramework.State.IMS_QP_DEPProjectStage.Created=Created
+emxFramework.State.IMS_QP_Directory.Created=Created
+emxFramework.State.IMS_QP_ResultType.Created=Created
+emxFramework.State.IMS_ProjectStage.Created=Created
+
+emxFramework.Attribute.QP_IMS_Name = Name
+emxFramework.Attribute.QP_IMS_NameRu = Name Ru
+emxFramework.Attribute.QP_IMS_DescriptionEn = Description
+emxFramework.Attribute.QP_IMS_DescriptionRu = Description Ru
+
+emxFramework.Label.QP_Code = Code
+emxFramework.label.Code=Code
+
+emxFramework.Range.IMS_QP_Direction.From = Input
+emxFramework.Range.IMS_QP_Direction.To = Output
+emxFramework.Attribute.IMS_QP_DocumentCode =Document Code
+
+emxComponents.Common.Name=Name
+
+emxFramework.Command.COMMAND_IMS_QP_DEPSubStage_create=New DEPSubStage
+emxFramework.Command.COMMAND_IMS_QP_DEP_create=New DEP
+"
+}

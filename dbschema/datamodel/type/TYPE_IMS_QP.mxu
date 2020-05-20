@@ -1,0 +1,11 @@
+################################################################################
+# TYPE_IMS_QP.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate type "${NAME}" {
+    symbolicname "type_IMS_QP"
+    description ""
+    !hidden
+}

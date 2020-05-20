@@ -1,0 +1,35 @@
+################################################################################
+# POLICY_IMS_Family.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate policy "${NAME}" {
+    symbolicname "policy_IMS_Family"
+    description "policy IMS_Family"
+    !hidden
+    type "IMS_Family"
+    defaultformat ""
+    sequence ""
+    store ""
+    allstate {
+        owner {checkin checkout fromconnect fromdisconnect read show toconnect todisconnect viewform}
+        public {checkin checkout fromconnect fromdisconnect read show toconnect todisconnect viewform}
+    }
+    state "Created" {
+        registeredname "state_Created"
+        !enforcereserveaccess
+        majorrevision
+        !minorrevision
+        !version
+        !promote
+        !checkouthistory
+        !published
+    }
+    ################################################## Info Start
+    property "author" value "The MxUpdate Team"
+    property "original name" value "IMS_Family"
+    property "application" value "Unknown"
+    property "version"
+    ################################################## Info End
+}
