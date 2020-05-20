@@ -1,0 +1,18 @@
+################################################################################
+# TYPE_IMS_GBSBuilding.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate type "${NAME}" {
+    symbolicname "type_IMS_GBSBuilding"
+    description ""
+    !hidden
+    attribute "IMS_DescriptionEn"
+    attribute "IMS_DescriptionRu"
+    ################################################## Info Start
+    property "original name" value "IMS_GBSBuilding"
+    property "application" value "IMS_QP"
+    property "version" value "1"
+    ################################################## Info End
+}

@@ -1,0 +1,63 @@
+################################################################################
+# POLICY_IMS_BBS.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate policy "${NAME}" {
+    symbolicname "policy_IMS_BBS"
+    description ""
+    !hidden
+    type "IMS_BBSMinor"
+    type "IMS_Baseline"
+    defaultformat ""
+    sequence "0,1,2...."
+    store "STORE"
+    allstate {
+        public {fromconnect fromdisconnect read show toconnect todisconnect viewform}
+        user "Test Everything" {all}
+    }
+    state "Created" {
+        registeredname "state_Created"
+        !enforcereserveaccess
+        majorrevision
+        !minorrevision
+        !version
+        !promote
+        !checkouthistory
+        !published
+        owner {checkin checkout fromconnect fromdisconnect modify modifyform promote read show toconnect todisconnect viewform}
+        user "IMS_AP_ConfigurationManager" {all}
+    }
+    state "Opened" {
+        registeredname "state_Opened"
+        !enforcereserveaccess
+        majorrevision
+        !minorrevision
+        !version
+        !promote
+        !checkouthistory
+        !published
+        public {fromconnect fromdisconnect read show toconnect todisconnect}
+        user "IMS_AP_ConfigurationManager" {fromconnect fromdisconnect read show toconnect todisconnect}
+        trigger promote action "emxTriggerManager" input "PolicyIMSBBSStateOpenedPromoteAction"
+    }
+    state "Frozen" {
+        registeredname "state_Frozen"
+        !enforcereserveaccess
+        majorrevision
+        !minorrevision
+        !version
+        !promote
+        !checkouthistory
+        !published
+        public {read show}
+        trigger demote check "edmDisableAnyPromoteDemote.tcl" input ""
+    }
+    ################################################## Info Start
+    property "author" value "The MxUpdate Team"
+    property "original name" value "IMS_BBS"
+    property "application" value "Unknown"
+    property "version"
+    ################################################## Info End
+}

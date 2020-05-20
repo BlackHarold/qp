@@ -1,0 +1,23 @@
+################################################################################
+# MENU_type_IMS_QP_DEPProjectStage.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate menu "${NAME}" {
+    description "IMS_QP_DEPProjectStage"
+    treemenu
+    label ""
+    href ""
+    alt ""
+    setting "Default Category" "IMS_QP_DEPProjectStage_to_portal"
+    command "IMS_QP_DEPProjectStage_to_portal"
+    command "IMS_QP_DEPProjectStage_Form"
+    command "AEFLifecycle"
+    command "APPDocumentHistory"
+    ################################################## Info Start
+    property "original name" value "type_IMS_QP_DEPProjectStage"
+    property "application" value "IMS_HNH19"
+    property "version" value "1"
+    ################################################## Info End
+}

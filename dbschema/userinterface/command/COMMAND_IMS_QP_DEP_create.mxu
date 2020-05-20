@@ -1,0 +1,25 @@
+################################################################################
+# COMMAND_IMS_QP_DEP_create.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate command "${NAME}" {
+    symbolicname "COMMAND_IMS_QP_DEP_create"
+    description ""
+    label "emxFramework.Command.COMMAND_IMS_QP_DEP_create"
+    href "${COMMON_DIR}/emxCreate.jsp?type=IMS_QP_DEP&typeChooser=false&form=IMS_QP_DEP_create&findMxLink=false&relationship=relationship_IMS_QP_QP2DEP&policy=IMS_QP_DEP&header=IMS_QP_DEP&targetLocation=popup&widgetId=null&postProcessJPO=IMS_QP:postProcess_IMS_QP&nameField=autoName&submitAction=refreshCaller"
+    alt ""
+    user "all"
+    setting "Image" "${COMMON_DIR}/images/iconActionAdd.png"
+    setting "Popup Modal" "true"
+    setting "Popup Size" "MediumTall"
+    setting "Registered Suite" "Framework"
+    setting "Target Location" "popup"
+    ################################################## Info Start
+    property "author" value "The MxUpdate Team"
+    property "original name" value "IMS_TSF_Create"
+    property "application" value "Unknown"
+    property "version"
+    ################################################## Info End
+}

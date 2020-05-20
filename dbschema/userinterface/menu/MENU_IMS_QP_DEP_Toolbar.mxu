@@ -1,0 +1,19 @@
+################################################################################
+# MENU_IMS_QP_DEP_Toolbar.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate menu "${NAME}" {
+    description ""
+    treemenu
+    label ""
+    href ""
+    alt ""
+    command "IMS_QP_DEPSubStage_create"
+    ################################################## Info Start
+    property "original name" value "type_IMS_QP_DEPSubStage"
+    property "application" value "IMS_HNH19"
+    property "version" value "1"
+    ################################################## Info End
+}

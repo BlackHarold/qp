@@ -1,0 +1,39 @@
+################################################################################
+# POLICY_IMS_QP_DEP.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate policy "${NAME}" {
+    symbolicname "policy_IMS_QP_DEP"
+    description ""
+    !hidden
+    type "IMS_QP_DEP"
+    defaultformat ""
+    sequence ""
+    store ""
+    state "Inactive" {
+        registeredname "state_Inactive"
+        !enforcereserveaccess
+        majorrevision
+        minorrevision
+        version
+        !promote
+        checkouthistory
+        !published
+        owner {all}
+        public {read}
+    }
+    state "Active" {
+        registeredname "state_Active"
+        !enforcereserveaccess
+        majorrevision
+        minorrevision
+        version
+        !promote
+        checkouthistory
+        !published
+        owner {all}
+        public {read}
+    }
+}

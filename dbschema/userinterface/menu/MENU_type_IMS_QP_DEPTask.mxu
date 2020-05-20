@@ -1,0 +1,23 @@
+################################################################################
+# MENU_type_IMS_QP_DEPTask.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate menu "${NAME}" {
+    description ""
+    treemenu
+    label ""
+    href ""
+    alt ""
+    setting "Default Category" "IMS_QP_DEPTask_CommandToPortal"
+    command "IMS_QP_DEPTask_CommandToPortal"
+    command "IMS_QP_DEPTask_Form"
+    command "AEFLifecycle"
+    command "APPDocumentHistory"
+    ################################################## Info Start
+    property "original name" value "type_IMS_QP_DEPTask"
+    property "application" value "IMS_HNH19"
+    property "version" value "1"
+    ################################################## Info End
+}

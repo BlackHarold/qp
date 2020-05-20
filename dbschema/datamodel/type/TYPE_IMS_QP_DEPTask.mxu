@@ -1,0 +1,22 @@
+################################################################################
+# TYPE_IMS_QP_DEPTask.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate type "${NAME}" {
+    symbolicname "type_IMS_QP_DEPTask"
+    description ""
+    !hidden
+    trigger delete check "emxTriggerManager" input "deleteIMSQPDEPTaskANDRelatedExceptedResult"
+    attribute "IMS_DescriptionEn"
+    attribute "IMS_DescriptionRu"
+    attribute "IMS_Name"
+    attribute "IMS_NameRu"
+    attribute "Originator"
+    ################################################## Info Start
+    property "original name" value "IMS_QP_DEPTask"
+    property "application" value "MxUpdate"
+    property "version" value "1"
+    ################################################## Info End
+}

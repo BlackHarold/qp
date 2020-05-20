@@ -1,0 +1,13 @@
+################################################################################
+# COMMAND_IMS_RelatedDEPTask.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate command "${NAME}" {
+    description ""
+    label "Related DEP Task"
+    href "${COMMON_DIR}/IMS_QP_DEPSubStageDEPTasks.jsp"
+    alt ""
+    user "all"
+}

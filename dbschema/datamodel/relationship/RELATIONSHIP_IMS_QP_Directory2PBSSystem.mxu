@@ -1,0 +1,35 @@
+################################################################################
+# RELATIONSHIP_IMS_QP_Directory2PBSSystem.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate relationship "${NAME}" {
+    symbolicname "relationship_IMS_QP_Directory2PBSSystem"
+    description "IMS_QP_Directory2PBSSystem"
+    !hidden
+    !preventduplicates
+    from {
+        meaning ""
+        cardinality many
+        revision none
+        clone none
+        !propagatemodify
+        propagateconnection
+        type "IMS_QP_Directory"
+    }
+    to {
+        meaning ""
+        cardinality many
+        revision none
+        clone none
+        !propagatemodify
+        propagateconnection
+        type "IMS_PBSSystem"
+    }
+    ################################################## Info Start
+    property "original name" value "IMS_QP_Directory2PBSSystem"
+    property "application" value "IMS"
+    property "version" value "1"
+    ################################################## Info End
+}

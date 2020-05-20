@@ -1,0 +1,24 @@
+################################################################################
+# ATTRIBUTE_IMS_ChangeOwnerRole.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate attribute "${NAME}" {
+    kind string
+    symbolicname "attribute_IMS_ChangeOwnerRole"
+    description "Contains the name of a role that defines the specialty"
+    !hidden
+    !multivalue
+    !resetonclone
+    !resetonrevision
+    !multiline
+    maxlength 0
+    default ""
+    ################################################## Info Start
+    property "author" value "The MxUpdate Team"
+    property "original name" value "IMS_ChangeOwnerRole"
+    property "application" value "Unknown"
+    property "version"
+    ################################################## Info End
+}

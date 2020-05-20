@@ -1,0 +1,35 @@
+################################################################################
+# RELATIONSHIP_IMS_ProjectStage2CB.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate relationship "${NAME}" {
+    symbolicname "relationship_IMS_ProjectStage2CB"
+    description ""
+    !hidden
+    !preventduplicates
+    from {
+        meaning ""
+        cardinality many
+        revision none
+        clone none
+        !propagatemodify
+        propagateconnection
+        type "IMS_ProjectStage"
+    }
+    to {
+        meaning ""
+        cardinality many
+        revision none
+        clone none
+        !propagatemodify
+        propagateconnection
+        type "IMS_Baseline"
+    }
+    ################################################## Info Start
+    property "original name" value "IMS_ProjectStage2CB"
+    property "application" value "IMS_QP"
+    property "version" value "1"
+    ################################################## Info End
+}

@@ -1,0 +1,24 @@
+################################################################################
+# TYPE_IMS_Baseline.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate type "${NAME}" {
+    symbolicname "type_IMS_Baseline"
+    description ""
+    !hidden
+    attribute "End Date"
+    attribute "IMS_DescriptionRu"
+    attribute "IMS_Name"
+    attribute "IMS_NameRu"
+    attribute "IMS_SPFMasterID"
+    attribute "IMS_Sort"
+    attribute "Start Date"
+    ################################################## Info Start
+    property "author" value "The MxUpdate Team"
+    property "original name" value "IMS_Baseline"
+    property "application" value "Unknown"
+    property "version" value "1"
+    ################################################## Info End
+}

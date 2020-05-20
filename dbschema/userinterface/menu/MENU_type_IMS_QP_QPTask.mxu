@@ -1,0 +1,13 @@
+################################################################################
+# MENU_type_IMS_QP_QPTask.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate menu "${NAME}" {
+    description ""
+    label ""
+    href ""
+    alt ""
+    command "IMS_QP_DEPTask_CommandToPortal"
+}

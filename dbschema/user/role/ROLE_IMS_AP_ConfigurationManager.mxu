@@ -1,0 +1,18 @@
+################################################################################
+# ROLE_IMS_AP_ConfigurationManager.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate role "${NAME}" {
+    symbolicname "role_IMS_AP_ConfigurationManager"
+    description ""
+    !hidden
+    parent "IMS_TaskForce_Leader"
+    ################################################## Info Start
+    property "author" value "The MxUpdate Team"
+    property "original name" value "IMS_AP_ConfigurationManager"
+    property "application" value "Unknown"
+    property "version"
+    ################################################## Info End
+}

@@ -1,0 +1,24 @@
+################################################################################
+# ATTRIBUTE_IMS_SPFMasterID.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate attribute "${NAME}" {
+    kind string
+    symbolicname "attribute_IMS_SPFMasterID"
+    description "IMS_SPFMasterID"
+    !hidden
+    !multivalue
+    !resetonclone
+    !resetonrevision
+    !multiline
+    maxlength 0
+    default ""
+    ################################################## Info Start
+    property "author" value "The MxUpdate Team"
+    property "original name" value "IMS_SPFMasterID"
+    property "application" value "Unknown"
+    property "version"
+    ################################################## Info End
+}

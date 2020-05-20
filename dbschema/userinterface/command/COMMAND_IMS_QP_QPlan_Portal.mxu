@@ -1,0 +1,13 @@
+################################################################################
+# COMMAND_IMS_QP_QPlan_Portal.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate command "${NAME}" {
+    description ""
+    label ""
+    href "${COMMON_DIR}/emxPortal.jsp?portal=IMS_QP_QPlan_Portal"
+    alt ""
+    user "all"
+}

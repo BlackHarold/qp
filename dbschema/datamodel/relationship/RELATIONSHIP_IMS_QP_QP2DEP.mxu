@@ -1,0 +1,36 @@
+################################################################################
+# RELATIONSHIP_IMS_QP_QP2DEP.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate relationship "${NAME}" {
+    symbolicname "relationship_IMS_QP_QP2DEP"
+    description ""
+    !hidden
+    preventduplicates
+    from {
+        meaning ""
+        cardinality one
+        revision none
+        clone none
+        !propagatemodify
+        propagateconnection
+        type "IMS_QP"
+    }
+    to {
+        meaning ""
+        cardinality many
+        revision none
+        clone none
+        !propagatemodify
+        propagateconnection
+        type "IMS_QP_DEP"
+    }
+    ################################################## Info Start
+    property "author" value "IMS_Team"
+    property "original name" value "IMS_QP_QP2DEP"
+    property "application" value "IMS"
+    property "version" value "1"
+    ################################################## Info End
+}

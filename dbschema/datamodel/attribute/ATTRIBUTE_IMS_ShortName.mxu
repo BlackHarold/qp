@@ -1,0 +1,23 @@
+################################################################################
+# ATTRIBUTE_IMS_ShortName.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate attribute "${NAME}" {
+    kind string
+    symbolicname "attribute_IMS_ShortName"
+    description "IMS_ShortName"
+    !hidden
+    !multivalue
+    !resetonclone
+    !resetonrevision
+    !multiline
+    maxlength 0
+    default ""
+    ################################################## Info Start
+    property "original name" value "IMS_ShortName"
+    property "application" value "IMS_QP"
+    property "version" value "1"
+    ################################################## Info End
+}

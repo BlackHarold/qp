@@ -1,0 +1,21 @@
+################################################################################
+# COMMAND_IMS_QP_StructureMenu.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate command "${NAME}" {
+    description "IMS_QP Structure Menu"
+    label ""
+    href ""
+    alt ""
+    setting "Registered Suite" "ProductLine"
+    setting "Structure Function" "getStructureList"
+    setting "Structure Program" "IMS_QP"
+    setting "Submit" "true"
+    ################################################## Info Start
+    property "original name" value "type_IMS_QP_StructureMenu"
+    property "application" value "IMS_HNH19"
+    property "version" value "1"
+    ################################################## Info End
+}

@@ -1,0 +1,37 @@
+################################################################################
+# POLICY_IMS_QP_DEPSubStage.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate policy "${NAME}" {
+    symbolicname "policy_IMS_QP_DEPSubStage"
+    description ""
+    !hidden
+    type "IMS_QP_DEPSubStage"
+    defaultformat ""
+    sequence ""
+    store ""
+    state "Inactive" {
+        !enforcereserveaccess
+        majorrevision
+        minorrevision
+        version
+        !promote
+        checkouthistory
+        !published
+        owner {all}
+        public {read}
+    }
+    state "Active" {
+        !enforcereserveaccess
+        majorrevision
+        minorrevision
+        version
+        !promote
+        checkouthistory
+        !published
+        owner {all}
+        public {read}
+    }
+}

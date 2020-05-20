@@ -1,0 +1,22 @@
+################################################################################
+# CHANNEL_IMS_QP_QPlanRightChannel.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate channel "${NAME}" {
+    symbolicname "channel_IMS_QP_QPlanRightChannel"
+    description ""
+    label ""
+    href ""
+    alt ""
+    height 50
+    command "IMS_QP_QPTree"
+    command "IMS_QP_QPlanQPTree"
+    ################################################## Info Start
+    property "author" value "The MxUpdate Team"
+    property "original name" value "IMS_QP_QPlanRightChannel"
+    property "application" value "Unknown"
+    property "version"
+    ################################################## Info End
+}

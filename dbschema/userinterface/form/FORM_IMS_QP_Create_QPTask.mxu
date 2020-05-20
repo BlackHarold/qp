@@ -1,0 +1,46 @@
+################################################################################
+# FORM_IMS_QP_Create_QPTask.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate form "${NAME}" {
+    description ""
+    field {
+        name "NameEn"
+        label "emxFramework.Attribute.QP_IMS_Name"
+        businessobject "attribute[IMS_Name]"
+        setting "Admin Type" "attribute_IMS_Name"
+        setting "Field Type" "attribute"
+        setting "Registered Suite" "Framework"
+    }
+    field {
+        name "NameRu"
+        label "emxFramework.Attribute.QP_IMS_NameRu"
+        businessobject "attribute[IMS_NameRu]"
+        setting "Admin Type" "IMS_IMS_NameRu"
+        setting "Field Type" "attribute"
+        setting "Registered Suite" "Framework"
+    }
+    field {
+        name "DescriptionEn"
+        label "emxFramework.Attribute.QP_IMS_Description"
+        businessobject "attribute[IMS_DescriptionEn]"
+        setting "Admin Type" "attribute_IMS_DescriptionEn"
+        setting "Field Type" "attribute"
+        setting "Registered Suite" "Framework"
+    }
+    field {
+        name "DescriptionRu"
+        label "emxFramework.Attribute.QP_IMS_DescriptionRu"
+        businessobject "attribute[IMS_DescriptionRu]"
+        setting "Admin Type" "attribute_IMS_DescriptionRu"
+        setting "Field Type" "attribute"
+        setting "Registered Suite" "Framework"
+    }
+    field {
+        name "11"
+        label "22"
+        range "${COMMON_DIR}/emxFullSearch.jsp?field=TYPES=type_IMS_Family&mode=chooser&table=AEFGeneralSearchResults&selection=multiple&HelpMarker=emxhelpfullsearch&submitLabel=Select&CancelButton=true"
+    }
+}

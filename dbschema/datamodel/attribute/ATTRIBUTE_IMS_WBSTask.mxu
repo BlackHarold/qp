@@ -1,0 +1,17 @@
+################################################################################
+# ATTRIBUTE_IMS_WBSTask.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate attribute "${NAME}" {
+    kind string
+    description "A static WBS Task for Documents"
+    !hidden
+    !multivalue
+    !resetonclone
+    !resetonrevision
+    multiline
+    maxlength 0
+    default ""
+}

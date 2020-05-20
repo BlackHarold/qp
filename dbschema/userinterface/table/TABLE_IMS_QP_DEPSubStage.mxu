@@ -1,0 +1,31 @@
+################################################################################
+# TABLE_IMS_QP_DEPSubStage.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate table "${NAME}" {
+    symbolicname "table_IMS_QP_DEPSubStage"
+    description ""
+    column {
+        name "Name"
+        label "Name"
+        businessobject "name"
+    }
+    column {
+        name "Description"
+        label "Description"
+        businessobject "description"
+    }
+    column {
+        name "Current"
+        label "Current"
+        businessobject "current"
+    }
+    ################################################## Info Start
+    property "author" value "IMS Team"
+    property "original name" value "IMS_QP_DEPSubStage"
+    property "application" value "IMS"
+    property "version" value "1"
+    ################################################## Info End
+}
