@@ -363,8 +363,8 @@ font-style: italic;
 
 /*IMS Begin*/
 .IMS_VerticalAlignTop{vertical-align:top;}
-.IMS_QP_DEPTaskInput{vertical-align:top;background-color:aliceblue;}
-.IMS_QP_DEPTaskOutput{vertical-align:top;background-color:#ffecef;}
+.IMS_QP_DEPTaskInput{vertical-align:top;background-color:aliceblue !important;}
+.IMS_QP_DEPTaskOutput{vertical-align:top;background-color:#ffecef !important;}
 /*IMS End*/
 "
 }
