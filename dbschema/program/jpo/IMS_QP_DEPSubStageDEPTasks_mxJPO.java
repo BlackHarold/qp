@@ -1,3 +1,4 @@
+import com.google.common.html.HtmlEscapers;
 import com.matrixone.apps.domain.DomainConstants;
 import com.matrixone.apps.domain.DomainObject;
 import com.matrixone.apps.domain.util.MapList;
@@ -12,11 +13,15 @@ public class IMS_QP_DEPSubStageDEPTasks_mxJPO {
 
     private static final String PROGRAM_IMS_QP_DEPSubStageDEPTasks = "IMS_QP_DEPSubStageDEPTasks";
 
+    private static final String TYPE_IMS_QP_Project = "IMS_QP_Project";
     private static final String TYPE_IMS_QP = "IMS_QP";
     private static final String TYPE_IMS_QP_DEP = "IMS_QP_DEP";
     private static final String TYPE_IMS_QP_DEPProjectStage = "IMS_QP_DEPProjectStage";
     private static final String TYPE_IMS_QP_DEPSubStage = "IMS_QP_DEPSubStage";
     private static final String TYPE_IMS_QP_DEPTask = "IMS_QP_DEPTask";
+
+    private static final String TYPE_IMS_QP_QPlan = "IMS_QP_QPlan";
+    private static final String TYPE_IMS_QP_QPTask = "IMS_QP_QPTask";
 
     private static final String RELATIONSHIP_IMS_QP_QP2DEP = "IMS_QP_QP2DEP";
     private static final String RELATIONSHIP_IMS_QP_DEP2DEPProjectStage = "IMS_QP_DEP2DEPProjectStage";
@@ -24,6 +29,12 @@ public class IMS_QP_DEPSubStageDEPTasks_mxJPO {
     private static final String RELATIONSHIP_IMS_QP_DEPSubStage2DEPTask = "IMS_QP_DEPSubStage2DEPTask";
     private static final String RELATIONSHIP_IMS_QP_DEPTask2DEPTask = "IMS_QP_DEPTask2DEPTask";
     private static final String RELATIONSHIP_IMS_QP_DEPTask2DEP = "IMS_QP_DEPTask2DEP";
+
+    private static final String RELATIONSHIP_IMS_QP_Project2QP = "IMS_QP_Project2QP";
+    private static final String RELATIONSHIP_IMS_QP_QP2QPlan = "IMS_QP_QP2QPlan";
+    private static final String RELATIONSHIP_IMS_QP_QPlan2QPTask = "IMS_QP_QPlan2QPTask";
+    private static final String RELATIONSHIP_IMS_QP_QPTask2QPTask = "IMS_QP_QPTask2QPTask";
+    private static final String RELATIONSHIP_IMS_QP_DEPTask2QPTask = "IMS_QP_DEPTask2QPTask";
 
     private static final String ATTRIBUTE_IMS_Name = "IMS_Name";
     private static final String ATTRIBUTE_IMS_NameRu = "IMS_NameRu";
@@ -54,8 +65,30 @@ public class IMS_QP_DEPSubStageDEPTasks_mxJPO {
             RELATIONSHIP_IMS_QP_DEP2DEPProjectStage,
             DomainObject.getAttributeSelect(ATTRIBUTE_IMS_NameRu));
 
+    private static final String SELECT_QPTASK_DEP_TASK_INPUT_DEP_TASK_ID = String.format(
+            "to[%s].from.to[%s].from.id",
+            RELATIONSHIP_IMS_QP_DEPTask2QPTask,
+            RELATIONSHIP_IMS_QP_DEPTask2DEPTask);
+
+    private static final String SELECT_QPTASK_DEP_TASK_OUTPUT_DEP_TASK_ID = String.format(
+            "to[%s].from.from[%s].to.id",
+            RELATIONSHIP_IMS_QP_DEPTask2QPTask,
+            RELATIONSHIP_IMS_QP_DEPTask2DEPTask);
+
+    private static final String SELECT_QPLAN_QPTASK_DEP_TASK_INPUT_DEP_TASK_ID = String.format(
+            "from[%s].from.%s",
+            RELATIONSHIP_IMS_QP_QPlan2QPTask,
+            SELECT_QPTASK_DEP_TASK_INPUT_DEP_TASK_ID);
+
+    private static final String SELECT_QPLAN_QPTASK_DEP_TASK_OUTPUT_DEP_TASK_ID = String.format(
+            "from[%s].from.%s",
+            RELATIONSHIP_IMS_QP_QPlan2QPTask,
+            SELECT_QPTASK_DEP_TASK_OUTPUT_DEP_TASK_ID);
+
     private static final String SOURCE_DEP = "D_E_P"; // Because source lists are checked using indexOf
     private static final String SOURCE_DEPTask = "DEPTask";
+
+    private static final String SOURCE_QPTask = "QPTask";
 
     public IMS_QP_DEPSubStageDEPTasks_mxJPO(Context context, String[] args) throws Exception {
     }
@@ -82,11 +115,13 @@ public class IMS_QP_DEPSubStageDEPTasks_mxJPO {
                 RELATIONSHIP_IMS_QP_DEP2DEPProjectStage));
     }
 
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
     @SuppressWarnings("unused")
     public MapList getQPTreeRootObjects(Context context, String[] args) throws Exception {
         try {
             MapList mapList = DomainObject.findObjects(
-                    context, TYPE_IMS_QP, "*", "*", "*", "*",
+                    context, TYPE_IMS_QP_Project, "*", "*", "*", "*",
                     null,true,
                     getQPTreeSelects());
 
@@ -94,7 +129,7 @@ public class IMS_QP_DEPSubStageDEPTasks_mxJPO {
             return mapList;
         }
         catch (Exception e) {
-            emxContextUtil_mxJPO.mqlWarning(context, e.getMessage());
+            emxContextUtil_mxJPO.mqlWarning(context, e.toString());
             throw e;
         }
     }
@@ -108,10 +143,15 @@ public class IMS_QP_DEPSubStageDEPTasks_mxJPO {
                     context, parentObject,
                     StringUtils.join(
                             Arrays.asList(
+                                    RELATIONSHIP_IMS_QP_Project2QP,
+
                                     RELATIONSHIP_IMS_QP_QP2DEP,
                                     RELATIONSHIP_IMS_QP_DEP2DEPProjectStage,
                                     RELATIONSHIP_IMS_QP_DEPProjectStage2DEPSubStage,
-                                    RELATIONSHIP_IMS_QP_DEPSubStage2DEPTask
+                                    RELATIONSHIP_IMS_QP_DEPSubStage2DEPTask,
+
+                                    RELATIONSHIP_IMS_QP_QP2QPlan,
+                                    RELATIONSHIP_IMS_QP_QPlan2QPTask
                             ),
                             ','),
                     true,
@@ -125,10 +165,12 @@ public class IMS_QP_DEPSubStageDEPTasks_mxJPO {
             return new MapList(maps);
         }
         catch (Exception e) {
-            emxContextUtil_mxJPO.mqlWarning(context, e.getMessage());
+            emxContextUtil_mxJPO.mqlWarning(context, e.toString());
             throw e;
         }
     }
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     @SuppressWarnings("unused")
     public MapList getOtherDEPsRootObjects(Context context, String[] args) throws Exception {
@@ -151,7 +193,7 @@ public class IMS_QP_DEPSubStageDEPTasks_mxJPO {
             return mapList;
         }
         catch (Exception e) {
-            emxContextUtil_mxJPO.mqlWarning(context, e.getMessage());
+            emxContextUtil_mxJPO.mqlWarning(context, e.toString());
             throw e;
         }
     }
@@ -210,10 +252,86 @@ public class IMS_QP_DEPSubStageDEPTasks_mxJPO {
             return new MapList(maps);
         }
         catch (Exception e) {
-            emxContextUtil_mxJPO.mqlWarning(context, e.getMessage());
+            emxContextUtil_mxJPO.mqlWarning(context, e.toString());
             throw e;
         }
     }
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    @SuppressWarnings("unused")
+    public MapList expandQPlanQPTreeObject(Context context, String[] args) throws Exception {
+        try {
+            String qPlanId = (String) IMS_KDD_mxJPO.getProgramMap(args).get("parentOID");
+            DomainObject qPlanObject = new DomainObject(qPlanId);
+            StringList leftInputDEPTaskIds = qPlanObject.getInfoList(context, SELECT_QPLAN_QPTASK_DEP_TASK_INPUT_DEP_TASK_ID);
+            StringList leftOutputDEPTaskIds = qPlanObject.getInfoList(context, SELECT_QPLAN_QPTASK_DEP_TASK_OUTPUT_DEP_TASK_ID);
+
+            DomainObject parentObject = IMS_KDD_mxJPO.getObjectFromProgramMap(context, IMS_KDD_mxJPO.getProgramMap(args));
+            boolean parentIsQPlan = parentObject.getType(context).equals(TYPE_IMS_QP_QPlan);
+
+            List<String> selects = new ArrayList<>(Arrays.asList(
+                    DomainObject.getAttributeSelect(ATTRIBUTE_IMS_Name),
+                    DomainObject.getAttributeSelect(ATTRIBUTE_IMS_NameRu)));
+
+            if (parentIsQPlan) {
+                selects.add(SELECT_QPTASK_DEP_TASK_INPUT_DEP_TASK_ID);
+                selects.add(SELECT_QPTASK_DEP_TASK_OUTPUT_DEP_TASK_ID);
+            }
+
+            List<Map> maps = IMS_KDD_mxJPO.getRelatedObjectMaps(
+                    context, parentObject,
+                    StringUtils.join(
+                            Arrays.asList(
+                                    RELATIONSHIP_IMS_QP_Project2QP,
+                                    RELATIONSHIP_IMS_QP_QP2QPlan,
+                                    RELATIONSHIP_IMS_QP_QPlan2QPTask
+                            ),
+                            ','),
+                    true,
+                    selects,
+                    null, null, false);
+
+            List<Map> filteredMaps;
+            if (parentIsQPlan) {
+                filteredMaps = new ArrayList<>();
+                for (Map map : maps) {
+                    List<String> rightInputDEPTaskIds = IMS_KDD_mxJPO.split(map.get(SELECT_QPTASK_DEP_TASK_INPUT_DEP_TASK_ID));
+                    List<String> rightOutputDEPTaskIds = IMS_KDD_mxJPO.split(map.get(SELECT_QPTASK_DEP_TASK_OUTPUT_DEP_TASK_ID));
+                    boolean add = false;
+                    for (Object leftInputDEPTaskId : leftInputDEPTaskIds) {
+                        if (rightOutputDEPTaskIds.contains(leftInputDEPTaskId)) {
+                            add = true;
+                            break;
+                        }
+                    }
+                    if (!add) {
+                        for (Object leftOutputDEPTaskId : leftOutputDEPTaskIds) {
+                            if (rightInputDEPTaskIds.contains(leftOutputDEPTaskId)) {
+                                add = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (add) {
+                        filteredMaps.add(map);
+                    }
+                }
+            }
+            else {
+                filteredMaps = maps;
+            }
+
+            IMS_KDD_mxJPO.sortMapsByName(filteredMaps);
+            return new MapList(filteredMaps);
+        }
+        catch (Exception e) {
+            emxContextUtil_mxJPO.mqlWarning(context, e.toString());
+            throw e;
+        }
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     @SuppressWarnings("unused")
     public Vector getQPTreeObjectCode(Context context, String[] args) throws Exception {
@@ -232,6 +350,10 @@ public class IMS_QP_DEPSubStageDEPTasks_mxJPO {
 
                 case TYPE_IMS_QP_DEPTask:
                     source = SOURCE_DEPTask;
+                    break;
+
+                case TYPE_IMS_QP_QPTask:
+                    source = SOURCE_QPTask;
                     break;
             }
 
@@ -259,6 +381,8 @@ public class IMS_QP_DEPSubStageDEPTasks_mxJPO {
         }
         return results;
     }
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     private Vector getDEPTaskRelatedObjects(Context context, String[] args, boolean in) throws Exception {
         try {
@@ -357,7 +481,7 @@ public class IMS_QP_DEPSubStageDEPTasks_mxJPO {
             return results;
         }
         catch (Exception e) {
-            emxContextUtil_mxJPO.mqlWarning(context, e.getMessage());
+            emxContextUtil_mxJPO.mqlWarning(context, e.toString());
             throw e;
         }
     }
@@ -371,6 +495,118 @@ public class IMS_QP_DEPSubStageDEPTasks_mxJPO {
     public Vector getDEPTaskOutput(Context context, String[] args) throws Exception {
         return getDEPTaskRelatedObjects(context, args, false);
     }
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    private Vector getQPTaskRelatedObjects(Context context, String[] args, boolean in) throws Exception {
+        try {
+            String virtualRelationship = in ? "in" : "out";
+            boolean isRuLocale = IMS_KDD_mxJPO.isRuLocale(args);
+
+            Vector results = new Vector();
+
+            for (Map rowQPTaskMap : IMS_KDD_mxJPO.getObjectListMaps(args)) {
+                StringBuilder sb = new StringBuilder();
+                String rowId = IMS_KDD_mxJPO.getRowId(rowQPTaskMap);
+                String rowQPTaskId = IMS_KDD_mxJPO.getIdFromMap(rowQPTaskMap);
+
+                DomainObject rowQPTask = new DomainObject(rowQPTaskId);
+                StringList rowQPTaskDEPTaskInputDEPTaskIds = rowQPTask.getInfoList(context, SELECT_QPTASK_DEP_TASK_INPUT_DEP_TASK_ID);
+                StringList rowQPTaskDEPTaskOutputDEPTaskIds = rowQPTask.getInfoList(context, SELECT_QPTASK_DEP_TASK_OUTPUT_DEP_TASK_ID);
+
+                List<Map> relatedMaps = IMS_KDD_mxJPO.getRelatedObjectMaps(
+                        context, IMS_KDD_mxJPO.idToObject(context, rowQPTaskId),
+                        RELATIONSHIP_IMS_QP_QPTask2QPTask,
+                        !in,
+                        Arrays.asList(
+                                DomainObject.getAttributeSelect(ATTRIBUTE_IMS_NameRu),
+                                SELECT_QPTASK_DEP_TASK_INPUT_DEP_TASK_ID,
+                                SELECT_QPTASK_DEP_TASK_OUTPUT_DEP_TASK_ID),
+                        null, null, false);
+
+                for (Map relatedMap : relatedMaps) {
+                    if (sb.length() > 0) {
+                        sb.append("<br />");
+                    }
+
+                    sb.append(IMS_KDD_mxJPO.getDisconnectLinkHTML(
+                            PROGRAM_IMS_QP_DEPSubStageDEPTasks, "disconnectQPTask",
+                            rowQPTaskId, IMS_KDD_mxJPO.getIdFromMap(relatedMap),
+                            virtualRelationship,
+                            "Disconnect",
+                            IMS_KDD_mxJPO.getRefreshAllRowsFunction()));
+
+                    boolean thereAreConnectedQPTaskDEPTasks = false;
+
+                    List<String> relatedQPTaskDEPTaskInputDEPTaskIds = IMS_KDD_mxJPO.split(relatedMap.get(SELECT_QPTASK_DEP_TASK_INPUT_DEP_TASK_ID));
+                    List<String> relatedQPTaskDEPTaskOutputDEPTaskIds = IMS_KDD_mxJPO.split(relatedMap.get(SELECT_QPTASK_DEP_TASK_OUTPUT_DEP_TASK_ID));
+
+                    if (in) {
+                        for (Object rowQPTaskDEPTaskInputDEPTaskId : rowQPTaskDEPTaskInputDEPTaskIds) {
+                            if (relatedQPTaskDEPTaskOutputDEPTaskIds.contains(rowQPTaskDEPTaskInputDEPTaskId)) {
+                                thereAreConnectedQPTaskDEPTasks = true;
+                                break;
+                            }
+                        }
+                    }
+                    else {
+                        for (Object rowQPTaskDEPTaskOutputDEPTaskId : rowQPTaskDEPTaskOutputDEPTaskIds) {
+                            if (relatedQPTaskDEPTaskInputDEPTaskIds.contains(rowQPTaskDEPTaskOutputDEPTaskId)) {
+                                thereAreConnectedQPTaskDEPTasks = true;
+                                break;
+                            }
+                        }
+                    }
+
+                    if (!thereAreConnectedQPTaskDEPTasks) {
+                        sb.append(String.format(
+                                "&#160;<img src=\"%s\" title=\"%s\" />",
+                                IMS_KDD_mxJPO.FUGUE_16x16 + "exclamation.png",
+                                HtmlEscapers.htmlEscaper().escape("Not DEPTask-based link"))); // TODO
+                    }
+
+                    sb.append(IMS_KDD_mxJPO.getLinkHTML(
+                            context, relatedMap, SOURCE_QPTask, null,
+                            getIconUrl(TYPE_IMS_QP_QPTask),
+                            "12px",
+                            (String) relatedMap.get(DomainObject.getAttributeSelect(
+                                    isRuLocale ?
+                                            ATTRIBUTE_IMS_NameRu :
+                                            ATTRIBUTE_IMS_Name)),
+                            null, true, false, null, true, null, false));
+                }
+
+                sb.append(IMS_DragNDrop_mxJPO.getConnectDropAreaHTML(
+                        PROGRAM_IMS_QP_DEPSubStageDEPTasks, "connectQPTask",
+                        virtualRelationship, !in,
+                        rowId, rowQPTaskId,
+                        IMS_KDD_mxJPO.getRefreshAllRowsFunction(),
+                        SOURCE_QPTask,
+                        "Drop QP Task here",
+                        "26px", "10px"));
+
+                results.addElement(sb.toString());
+            }
+
+            return results;
+        }
+        catch (Exception e) {
+            emxContextUtil_mxJPO.mqlWarning(context, e.toString());
+            throw e;
+        }
+    }
+
+    @SuppressWarnings("unused")
+    public Vector getQPTaskInput(Context context, String[] args) throws Exception {
+        return getQPTaskRelatedObjects(context, args, true);
+    }
+
+    @SuppressWarnings("unused")
+    public Vector getQPTaskOutput(Context context, String[] args) throws Exception {
+        return getQPTaskRelatedObjects(context, args, false);
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     @SuppressWarnings("unused")
     public String connectDEPTask(Context context, String[] args) throws Exception {
@@ -414,6 +650,46 @@ public class IMS_QP_DEPSubStageDEPTasks_mxJPO {
         });
     }
 
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    @SuppressWarnings("unused")
+    public String connectQPTask(Context context, String[] args) throws Exception {
+        return IMS_KDD_mxJPO.connect(context, args, new IMS_KDD_mxJPO.Connector() {
+            @Override
+            public String connect(Context context, String from, String to, String relationship) throws Exception {
+
+                IMS_KDD_mxJPO.connectIfNotConnected(
+                        context,
+                        RELATIONSHIP_IMS_QP_QPTask2QPTask,
+                        new DomainObject(from),
+                        new DomainObject(to));
+
+                return "";
+            }
+        });
+    }
+
+    @SuppressWarnings("unused")
+    public String disconnectQPTask(Context context, String[] args) throws Exception {
+        return IMS_KDD_mxJPO.disconnect(context, args, new IMS_KDD_mxJPO.Disconnector() {
+            @Override
+            public String disconnect(Context context, String from, String to, String relationship) throws Exception {
+
+                DomainObject toObject = new DomainObject(to);
+
+                new DomainObject(from).disconnect(
+                        context,
+                        new RelationshipType(RELATIONSHIP_IMS_QP_QPTask2QPTask),
+                        !relationship.equals("in"),
+                        toObject);
+
+                return "";
+            }
+        });
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
     @SuppressWarnings("unused")
     public static StringList getDEPTaskInputCellStyle(Context context, String[] args) throws Exception {
         StringList styles = new StringList();
@@ -431,4 +707,6 @@ public class IMS_QP_DEPSubStageDEPTasks_mxJPO {
         }
         return styles;
     }
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 }
