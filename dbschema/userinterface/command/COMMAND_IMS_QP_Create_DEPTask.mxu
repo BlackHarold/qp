@@ -7,7 +7,7 @@
 mxUpdate command "${NAME}" {
     description ""
     label "Create"
-    href "${COMMON_DIR}/emxCreate.jsp?type=type_IMS_QP_DEPTask&typeChooser=false&form=IMS_Create_QP_DEPTask&findMxLink=false&nameField=autoName&relationship=relationship_IMS_QP_DEPSubStage2DEPTask&policy=policy_IMS_QP_DEPTask&postProcessJPO=IMS_QP_DEPTask:createDEPTask&submitAction=refreshCaller"
+    href "${COMMON_DIR}/emxCreate.jsp?type=type_IMS_QP_DEPTask&typeChooser=false&form=IMS_QP_Create_DEPTask&findMxLink=false&nameField=autoName&relationship=relationship_IMS_QP_DEPSubStage2DEPTask&policy=policy_IMS_QP_DEPTask&postProcessJPO=IMS_QP_DEPTask:createDEPTask&submitAction=refreshCaller"
     alt ""
     user "all"
 }

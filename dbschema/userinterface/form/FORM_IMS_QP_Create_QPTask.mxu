@@ -7,6 +7,11 @@
 mxUpdate form "${NAME}" {
     description ""
     field {
+        name "DEPTask"
+        label "DEP Task"
+        range "${COMMON_DIR}/emxFullSearch.jsp?field=TYPES=IMS_QP_DEPTask&table=AEFGeneralSearchResults&selection=single&hideHeader=true"
+    }
+    field {
         name "NameEn"
         label "emxFramework.Attribute.QP_IMS_Name"
         businessobject "attribute[IMS_Name]"
@@ -24,7 +29,7 @@ mxUpdate form "${NAME}" {
     }
     field {
         name "DescriptionEn"
-        label "emxFramework.Attribute.QP_IMS_Description"
+        label "emxFramework.Attribute.QP_IMS_DescriptionEn"
         businessobject "attribute[IMS_DescriptionEn]"
         setting "Admin Type" "attribute_IMS_DescriptionEn"
         setting "Field Type" "attribute"
@@ -37,10 +42,5 @@ mxUpdate form "${NAME}" {
         setting "Admin Type" "attribute_IMS_DescriptionRu"
         setting "Field Type" "attribute"
         setting "Registered Suite" "Framework"
-    }
-    field {
-        name "11"
-        label "22"
-        range "${COMMON_DIR}/emxFullSearch.jsp?field=TYPES=type_IMS_Family&mode=chooser&table=AEFGeneralSearchResults&selection=multiple&HelpMarker=emxhelpfullsearch&submitLabel=Select&CancelButton=true"
     }
 }
