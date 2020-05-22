@@ -8,7 +8,7 @@ mxUpdate form "${NAME}" {
     description ""
     field {
         name "NameEn"
-        label "emxFramework.Attribute.IMS_Name"
+        label "emxFramework.Attribute.QP_IMS_Name"
         businessobject "attribute[IMS_Name]"
         setting "Admin Type" "attribute_IMS_Name"
         setting "Field Type" "attribute"
@@ -16,7 +16,7 @@ mxUpdate form "${NAME}" {
     }
     field {
         name "NameRu"
-        label "emxFramework.Attribute.IMS_Name"
+        label "emxFramework.Attribute.QP_IMS_NameRu"
         businessobject "attribute[IMS_NameRu]"
         setting "Admin Type" "IMS_IMS_NameRu"
         setting "Field Type" "attribute"
@@ -24,7 +24,7 @@ mxUpdate form "${NAME}" {
     }
     field {
         name "DescriptionEn"
-        label "emxFramework.Common.Description"
+        label "emxFramework.Attribute.QP_IMS_DescriptionEn"
         businessobject "attribute[IMS_DescriptionEn]"
         setting "Admin Type" "attribute_IMS_DescriptionEn"
         setting "Field Type" "attribute"
@@ -32,7 +32,7 @@ mxUpdate form "${NAME}" {
     }
     field {
         name "DescriptionRu"
-        label "emxFramework.Common.Description"
+        label "emxFramework.Attribute.QP_IMS_DescriptionRu"
         businessobject "attribute[IMS_DescriptionRu]"
         setting "Admin Type" "attribute_IMS_DescriptionRu"
         setting "Field Type" "attribute"
