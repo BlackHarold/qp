@@ -23,7 +23,7 @@ mxUpdate form "${NAME}" {
     }
     field {
         name "system"
-        label "System"
+        label "System / Building"
         businessobject "$<from[IMS_QP_QPlan2Object].to.name>"
         setting "Editable" "false"
         setting "Field Type" "basic"
