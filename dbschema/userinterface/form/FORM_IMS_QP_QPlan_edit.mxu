@@ -16,24 +16,13 @@ mxUpdate form "${NAME}" {
         setting "Registered Suite" "Components"
     }
     field {
-        name "system2"
-        label "System search"
+        name "system"
+        label "System / Building"
         businessobject "$<from[IMS_QP_QPlan2Object].to.name>"
-        range "${COMMON_DIR}/emxFullSearch.jsp?field=TYPES=IMS_PBSSystem,IMS_GBSBuilding,PBSFunctionalArea&table=AEFGeneralSearchResults&selection=single&hideHeader=true"
+        range "${COMMON_DIR}/emxFullSearch.jsp?field=TYPES=IMS_PBSSystem,IMS_GBSBuilding&table=AEFGeneralSearchResults&selection=single&mode=chooser&showInitialResults=true&HelpMarker=emxhelpfullsearch&submitLabel=emxFramework.GlobalSearch.Done&CancelButton=true"
         setting "Editable" "true"
         setting "Input Type" "textbox"
         setting "Registered Suite" "Framework"
-        setting "Required" "false"
-    }
-    field {
-        name "system"
-        label "System"
-        businessobject "$<from[IMS_QP_QPlan2Object].to.name>"
-        setting "Field Type" "attribute"
-        setting "Input Type" "combobox"
-        setting "Range Function" "getSystemNames"
-        setting "Range Program" "IMS_QualityPlanBase"
-        setting "Registered Suite" "Components"
         setting "Required" "true"
     }
     field {
