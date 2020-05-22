@@ -8,7 +8,7 @@ mxUpdate command "${NAME}" {
     symbolicname "COMMAND_IMS_QP_QPlan_edit"
     description ""
     label "Edit"
-    href "${COMMON_DIR}/emxForm.jsp?form=IMS_QP_Qplan_edit&mode=edit&submitAction=refreshCaller&postProcessJPO=IMS_QualityPlanBase:editQPlanPostProcess"
+    href "${COMMON_DIR}/emxForm.jsp?form=IMS_QP_QPlan_edit&mode=edit&submitAction=refreshCaller&postProcessJPO=IMS_QualityPlanBase:editQPlanPostProcess"
     alt ""
     user "all"
     setting "Image" "${COMMON_DIR}/images/iconActionEdit.gif"
