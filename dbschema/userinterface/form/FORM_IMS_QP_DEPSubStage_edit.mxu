@@ -8,8 +8,8 @@ mxUpdate form "${NAME}" {
     symbolicname "FORM_IMS_QP_DEPSubStage_edit"
     description ""
     field {
-        name "stage"
-        label "Stage"
+        name "project_stage"
+        label "Project stage"
         businessobject "$<to[IMS_QP_DEPProjectStage2DEPSubStage].from.name>"
         setting "Editable" "false"
         setting "Field Type" "basic"
@@ -31,21 +31,19 @@ mxUpdate form "${NAME}" {
         name "IMS_Name"
         label "Name"
         businessobject "$<attribute[IMS_Name]>"
-        setting "Admin Type" "attribute_IMS_Name"
         setting "Editable" "true"
-        setting "Field Size" "75"
         setting "Field Type" "attribute"
         setting "Registered Suite" "Components"
+        setting "Field Size" "75"
     }
     field {
         name "IMS_NameRu"
         label "Name RU"
         businessobject "$<attribute[IMS_NameRu]>"
-        setting "Admin Type" "attribute_IMS_NameRu"
         setting "Editable" "true"
-        setting "Field Size" "75"
         setting "Field Type" "attribute"
         setting "Registered Suite" "Components"
+        setting "Field Size" "75"
     }
     field {
         name "IMS_DescriptionEn"
@@ -53,8 +51,8 @@ mxUpdate form "${NAME}" {
         businessobject "$<attribute[IMS_DescriptionEn]>"
         setting "Editable" "true"
         setting "Field Type" "attribute"
-        setting "Input Type" "textarea"
         setting "Registered Suite" "Components"
+        setting "Input Type" "textarea"
     }
     field {
         name "IMS_DescriptionRu"
@@ -62,11 +60,11 @@ mxUpdate form "${NAME}" {
         businessobject "$<attribute[IMS_DescriptionRu]>"
         setting "Editable" "true"
         setting "Field Type" "attribute"
-        setting "Input Type" "textarea"
         setting "Registered Suite" "Components"
+        setting "Input Type" "textarea"
     }
     ################################################## Info Start
-    property "author" value "The MxUpdate Team"
+    property "author" value "The IMS Team"
     property "original name" value "IMS_QP_DEPSubStage_edit"
     property "application" value "IMS"
     property "version" value "1"

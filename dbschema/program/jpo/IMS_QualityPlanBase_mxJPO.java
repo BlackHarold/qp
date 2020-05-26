@@ -249,7 +249,7 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
         String baselineID = (String) requestMap.get("baseline");
         LOG.info("baselineID: " + baselineID);
         if (UIUtil.isNotNullAndNotEmpty(baselineID))
-        baselineID = baselineID.substring(0, baselineID.indexOf("_")) != null ? baselineID.substring(0, baselineID.indexOf("_")) : "";
+            baselineID = baselineID.substring(0, baselineID.indexOf("_")) != null ? baselineID.substring(0, baselineID.indexOf("_")) : "";
         else baselineID = "";
 
         //parent
@@ -426,7 +426,7 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
         //set unique name for the new substage
 //        String indexParent = parent.getName().substring(4, 5);
         String indexParent = parent.getInfo(context, "to[IMS_QP_Discipline2DEP].from.attribute[IMS_ShortName]") != null ?
-                parent.getInfo(context, "to[IMS_QP_Discipline2DEP].from.attribute[IMS_ShortName]") : "_";
+                parent.getInfo(context, "to[IMS_QP_Discipline2DEP].from.attribute[IMS_ShortName]") : "NONAME_";
         String depProjectStageName = depProjectStage.getInfo(context, "name");
 
         //count all substages at this DEP ProjectStage
@@ -471,9 +471,22 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
 
         Map paramMap = (Map) argsMap.get("paramMap");
 
-        String baselineID = (String) paramMap.get("Baseline");
         String subStageID = (String) paramMap.get("objectId");
-        LOG.info("baselineID: " + baselineID + " subStageID: " + subStageID);
+
+        String baselineName = UIUtil.isNotNullAndNotEmpty((String) paramMap.get("baseline")) ? (String) paramMap.get("baseline") : "";
+        String baselineID = "";
+
+        if (!baselineName.equals("") && baselineName.contains("_")) {
+            baselineName = baselineName.substring(0, baselineName.indexOf("_"));
+            LOG.info("baselineName: " + baselineName);
+            baselineID=baselineName;
+        } else if (!baselineName.equals("")) {
+            String where = "name smatch " + baselineName;
+            MapList currentBaseline = DomainObject.findObjects(context, "IMS_Baseline", "eService Production", where, new StringList("id"));
+            Map id = (Map) currentBaseline.get(0);
+            baselineID = (String) id.get("id");
+            LOG.info("baselineID: " + currentBaseline + " subStageID: " + subStageID);
+        }
 
         DomainObject substage = new DomainObject(subStageID);
         String substageBaseline = UIUtil.isNotNullAndNotEmpty(substage.getInfo(context, "to[IMS_QP_BaseLine2DEPSubStage].from.id")) ?
@@ -795,7 +808,7 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
         Map paramMap = (Map) argsMap.get("paramMap");
         String objectId = (String) paramMap.get("objectId");
 
-        String typePattern = "IMS_BaseLine";
+        String typePattern = "IMS_Baseline";
         StringList objectSelects = new StringList();
         objectSelects.add(DomainConstants.SELECT_ID);
         objectSelects.add(DomainConstants.SELECT_NAME);
