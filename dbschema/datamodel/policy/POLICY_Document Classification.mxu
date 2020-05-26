@@ -1,0 +1,183 @@
+################################################################################
+# POLICY_Document Classification.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate policy "${NAME}" {
+    symbolicname "policy_ContainerRev2"
+    description ""
+    !hidden
+    type "DOCUMENT CLASSIFICATION"
+    type "Document Family"
+    type "Document Library"
+    defaultformat ""
+    sequence ""
+    store "STORE"
+    allstate {
+        owner {all}
+        public {checkin checkout fromconnect fromdisconnect read show toconnect todisconnect viewform}
+        user "Global User" key "SecuredGlobalUser" {read show toconnect todisconnect} ancestor organization ancestor project
+        user "Shadow Agent" {all}
+        user "System Conversion Manager" {all}
+        user "System Transition Manager" {all}
+        user "VPLMLocalCrossOrgContextAccess" key "ExtendedOwnerReadAccess" {checkout read show toconnect todisconnect} context owner
+        user "VPLMProjectAdministrator" key "ExtendedChangesovAccessForPrjAdmin" {changesov}
+        login user "VPLMAdmin" key "ExtendedChangesovAccessForPLMAdmin" {changesov}
+        login user "VPLMAdmin" key "ExtendedModifyAccessForPLMAdmin" {changename checkin modify}
+        login user "VPLMAdmin" key "ExtendedPromoteAccessForPLMAdmin" {demote promote}
+        login user "VPLMAdmin" key "ExtendedReadAccessForPLMAdmin" {checkout read show toconnect todisconnect}
+    }
+    state "Create" {
+        registeredname "state_Create"
+        !enforcereserveaccess
+        majorrevision
+        !minorrevision
+        version
+        !promote
+        checkouthistory
+        !published
+        user "Access Grantor" {all}
+        user "Global User" key "SpecificOwnerAccess" {addinterface approve changename changeowner changepolicy changetype changevault checkin checkout create delete demote disable enable execute freeze fromdisconnect grant ignore lock majorrevise modify modifyform override promote read reject removeinterface reserve revise revoke schedule show thaw toconnect todisconnect unlock unreserve viewform} single organization single project context owner
+        user "Global User" key "owner" {addinterface approve changename changeowner changepolicy changesov changetype changevault checkin checkout create delete demote disable enable execute freeze fromdisconnect grant ignore lock majorrevise modify modifyform override promote read reject removeinterface reserve revise revoke schedule show thaw toconnect todisconnect unlock unreserve viewform} single organization single project context owner
+        user "Grant" key "grant_key" {changeowner changesov checkin checkout delete demote lock modify promote read reserve revise show toconnect todisconnect unlock unreserve} single organization single project
+        user "Reviewer" {checkout read show}
+        login owner key "VPLMStrictOrgOwnershipIsFALSE" {promote} single project filter "(!expression[VPLMStrictOrgOwnership])"
+        login owner key "VPLMStrictOrgOwnershipIsTRUE" {promote} single organization single project
+        login user "VPLMAdmin" key "ExtendedCreateAccessForPLMAdmin" {create delete}
+        login user "VPLMProjectAdministrator" key "ExtendedModifyAccessForPrjAdmin" {changename checkin modify} single project
+        login user "VPLMProjectAdministrator" key "ExtendedReadAccessForPrjAdmin" {checkout read show toconnect todisconnect} single project
+        login user "VPLMProjectLeader" key "ExtendedCreateAccessForPrivateAuthoring" {create delete} single organization single project context owner
+        login user "VPLMProjectLeader" key "ExtendedCreateAccessForTechnicalLeader" {create delete} single organization single project
+        login user "VPLMProjectLeader" key "VPLMStrictOrgOwnershipIsFALSE" {changename checkin modify} single project context owner filter "(!expression[VPLMStrictOrgOwnership])"
+        login user "VPLMProjectLeader" key "VPLMStrictOrgOwnershipIsTRUE" {changename checkin modify} single organization single project context owner
+        login user "VPLMViewer" key "SpecificOwnerAccess" {addinterface approve changename changeowner changepolicy changesov changetype changevault checkin checkout create delete demote disable enable execute freeze fromdisconnect grant ignore lock majorrevise modify modifyform override promote read reject removeinterface reserve revise revoke schedule show thaw toconnect todisconnect unlock unreserve viewform} single organization single project context owner
+    }
+    state "Review" {
+        registeredname "state_Review"
+        !enforcereserveaccess
+        majorrevision
+        !minorrevision
+        version
+        !promote
+        checkouthistory
+        !published
+        public key "ExtendedPublicReadAccess" {read show toconnect todisconnect} ancestor organization public maturity filter "expression[OrganizationPublicAccess]"
+        user "Access Grantor" {checkin checkout delete fromconnect fromdisconnect grant lock modify read revise revoke show toconnect todisconnect unlock}
+        user "Global User" key "SpecificOwnerAccess" {changename checkout grant read revoke show toconnect todisconnect} single organization single project context owner
+        user "Global User" key "owner" {changename checkout grant read revoke show toconnect todisconnect} single organization single project context owner
+        user "Grant" key "grant_key" {changeowner changesov checkin checkout delete demote lock modify read reserve revise show toconnect todisconnect unlock unreserve} single organization single project
+        user "Reviewer" {addinterface approve changename changeowner changepolicy changesov changetype changevault checkin checkout create delete demote disable enable execute freeze grant ignore lock majorrevise modify modifyform override promote read reject removeinterface reserve revise revoke schedule show thaw unlock unreserve viewform}
+        user "Reviewer" key "Approves Release" {approve ignore reject}
+        user "VPLMLocalCrossOrgContextAccess" key "ExtendedContextualPrivateReadAccess" {checkout read show toconnect todisconnect} single project
+        user "VPLMLocalCrossPrjContextAccess" key "ExtendedPublicReadAccess" {checkout read show toconnect todisconnect} ancestor organization public maturity filter "expression[OrganizationPublicAccess]"
+        user "VPLMProjectAdministrator" key "Approves Release" {approve ignore reject}
+        user "VPLMProjectLeader" key "Approves Release" {approve ignore reject}
+        user "VPLMSecuredCrossAccess" key "ExtendedReadAccessForPublicGuest" {checkout read show toconnect todisconnect} single organization single project public maturity
+        login owner key "VPLMStrictOrgOwnershipIsFALSE" {demote} single project filter "(!expression[VPLMStrictOrgOwnership])"
+        login owner key "VPLMStrictOrgOwnershipIsTRUE" {demote} single organization single project
+        login user "VPLMAdmin" key "ExtendedCreateAccessForPLMAdmin" {delete}
+        login user "VPLMProjectAdministrator" key "ExtendedModifyAccessForPrjAdmin" {changename changeowner checkin checkout delete demote grant lock modify promote read revise revoke show unlock} single project
+        login user "VPLMProjectLeader" key "ExtendedCreateAccessForPrivateAuthoring" {delete} single organization single project context owner
+        login user "VPLMProjectLeader" key "ExtendedCreateAccessForTechnicalLeader" {delete} single organization single project
+        login user "VPLMProjectLeader" key "VPLMStrictOrgOwnershipIsFALSE" {changename changeowner changesov checkin checkout delete demote grant lock modify promote read revise revoke show unlock} single project filter "(!expression[VPLMStrictOrgOwnership])"
+        login user "VPLMProjectLeader" key "VPLMStrictOrgOwnershipIsTRUE" {changename changeowner changesov checkin checkout delete demote grant lock modify promote read revise revoke show unlock} single organization single project
+        login user "VPLMReleaseManager" key "ExtendedPromoteAccessForRelMgr" {promote} single project
+        login user "VPLMViewer" key "SpecificOwnerAccess" {changename checkout grant read revoke show toconnect todisconnect} single organization single project context owner
+        trigger approve check "emxTriggerManager" input "CheckForApprover"
+        trigger ignore check "emxTriggerManager" input "CheckForApprover"
+        trigger reject check "emxTriggerManager" input "CheckForApprover"
+        signature "Approves Release" {
+            branch ""
+            approve {}
+            ignore {}
+            reject {}
+            filter ""
+        }
+    }
+    state "Approved" {
+        registeredname "state_Approved"
+        !enforcereserveaccess
+        majorrevision
+        !minorrevision
+        version
+        !promote
+        checkouthistory
+        !published
+        public key "ExtendedPublicModifyAccess" {fromconnect fromdisconnect grant revoke} single organization single project
+        public key "ExtendedPublicReadAccess" {checkout read show toconnect todisconnect} ancestor organization notprivate maturity filter "expression[OrganizationPublicAccess]"
+        user "Access Grantor" {checkin checkout delete fromconnect fromdisconnect grant lock modify read revise revoke show toconnect todisconnect unlock}
+        user "Employee" {checkout fromconnect fromdisconnect grant read revoke show toconnect todisconnect}
+        user "Global User" key "SpecificOwnerAccess" {checkout read show} single organization single project context owner
+        user "Global User" key "owner" {changename checkout demote fromconnect fromdisconnect grant promote read revoke show toconnect todisconnect} single organization single project context owner
+        user "Grant" key "grant_key" {changeowner changesov checkin checkout delete demote fromconnect fromdisconnect lock modify promote read reserve revise show toconnect todisconnect unlock unreserve} single organization single project
+        user "Release Manager" {changename checkout demote fromconnect fromdisconnect grant promote read revoke show toconnect todisconnect}
+        user "VPLMLocalCrossOrgContextAccess" key "ExtendedContextualPrivateReadAccess" {checkout read show toconnect todisconnect} single project
+        user "VPLMLocalCrossPrjContextAccess" key "ExtendedPublicReadAccess" {checkout read show toconnect todisconnect} ancestor organization public maturity filter "expression[OrganizationPublicAccess]"
+        user "VPLMReleaseManager" key "ExtendedReleaseManager" {changename checkout demote fromconnect fromdisconnect grant promote read revoke show toconnect todisconnect} ancestor organization ancestor project
+        user "VPLMSecuredCrossAccess" key "ExtendedReadAccessForPublicGuest" {checkout read show toconnect todisconnect} single organization single project public maturity
+        login owner key "VPLMStrictOrgOwnershipIsFALSE" {demote promote} single project filter "(!expression[VPLMStrictOrgOwnership])"
+        login owner key "VPLMStrictOrgOwnershipIsTRUE" {demote promote} single organization single project
+        login user "VPLMProjectAdministrator" key "ExtendedModifyAccessForPrjAdmin" {changename checkin modify} single project
+        login user "VPLMProjectLeader" key "VPLMStrictOrgOwnershipIsFALSE" {changename checkin demote modify promote} single project filter "(!expression[VPLMStrictOrgOwnership])"
+        login user "VPLMProjectLeader" key "VPLMStrictOrgOwnershipIsFALSE1" {changename checkin modify} single project filter "(!expression[VPLMStrictOwnership_Resource]) && (!expression[VPLMStrictOrgOwnership])"
+        login user "VPLMProjectLeader" key "VPLMStrictOrgOwnershipIsFALSE2" {changename checkin modify} single project context owner filter "(!expression[VPLMStrictOrgOwnership])"
+        login user "VPLMProjectLeader" key "VPLMStrictOrgOwnershipIsTRUE" {changename checkin demote modify promote} single organization single project
+        login user "VPLMProjectLeader" key "VPLMStrictOrgOwnershipIsTRUE1" {changename checkin modify} single organization single project filter "(!expression[VPLMStrictOwnership_Resource])"
+        login user "VPLMProjectLeader" key "VPLMStrictOrgOwnershipIsTRUE2" {changename checkin modify} single organization single project context owner
+        login user "VPLMViewer" key "SpecificOwnerAccess" {checkout read show} single organization single project context owner
+        trigger promote check "emxTriggerManager" input "PolicyContainerRev2StateApprovedPromoteCheck"
+    }
+    state "Locked" {
+        registeredname "state_Locked"
+        !enforcereserveaccess
+        majorrevision
+        minorrevision
+        version
+        !promote
+        checkouthistory
+        !published
+        public key "ExtendedPublicReadAccess" {checkout read show toconnect todisconnect} ancestor organization notprivate maturity filter "expression[OrganizationPublicAccess]"
+        user "Access Grantor" {checkin checkout delete fromconnect fromdisconnect grant lock modify read revise revoke show toconnect todisconnect unlock}
+        user "Employee" {checkout read show}
+        user "Global User" key "SpecificOwnerAccess" {checkout read show} single organization single project context owner
+        user "Global User" key "owner" {checkout demote grant promote read revise revoke show} single organization single project context owner
+        user "Grant" key "grant_key" {checkin checkout delete fromconnect fromdisconnect grant lock modify read revise revoke show toconnect todisconnect unlock} single organization single project
+        user "Release Manager" {checkout demote grant promote read revise revoke show}
+        user "VPLMLocalCrossOrgContextAccess" key "ExtendedContextualPrivateReadAccess" {checkout read show toconnect todisconnect} single project
+        user "VPLMLocalCrossPrjContextAccess" key "ExtendedPublicReadAccess" {checkout read show toconnect todisconnect} ancestor organization notprivate maturity filter "expression[OrganizationPublicAccess]"
+        user "VPLMReleaseManager" key "ExtendedReleaseManager" {checkout demote grant promote read revise revoke show} ancestor organization ancestor project
+        user "VPLMSecuredCrossAccess" key "ExtendedReadAccessForPublicGuest" {checkout read show toconnect todisconnect} single organization single project notprivate maturity
+        login user "VPLMProjectLeader" key "VPLMStrictOrgOwnershipIsFALSE" {promote} single project filter "(!expression[VPLMStrictOrgOwnership])"
+        login user "VPLMProjectLeader" key "VPLMStrictOrgOwnershipIsTRUE" {promote} single organization single project
+        login user "VPLMReleaseManager" key "ExtendedModifyAccessForRelMgr" {changename checkin modify} single project
+        login user "VPLMViewer" key "SpecificOwnerAccess" {checkout read show} single organization single project context owner
+    }
+    state "Obsolete" {
+        registeredname "state_Obsolete"
+        !enforcereserveaccess
+        majorrevision
+        !minorrevision
+        version
+        !promote
+        checkouthistory
+        !published
+        public key "ExtendedPublicReadAccess" {checkout read show toconnect todisconnect} ancestor organization notprivate maturity filter "expression[OrganizationPublicAccess]"
+        user "Access Grantor" {checkin checkout delete fromconnect fromdisconnect grant lock modify read revise revoke show toconnect todisconnect unlock}
+        user "Employee" {checkout read show}
+        user "Global User" key "SpecificOwnerAccess" {checkout read show} single organization single project context owner
+        user "Global User" key "owner" {checkout demote grant promote read revoke show} single organization single project context owner
+        user "Grant" key "grant_key" {checkin checkout delete fromconnect fromdisconnect grant lock modify read revise revoke show toconnect todisconnect unlock} single organization single project
+        user "Release Manager" {checkout demote grant promote read revoke show}
+        user "VPLMLocalCrossOrgContextAccess" key "ExtendedContextualPrivateReadAccess" {checkout read show toconnect todisconnect} single project
+        user "VPLMLocalCrossPrjContextAccess" key "ExtendedPublicReadAccess" {checkout read show toconnect todisconnect} ancestor organization notprivate maturity filter "expression[OrganizationPublicAccess]"
+        user "VPLMReleaseManager" key "ExtendedReleaseManager" {checkout demote grant promote read revoke show} ancestor organization ancestor project
+        user "VPLMSecuredCrossAccess" key "ExtendedReadAccessForPublicGuest" {checkout read show toconnect todisconnect} single organization single project notprivate maturity
+        login user "VPLMViewer" key "SpecificOwnerAccess" {checkout read show} single organization single project context owner
+    }
+    ################################################## Info Start
+    property "original name" value "Container Rev2"
+    property "application" value "Framework"
+    property "version" value "R419"
+    ################################################## Info End
+}

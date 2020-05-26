@@ -13,7 +13,7 @@ mxUpdate policy "${NAME}" {
     sequence ""
     store ""
     allstate {
-        owner {checkin checkout fromconnect fromdisconnect read show toconnect todisconnect viewform}
+        owner {all}
         public {checkin checkout fromconnect fromdisconnect read show toconnect todisconnect viewform}
     }
     state "Created" {

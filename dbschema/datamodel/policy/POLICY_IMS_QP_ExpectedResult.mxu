@@ -21,6 +21,8 @@ mxUpdate policy "${NAME}" {
         !promote
         !checkouthistory
         !published
+        owner {all}
+        public {all}
     }
     state "Active" {
         !enforcereserveaccess
@@ -30,6 +32,8 @@ mxUpdate policy "${NAME}" {
         !promote
         !checkouthistory
         !published
+        owner {all}
+        public {all}
     }
     ################################################## Info Start
     property "original name" value "IMS_QP_ExpectedResult"

@@ -14,8 +14,8 @@ mxUpdate policy "${NAME}" {
     sequence "0,1,2...."
     store "STORE"
     allstate {
-        public {fromconnect fromdisconnect read show toconnect todisconnect viewform}
-        user "Test Everything" {all}
+        owner {all}
+        public {all}
     }
     state "Created" {
         registeredname "state_Created"

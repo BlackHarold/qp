@@ -21,7 +21,7 @@ mxUpdate policy "${NAME}" {
         checkouthistory
         !published
         owner {all}
-        public {read}
+        public {all}
     }
     state "Active" {
         !enforcereserveaccess
@@ -32,6 +32,6 @@ mxUpdate policy "${NAME}" {
         checkouthistory
         !published
         owner {all}
-        public {read}
+        public {all}
     }
 }

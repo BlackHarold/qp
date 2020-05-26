@@ -22,7 +22,7 @@ mxUpdate policy "${NAME}" {
         checkouthistory
         !published
         owner {all}
-        public {read}
+        public {all}
     }
     state "Active" {
         registeredname "state_Active"
@@ -34,6 +34,6 @@ mxUpdate policy "${NAME}" {
         checkouthistory
         !published
         owner {all}
-        public {read}
+        public {all}
     }
 }

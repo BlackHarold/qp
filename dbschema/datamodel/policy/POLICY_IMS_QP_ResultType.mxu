@@ -20,5 +20,7 @@ mxUpdate policy "${NAME}" {
         !promote
         !checkouthistory
         !published
+        owner {all}
+        public {all}
     }
 }
