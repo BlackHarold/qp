@@ -1,11 +1,12 @@
 import com.matrixone.apps.domain.DomainConstants;
 import com.matrixone.apps.domain.DomainObject;
 import com.matrixone.apps.domain.DomainRelationship;
-import com.matrixone.apps.domain.util.*;
+import com.matrixone.apps.domain.util.ContextUtil;
+import com.matrixone.apps.domain.util.FrameworkException;
+import com.matrixone.apps.domain.util.MapList;
 import com.matrixone.apps.framework.ui.UIUtil;
 import matrix.db.Context;
 import matrix.db.JPO;
-import matrix.db.Relationship;
 import matrix.util.SelectList;
 import matrix.util.StringList;
 import org.apache.log4j.Logger;
@@ -224,11 +225,13 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
     public void createPostProcess(Context context, String[] args) throws Exception {
 
         Map argsMap = JPO.unpackArgs(args);
-        LOG.info("args: " + Arrays.deepToString(new Map[]{argsMap}));
+//        LOG.info("args: " + Arrays.deepToString(new Map[]{argsMap}));
 
         Map requestMap = (Map) argsMap.get("requestMap");
         Map paramMap = (Map) argsMap.get("paramMap");
 
+        LOG.info("requestMap: " + requestMap);
+        LOG.info("paramMap: " + paramMap);
         //all required params
         String projectStageID = (String) requestMap.get("project_stage");
         String parentOID = (String) requestMap.get("parentOID");
@@ -236,15 +239,18 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
         //sub_stage params
         String relId = (String) paramMap.get("relId");
         String newObjectId = (String) paramMap.get("newObjectId");
-        String baselineID = (String) requestMap.get("baseline");
-        baselineID = baselineID.substring(0, baselineID.indexOf("_")) != null ? baselineID.substring(0, baselineID.indexOf("_")) : "";
 
         //log all required initial params
         LOG.info("projectStageID: " + projectStageID);
         LOG.info("parentID: " + objectId);
         LOG.info("relID: " + relId);
         LOG.info("parentOID: " + parentOID);
+
+        String baselineID = (String) requestMap.get("baseline");
         LOG.info("baselineID: " + baselineID);
+        if (UIUtil.isNotNullAndNotEmpty(baselineID))
+        baselineID = baselineID.substring(0, baselineID.indexOf("_")) != null ? baselineID.substring(0, baselineID.indexOf("_")) : "";
+        else baselineID = "";
 
         //parent
         DomainObject parent = new DomainObject(parentOID);
@@ -255,6 +261,8 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
         selects.add("id");
 
         String where = "from[IMS_QP_ProjectStage2DEPProjectStage].to.to[IMS_QP_DEP2DEPProjectStage].from.id==" + parentOID;
+//        print bus 59479.11672.23687.9771 select from[IMS_QP_DEP2DEPProjectStage].to.id;
+//        print bus 59479.11672.23687.9771 select id from[IMS_QP_DEP2DEPProjectStage].to.to[IMS_QP_ProjectStage2DEPProjectStage].from.name;
         LOG.info("where: " + where);
 
         MapList result = parent.findObjects(context,
@@ -263,6 +271,8 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
                 /*where*/ where,
                 selects
         );
+
+        LOG.info(parentOID + " all IMS_ProjectStage: " + result);
 
         String allProjectStagesConnectingToDEP = "";
         for (Object temp : result) {
@@ -345,9 +355,9 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
             }
 
             //connect new IMS_QP_SubStage <- IMS_QP_Baseline2DEPSubStage <- baselineID
-            LOG.info(baselineID + "<- IMS_QP_Baseline2DEPSubStage <- " + newObjectId);
+            LOG.info(baselineID + "<- IMS_QP_BaseLine2DEPSubStage <- " + newObjectId);
             if (!baselineID.equals("")) {
-                DomainRelationship.connect(context, new DomainObject(baselineID), "IMS_QP_Baseline2DEPSubStage", substage);
+                DomainRelationship.connect(context, new DomainObject(baselineID), "IMS_QP_BaseLine2DEPSubStage", substage);
             }
 
             LOG.info("set name to substage: " + substage);
@@ -745,13 +755,14 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
      */
     public Object getBaseLineNames(Context context, String[] args) throws FrameworkException {
 
-        String typePattern = "IMS_BaseLine";
+        String typePattern = "IMS_Baseline";
         StringList objectSelects = new StringList();
         objectSelects.add(DomainConstants.SELECT_ID);
         objectSelects.add(DomainConstants.SELECT_NAME);
         objectSelects.add("to[IMS_ProjectStage2CB].from.id");
 
         MapList allBaselineNames = DomainObject.findObjects(context, typePattern, "eService Production", null, objectSelects);
+        LOG.info("allBaselineNames: " + allBaselineNames);
 
         StringList fieldRangeValues = new StringList("");
         StringList fieldDisplayRangeValues = new StringList("<empty value>");

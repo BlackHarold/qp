@@ -70,7 +70,7 @@
     LOG.info("args to send: " + Arrays.deepToString(tableIDs));
 
     try {
-        Map map = JPO.invoke(context, "IMS_QP_TestEveryThing", new String[]{}, "deleteSubStages", JPO.packArgs(args), HashMap.class);
+        Map map = JPO.invoke(context, "IMS_QualityPlanBase", new String[]{}, "deleteSubStages", JPO.packArgs(args), HashMap.class);
         map.remove("message");
         if (!map.isEmpty()) {
             out.print("<center>");

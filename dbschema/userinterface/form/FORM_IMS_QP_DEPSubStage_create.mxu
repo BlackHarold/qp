@@ -22,7 +22,7 @@ mxUpdate form "${NAME}" {
         label "Project stage"
         setting "Input Type" "combobox"
         setting "Range Function" "getProjectStageNames"
-        setting "Range Program" "IMS_QP_TestEverything"
+        setting "Range Program" "IMS_QualityPlanBase"
         setting "Registered Suite" "Framework"
         setting "Required" "true"
         setting "OnChange Handler" "onchangeComboboxStage"
@@ -35,11 +35,11 @@ mxUpdate form "${NAME}" {
         setting "Field Type" "attribute"
         setting "Input Type" "combobox"
         setting "Range Function" "getBaseLineNames"
-        setting "Range Program" "IMS_QP_TestEverything"
+        setting "Range Program" "IMS_QualityPlanBase"
         setting "Registered Suite" "Components"
         setting "OnFocus Handler" "onfocusComboboxSubstage"
+        setting "Update Program" "IMS_QualityPlanBase"
         setting "Update Function" "updateBaselineCombo"
-        setting "Update Program" "IMS_QP_TestEverything"
     }
     field {
         name "IMS_Name"
