@@ -426,7 +426,7 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
         //set unique name for the new substage
 //        String indexParent = parent.getName().substring(4, 5);
         String indexParent = parent.getInfo(context, "to[IMS_QP_Discipline2DEP].from.attribute[IMS_ShortName]") != null ?
-                parent.getInfo(context, "to[IMS_QP_Discipline2DEP].from.attribute[IMS_ShortName]") : "NONAME_";
+                parent.getInfo(context, "to[IMS_QP_Discipline2DEP].from.attribute[IMS_ShortName]") : "";
         String depProjectStageName = depProjectStage.getInfo(context, "name");
 
         //count all substages at this DEP ProjectStage
