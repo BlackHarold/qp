@@ -1,22 +1,20 @@
 ################################################################################
-# CHANNEL_IMS_QP_DEPSubStageRightChannel.mxu
+# COMMAND_IMS_QP_CurrentDEPTree.mxu
 #
 #            This file describes the target of a Configuration Item.
 ################################################################################
 
-mxUpdate channel "${NAME}" {
-    symbolicname "channel_IMS_QP_DEPSubStageRightChannel"
+mxUpdate command "${NAME}" {
+    symbolicname "command_IMS_QP_CurrentDEPTree"
     description ""
-    label ""
-    href ""
+    label "Current DEP"
+    href "${COMMON_DIR}/IMS_IndentedTable.jsp?table=IMS_QP_QPTree&program=IMS_QP_DEPSubStageDEPTasks:getCurrentDEPTreeRootObjects&expandProgram=IMS_QP_DEPSubStageDEPTasks:expandQPTreeObject&selection=multiple"
     alt ""
-    height 50
-    command "IMS_QP_CurrentDEPTree"
-    command "IMS_QP_QPTree"
-    command "IMS_QP_OtherDEPs"
+    user "all"
+    setting "Registered Suite" "Framework"
     ################################################## Info Start
     property "author" value "The MxUpdate Team"
-    property "original name" value "IMS_QP_DEPSubStageRightChannel"
+    property "original name" value "IMS_QP_CurrentDEPTree"
     property "application" value "Unknown"
     property "version"
     ################################################## Info End

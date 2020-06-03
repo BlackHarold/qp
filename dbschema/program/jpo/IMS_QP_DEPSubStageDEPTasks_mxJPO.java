@@ -260,6 +260,26 @@ public class IMS_QP_DEPSubStageDEPTasks_mxJPO {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     @SuppressWarnings("unused")
+    public MapList getCurrentDEPTreeRootObjects(Context context, String[] args) throws Exception {
+        try {
+            MapList mapList = DomainObject.findObjects(
+                    context, TYPE_IMS_QP_DEPProjectStage, "*", "*", "*", "*",
+                    String.format("to[%s].from.id==%s", RELATIONSHIP_IMS_QP_DEP2DEPProjectStage, getCurrentDEPId(context, args)),
+                    true,
+                    getQPTreeSelects());
+
+            IMS_KDD_mxJPO.sortMapsByName(mapList);
+            return mapList;
+        }
+        catch (Exception e) {
+            emxContextUtil_mxJPO.mqlWarning(context, e.toString());
+            throw e;
+        }
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    @SuppressWarnings("unused")
     public MapList expandQPlanQPTreeObject(Context context, String[] args) throws Exception {
         try {
             String qPlanId = (String) IMS_KDD_mxJPO.getProgramMap(args).get("parentOID");
