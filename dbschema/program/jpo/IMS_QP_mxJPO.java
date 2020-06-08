@@ -44,6 +44,7 @@ public class IMS_QP_mxJPO extends DomainObject {
     static final String relationship_IMS_QP_DEPSubStage2DEPTask = "IMS_QP_DEPSubStage2DEPTask";
     static final String relationship_IMS_QP_ResultType2Family = "IMS_QP_ResultType2Family";
     static final String relationship_IMS_QP_QP2QPlan = "IMS_QP_QP2QPlan";
+    static final String relationship_IMS_QP_QPlan2QPTask = "IMS_QP_QPlan2QPTask";
 
     public IMS_QP_mxJPO(Context context, String[] args) throws Exception {
         super();
@@ -85,7 +86,6 @@ public class IMS_QP_mxJPO extends DomainObject {
                     append(relationship_IMS_QP_Directory2DisciplineCode).append(",").
                     append(relationship_IMS_QP_Directory2Directory).append(",").
                     append(relationship_IMS_QP_QP2DEP).append(",").
-                    append(relationship_IMS_QP_QPlan2QPTask).append(",").
                     append(relationship_IMS_QP_DEP2DEPProjectStage).append(",").
                     append(relationship_IMS_QP_DEPProjectStage2DEPSubStage).append(",").
                     append(relationship_IMS_QP_DEPSubStage2DEPTask);
@@ -280,11 +280,11 @@ public class IMS_QP_mxJPO extends DomainObject {
             String subStage = (String) (map.get("from[" + relationship_IMS_QP_DEP2DEPProjectStage + "].to." +
                     "from[" + relationship_IMS_QP_DEPProjectStage2DEPSubStage + "]"));
             if (subStage != null && (subStage).contains("TRUE")) {
-                if(message.length()>0)
+                if (message.length() > 0)
                     message.append(", ");
                 message.append(map.get(DomainObject.SELECT_NAME));
             } else {
-                if(messageDel.length()>0)
+                if (messageDel.length() > 0)
                     messageDel.append(", ");
                 messageDel.append(map.get(DomainObject.SELECT_NAME));
                 delObjs.add((String) map.get(DomainObject.SELECT_ID));
@@ -300,10 +300,10 @@ public class IMS_QP_mxJPO extends DomainObject {
         if (deletion != null && deletion.length > 0)
             DomainObject.deleteObjects(context, deletion);
 
-        if (message.length()>0)
+        if (message.length() > 0)
             message.append(" have a DEPSubStage!\n");
 
-        if(messageDel.length()>0)
+        if (messageDel.length() > 0)
             message.append(messageDel).append(" were deleted!");
 
         mapMessage.put("message", message.toString());
@@ -314,7 +314,7 @@ public class IMS_QP_mxJPO extends DomainObject {
      * It deletes IMS_DEP in the table IMS_QP_QPlan
      */
     public Map deleteQPlan(Context context,
-                         String[] args
+                           String[] args
     ) throws Exception {
 
         StringBuffer message = new StringBuffer();
@@ -340,11 +340,11 @@ public class IMS_QP_mxJPO extends DomainObject {
             Map map = (Map) objectsInfo.get(i);
             String tasks = (String) (map.get("from[" + relationship_IMS_QP_QPlan2QPTask + "]"));
             if (tasks != null && (tasks).contains("TRUE")) {
-                if(message.length()>0)
+                if (message.length() > 0)
                     message.append(", ");
                 message.append(map.get(DomainObject.SELECT_NAME));
             } else {
-                if(messageDel.length()>0)
+                if (messageDel.length() > 0)
                     messageDel.append(", ");
                 messageDel.append(map.get(DomainObject.SELECT_NAME));
                 delObjs.add((String) map.get(DomainObject.SELECT_ID));
@@ -360,14 +360,28 @@ public class IMS_QP_mxJPO extends DomainObject {
         if (deletion != null && deletion.length > 0)
             DomainObject.deleteObjects(context, deletion);
 
-        if (message.length()>0)
+        if (message.length() > 0)
             message.append(" have a task!\n");
 
-        if(messageDel.length()>0)
+        if (messageDel.length() > 0)
             message.append(messageDel).append(" was deleted!");
 
 
         mapMessage.put("message", message.toString());
         return mapMessage;
+    }
+
+    public Boolean checkAccess(Context context,
+                               String[] args
+    ) throws Exception {
+
+        String user = context.getContext().get_user();
+
+        Map programMap = JPO.unpackArgs(args);
+        String objId = (String) programMap.get("objectId");
+
+        IMS_QP_Security_mxJPO security = new IMS_QP_Security_mxJPO(context, args);
+
+        return security.personNameIsDEPOwner(context, user, objId);
     }
 }
