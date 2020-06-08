@@ -375,13 +375,9 @@ public class IMS_QP_mxJPO extends DomainObject {
                                String[] args
     ) throws Exception {
 
-        String user = context.getContext().get_user();
-
         Map programMap = JPO.unpackArgs(args);
         String objId = (String) programMap.get("objectId");
 
-        IMS_QP_Security_mxJPO security = new IMS_QP_Security_mxJPO(context, args);
-
-        return security.personNameIsDEPOwner(context, user, objId);
+        return IMS_QP_Security_mxJPO.currentUserIsDEPOwner(context,objId);
     }
 }
