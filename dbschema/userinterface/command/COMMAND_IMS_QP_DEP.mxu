@@ -1,21 +1,16 @@
 ################################################################################
-# MENU_type_IMS_QP_DEP.mxu
+# COMMAND_IMS_QP_DEP.mxu
 #
 #            This file describes the target of a Configuration Item.
 ################################################################################
 
-mxUpdate menu "${NAME}" {
+mxUpdate command "${NAME}" {
     description "Quality DEP"
-    treemenu
-    label ""
-    href ""
+    label "Quality DEP"
+    href "${COMMON_DIR}/IMS_QP_DEP.jsp"
     alt ""
-    setting "Default Category" "IMS_QP_DEP"
-    command "IMS_QP_DEP"
-    command "AEFLifecycle"
-    command "APPDocumentHistory"
     ################################################## Info Start
-    property "original name" value "type_IMS_QP_DEP"
+    property "original name" value "IMS_QP_DEP"
     property "application" value "IMS_HNH19"
     property "version" value "1"
     ################################################## Info End

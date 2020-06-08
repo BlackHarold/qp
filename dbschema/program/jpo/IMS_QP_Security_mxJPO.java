@@ -1,18 +1,19 @@
+import com.matrixone.apps.domain.DomainConstants;
 import com.matrixone.apps.domain.DomainObject;
 import com.matrixone.apps.domain.util.MapList;
-import matrix.db.BusinessObject;
-import matrix.db.Context;
-import matrix.db.Person;
-import matrix.db.RelationshipType;
+import matrix.db.*;
 import matrix.util.MatrixException;
 import matrix.util.StringList;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.Map;
+import java.util.*;
 
 public class IMS_QP_Security_mxJPO {
 
     private static final String TYPE_Person = "Person";
+
+    private static final String ATTRIBUTE_FirstName = "First Name";
+    private static final String ATTRIBUTE_LastName = "Last Name";
 
     private static final String ROLE_IMS_QP_DEPOwner = "IMS_QP_DEPOwner";
     private static final String ROLE_IMS_Admin = "IMS_Admin";
@@ -28,6 +29,10 @@ public class IMS_QP_Security_mxJPO {
     private static final String TYPE_IMS_QP_DEPProjectStage = "IMS_QP_DEPProjectStage";
     private static final String TYPE_IMS_QP_DEPSubStage = "IMS_QP_DEPSubStage";
     private static final String TYPE_IMS_QP_DEPTask = "IMS_QP_DEPTask";
+
+    private static final String SOURCE_Person = "Person";
+
+    private static final String PROGRAM_IMS_QP_Security = "IMS_QP_Security";
 
     public IMS_QP_Security_mxJPO(Context context, String[] args) throws Exception {
     }
@@ -77,6 +82,19 @@ public class IMS_QP_Security_mxJPO {
      */
     public static boolean currentUserIsDEPOwner(Context context, DomainObject object) throws Exception {
         return isDEPOwner(context, getPersonObject(context, context.getUser()), object);
+    }
+
+    /**
+     * Determines if the current user is a DEP owner of the specified object.
+     * The object can be a DEP or DEP descendant of any level (IMS_DEPProjectStage, IMS_DEP_SubStage, IMS_DEPTask).
+     *
+     * @param context the context
+     * @param args the arguments
+     * @return A boolean value indicating if the current user is a DEP owner of the object passed in {@code args}
+     * @throws Exception When something goes wrong
+     */
+    public static boolean currentUserIsDEPOwner(Context context, String[] args) throws Exception {
+        return isDEPOwner(context, getPersonObject(context, context.getUser()), new DomainObject(IMS_KDD_mxJPO.getObjectFromProgramMap(context, args)));
     }
 
     private static void checkAccess(Context context, DomainObject depObject) throws Exception {
@@ -217,6 +235,9 @@ public class IMS_QP_Security_mxJPO {
     }
 
     private static boolean isDEPOwnerPrivate(Context context, DomainObject personObject, DomainObject object) throws Exception {
+        if (currentUserIsAdmin(context)) {
+            return true;
+        }
         if (!hasDEPOwnerRole(context, personObject.getName(context))) {
             return false;
         }
@@ -357,5 +378,139 @@ public class IMS_QP_Security_mxJPO {
      */
     public static boolean currentUserIsDEPOwner(Context context, String objectId) throws Exception {
         return currentUserIsDEPOwner(context, new DomainObject(objectId));
+    }
+
+    @SuppressWarnings("unused")
+    public MapList getDEPOwnerRolePersonMaps(Context context, String[] args) throws Exception {
+        MapList mapList = new MapList();
+
+        for (Object assignment : new Role(ROLE_IMS_QP_DEPOwner).getAssignments(context)) {
+            if (assignment instanceof Person) {
+                DomainObject personObject = getPersonObject(context, ((Person) assignment).getName());
+                if (personObject.exists(context)) {
+
+                    Map personMap = personObject.getInfo(context, new StringList(new String[]{
+                            DomainConstants.SELECT_ID,
+                            DomainConstants.SELECT_NAME,
+                            DomainConstants.SELECT_TYPE,
+                            DomainObject.getAttributeSelect(DomainConstants.ATTRIBUTE_FIRST_NAME),
+                            DomainObject.getAttributeSelect(DomainConstants.ATTRIBUTE_LAST_NAME)
+                    }));
+
+                    mapList.add(personMap);
+                }
+            }
+        }
+
+        return mapList;
+    }
+
+    @SuppressWarnings("unused")
+    public Vector getPersonHTML(Context context, String[] args) throws Exception {
+        Vector results = new Vector();
+        for (Object objectMapObject : IMS_KDD_mxJPO.getObjectMapList(args)) {
+            Map map = (Map) objectMapObject;
+            String name = IMS_KDD_mxJPO.getNameFromMap(map);
+
+            results.addElement(IMS_KDD_mxJPO.getLinkHTML(
+                    context, map, SOURCE_Person, null,
+                    IMS_KDD_mxJPO.FUGUE_16x16 + "user.png",
+                    null, null, null,
+                    true, true, "mx_divBody",
+                    true, null, false));
+        }
+        return results;
+    }
+
+    @SuppressWarnings("unused")
+    public String connectDEPOwner(Context context, String[] args) throws Exception {
+        return IMS_KDD_mxJPO.connect(context, args, new IMS_KDD_mxJPO.Connector() {
+            @Override
+            public String connect(Context context, String from, String to, String relationship) throws Exception {
+
+                IMS_KDD_mxJPO.connectIfNotConnected(
+                        context,
+                        RELATIONSHIP_IMS_QP_DEP2Owner,
+                        new DomainObject(from),
+                        new DomainObject(to));
+
+                return "";
+            }
+        });
+    }
+
+    @SuppressWarnings("unused")
+    public String disconnectDEPOwner(Context context, String[] args) throws Exception {
+        return IMS_KDD_mxJPO.disconnect(context, args, new IMS_KDD_mxJPO.Disconnector() {
+            @Override
+            public String disconnect(Context context, String from, String to, String relationship) throws Exception {
+
+                new DomainObject(from).disconnect(
+                        context,
+                        new RelationshipType(RELATIONSHIP_IMS_QP_DEP2Owner),
+                        true,
+                        new DomainObject(to));
+
+                return "";
+            }
+        });
+    }
+
+    @SuppressWarnings("unused")
+    public String getDEPOwnersHTML(Context context, String[] args) throws Exception {
+        StringBuilder sb = new StringBuilder();
+        DomainObject depObject = IMS_KDD_mxJPO.getObjectFromParamMap(args);
+        boolean currentUserIsDEPOwner = currentUserIsDEPOwner(context, depObject);
+
+        List<Map> relatedMaps = IMS_KDD_mxJPO.getRelatedObjectMaps(
+                context, depObject,
+                RELATIONSHIP_IMS_QP_DEP2Owner,
+                true,
+                Arrays.asList(
+                        DomainConstants.SELECT_ID,
+                        DomainConstants.SELECT_NAME,
+                        DomainConstants.SELECT_TYPE,
+                        DomainConstants.ATTRIBUTE_FIRST_NAME,
+                        DomainConstants.ATTRIBUTE_LAST_NAME),
+                null, null, true);
+
+        for (Map relatedMap : relatedMaps) {
+            if (sb.length() > 0) {
+                sb.append("<br />");
+            }
+
+            if (currentUserIsDEPOwner) {
+
+                sb.append(IMS_KDD_mxJPO.getDisconnectLinkHTML(
+                        PROGRAM_IMS_QP_Security, "disconnectDEPOwner",
+                        depObject.getId(context), IMS_KDD_mxJPO.getIdFromMap(relatedMap),
+                        RELATIONSHIP_IMS_QP_DEP2Owner,
+                        "Disconnect",
+                        IMS_KDD_mxJPO.getRefreshWindowFunction()));
+            }
+
+            sb.append(IMS_KDD_mxJPO.getLinkHTML(
+                    context, relatedMap, null, null,
+                    IMS_KDD_mxJPO.FUGUE_16x16 + "user.png",
+                    "12px",
+                    IMS_KDD_mxJPO.getName(context, relatedMap),
+                    null, false, false, null, false, null, false));
+        }
+
+        if (currentUserIsDEPOwner) {
+
+            sb.append(IMS_DragNDrop_mxJPO.getConnectDropAreaHTML(
+                    PROGRAM_IMS_QP_Security, "connectDEPOwner",
+                    RELATIONSHIP_IMS_QP_DEP2Owner, true,
+                    "0", depObject.getId(context),
+                    IMS_KDD_mxJPO.getRefreshWindowFunction(),
+                    "",
+                    SOURCE_Person,
+                    "Drop owner here",
+                    "100%",
+                    "26px", "auto", "12px"));
+        }
+
+        return sb.toString();
     }
 }

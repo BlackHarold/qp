@@ -55,4 +55,13 @@ mxUpdate form "${NAME}" {
         setting "Field Type" "attribute"
         setting "Registered Suite" "Framework"
     }
+    field {
+        name "DEPOwners"
+        label "Owners"
+        setting "Editable" "false"
+        setting "Field Type" "programHTMLOutput"
+        setting "Registered Suite" "Framework"
+        setting "function" "getDEPOwnersHTML"
+        setting "program" "IMS_QP_Security"
+    }
 }

@@ -6,6 +6,7 @@ import com.matrixone.apps.domain.util.*;
 import matrix.db.*;
 import matrix.util.MatrixException;
 import matrix.util.StringList;
+import matrix.util.ThreadMap;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
@@ -153,6 +154,8 @@ public class IMS_KDD_mxJPO {
 
     public static final String E_SERVICE_PRODUCTION = "eService Production";
 
+    public static final String CONTEXT_IMS_ERROR_MESSAGE = "IMS_ERROR_MESSAGE";
+
     public static void log(String loggerName, String message) {
         Logger.getLogger(loggerName).debug(message);
     }
@@ -175,16 +178,36 @@ public class IMS_KDD_mxJPO {
         return getString(context, name, context.getSession().getLanguage());
     }
 
-    public static DomainObject getObjectFromProgramMap(Context context, HashMap programMap) throws Exception {
-        return new DomainObject((String) programMap.get("objectId"));
-    }
-
     public static HashMap getProgramMap(String[] args) throws Exception {
         return JPO.unpackArgs(args);
     }
 
+    public static Map getParamListMap(String[] args) throws Exception {
+        return (Map) (getProgramMap(args)).get("paramList");
+    }
+
+    public static Map getParamMap(String[] args) throws Exception {
+        return (Map) (getProgramMap(args)).get("paramMap");
+    }
+
+    public static String getObjectIdFromProgramMap(String[] args) throws Exception {
+        return (String) getProgramMap(args).get("objectId");
+    }
+
+    public static String getObjectIdFromParamMap(String[] args) throws Exception {
+        return (String) getParamMap(args).get("objectId");
+    }
+
     public static DomainObject getObjectFromProgramMap(Context context, String[] args) throws Exception {
-        return getObjectFromProgramMap(context, getProgramMap(args));
+        return new DomainObject(getObjectIdFromProgramMap(args));
+    }
+
+    public static DomainObject getObjectFromParamMap(String[] args) throws Exception {
+        return new DomainObject(getObjectIdFromParamMap(args));
+    }
+
+    public static DomainObject getObjectFromProgramMap(Context context, HashMap programMap) throws Exception {
+        return new DomainObject((String) programMap.get("objectId"));
     }
 
     public static MapList getObjectMapList(String[] args) throws Exception {
@@ -213,16 +236,12 @@ public class IMS_KDD_mxJPO {
     }
 
     public static Locale getLocale(String[] args) throws Exception {
-        return  (Locale) getParamMap(args).get("localeObj");
+        return  (Locale) getParamListMap(args).get("localeObj");
     }
 
     public static boolean isRuLocale(String[] args) throws Exception {
         Locale locale = getLocale(args);
         return locale != null && isRuLocale(locale.toString());
-    }
-
-    public static Map getParamMap(String[] args) throws Exception {
-        return (Map) ((HashMap) JPO.unpackArgs(args)).get("paramList");
     }
 
     public static String getIdFromMap(Object obj) {
@@ -629,7 +648,7 @@ public class IMS_KDD_mxJPO {
     }
 
     public String toggleConnection(Context context, String fromId, String toName, String toType, String relationship) throws Exception {
-        DomainObject fromObject = DomainObject.newInstance(context, fromId);
+        DomainObject fromObject = new DomainObject(fromId);
         Map connectedMap = null;
         for (Map map : getRelatedObjectMaps(context, fromObject, relationship, true)) {
             if (getNameFromMap(map).equals(toName)) {
@@ -641,7 +660,7 @@ public class IMS_KDD_mxJPO {
             fromObject.disconnect(context, new RelationshipType(relationship), true, idToObject(context, getIdFromMap(connectedMap)));
         }
         else {
-            DomainObject toObject = DomainObject.newInstance(context, new BusinessObject(toType, toName, "", Vaults.eService_Production));
+            DomainObject toObject = new DomainObject(new BusinessObject(toType, toName, "", Vaults.eService_Production));
             if (toObject.exists(context)) {
                 fromObject.connect(context, new RelationshipType(relationship), true, toObject);
             }
@@ -675,7 +694,7 @@ public class IMS_KDD_mxJPO {
     }
 
     public static DomainObject getCompanyObject(Context context, String name) throws MatrixException {
-        return DomainObject.newInstance(context, new BusinessObject(Types.Company, name, "-", Vaults.eService_Production));
+        return new DomainObject(new BusinessObject(Types.Company, name, "-", Vaults.eService_Production));
     }
 
     public static boolean isConnected(Context context, String relationship, DomainObject fromObject, DomainObject toObject) throws FrameworkException {
@@ -839,11 +858,11 @@ public class IMS_KDD_mxJPO {
             Context context, String relationship, DomainObject fromObject, DomainObject toObject) throws Exception {
 
         String id = findConnectionId(context, relationship, fromObject.getId(context), toObject.getId(context));
-        return id != null ? DomainRelationship.newInstance(context, id) : null;
+        return id != null ? new DomainRelationship(id) : null;
     }
 
     public static String findRelToTypeConnectionId(
-            Context context, String relationship, String fromConnectionId, DomainObject toObject) throws Exception {
+            Context context, String relationship, String fromConnectionId, String toObjectId) throws Exception {
 
 //        String result = MqlUtil.mqlCommand(
 //                context,
@@ -861,7 +880,7 @@ public class IMS_KDD_mxJPO {
                 context,
                 String.format(
                         "print connection %s select frommid[%s|to.id==%s].id dump |;",
-                        fromConnectionId, relationship, toObject.getId(context)));
+                        fromConnectionId, relationship, toObjectId));
 
         return !StringUtils.isBlank(result) ? result : null;
     }
@@ -971,7 +990,7 @@ public class IMS_KDD_mxJPO {
 
         String connectionId = findConnectionId(context, relationship, fromObject, toObject);
         if (!StringUtils.isBlank(connectionId)) {
-            return new ConnectResult(DomainRelationship.newInstance(context, connectionId), false);
+            return new ConnectResult(new DomainRelationship(connectionId), false);
         }
         return new ConnectResult(new DomainRelationship(fromObject.connect(context, new RelationshipType(relationship), true, toObject)), true);
     }
@@ -993,15 +1012,15 @@ public class IMS_KDD_mxJPO {
             Context context, String relationship, DomainRelationship fromConnection, DomainObject toObject) throws Exception {
 
         String fromConnectionId = getConnectionId(context, fromConnection);
-        String connectionId = findRelToTypeConnectionId(context, relationship, fromConnectionId, toObject);
+        String connectionId = findRelToTypeConnectionId(context, relationship, fromConnectionId, toObject.getId(context));
         if (!StringUtils.isBlank(connectionId)) {
-            return new ConnectResult(DomainRelationship.newInstance(context, connectionId), false);
+            return new ConnectResult(new DomainRelationship(connectionId), false);
         }
 
         ConnectionInfo connectionInfo = connectConnectionToObjectAndSetConnectionOwner(
                 context, relationship, fromConnectionId, toObject.getId(context), null);
 
-        return new ConnectResult(DomainRelationship.newInstance(context, connectionInfo.Id), true);
+        return new ConnectResult(new DomainRelationship(connectionInfo.Id), true);
     }
 
     public static DomainRelationship connectIfNotConnected(
@@ -1017,13 +1036,13 @@ public class IMS_KDD_mxJPO {
         String toConnectionId = getConnectionId(context, toConnection);
         String connectionId = findTypeToRelConnectionId(context, relationship, fromObject, toConnectionId);
         if (!StringUtils.isBlank(connectionId)) {
-            return new ConnectResult(DomainRelationship.newInstance(context, connectionId), false);
+            return new ConnectResult(new DomainRelationship(connectionId), false);
         }
 
         ConnectionInfo connectionInfo = connectObjectToConnectionAndSetConnectionOwner(
                 context, relationship, fromObject.getId(context), toConnectionId, null);
 
-        return new ConnectResult(DomainRelationship.newInstance(context, connectionInfo.Id), true);
+        return new ConnectResult(new DomainRelationship(connectionInfo.Id), true);
     }
 
     public static DomainRelationship connectIfNotConnected(
@@ -1159,11 +1178,11 @@ public class IMS_KDD_mxJPO {
     }
 
     public static boolean isInitialGetColumnValuesCall(String[] args) throws Exception {
-        return !getParamMap(args).containsKey("firstTime");
+        return !getParamListMap(args).containsKey("firstTime");
     }
 
     public static DomainObject getObject(Context context, String type, String name, String revision) throws MatrixException {
-        return DomainObject.newInstance(context, new BusinessObject(type, name, revision, Vaults.eService_Production));
+        return new DomainObject(new BusinessObject(type, name, revision, Vaults.eService_Production));
     }
 
     public static String getCheckBoxHTML(String column, String rowId, String id) {
@@ -1742,7 +1761,9 @@ public class IMS_KDD_mxJPO {
                     toSplitRegex);
         }
         catch (Exception e) {
-            return "ERROR: " + e.getMessage();
+            String errorMessage = (String) ThreadMap.getCurrentThreadHashMap().get(CONTEXT_IMS_ERROR_MESSAGE);
+            ThreadMap.getCurrentThreadHashMap().remove(CONTEXT_IMS_ERROR_MESSAGE);
+            return StringUtils.isNotBlank(errorMessage) ? errorMessage : "ERROR: " + e.toString();
         }
     }
 
@@ -1807,7 +1828,9 @@ public class IMS_KDD_mxJPO {
                     disconnector);
         }
         catch (Exception e) {
-            return "ERROR: " + e.getMessage();
+            String errorMessage = (String) ThreadMap.getCurrentThreadHashMap().get(CONTEXT_IMS_ERROR_MESSAGE);
+            ThreadMap.getCurrentThreadHashMap().remove(CONTEXT_IMS_ERROR_MESSAGE);
+            return StringUtils.isNotBlank(errorMessage) ? errorMessage : "ERROR: " + e.toString();
         }
     }
 
@@ -1819,6 +1842,10 @@ public class IMS_KDD_mxJPO {
 
     public static String getRefreshAllRowsFunction() {
         return "function(){refreshRows();}";
+    }
+
+    public static String getRefreshWindowFunction() {
+        return "function(){window.location.href = window.location.href;}";
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

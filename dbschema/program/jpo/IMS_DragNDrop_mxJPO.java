@@ -37,7 +37,7 @@ public class IMS_DragNDrop_mxJPO {
                 IMS_KDD_mxJPO.COMMON_IMAGES) +
                 //"<br />" +
                 String.format(
-                        "<div id=\"%1$s\" class=\"dropArea\" style=\"width: %14$s; height: %8$s; margin: %15$s; display: table;\" " +
+                        "<div id=\"%1$s\" class=\"dropArea\" style=\"width: %14$s; height: %8$s; margin: %15$s; display: table; border-collapse: separate;\" " +
                                 "ondragover=\"IMS_DragNDrop_onDrag(event, '%6$s', '%13$s', '%5$s', '%11$s')\" " +
                                 "ondragleave=\"IMS_DragNDrop_onDrag(event, '%6$s', '%13$s', '%5$s', '%11$s')\" " +
                                 "ondrop=\"IMS_DragNDrop_connect('%3$s', '%4$s', '%5$s', event, '%6$s', %7$s, '%13$s', %9$s, '%10$s', '%11$s')\">" +
