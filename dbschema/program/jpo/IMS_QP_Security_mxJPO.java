@@ -478,9 +478,8 @@ public class IMS_QP_Security_mxJPO {
             if (sb.length() > 0) {
                 sb.append("<br />");
             }
-            String ownerName = IMS_KDD_mxJPO.getName(context, relatedMap);
-
-            if (currentUserIsDEPOwner && !context.getUser().equals(ownerName)) {
+            
+            if (currentUserIsDEPOwner && !context.getUser().equals(IMS_KDD_mxJPO.getNameFromMap(relatedMap))) {
 
                 sb.append(IMS_KDD_mxJPO.getDisconnectLinkHTML(
                         PROGRAM_IMS_QP_Security, "disconnectDEPOwner",
@@ -494,7 +493,7 @@ public class IMS_QP_Security_mxJPO {
                     context, relatedMap, null, null,
                     IMS_KDD_mxJPO.FUGUE_16x16 + "user.png",
                     "12px",
-                    ownerName,
+                    IMS_KDD_mxJPO.getName(context, relatedMap),
                     null, false, false, null, false, null, false));
         }
 
