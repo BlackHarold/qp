@@ -25,7 +25,7 @@
 <div style="width: 100%; height: 100%">
 
     <div id="leftDiv" style="width: calc(65% - 5px); height: 100%; float: left;">
-        <iframe id="leftFrame" name="leftFrame" src="emxForm.jsp?form=type_IMS_QP_DEP&toolbar=IMS_QP_DEP_Toolbar&formHeader='Quality DEP'&editLink=true&submitAction=refreshCaller&objectId=<%=request.getParameter("objectId")%>" width="100%" frameborder="0" style="height: calc(100% - 0px)"></iframe>
+        <iframe id="leftFrame" name="leftFrame" src="emxForm.jsp?form=type_IMS_QP_DEP&toolbar=IMS_QP_DEP_Toolbar&formHeader='Quality DEP'&submitAction=refreshCaller&objectId=<%=request.getParameter("objectId")%>" width="100%" frameborder="0" style="height: calc(100% - 0px)"></iframe>
     </div>
 
     <div id="rightDiv" style="width: calc(35% - 5px); height: 100%; float: right;">

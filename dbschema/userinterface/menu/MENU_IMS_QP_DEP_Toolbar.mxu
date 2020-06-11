@@ -11,6 +11,7 @@ mxUpdate menu "${NAME}" {
     href ""
     alt ""
     command "IMS_QP_DEPSubStage_create"
+	command "IMS_QP_DEP_edit"
     ################################################## Info Start
     property "original name" value "type_IMS_QP_DEPSubStage"
     property "application" value "IMS_HNH19"
