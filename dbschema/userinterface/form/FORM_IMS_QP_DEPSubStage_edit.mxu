@@ -32,18 +32,18 @@ mxUpdate form "${NAME}" {
         label "Name"
         businessobject "$<attribute[IMS_Name]>"
         setting "Editable" "true"
+        setting "Field Size" "75"
         setting "Field Type" "attribute"
         setting "Registered Suite" "Components"
-        setting "Field Size" "75"
     }
     field {
         name "IMS_NameRu"
         label "Name RU"
         businessobject "$<attribute[IMS_NameRu]>"
         setting "Editable" "true"
+        setting "Field Size" "75"
         setting "Field Type" "attribute"
         setting "Registered Suite" "Components"
-        setting "Field Size" "75"
     }
     field {
         name "IMS_DescriptionEn"
@@ -51,8 +51,8 @@ mxUpdate form "${NAME}" {
         businessobject "$<attribute[IMS_DescriptionEn]>"
         setting "Editable" "true"
         setting "Field Type" "attribute"
-        setting "Registered Suite" "Components"
         setting "Input Type" "textarea"
+        setting "Registered Suite" "Components"
     }
     field {
         name "IMS_DescriptionRu"
@@ -60,8 +60,8 @@ mxUpdate form "${NAME}" {
         businessobject "$<attribute[IMS_DescriptionRu]>"
         setting "Editable" "true"
         setting "Field Type" "attribute"
-        setting "Registered Suite" "Components"
         setting "Input Type" "textarea"
+        setting "Registered Suite" "Components"
     }
     ################################################## Info Start
     property "author" value "The IMS Team"

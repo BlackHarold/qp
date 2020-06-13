@@ -5,10 +5,10 @@
 ################################################################################
 
 mxUpdate command "${NAME}" {
-    symbolicname "COMMAND_IMS_QP_DEPSubstage_edit"
+    symbolicname "COMMAND_IMS_QP_DEPSubStage_edit"
     description ""
     label "Edit"
-    href "${COMMON_DIR}/IMS_FormSubstage.jsp?form=IMS_QP_DEPSubstage_edit&mode=edit&submitAction=refreshCaller&postProcessJPO=IMS_QualityPlanBase:editPostProcess"
+    href "${COMMON_DIR}/IMS_FormSubstage.jsp?form=IMS_QP_DEPSubStage_edit&mode=edit&submitAction=refreshCaller&postProcessJPO=IMS_QualityPlanBase:editPostProcess"
     alt ""
     user "all"
     setting "Access Function" "currentUserIsDEPOwner"
@@ -20,7 +20,7 @@ mxUpdate command "${NAME}" {
     setting "Target Location" "popup"
     ################################################## Info Start
     property "author" value "IMS Team"
-    property "original name" value "IMS_QP_DEPSubstage_edit"
+    property "original name" value "IMS_QP_DEPSubStage_edit"
     property "application" value "IMS"
     property "version" value "1"
     ################################################## Info End
