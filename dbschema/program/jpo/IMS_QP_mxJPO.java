@@ -88,6 +88,7 @@ public class IMS_QP_mxJPO extends DomainObject {
                     append(relationship_IMS_QP_QP2DEP).append(",").
                     append(relationship_IMS_QP_DEP2DEPProjectStage).append(",").
                     append(relationship_IMS_QP_DEPProjectStage2DEPSubStage).append(",").
+                    append(relationship_IMS_QP_QP2QPlan).append(",").
                     append(relationship_IMS_QP_DEPSubStage2DEPTask);
 
             DomainObject domObj = newInstance(context, objectId);
