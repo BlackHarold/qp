@@ -481,7 +481,7 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
             LOG.info("baselineName: " + baselineName);
             baselineID=baselineName;
         } else if (!baselineName.equals("")) {
-            String where = "name smatch " + baselineName;
+            String where = "name smatch '" + baselineName+"'";
             MapList currentBaseline = DomainObject.findObjects(context, "IMS_Baseline", "eService Production", where, new StringList("id"));
             Map id = (Map) currentBaseline.get(0);
             baselineID = (String) id.get("id");
