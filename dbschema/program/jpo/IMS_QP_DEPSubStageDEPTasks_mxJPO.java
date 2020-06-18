@@ -39,6 +39,10 @@ public class IMS_QP_DEPSubStageDEPTasks_mxJPO {
     private static final String ATTRIBUTE_IMS_Name = "IMS_Name";
     private static final String ATTRIBUTE_IMS_NameRu = "IMS_NameRu";
 
+    private static final String INTERFACE_IMS_ExternalDocumentSet = "IMS_ExternalDocumentSet";
+
+    private static final String RELATIONSHIP_IMS_QP_QPTask2Fact = "IMS_QP_QPTask2Fact";
+
     private static final String SELECT_DEP_ID = String.format(
             "to[%s].from.to[%s].from.to[%s].from.id",
             RELATIONSHIP_IMS_QP_DEPSubStage2DEPTask,
@@ -415,9 +419,11 @@ public class IMS_QP_DEPSubStageDEPTasks_mxJPO {
                 StringBuilder sb = new StringBuilder();
                 String rowId = IMS_KDD_mxJPO.getRowId(map);
                 String id = IMS_KDD_mxJPO.getIdFromMap(map);
+                DomainObject depTaskObject = IMS_KDD_mxJPO.idToObject(context, id);
+                boolean currentUserIsDEPOwner = IMS_QP_Security_mxJPO.currentUserIsDEPOwner(context, depTaskObject);
 
                 List<Map> relatedMaps = IMS_KDD_mxJPO.getRelatedObjectMaps(
-                        context, IMS_KDD_mxJPO.idToObject(context, id),
+                        context, depTaskObject,
                         StringUtils.join(
                                 Arrays.asList(RELATIONSHIP_IMS_QP_DEPTask2DEPTask, RELATIONSHIP_IMS_QP_DEPTask2DEP),
                                 ','),
@@ -432,12 +438,14 @@ public class IMS_QP_DEPSubStageDEPTasks_mxJPO {
                         sb.append("<br />");
                     }
 
-                    sb.append(IMS_KDD_mxJPO.getDisconnectLinkHTML(
-                            PROGRAM_IMS_QP_DEPSubStageDEPTasks, "disconnectDEPTask",
-                            id, IMS_KDD_mxJPO.getIdFromMap(relatedMap),
-                            virtualRelationship,
-                            "Disconnect",
-                            IMS_KDD_mxJPO.getRefreshAllRowsFunction()));
+                    if (currentUserIsDEPOwner) {
+                        sb.append(IMS_KDD_mxJPO.getDisconnectLinkHTML(
+                                PROGRAM_IMS_QP_DEPSubStageDEPTasks, "disconnectDEPTask",
+                                id, IMS_KDD_mxJPO.getIdFromMap(relatedMap),
+                                virtualRelationship,
+                                "Disconnect",
+                                IMS_KDD_mxJPO.getRefreshAllRowsFunction()));
+                    }
 
                     if (IMS_KDD_mxJPO.getTypeFromMap(relatedMap).equals(TYPE_IMS_QP_DEPTask)) {
 //                        Map depMap = new HashMap();
@@ -481,19 +489,21 @@ public class IMS_QP_DEPSubStageDEPTasks_mxJPO {
                     }
                 }
 
-                sb.append(IMS_DragNDrop_mxJPO.getConnectDropAreaHTML(
-                        PROGRAM_IMS_QP_DEPSubStageDEPTasks, "connectDEPTask",
-                        virtualRelationship, !in,
-                        rowId, id,
-                        IMS_KDD_mxJPO.getRefreshAllRowsFunction(),
-                        in ?
-                                SOURCE_DEPTask :
-                                StringUtils.join(Arrays.asList(SOURCE_DEPTask, SOURCE_DEP), ','),
-                        String.format(
-                                "Drop %s %s here",
-                                in ? "input" : "output",
-                                in ? "DEP Task" : "DEP Task or DEP"),
-                        "26px", "10px"));
+                if (currentUserIsDEPOwner) {
+                    sb.append(IMS_DragNDrop_mxJPO.getConnectDropAreaHTML(
+                            PROGRAM_IMS_QP_DEPSubStageDEPTasks, "connectDEPTask",
+                            virtualRelationship, !in,
+                            rowId, id,
+                            IMS_KDD_mxJPO.getRefreshAllRowsFunction(),
+                            in ?
+                                    SOURCE_DEPTask :
+                                    StringUtils.join(Arrays.asList(SOURCE_DEPTask, SOURCE_DEP), ','),
+                            String.format(
+                                    "Drop %s %s here",
+                                    in ? "input" : "output",
+                                    in ? "DEP Task" : "DEP Task or DEP"),
+                            "26px", "10px"));
+                }
 
                 results.addElement(sb.toString());
             }
@@ -726,6 +736,90 @@ public class IMS_QP_DEPSubStageDEPTasks_mxJPO {
             styles.add("IMS_QP_DEPTaskOutput");
         }
         return styles;
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    @SuppressWarnings("unused")
+    public String getConnectedExternalDocumentSetHTML(Context context, String[] args) throws Exception {
+        DomainObject qpTaskObject = IMS_KDD_mxJPO.getObjectFromParamMap(args);
+
+        Map externalDocumentSetMap = qpTaskObject.getRelatedObject(
+                context,
+                RELATIONSHIP_IMS_QP_QPTask2Fact, true,
+                new StringList(new String[]{
+                        DomainConstants.SELECT_ID,
+                        DomainConstants.SELECT_NAME,
+                        IMS_KDD_mxJPO.getToNameSelect(IMS_ExternalSystem_mxJPO.RELATIONSHIP_IMS_Object2ExternalSystem)
+                }),
+                null);
+
+        StringBuilder sb = new StringBuilder();
+
+        if (externalDocumentSetMap != null) {
+
+            String externalSystemName = (String) externalDocumentSetMap.get(
+                    IMS_KDD_mxJPO.getToNameSelect(IMS_ExternalSystem_mxJPO.RELATIONSHIP_IMS_Object2ExternalSystem));
+
+            sb.append(IMS_KDD_mxJPO.getDisconnectLinkHTML(
+                    PROGRAM_IMS_QP_DEPSubStageDEPTasks, "disconnectExternalDocumentSet",
+                    qpTaskObject.getId(context), IMS_KDD_mxJPO.getIdFromMap(externalDocumentSetMap),
+                    RELATIONSHIP_IMS_QP_QPTask2Fact,
+                    "Disconnect",
+                    IMS_KDD_mxJPO.getRefreshWindowFunction()));
+
+            sb.append(String.format(
+                    "<a href=\"javascript:%s\"><img src=\"%s\" />%s</a>",
+                    String.format(
+                            "emxTableColumnLinkClick('../common/emxForm.jsp?objectId=%s&form=type_IMS_ExternalDocumentSet&%s=%s')",
+                            IMS_KDD_mxJPO.getIdFromMap(externalDocumentSetMap),
+                            IMS_ExternalSystem_mxJPO.ATTRIBUTE_IMS_ExternalSystemName,
+                            HtmlEscapers.htmlEscaper().escape(externalSystemName != null ? externalSystemName : "")),
+                    IMS_KDD_mxJPO.FUGUE_16x16 + "document.png",
+                    HtmlEscapers.htmlEscaper().escape(IMS_KDD_mxJPO.getNameFromMap(externalDocumentSetMap))));
+
+//            sb.append(IMS_KDD_mxJPO.getLinkHTML(
+//                    context, externalDocumentSetMap,
+//                    null,
+//                    null,
+//                    IMS_KDD_mxJPO.FUGUE_16x16 + "document.png",
+//                    null, null, null,
+//                    false, false, null,
+//                    false,
+//                    null, false));
+        }
+        else {
+            sb.append(String.format(
+                    "<a href=\"javascript:%s\"><img src=\"%s\" title=\"%s\" /></a>",
+                    String.format(
+                            "window.open('IMS_ExternalSearch.jsp?table=IMS_ExternalDocumentSet&IMS_ExternalSystemName=%s&relationship=%s&from=%s&objectId=%s&IMS_SearchHint=%s', '_blank', 'height=800,width=1200,toolbar=0,location=0,menubar=0')",
+                            "97",
+                            RELATIONSHIP_IMS_QP_QPTask2Fact,
+                            true,
+                            qpTaskObject.getId(context),
+                            HtmlEscapers.htmlEscaper().escape("Search for Document Sets")),
+                    IMS_KDD_mxJPO.FUGUE_16x16 + "plus.png",
+                    "Connect Document Set"));
+        }
+
+        return sb.toString();
+    }
+
+    @SuppressWarnings("unused")
+    public String disconnectExternalDocumentSet(Context context, String[] args) throws Exception {
+        return IMS_KDD_mxJPO.disconnect(context, args, new IMS_KDD_mxJPO.Disconnector() {
+            @Override
+            public String disconnect(Context context, String from, String to, String relationship) throws Exception {
+
+                new DomainObject(from).disconnect(
+                        context,
+                        new RelationshipType(relationship),
+                        true,
+                        new DomainObject(to));
+
+                return "";
+            }
+        });
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

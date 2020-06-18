@@ -190,6 +190,10 @@ public class IMS_KDD_mxJPO {
         return (Map) (getProgramMap(args)).get("paramMap");
     }
 
+    public static Map getRequestMap(String[] args) throws Exception {
+        return (Map) (getProgramMap(args)).get("requestMap");
+    }
+
     public static String getObjectIdFromProgramMap(String[] args) throws Exception {
         return (String) getProgramMap(args).get("objectId");
     }
@@ -229,6 +233,15 @@ public class IMS_KDD_mxJPO {
             log(loggerName, entry.getKey() + " : " + entry.getValue());
         }
         log(loggerName, "----------------------------------------");
+    }
+
+    public static void printProgramMap(String[] args) throws Exception {
+        System.err.println("----------------------------------------");
+        for (Object obj : getProgramMap(args).entrySet()) {
+            Map.Entry entry = (Map.Entry) obj;
+            System.err.println(entry.getKey() + " : " + entry.getValue());
+        }
+        System.err.println("----------------------------------------");
     }
 
     public static boolean isRuLocale(String locale) throws Exception {

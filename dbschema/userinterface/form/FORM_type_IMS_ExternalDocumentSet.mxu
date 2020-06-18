@@ -1,0 +1,82 @@
+################################################################################
+# FORM_type_IMS_ExternalDocumentSet.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate form "${NAME}" {
+    description ""
+    field {
+        name "Name"
+        label "emxFramework.Basic.Name"
+        businessobject "name"
+        setting "Field Type" "basic"
+        setting "Registered Suite" "Framework"
+    }
+    field {
+        name "Name"
+        label "emxFramework.Basic.Description"
+        businessobject "description"
+        setting "Field Type" "basic"
+        setting "Registered Suite" "Framework"
+    }
+    field {
+        name "Revision"
+        label "emxFramework.Basic.Revision"
+        businessobject "revision"
+        setting "Field Type" "basic"
+        setting "Registered Suite" "Framework"
+    }
+    field {
+        name "Policy"
+        label "emxFramework.Basic.Policy"
+        businessobject "attribute[IMS_ExternalObjectPolicy]"
+        setting "Editable" "false"
+        setting "Field Type" "attribute"
+        setting "Registered Suite" "Framework"
+    }
+    field {
+        name "Current"
+        label "emxFramework.Basic.Current"
+        businessobject "attribute[IMS_ExternalObjectState]"
+        setting "Field Type" "attribute"
+        setting "Registered Suite" "Framework"
+    }
+    field {
+        name "IMS_SPFMajorRevision"
+        label "Major Revision"
+        businessobject "attribute[IMS_SPFMajorRevision]"
+        setting "Field Type" "attribute"
+        setting "Registered Suite" "Framework"
+    }
+    field {
+        name "IMS_SPFDocVersion"
+        label "Doc Version"
+        businessobject "attribute[IMS_SPFDocVersion]"
+        setting "Field Type" "attribute"
+        setting "Registered Suite" "Framework"
+    }
+    field {
+        name "IMS_ProjDocStatus"
+        label "Doc Status"
+        businessobject "attribute[IMS_ProjDocStatus]"
+        setting "Field Type" "attribute"
+        setting "Registered Suite" "Framework"
+    }
+    field {
+        name "IMS_Frozen"
+        label "Frozen"
+        businessobject "attribute[IMS_Frozen]"
+        setting "Field Type" "attribute"
+        setting "Registered Suite" "Framework"
+    }
+    field {
+        name "ExternalDocumentSet"
+        label "External Document Set"
+        setting "Editable" "false"
+        setting "Field Type" "programHTMLOutput"
+        setting "Registered Suite" "Framework"
+        setting "function" "getExternalObjectLinkFormHTML"
+        setting "program" "IMS_ExternalSystem"
+    }
+}
