@@ -222,13 +222,15 @@ public class IMS_ExternalSystem_mxJPO {
         return result;
     }
 
-    @SuppressWarnings("unused")
-    public String connectExternalObject(final Context context, String[] args) throws Exception {
-        final ExternalSystem externalSystem = new ExternalSystem(context, args[0]);
-        final String relationship = args[1];
-        final boolean from = "true".equalsIgnoreCase(args[2]);
-        final DomainObject object = new DomainObject(args[3]);
-        final String externalObjectId = args[4];
+    public static String connectExternalObject(
+            final Context context, final String externalSystemName,
+            final String relationship, final boolean from,
+            final String objectId,
+            String externalObjectId,
+            boolean testMode) throws Exception {
+
+        final ExternalSystem externalSystem = new ExternalSystem(context, externalSystemName);
+        final DomainObject object = new DomainObject(objectId);
 
         final Map externalObjectMap = JPO.invoke(
                 context,
@@ -241,7 +243,7 @@ public class IMS_ExternalSystem_mxJPO {
         if (externalObjectMap != null) {
             synchronized (LOCK) {
 
-                IMS_KDD_mxJPO.runInTransaction(context, new IMS_KDD_mxJPO.Action() {
+                IMS_KDD_mxJPO.runInTransaction(context, testMode, new IMS_KDD_mxJPO.Action() {
                     @Override
                     public void run() throws Exception {
 
@@ -273,5 +275,15 @@ public class IMS_ExternalSystem_mxJPO {
             }
         }
         return "External object not found.";
+    }
+
+    @SuppressWarnings("unused")
+    public String connectExternalObject(final Context context, String[] args) throws Exception {
+        return connectExternalObject(
+                context, args[0],
+                args[1], Boolean.TRUE.toString().equalsIgnoreCase(args[2]),
+                args[3],
+                args[4],
+                false);
     }
 }

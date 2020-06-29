@@ -36,10 +36,11 @@ public class IMS_QP_DEPSubStageDEPTasks_mxJPO {
     private static final String RELATIONSHIP_IMS_QP_QPTask2QPTask = "IMS_QP_QPTask2QPTask";
     private static final String RELATIONSHIP_IMS_QP_DEPTask2QPTask = "IMS_QP_DEPTask2QPTask";
 
+    private static final String RELATIONSHIP_IMS_QP_ExpectedResult2QPTask = "IMS_QP_ExpectedResult2QPTask";
+    private static final String ATTRIBUTE_IMS_QP_DocumentCode = "IMS_QP_DocumentCode";
+
     private static final String ATTRIBUTE_IMS_Name = "IMS_Name";
     private static final String ATTRIBUTE_IMS_NameRu = "IMS_NameRu";
-
-    private static final String INTERFACE_IMS_ExternalDocumentSet = "IMS_ExternalDocumentSet";
 
     private static final String RELATIONSHIP_IMS_QP_QPTask2Fact = "IMS_QP_QPTask2Fact";
 
@@ -744,49 +745,45 @@ public class IMS_QP_DEPSubStageDEPTasks_mxJPO {
     public String getConnectedExternalDocumentSetHTML(Context context, String[] args) throws Exception {
         DomainObject qpTaskObject = IMS_KDD_mxJPO.getObjectFromParamMap(args);
 
-        Map externalDocumentSetMap = qpTaskObject.getRelatedObject(
-                context,
-                RELATIONSHIP_IMS_QP_QPTask2Fact, true,
-                new StringList(new String[]{
+        List<Map> externalDocumentSetMaps = IMS_KDD_mxJPO.getRelatedObjectMaps(
+                context, qpTaskObject,
+                RELATIONSHIP_IMS_QP_QPTask2Fact,
+                true,
+                Arrays.asList(
                         DomainConstants.SELECT_ID,
                         DomainConstants.SELECT_NAME,
                         IMS_KDD_mxJPO.getToNameSelect(IMS_ExternalSystem_mxJPO.RELATIONSHIP_IMS_Object2ExternalSystem)
-                }),
-                null);
+                ),
+                null, null, false);
 
         StringBuilder sb = new StringBuilder();
 
-        if (externalDocumentSetMap != null) {
+        if (externalDocumentSetMaps.size() > 0) {
+            for (Map externalDocumentSetMap : externalDocumentSetMaps) {
+                if (sb.length() > 0) {
+                    sb.append("<br />");
+                }
 
-            String externalSystemName = (String) externalDocumentSetMap.get(
-                    IMS_KDD_mxJPO.getToNameSelect(IMS_ExternalSystem_mxJPO.RELATIONSHIP_IMS_Object2ExternalSystem));
+                String externalSystemName = (String) externalDocumentSetMap.get(
+                        IMS_KDD_mxJPO.getToNameSelect(IMS_ExternalSystem_mxJPO.RELATIONSHIP_IMS_Object2ExternalSystem));
 
-            sb.append(IMS_KDD_mxJPO.getDisconnectLinkHTML(
-                    PROGRAM_IMS_QP_DEPSubStageDEPTasks, "disconnectExternalDocumentSet",
-                    qpTaskObject.getId(context), IMS_KDD_mxJPO.getIdFromMap(externalDocumentSetMap),
-                    RELATIONSHIP_IMS_QP_QPTask2Fact,
-                    "Disconnect",
-                    IMS_KDD_mxJPO.getRefreshWindowFunction()));
+                sb.append(IMS_KDD_mxJPO.getDisconnectLinkHTML(
+                        PROGRAM_IMS_QP_DEPSubStageDEPTasks, "disconnectExternalDocumentSet",
+                        qpTaskObject.getId(context), IMS_KDD_mxJPO.getIdFromMap(externalDocumentSetMap),
+                        RELATIONSHIP_IMS_QP_QPTask2Fact,
+                        "Disconnect",
+                        IMS_KDD_mxJPO.getRefreshWindowFunction()));
 
-            sb.append(String.format(
-                    "<a href=\"javascript:%s\"><img src=\"%s\" />%s</a>",
-                    String.format(
-                            "emxTableColumnLinkClick('../common/emxForm.jsp?objectId=%s&form=type_IMS_ExternalDocumentSet&%s=%s')",
-                            IMS_KDD_mxJPO.getIdFromMap(externalDocumentSetMap),
-                            IMS_ExternalSystem_mxJPO.ATTRIBUTE_IMS_ExternalSystemName,
-                            HtmlEscapers.htmlEscaper().escape(externalSystemName != null ? externalSystemName : "")),
-                    IMS_KDD_mxJPO.FUGUE_16x16 + "document.png",
-                    HtmlEscapers.htmlEscaper().escape(IMS_KDD_mxJPO.getNameFromMap(externalDocumentSetMap))));
-
-//            sb.append(IMS_KDD_mxJPO.getLinkHTML(
-//                    context, externalDocumentSetMap,
-//                    null,
-//                    null,
-//                    IMS_KDD_mxJPO.FUGUE_16x16 + "document.png",
-//                    null, null, null,
-//                    false, false, null,
-//                    false,
-//                    null, false));
+                sb.append(String.format(
+                        "<a href=\"javascript:%s\"><img src=\"%s\" />%s</a>",
+                        String.format(
+                                "emxTableColumnLinkClick('../common/emxForm.jsp?objectId=%s&form=type_IMS_ExternalDocumentSet&%s=%s')",
+                                IMS_KDD_mxJPO.getIdFromMap(externalDocumentSetMap),
+                                IMS_ExternalSystem_mxJPO.ATTRIBUTE_IMS_ExternalSystemName,
+                                HtmlEscapers.htmlEscaper().escape(externalSystemName != null ? externalSystemName : "")),
+                        IMS_KDD_mxJPO.FUGUE_16x16 + "document.png",
+                        HtmlEscapers.htmlEscaper().escape(IMS_KDD_mxJPO.getNameFromMap(externalDocumentSetMap))));
+            }
         }
         else {
             sb.append(String.format(
@@ -820,6 +817,57 @@ public class IMS_QP_DEPSubStageDEPTasks_mxJPO {
                 return "";
             }
         });
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    public static void linkQPExpectedResultDocs(Context context, String externalSystemName, boolean testMode) throws Exception {
+        String docCodeSelect = String.format("to[%s].from.attribute[%s]", RELATIONSHIP_IMS_QP_ExpectedResult2QPTask, ATTRIBUTE_IMS_QP_DocumentCode);
+
+        MapList qpTaskMaps = DomainObject.findObjects(
+                context,
+                TYPE_IMS_QP_QPTask,
+                "*",
+                String.format("%s!=''", docCodeSelect),
+                new StringList(new String[]{
+                        DomainConstants.SELECT_ID,
+                        DomainConstants.SELECT_NAME,
+                        docCodeSelect
+                }));
+
+        for (Object item : qpTaskMaps) {
+            Map map = (Map) item;
+            String qpTaskId = (String) map.get(DomainConstants.SELECT_ID);
+            String docCode = (String) map.get(docCodeSelect);
+            System.out.println(String.format("%s --> %s", map.get(DomainConstants.SELECT_NAME), docCode));
+
+            MapList externalDocMapList = IMS_ExternalSystem_mxJPO.findObjects(context, externalSystemName, docCode);
+
+            if (externalDocMapList.size() == 1) {
+                System.out.println("  Connecting...");
+
+                String result = IMS_ExternalSystem_mxJPO.connectExternalObject(
+                        context, externalSystemName,
+                        RELATIONSHIP_IMS_QP_QPTask2Fact, true,
+                        qpTaskId,
+                        (String) ((Map) externalDocMapList.get(0)).get(DomainConstants.SELECT_ID),
+                        testMode);
+
+                if (StringUtils.isNotBlank(result)) {
+                    System.out.println("    " + result);
+                }
+            }
+            else if (externalDocMapList.size() == 0) {
+                System.out.println("  No external documents found");
+            }
+            else {
+                System.out.println("  Multiple external documents found");
+            }
+        }
+    }
+
+    public static void linkQPExpectedResultDocs(final Context context, final String[] args) throws Exception {
+        linkQPExpectedResultDocs(context, args[0], IMS_KDD_mxJPO.isTestMode(args));
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
