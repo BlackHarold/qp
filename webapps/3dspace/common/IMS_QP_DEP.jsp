@@ -22,14 +22,21 @@
 
 <script src="scripts/jquery-latest.js"></script>
 
-<div style="width: 100%; height: 100%">
+<div style="height: 100%">
 
-    <div id="leftDiv" style="width: calc(65% - 5px); height: 100%; float: left;">
-        <iframe id="leftFrame" name="leftFrame" src="emxForm.jsp?form=type_IMS_QP_DEP&toolbar=IMS_QP_DEP_Toolbar&formHeader='Quality DEP'&submitAction=refreshCaller&objectId=<%=request.getParameter("objectId")%>" width="100%" frameborder="0" style="height: calc(100% - 0px)"></iframe>
+    <%--    <div id="leftDiv" style="float: left;">--%>
+    <%--        <iframe id="leftFrame" name="leftFrame" src="emxForm.jsp?form=type_IMS_QP_DEP&toolbar=IMS_QP_DEP_Toolbar&formHeader='Quality DEP'&submitAction=refreshCaller&objectId=<%=request.getParameter("objectId")%>" frameborder="0" style="width: 100%; height: 100%;)"></iframe>--%>
+    <%--    </div>--%>
+    <div id="leftDiv" style="float: left;">
+        <iframe id="leftFrame" name="leftFrame"
+                src="emxPortalDisplay.jsp?portal=IMS_QP_DEPLeftPortal&objectId=<%=request.getParameter("objectId")%>"
+                frameborder="0" style="width: 100%; height:100%;"></iframe>
     </div>
 
-    <div id="rightDiv" style="width: calc(35% - 5px); height: 100%; float: right;">
-        <iframe id="rightFrame" src="emxPortalDisplay.jsp?portal=IMS_QP_DEPRightPortal&objectId=<%=request.getParameter("objectId")%>" width="100%" frameborder="0" style="height: calc(100% - 0px)"></iframe>
+    <div id="rightDiv" style="float: right;">
+        <iframe id="rightFrame"
+                src="emxPortalDisplay.jsp?portal=IMS_QP_DEPRightPortal&objectId=<%=request.getParameter("objectId")%>"
+                frameborder="0" style="width: 100%; height:100%;"></iframe>
     </div>
 </div>
 

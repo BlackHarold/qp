@@ -1,19 +1,16 @@
 ################################################################################
-# COMMAND_IMS_QP_DEP_Table.mxu
+# COMMAND_IMS_QP_DEPRelatedTesk_table.mxu
 #
 #            This file describes the target of a Configuration Item.
 ################################################################################
 
 mxUpdate command "${NAME}" {
-    symbolicname "command_IMS_QP_DEP_Table"
-    description "DEPs"
-    label "All sub stages"
-    href "${COMMON_DIR}/emxIndentedTable.jsp?program=IMS_QP:getAllDEP&table=IMS_QP_DEPSubStage_table&sortColumnName=Name&selection=multiple&formHeader=SubStages"
+    description "Related tasks"
+    label "Related tasks"
+    href "${COMMON_DIR}/emxForm.jsp?form=type_IMS_QP_DEP&toolbar=IMS_QP_DEP_Toolbar&formHeader='Quality DEP'&editLink=true&submitAction=refreshCaller"
     alt ""
-    setting "Registered Suite" "Framework"
     ################################################## Info Start
-    property "author" value "IMS Team"
-    property "original name" value "IMS_QP_DEP_Table"
+    property "original name" value "IMS_QP_DEPRelatedTask_table"
     property "application" value "IMS_HNH19"
     property "version" value "1"
     ################################################## Info End

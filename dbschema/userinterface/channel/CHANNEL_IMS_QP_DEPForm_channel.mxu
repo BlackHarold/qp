@@ -1,20 +1,23 @@
 ################################################################################
-# COMMAND_IMS_QP_DEP_Table.mxu
+# CHANNEL_IMS_QP_DEPForm_channel.mxu
 #
 #            This file describes the target of a Configuration Item.
 ################################################################################
 
-mxUpdate command "${NAME}" {
-    symbolicname "command_IMS_QP_DEP_Table"
-    description "DEPs"
-    label "All sub stages"
-    href "${COMMON_DIR}/emxIndentedTable.jsp?program=IMS_QP:getAllDEP&table=IMS_QP_DEPSubStage_table&sortColumnName=Name&selection=multiple&formHeader=SubStages"
+mxUpdate channel "${NAME}" {
+    symbolicname "channel_IMS_QP_DEPForm_сhannel"
+    description ""
+    label ""
+    href ""
     alt ""
+    height 50
     setting "Registered Suite" "Framework"
+    command "IMS_QP_DEP_Form"
+    command "IMS_QP_DEPRelatedTask_table"
     ################################################## Info Start
     property "author" value "IMS Team"
-    property "original name" value "IMS_QP_DEP_Table"
-    property "application" value "IMS_HNH19"
+    property "original name" value "IMS_QP_DEPForm_channel"
+    property "application" value "IMS"
     property "version" value "1"
     ################################################## Info End
 }
