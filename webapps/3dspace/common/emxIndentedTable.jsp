@@ -16,10 +16,6 @@
 				com.matrixone.apps.domain.util.FrameworkUtil,
 				com.matrixone.apps.domain.util.BPSJsonObjectBuilder"%>
 
-<!-- IMS begin -->
-<%@page import="org.apache.commons.lang3.StringEscapeUtils"%>
-<!-- IMS end -->
-
 <%@include file = "emxNavigatorNoDocTypeInclude.inc"%>
 <%@include file = "emxNavigatorTopErrorInclude.inc"%>
 <%@include file = "emxNavigatorCheckReadAccess.inc"%>
@@ -40,13 +36,13 @@
   boolean isStructure = Boolean.parseBoolean(isStructureCompare);
   requestMap.put("IsStructureCompare", String.valueOf(isStructure).toUpperCase());
 
-  String portalMode = (String) requestMap.get("portalMode");
+  String portalMode = (String) requestMap.get("portalMode"); 
   boolean isPortalMode = Boolean.parseBoolean(portalMode);
   requestMap.put("portalMode", String.valueOf(isPortalMode));
-
+  
   String isFromInContextSearch = (String) requestMap.get("fromCtxSearch");
   if(isFromInContextSearch == null){
-    requestMap.put("fromCtxSearch","false");
+	  requestMap.put("fromCtxSearch","false");
   }
   if ("TRUE".equalsIgnoreCase(isStructureCompare)){
     indentedTableBean = (com.matrixone.apps.framework.ui.UIStructureCompare)structureCompareBean;
@@ -56,14 +52,14 @@
   String timeStamp = "";
   // timeStamp to handle the business objectList
   if(!"true".equalsIgnoreCase(persist)){
-    timeStamp = indentedTableBean.getTimeStamp();
+  	 timeStamp = indentedTableBean.getTimeStamp();
   }else{
-    timeStamp = timeStampOld;
+	  timeStamp = timeStampOld;
   }
-
+  
   if(UIUtil.isNotNullAndNotEmpty(logPerformance) && "true".equalsIgnoreCase(logPerformance)) {
-    serverTimeLocal = System.currentTimeMillis();
-    isLoggingEnabled=true;
+	  serverTimeLocal = System.currentTimeMillis();
+	  isLoggingEnabled=true;
   }
   Vector userRoleList    = PersonUtil.getAssignments(context);
   String suiteKey        = emxGetParameter(request, "suiteKey");
@@ -85,27 +81,27 @@
 
   String cancelProcessJPO = emxGetParameter(request, "cancelProcessJPO");
   String cancelProcessURL = emxGetParameter(request, "cancelProcessURL");
-
+  
   String persistSort = emxGetParameter(request, "persistSort");
 
   String split = "";
 
   String languageStr = request.getHeader("Accept-Language");
   String objectString   = UINavigatorUtil.getI18nString("emxFramework.Common.object",
-          "emxFrameworkStringResource",
-          languageStr);
+                                "emxFrameworkStringResource",
+                                languageStr);
   String objectsString  = UINavigatorUtil.getI18nString("emxFramework.Common.objects",
-          "emxFrameworkStringResource",
-          languageStr);
+                                "emxFrameworkStringResource",
+                                languageStr);
   String selectedString   = UINavigatorUtil.getI18nString("emxFramework.Common.selected",
-          "emxFrameworkStringResource",
-          languageStr);
+                                "emxFrameworkStringResource",
+                                languageStr);
   String enterValueString = UINavigatorUtil.getI18nString("emxFramework.FreezePane.MoreLevel.EnterValue",
-          "emxFrameworkStringResource",
-          languageStr);
+                            "emxFrameworkStringResource",
+                            languageStr);
   String clearString      = UINavigatorUtil.getI18nString("emxFramework.Common.Clear",
-          "emxFrameworkStringResource",
-          languageStr);
+                            "emxFrameworkStringResource",
+                            languageStr);
 
   String xsltFile = "../webapps/ENOAEFStructureBrowser/assets/xslt/emxFreezePaneLayout.xsl";
   String level = emxGetParameter(request, "level");
@@ -114,7 +110,7 @@
   String isUnix = (ua.toLowerCase().indexOf("x11") > -1)?"true":"false";
   String isIE = EnoviaBrowserUtility.is(request,Browsers.IE)+"";
   String isMobile = String.valueOf(UINavigatorUtil.isMobile(context));
-  String isPCTouch = String.valueOf(UINavigatorUtil.isPCTouch(context));
+ 	String isPCTouch = String.valueOf(UINavigatorUtil.isPCTouch(context));	 
   String submitMethod = request.getMethod();
   String displayView = null;
 
@@ -126,11 +122,11 @@
     //Added for Structure Browser - Dynamic Columns
 
     if(!requestMap.containsKey("displayView")){
-      try{
-        displayView = EnoviaResourceBundle.getProperty(context, "emxFramework.Freezepane.view");
-        requestMap.put("displayView",displayView.trim());
-      }catch(Exception ex){
-      }
+	    try{
+	       displayView = EnoviaResourceBundle.getProperty(context, "emxFramework.Freezepane.view");
+	       requestMap.put("displayView",displayView.trim());
+	    }catch(Exception ex){
+	    }
     }
     //SpellChecker
     String spellCheckerURL = EnoviaResourceBundle.getProperty(context,"emxFramework.spellchecker.URL");
@@ -141,59 +137,59 @@
     requestMap.put("uiType","structureBrowser");
     String isFullSearch = (String)requestMap.get("fullTextSearch");
     if(!"true".equalsIgnoreCase(isFullSearch)){
-      requestMap.put("submitMethod",request.getMethod());
+        requestMap.put("submitMethod",request.getMethod());
     }
-    /* Start: IR-048208V6R2011x: If the URL contains the japanese characters, it must be decoded before further processing. */
+	/* Start: IR-048208V6R2011x: If the URL contains the japanese characters, it must be decoded before further processing. */
     if("Shift_JIS".equals(request.getCharacterEncoding()) && "true".equalsIgnoreCase(isFullSearch)){
-      String ftsFilters=(String) requestMap.get("ftsFilters");
-      ftsFilters = com.matrixone.apps.domain.util.XSSUtil.decodeFromURL(ftsFilters);
-      requestMap.put("ftsFilters",ftsFilters);
-    }
-    /*End: IR-048208V6R2011x */
+		String ftsFilters=(String) requestMap.get("ftsFilters");
+		ftsFilters = com.matrixone.apps.domain.util.XSSUtil.decodeFromURL(ftsFilters);
+		requestMap.put("ftsFilters",ftsFilters);
+	}
+	/*End: IR-048208V6R2011x */
     //Ended for Structure Browser - Dynamic Columns
 
     String[] arrayTableRowIds = emxGetParameterValues(request, "emxTableRowId");
     if (arrayTableRowIds != null && arrayTableRowIds.length > 0) {
-      String sParentIds = "";
-      for (int itr = 0; itr < arrayTableRowIds.length; itr++) {
-        if (sParentIds.length() > 0) {
-          sParentIds = sParentIds + "~" + arrayTableRowIds[itr];
+        String sParentIds = "";
+        for (int itr = 0; itr < arrayTableRowIds.length; itr++) {
+            if (sParentIds.length() > 0) {
+                sParentIds = sParentIds + "~" + arrayTableRowIds[itr];
+            }
+            else {
+                sParentIds = arrayTableRowIds[itr];
+            }
         }
-        else {
-          sParentIds = arrayTableRowIds[itr];
-        }
-      }
-      requestMap.put("emxParentIds", sParentIds);
+        requestMap.put("emxParentIds", sParentIds);
     }
     if (requestMap.containsKey("level")) {
-      requestMap.put("level", null);
+        requestMap.put("level", null);
     }
 
 //  added for consolidated search
     HashMap requestValuesMap = UINavigatorUtil.getRequestParameterValuesMap(request);
     requestMap.put("RequestValuesMap", requestValuesMap);
-    // ended for consolidated search
+  // ended for consolidated search
 
 
     indentedTableBean.init(context, pageContext, requestMap, timeStamp, userRoleList);
-
+		  
     Map tableControlMap = indentedTableBean.getControlMap(timeStamp);
-
+    
     indentedTableBean.updateRequestAndTableParamsInJson(context, freezePaneLayoutDataBuilder, requestMap, tableControlMap);
 
-    boolean isUserTable = (Boolean) requestMap.get("userTable");
-    java.util.List derivedTableNamesList = null;
+	boolean isUserTable = (Boolean) requestMap.get("userTable");
+	java.util.List derivedTableNamesList = null;
 
     if(!isUserTable){
-      String passedTable = (String)requestMap.get("selectedTable");
-      derivedTableNamesList = UITableCustom.getDerivedTableNames(context,passedTable);
+    	String passedTable = (String)requestMap.get("selectedTable");
+    	derivedTableNamesList = UITableCustom.getDerivedTableNames(context,passedTable);
 
-      String accessUsers = MqlUtil.mqlCommand(context, "print table $1 system select $2 dump", passedTable, "property[AccessUsers].value");
-      if(UIUtil.isNotNullAndNotEmpty(accessUsers)) {
-        if(!PersonUtil.hasAnyAssignment(context, accessUsers)) {
-          return;
-        }
-      }
+    	String accessUsers = MqlUtil.mqlCommand(context, "print table $1 system select $2 dump", passedTable, "property[AccessUsers].value");
+    	if(UIUtil.isNotNullAndNotEmpty(accessUsers)) {
+    		if(!PersonUtil.hasAnyAssignment(context, accessUsers)) {
+    		    return;
+    		}
+    	}
     }
 
     requestMap.remove("RootLabel");
@@ -207,17 +203,17 @@
 
     root.addContent(indentedTableBean.createSetting("timeStamp",timeStamp));
     if(derivedTableNamesList!=null && derivedTableNamesList.size()>0) {
-      StringBuffer sb = new StringBuffer();
-      for(int i = 0; i < derivedTableNamesList.size(); i++) {
-        String table = (String)derivedTableNamesList.get(i);
-        if (sb.length() == 0) {
-          sb.append(table);
-        } else {
-          sb.append(",");
-          sb.append(table);
-        }
-      }
-      root.addContent(indentedTableBean.createSetting("derivedTables",sb.toString()));
+    	StringBuffer sb = new StringBuffer();
+    	for(int i = 0; i < derivedTableNamesList.size(); i++) {
+    		String table = (String)derivedTableNamesList.get(i);
+    		if (sb.length() == 0) {
+    			sb.append(table);
+    		} else {
+    			sb.append(",");
+    			sb.append(table);
+    		}
+    	}
+    	root.addContent(indentedTableBean.createSetting("derivedTables",sb.toString()));
     }
     root.addContent(indentedTableBean.createSetting("split",split));
     root.addContent(indentedTableBean.createSetting("isUnix",isUnix));
@@ -240,7 +236,7 @@
     //get emxToolbarJavaScript.jsp response here to avoid server side unnecesary round trip
     CharArrayWriterResponse customResponse  = new CharArrayWriterResponse(response);
     StringBuffer toolbarURL = new StringBuffer("emxToolbarJavaScript.jsp?uiType=structureBrowser&timeStamp=");
-
+    
     String  objectId= (String)requestMap.get("objectId");
     toolbarURL.append(timeStamp);
     toolbarURL.append("&AutoFilter=");
@@ -254,7 +250,7 @@
     toolbarURL.append((String)requestMap.get("targetLocation"));
     toolbarURL.append("&parentOID=");
     toolbarURL.append(objectId);
-    toolbarURL.append("&logPerformance=");
+	toolbarURL.append("&logPerformance=");
     toolbarURL.append(logPerformance);
 
     request.getRequestDispatcher(toolbarURL.toString()).include(request, customResponse);
@@ -272,18 +268,18 @@
     strFormatThumbnailImage = emxGetParameter(request, "thumbnailFormat");
 
     try{
-      if(strFormatThumbnailImage == null){
-        strFormatThumbnailImage = EnoviaResourceBundle.getProperty(context, "emxFramework.ThumbnailView.ImageSize");
-      }
-      requestMap.put("thumbnailFormat", strFormatThumbnailImage);
+    	if(strFormatThumbnailImage == null){
+    		strFormatThumbnailImage = EnoviaResourceBundle.getProperty(context, "emxFramework.ThumbnailView.ImageSize");
+    	}
+    	requestMap.put("thumbnailFormat", strFormatThumbnailImage);
 
-      formatThumbnailImage = PropertyUtil.getSchemaProperty(context,strFormatThumbnailImage);
-      if("".equals(formatThumbnailImage)) {
-        formatThumbnailImage = "mxMedium Image";
-      }
+    	formatThumbnailImage = PropertyUtil.getSchemaProperty(context,strFormatThumbnailImage);
+    	if("".equals(formatThumbnailImage)) {
+    		formatThumbnailImage = "mxMedium Image";
+    	}
     }catch(Exception ex){
-      formatThumbnailImage = "mxMedium Image";
-      requestMap.put("thumbnailFormat", "format_mxMediumImage");
+    	formatThumbnailImage = "mxMedium Image";
+    	requestMap.put("thumbnailFormat", "format_mxMediumImage");
     }
 
     String strImageHeight = PropertyUtil.getAdminProperty(context, "format", formatThumbnailImage, "mxImageSize");
@@ -308,42 +304,42 @@
     int iRowHeight = 16;
     String rowHeight = (String)requestMap.get("rowHeight");
     if(UIUtil.isNotNullAndNotEmpty(rowHeight)){
-      iRowHeight = Integer.parseInt(rowHeight);
-    }
+        iRowHeight = Integer.parseInt(rowHeight);
+    }     
     //root.addContent(indentedTableBean.createSetting("rowHeight",new Integer(iRowHeight + 4).toString()));
-
+  	
     freezePaneLayoutDataBuilder.add("rowHeight",new Integer(iRowHeight).toString());
 
 
-    StringList incFileList = UITableIndented.getJSValidationFileList(context, suiteKey);
-    if ("TRUE".equalsIgnoreCase(isDynamicGridTable))
-    {
-      StringList incFileGridList = UITableIndented.getJSValidationFileList(context, "Framework", "UIGrid");
-      incFileList.addAll(incFileGridList);
-    }
-    StringList backFileList = UITableIndented.getCallBackFileList(context, suiteKey);
+  StringList incFileList = UITableIndented.getJSValidationFileList(context, suiteKey);
+  if ("TRUE".equalsIgnoreCase(isDynamicGridTable))
+  {
+    StringList incFileGridList = UITableIndented.getJSValidationFileList(context, "Framework", "UIGrid");
+    incFileList.addAll(incFileGridList);
+  }
+  StringList backFileList = UITableIndented.getCallBackFileList(context, suiteKey);
 
-    if(backFileList != null && backFileList.size() > 0)
+  if(backFileList != null && backFileList.size() > 0)
+  {
+    StringItr keyItr = new StringItr(backFileList);
+    while(keyItr.next())
     {
-      StringItr keyItr = new StringItr(backFileList);
-      while(keyItr.next())
-      {
-        String callBackFile = keyItr.obj();
-        incFileList.addElement(callBackFile);
-      }
+      String callBackFile = keyItr.obj();
+      incFileList.addElement(callBackFile);
     }
+  }
 
-    if(incFileList != null && incFileList.size() > 0){
+  if(incFileList != null && incFileList.size() > 0){
       //add Custom clientside validation includes
       Element custVal = new Element("CustomValidation");
-      String fileTok = "";
-      for(StringItr keyItr = new StringItr(incFileList); keyItr.next();)
-      {
-        custVal.addContent(indentedTableBean.createSetting("file",keyItr.obj()));
-        customValidationFiles.add(keyItr.obj());
-      }
-      root.addContent(custVal);
+    String fileTok = "";
+    for(StringItr keyItr = new StringItr(incFileList); keyItr.next();)
+    {
+      custVal.addContent(indentedTableBean.createSetting("file",keyItr.obj()));
+      customValidationFiles.add(keyItr.obj());
     }
+    root.addContent(custVal);
+  }
 
 
     //add empty row
@@ -351,7 +347,7 @@
 
     ContextUtil.commitTransaction(context);
 
-    freezePaneLayoutDataBuilder.add("columns", indentedTableBean.getColumnsConfigurationData(columns));
+  	freezePaneLayoutDataBuilder.add("columns", indentedTableBean.getColumnsConfigurationData(columns));
 
     StringBuilder tempURLParameters = new StringBuilder("uiType=structureBrowser").append("&amp;");
     tempURLParameters.append("timeStamp=").append(timeStamp).append("&amp;");
@@ -367,103 +363,87 @@
     tempParams.add("fieldValues");
     tempParams.add("columnMap");
     tempParams.add("treeLabel");
-
+    
     Iterator itr = requestMap.entrySet().iterator();
     while(itr.hasNext()){
-      Map.Entry keyValuePair = (Map.Entry)itr.next();
-      String paramName = (String)keyValuePair.getKey();
-      if(!tempParams.contains(paramName)){
-        Object objValue = keyValuePair.getValue();
-        if(objValue instanceof String){
-          tempURLParameters.append(paramName).append("=").append(XSSUtil.encodeForURL(context, (String)objValue)).append("&amp;");
-        }
-      }
+    	Map.Entry keyValuePair = (Map.Entry)itr.next();
+    	String paramName = (String)keyValuePair.getKey();
+    	if(!tempParams.contains(paramName)){
+        	Object objValue = keyValuePair.getValue();
+        	if(objValue instanceof String){
+    			tempURLParameters.append(paramName).append("=").append(XSSUtil.encodeForURL(context, (String)objValue)).append("&amp;");
+        	}
+    	}
     }
     tempURLParameters.replace(tempURLParameters.lastIndexOf("&amp;"),tempURLParameters.length(),"");
     String urlParameters =  tempURLParameters.toString();
-
-
+ 	
+ 	
     freezePaneLayoutDataBuilder.add("isMobile", isMobile);
     freezePaneLayoutDataBuilder.add("isPCTouch", isPCTouch);
-    freezePaneLayoutDataBuilder.add("isUnix", isUnix);
+    freezePaneLayoutDataBuilder.add("isUnix", isUnix);    
     freezePaneLayoutDataBuilder.add("isIE", isIE);
     freezePaneLayoutDataBuilder.add("timeStamp", timeStamp+"");
     freezePaneLayoutDataBuilder.add("thumbnailFieldCount",thumbnailFieldCount);
-    freezePaneLayoutDataBuilder.add("tileFieldCount",tileFieldCount);
+    freezePaneLayoutDataBuilder.add("tileFieldCount",tileFieldCount);    
     freezePaneLayoutDataBuilder.add("noImageFile",noImageFile);
-    freezePaneLayoutDataBuilder.add("totalRows", "");
+    freezePaneLayoutDataBuilder.add("totalRows", "");    
     freezePaneLayoutDataBuilder.add("urlParameters", urlParameters);
     freezePaneLayoutDataBuilder.add("parentOID", XSSUtil.encodeForJavaScript(context, objectId));
     freezePaneLayoutDataBuilder.add("split", XSSUtil.encodeForJavaScript(context, split));
     freezePaneLayoutDataBuilder.add("maxCellsToDraw",indentedTableBean.getMaxCellsToDraw(context, requestMap));
-    freezePaneLayoutDataBuilder.add("scrollPageSize",indentedTableBean.getScrollPageSize(context, requestMap));
+    freezePaneLayoutDataBuilder.add("scrollPageSize",indentedTableBean.getScrollPageSize(context, requestMap));    
     freezePaneLayoutDataBuilder.add("preProcessJPO", XSSUtil.encodeForURL(context,preProcessJPO));
     freezePaneLayoutDataBuilder.add("preProcessURL", XSSUtil.encodeForURL(context,preProcessURL));
     freezePaneLayoutDataBuilder.add("postProcessJPO", XSSUtil.encodeForURL(context,postProcessJPO));
     freezePaneLayoutDataBuilder.add("cancelProcessJPO", XSSUtil.encodeForURL(context,cancelProcessJPO));
     freezePaneLayoutDataBuilder.add("cancelProcessURL", XSSUtil.encodeForURL(context,cancelProcessURL));
-    freezePaneLayoutDataBuilder.add("cancelProcessURL", XSSUtil.encodeForURL(context,cancelProcessURL));
+    freezePaneLayoutDataBuilder.add("cancelProcessURL", XSSUtil.encodeForURL(context,cancelProcessURL));  
     freezePaneLayoutDataBuilder.add("objectString",objectString);
     freezePaneLayoutDataBuilder.add("objectsString",objectsString);
     freezePaneLayoutDataBuilder.add("selectedString",selectedString);
     freezePaneLayoutDataBuilder.add("enterValueString",enterValueString);
-    freezePaneLayoutDataBuilder.add("clearString",clearString);
+    freezePaneLayoutDataBuilder.add("clearString",clearString);    
     freezePaneLayoutDataBuilder.add("toolbarCode", customResponse.toString());
     freezePaneLayoutDataBuilder.add("logPerformance", logPerformance);
-    freezePaneLayoutDataBuilder.add("customValidationFiles", customValidationFiles.build());
-
-    //JsonObject freezePaneLayoutData2 = freezePaneLayoutDataBuilder.build();
+    freezePaneLayoutDataBuilder.add("customValidationFiles", customValidationFiles.build()); 
+   
+	//JsonObject freezePaneLayoutData2 = freezePaneLayoutDataBuilder.build();
     // fPLayoutDataString = UIUtil.getJSONString(freezePaneLayoutData);
-    //JsonObject mergedfreezePaneLayoutData = FrameworkUtil.mergeJsonObject(freezePaneLayoutData,freezePaneLayoutData2);
+    //JsonObject mergedfreezePaneLayoutData = FrameworkUtil.mergeJsonObject(freezePaneLayoutData,freezePaneLayoutData2); 
     freezePaneLayoutData = freezePaneLayoutDataBuilder.build();
-    fPLayoutDataString = UIUtil.getUnescapedJsonString(freezePaneLayoutData);
-
-  } catch (Exception ex) {
+	fPLayoutDataString = UIUtil.getUnescapedJsonString(freezePaneLayoutData);
+	
+} catch (Exception ex) {
     ContextUtil.abortTransaction(context);
     if (ex.toString() != null && (ex.toString().trim()).length() > 0){
-      emxNavErrorObject.addMessage(ex.toString().trim());
+        emxNavErrorObject.addMessage(ex.toString().trim());
+        %>
+        <%@include file = "emxNavigatorBottomErrorInclude.inc"%>
+    <%
+    }
+}
+
+if((strCustomize!=null && "true".equalsIgnoreCase(strCustomize)) || (strCustomize==null && "enable".equalsIgnoreCase(strCustomizationEnabled))||("".equalsIgnoreCase(strCustomize) && "enable".equalsIgnoreCase(strCustomizationEnabled)))
+{
+  HashMap hmpRequest = indentedTableBean.getRequestMap(timeStamp);
+  String strTableName =(String) hmpRequest.get("selectedTable");
+  indentedTableBean.setCurrentTable(context,strTableName);
+}
+
+if(isLoggingEnabled) {
+	serverTimeLocal=System.currentTimeMillis()-serverTimeLocal;
+	HashMap tableData = indentedTableBean.getTableData(timeStamp);
+	if(tableData!=null && tableData.get("totalServerTime") != null) {
+		serverTimeLocal+=(Long)tableData.get("totalServerTime");
+		tableData.put("totalServerTime",serverTimeLocal);
+	}
+	else {
+	   if(tableData!=null) {
+		tableData.put("totalServerTime",serverTimeLocal);
+	   }			
+	}
+}
 %>
-<%@include file = "emxNavigatorBottomErrorInclude.inc"%>
-<%
-    }
-  }
-
-  if((strCustomize!=null && "true".equalsIgnoreCase(strCustomize)) || (strCustomize==null && "enable".equalsIgnoreCase(strCustomizationEnabled))||("".equalsIgnoreCase(strCustomize) && "enable".equalsIgnoreCase(strCustomizationEnabled)))
-  {
-    HashMap hmpRequest = indentedTableBean.getRequestMap(timeStamp);
-    String strTableName =(String) hmpRequest.get("selectedTable");
-    indentedTableBean.setCurrentTable(context,strTableName);
-  }
-
-  if(isLoggingEnabled) {
-    serverTimeLocal=System.currentTimeMillis()-serverTimeLocal;
-    HashMap tableData = indentedTableBean.getTableData(timeStamp);
-    if(tableData!=null && tableData.get("totalServerTime") != null) {
-      serverTimeLocal+=(Long)tableData.get("totalServerTime");
-      tableData.put("totalServerTime",serverTimeLocal);
-    }
-    else {
-      if(tableData!=null) {
-        tableData.put("totalServerTime",serverTimeLocal);
-      }
-    }
-  }
-%>
-
 <%-- After this javascript/html code --%>
 <%@include  file="emxFreezePaneLayout.inc" %>
-
-<!-- IMS begin -->
-<script src="scripts/IMS_KDD.js?version=2020-04-20"></script>
-<script src="scripts/IMS_DragNDrop.js?version=2020-04-20"></script>
-<script src="scripts/IMS_CheckTask.js?version=2020-07-17"></script>
-<script>
-  var IMS_expandLevel = "<%=StringEscapeUtils.escapeEcmaScript(request.getParameter("IMS_expandLevel"))%>";
-  var IMS_checkObjectId = "<%=StringEscapeUtils.escapeEcmaScript(request.getParameter("IMS_checkObjectId"))%>";
-  var IMS_scrollToObjectId = "<%=StringEscapeUtils.escapeEcmaScript(request.getParameter("IMS_scrollToObjectId"))%>";
-  var IMS_AllChecked = "<%=StringEscapeUtils.escapeEcmaScript(request.getParameter("IMS_AllChecked"))%>";
-
-  var observer = new MutationObserver(IMS_KDD_handleMutationList);
-  observer.observe(document.body, { childList: true, subtree: true });
-</script>
-<!-- IMS end -->

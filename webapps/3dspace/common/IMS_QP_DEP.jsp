@@ -33,17 +33,17 @@
                 frameborder="0" style="width: 100%; height:100%;"></iframe>
     </div>
 
-    <div id="rightDiv" style="float: right;">
-        <iframe id="rightFrame"
-                src="emxPortalDisplay.jsp?portal=IMS_QP_DEPRightPortal&objectId=<%=request.getParameter("objectId")%>"
-                frameborder="0" style="width: 100%; height:100%;"></iframe>
-    </div>
+<%--    <div id="rightDiv" style="float: right;">--%>
+<%--        <iframe id="rightFrame"--%>
+<%--                src="emxPortalDisplay.jsp?portal=IMS_QP_DEPRightPortal&objectId=<%=request.getParameter("objectId")%>"--%>
+<%--                frameborder="0" style="width: 100%; height:100%;"></iframe>--%>
+<%--    </div>--%>
 </div>
 
 <script src="scripts/split.js"></script>
 <script>
-    Split(['#leftDiv', '#rightDiv'], {
-        sizes: [65, 35],
+    Split(['#leftDiv'], {
+        // sizes: [100],
         minSize: 200
     });
 </script>

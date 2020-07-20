@@ -282,35 +282,27 @@ public class IMS_QP_mxJPO extends DomainObject {
         return result;
     }
 
+
     /**
      * Method to show the table of related with DEP-object IMS_QP_DEPTask elements
      */
     public MapList getAllRelatedTasksForTable(Context context, String[] args) throws Exception {
 
         Map argsMap = JPO.unpackArgs(args);
-        LOG.info("argsMap: " + argsMap);
 
 
         //get objectID
         String objectId = (String) argsMap.get("objectId");
-        LOG.info("from object ID: " + objectId);
 
-        StringList selects = new StringList();
-        selects.add("id");
-
+        StringList selects = new StringList("id");
         DomainObject parent = new DomainObject(objectId);
         //get all substages
-        MapList result = parent.getRelatedObjects(context,
-                /*relationship*/null,
+//                MapList allSystems = DomainObject.findObjects(context, /*types*/typePattern, /*vault*/ "eService Production", /*where*/"", /*selects*/objectSelects);
+        MapList result = DomainObject.findObjects(context,
                 /*type*/"IMS_QP_DEPTask",
-                /*object attributes*/ selects,
-                /*relationship selects*/ null,
-                /*getTo*/ false, /*getFrom*/ true,
-                /*recurse to level*/ (short) 0,
-                /*object where*/ null,
-                /*relationship where*/ null,
-                /*limit*/ 0);
-        LOG.info("result: " + result);
+                "eService Production",
+                /*where*/"to[IMS_QP_DEPSubStage2DEPTask].from.to[IMS_QP_DEPProjectStage2DEPSubStage].from.to[IMS_QP_DEP2DEPProjectStage].from.id==" + objectId,
+                /*selects*/ selects);
 
         return result;
     }
