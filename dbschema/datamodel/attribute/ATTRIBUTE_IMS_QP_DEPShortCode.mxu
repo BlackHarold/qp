@@ -1,0 +1,24 @@
+################################################################################
+# ATTRIBUTE_IMS_QP_DEPShortCode.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate attribute "${NAME}" {
+    kind string
+    symbolicname "attribute_IMS_QP_DEPShortCode"
+    description "short code for DEPs"
+    !hidden
+    !multivalue
+    !resetonclone
+    !resetonrevision
+    !multiline
+    maxlength 0
+    default ""
+    ################################################## Info Start
+    property "author" value "The MxUpdate Team"
+    property "original name" value "IMS_QP_DEPShortCode"
+    property "application" value "IMS_QP"
+    property "version" value "1"
+    ################################################## Info End
+}

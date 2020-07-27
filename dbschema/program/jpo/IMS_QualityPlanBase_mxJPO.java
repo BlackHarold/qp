@@ -17,6 +17,8 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
 
     private static Logger LOG = Logger.getLogger("blackLogger");
 
+    private final String QP_DEP = "IMS_QP_DEP";
+
     /**
      * Method to deleting IMS_QP_DEPSubStages if their hasn't any SubTasks
      *
@@ -43,7 +45,7 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
         //selects all subtasks  with their subtasks
         StringList selects = new StringList();
         selects.add("id");
-        selects.add("from[IMS_QP_DEPSubStage2DEPTask]");
+        selects.add("from["+QP_DEP+"SubStage2DEPTask]");
         selects.add("name");
 
         MapList objectsInfo = null;
@@ -62,7 +64,7 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
         boolean flag = false;
         for (int i = 0; i < objectsInfo.size(); i++) {
             Map map = (Map) objectsInfo.get(i);
-            if ("TRUE".equals(map.get("from[IMS_QP_DEPSubStage2DEPTask]"))) {
+            if ("TRUE".equals(map.get("from["+QP_DEP+"SubStage2DEPTask]"))) {
                 buffer.append(map.get("name") + "\n");
                 badNames.add((String) map.get("name"));
                 flag = true;
@@ -118,7 +120,7 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
         //get all substages
         MapList result = parent.getRelatedObjects(context,
                 /*relationship*/null,
-                /*type*/"IMS_QP_DEPSubStage",
+                /*type*/""+QP_DEP+"SubStage",
                 /*object attributes*/ selects,
                 /*relationship selects*/ null,
                 /*getTo*/ false, /*getFrom*/ true,
@@ -225,7 +227,6 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
     public void createPostProcess(Context context, String[] args) throws Exception {
 
         Map argsMap = JPO.unpackArgs(args);
-//        LOG.info("args: " + Arrays.deepToString(new Map[]{argsMap}));
 
         Map requestMap = (Map) argsMap.get("requestMap");
         Map paramMap = (Map) argsMap.get("paramMap");
@@ -260,9 +261,7 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
         StringList selects = new StringList();
         selects.add("id");
 
-        String where = "from[IMS_QP_ProjectStage2DEPProjectStage].to.to[IMS_QP_DEP2DEPProjectStage].from.id==" + parentOID;
-//        print bus 59479.11672.23687.9771 select from[IMS_QP_DEP2DEPProjectStage].to.id;
-//        print bus 59479.11672.23687.9771 select id from[IMS_QP_DEP2DEPProjectStage].to.to[IMS_QP_ProjectStage2DEPProjectStage].from.name;
+        String where = "from[IMS_QP_ProjectStage2DEPProjectStage].to.to["+QP_DEP+"2DEPProjectStage].from.id==" + parentOID;
         LOG.info("where: " + where);
 
         MapList result = parent.findObjects(context,
@@ -282,7 +281,7 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
 
 
         LOG.info("allProjectStagesConnectingToDEP: " + allProjectStagesConnectingToDEP);
-        LOG.info(parent.getInfo(context, "name") + " prepare parent stage: " + parent.getInfo(context, "from[IMS_QP_DEP2DEPProjectStage].to.to[IMS_QP_ProjectStage2DEPProjectStage].from.id"));
+        LOG.info(parent.getInfo(context, "name") + " prepare parent stage: " + parent.getInfo(context, "from["+QP_DEP+"2DEPProjectStage].to.to[IMS_QP_ProjectStage2DEPProjectStage].from.id"));
 
         DomainObject newDEPProjectStage;
         try {
@@ -299,10 +298,10 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
                 newDEPProjectStage = DomainObject.newInstance(context);
                 //String revision = "DEP" + "-" + "nameProjectStage";
                 newDEPProjectStage.createObject(context,
-                        /*type*/"IMS_QP_DEPProjectStage",
+                        /*type*/""+QP_DEP+"ProjectStage",
                         /*name*/nameProjectStage,
                         /*revision*/parent.getName() + "-" + nameProjectStage,
-                        /*policy*/"IMS_QP_DEPProjectStage",
+                        /*policy*/""+QP_DEP+"ProjectStage",
                         /*vault*/ context.getVault().getName());
                 LOG.info("new object created: " + newDEPProjectStage.getName() + ": " + newDEPProjectStage.getId(context));
 
@@ -311,12 +310,12 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
                 LOG.info("if uniqueNameSubStage: " + uniqueNameSubStage);
 
                 //connect parent -> object
-                LOG.info(parent.getId(context) + "->IMS_QP_DEP2DEPProjectStage->" + newDEPProjectStage.getId(context));
-                DomainRelationship.connect(context, parent, "IMS_QP_DEP2DEPProjectStage", newDEPProjectStage);
+                LOG.info(parent.getId(context) + "->"+QP_DEP+"2DEPProjectStage->" + newDEPProjectStage.getId(context));
+                DomainRelationship.connect(context, parent, ""+QP_DEP+"2DEPProjectStage", newDEPProjectStage);
 
                 //connect object -> new IMS_QP_DEPSubStage [objectID]
-                LOG.info(newDEPProjectStage.getId(context) + "->IMS_QP_DEPProjectStage2DEPSubStage->" + substage);
-                DomainRelationship.connect(context, newDEPProjectStage, "IMS_QP_DEPProjectStage2DEPSubStage", substage);
+                LOG.info(newDEPProjectStage.getId(context) + "->"+QP_DEP+"ProjectStage2DEPSubStage->" + substage);
+                DomainRelationship.connect(context, newDEPProjectStage, ""+QP_DEP+"ProjectStage2DEPSubStage", substage);
 
                 //connect object <- IMS_ProjectStage [projectStageID]
                 LOG.info(projectStage.getId(context) + "->IMS_QP_ProjectStage2DEPProjectStage->" + newDEPProjectStage.getId(context));
@@ -327,11 +326,11 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
                 selects = new StringList();
                 selects.add("id");
 
-                where = "name smatch '*" + projectStage.getInfo(context, "name") + "*' && to[IMS_QP_DEP2DEPProjectStage].from.id==" + parentOID;
+                where = "name smatch '*" + projectStage.getInfo(context, "name") + "*' && to["+QP_DEP+"2DEPProjectStage].from.id==" + parentOID;
                 LOG.info("where: " + where);
 
                 result = parent.findObjects(context,
-                        /*type*/ "IMS_QP_DEPProjectStage",
+                        /*type*/ ""+QP_DEP+"ProjectStage",
                         /*?*/ "*",
                         /*where*/ where,
                         selects
@@ -350,8 +349,8 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
                 //connect new IMS_QP_SubStage <- IMS_QP_DEPProjectStage <- projectStageID.
                 LOG.info("depProjectStage: " + depProjectStage);
                 LOG.info("substage: " + substage);
-                DomainRelationship.connect(context, depProjectStage, "IMS_QP_DEPProjectStage2DEPSubStage", substage);
-                LOG.info(depProjectStageID + "->IMS_QP_DEPProjectStage2DEPSubStage->" + objectId);
+                DomainRelationship.connect(context, depProjectStage, ""+QP_DEP+"ProjectStage2DEPSubStage", substage);
+                LOG.info(depProjectStageID + "->"+QP_DEP+"ProjectStage2DEPSubStage->" + objectId);
             }
 
             //connect new IMS_QP_SubStage <- IMS_QP_Baseline2DEPSubStage <- baselineID
@@ -408,8 +407,8 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
             LOG.info("new name: " + newObject.getName());
 
             //connect relations
-            DomainRelationship.connect(context, new DomainObject(depID), "IMS_QP_DEP2QPlan", newObject);
-            LOG.info("connect " + depID + " -> IMS_QP_DEP2QPlan ->" + newObject.getName());
+            DomainRelationship.connect(context, new DomainObject(depID), ""+QP_DEP+"2QPlan", newObject);
+            LOG.info("connect " + depID + " -> "+QP_DEP+"2QPlan ->" + newObject.getName());
 
             DomainRelationship.connect(context, newObject, "IMS_QP_QPlan2Object", new DomainObject(system));
             LOG.info("connect new object " + newObjectId + " -> IMS_QP_QPlan2Object ->" + system.getName());
@@ -425,21 +424,21 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
     public String setUniqueFieldName(Context context, DomainObject parent, DomainObject depProjectStage) throws Exception {
         //set unique name for the new substage
 //        String indexParent = parent.getName().substring(4, 5);
-        String indexParent = parent.getInfo(context, "to[IMS_QP_Discipline2DEP].from.attribute[IMS_ShortName]") != null ?
-                parent.getInfo(context, "to[IMS_QP_Discipline2DEP].from.attribute[IMS_ShortName]") : "";
+        String indexParent = parent.getInfo(context, "attribute["+QP_DEP+"ShortCode]") != null ?
+                parent.getInfo(context, "attribute["+QP_DEP+"ShortCode]") : "";
         String depProjectStageName = depProjectStage.getInfo(context, "name");
 
         //count all substages at this DEP ProjectStage
 
-//        String allSubStages = parent.getInfo(context, "from[IMS_QP_DEP2DEPProjectStage].to.id");
+//        String allSubStages = parent.getInfo(context, "from["+QP_DEP+"2DEPProjectStage].to.id");
         StringList selects = new StringList();
         selects.add("id");
 
-        String where = "to[IMS_QP_DEPProjectStage2DEPSubStage].from.id==" + depProjectStage.getInfo(context, "id");
+        String where = "to["+QP_DEP+"ProjectStage2DEPSubStage].from.id==" + depProjectStage.getInfo(context, "id");
         LOG.info("where: " + where);
 
         MapList result = parent.findObjects(context,
-                /*type*/ "IMS_QP_DEPSubStage",
+                /*type*/ ""+QP_DEP+"SubStage",
                 /*?*/ "*",
                 /*where*/ where,
                 selects
@@ -479,9 +478,9 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
         if (!baselineName.equals("") && baselineName.contains("_")) {
             baselineName = baselineName.substring(0, baselineName.indexOf("_"));
             LOG.info("baselineName: " + baselineName);
-            baselineID=baselineName;
+            baselineID = baselineName;
         } else if (!baselineName.equals("")) {
-            String where = "name smatch '" + baselineName+"'";
+            String where = "name smatch '" + baselineName + "'";
             MapList currentBaseline = DomainObject.findObjects(context, "IMS_Baseline", "eService Production", where, new StringList("id"));
             Map id = (Map) currentBaseline.get(0);
             baselineID = (String) id.get("id");
@@ -561,8 +560,8 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
         LOG.info("description changed: " + currentDescription + " -> " + description);
 
         //disconnect current system
-        String currentDEPID = UIUtil.isNotNullAndNotEmpty(qPlan.getInfo(context, "to[IMS_QP_DEP2QPlan].from.id"))
-                ? qPlan.getInfo(context, "to[IMS_QP_DEP2QPlan].from.id") : "empty";
+        String currentDEPID = UIUtil.isNotNullAndNotEmpty(qPlan.getInfo(context, "to["+QP_DEP+"2QPlan].from.id"))
+                ? qPlan.getInfo(context, "to["+QP_DEP+"2QPlan].from.id") : "empty";
         String currentSystemID = UIUtil.isNotNullAndNotEmpty(qPlan.getInfo(context, "from[IMS_QP_QPlan2Object].to.id"))
                 ? qPlan.getInfo(context, "from[IMS_QP_QPlan2Object].to.id") : "empty";
         LOG.info("currentRelationDEPId: " + currentDEPID);
@@ -587,13 +586,13 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
 
             if (!currentDEPID.equals(depID)) {
                 if (!currentDEPID.equals("empty")) {
-                    LOG.info("currentDEP: " + qPlan.getId(context) + ": " + qPlan.getInfo(context, "to[IMS_QP_DEP2QPlan].from.name"));
-                    DomainRelationship.disconnect(context, qPlan.getInfo(context, "to[IMS_QP_DEP2QPlan].id"));
+                    LOG.info("currentDEP: " + qPlan.getId(context) + ": " + qPlan.getInfo(context, "to["+QP_DEP+"2QPlan].from.name"));
+                    DomainRelationship.disconnect(context, qPlan.getInfo(context, "to["+QP_DEP+"2QPlan].id"));
                     LOG.info("currentDEPID: " + currentDEPID + " disconnected");
                 }
                 if (!depID.equals("")) {
-                    DomainRelationship.connect(context, new DomainObject(depID), "IMS_QP_DEP2QPlan", qPlan);
-                    LOG.info("from " + depID + " ->IMS_QP_DEP2QPlan-> " + objectId);
+                    DomainRelationship.connect(context, new DomainObject(depID), ""+QP_DEP+"2QPlan", qPlan);
+                    LOG.info("from " + depID + " ->"+QP_DEP+"2QPlan-> " + objectId);
                 }
             }
 
@@ -645,11 +644,11 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
      */
     public Object getQPDEPNames(Context context, String[] args) throws FrameworkException {
 
-        String typePattern = "IMS_QP_DEP";
+        String typePattern = QP_DEP;
         StringList objectSelects = new StringList();
         objectSelects.add(DomainConstants.SELECT_ID);
         objectSelects.add(DomainConstants.SELECT_NAME);
-        objectSelects.add("from[IMS_QP_DEP2QPlan].to.id");
+        objectSelects.add("from[" + QP_DEP + "2QPlan].to.id");
 
         MapList allDEPs = DomainObject.findObjects(context, typePattern, "eService Production", null, objectSelects);
 
@@ -682,7 +681,7 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
         StringList objectSelects = new StringList();
         objectSelects.add(DomainConstants.SELECT_ID);
         objectSelects.add(DomainConstants.SELECT_NAME);
-        objectSelects.add("from[IMS_QP_DEP2QPlan].to.id");
+        objectSelects.add("from["+QP_DEP+"2QPlan].to.id");
 
         MapList allSystems = DomainObject.findObjects(context, /*types*/typePattern, /*vault*/ "eService Production", /*where*/"", /*selects*/objectSelects);
 
@@ -814,7 +813,7 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
         objectSelects.add(DomainConstants.SELECT_NAME);
         objectSelects.add("to[IMS_ProjectStage2CB].from.id");
 
-        String where = "to[IMS_ProjectStage2CB].from.from[IMS_QP_ProjectStage2DEPProjectStage].to.from[IMS_QP_DEPProjectStage2DEPSubStage].to.id==" + objectId;
+        String where = "to[IMS_ProjectStage2CB].from.from[IMS_QP_ProjectStage2DEPProjectStage].to.from["+QP_DEP+"ProjectStage2DEPSubStage].to.id==" + objectId;
 
         MapList allBaselineNames = DomainObject.findObjects(context, typePattern, "eService Production", where, objectSelects);
 
