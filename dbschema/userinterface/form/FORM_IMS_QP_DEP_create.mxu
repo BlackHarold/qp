@@ -20,6 +20,25 @@ mxUpdate form "${NAME}" {
         setting "Section Level" "2"
     }
     field {
+        name "name"
+        label "Name"
+        businessobject "name"
+        setting "Access Expression" "true"
+        setting "Editable" "false"
+        setting "Field Type" "basic"
+        setting "Registered Suite" "Components"
+    }
+    field {
+        name "short_code "
+        label "Short code"
+        businessobject "$<attribute[attribute_IMS_QP_DEPShortCode]>"
+        setting "Access Expression" "true"
+        setting "Editable" "true"
+        setting "Field Type" "attribute"
+        setting "Registered Suite" "Framework"
+        setting "Required" "true"
+    }
+    field {
         name "DisciplineCode"
         label "Discipline"
         setting "Input Type" "combobox"

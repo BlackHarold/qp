@@ -8,7 +8,7 @@ mxUpdate command "${NAME}" {
     symbolicname "COMMAND_IMS_QP_DEP_create"
     description ""
     label "emxFramework.Command.COMMAND_IMS_QP_DEP_create"
-    href "${COMMON_DIR}/emxCreate.jsp?type=IMS_QP_DEP&typeChooser=false&form=IMS_QP_DEP_create&findMxLink=false&relationship=relationship_IMS_QP_QP2DEP&policy=IMS_QP_DEP&header=IMS_QP_DEP&targetLocation=popup&widgetId=null&postProcessJPO=IMS_QP:postProcess_IMS_QP&nameField=autoName&submitAction=refreshCaller"
+    href "${COMMON_DIR}/emxCreate.jsp?type=IMS_QP_DEP&typeChooser=false&form=IMS_QP_DEP_create&findMxLink=false&relationship=relationship_IMS_QP_QP2DEP&policy=IMS_QP_DEP&header=IMS_QP_DEP&targetLocation=popup&widgetId=null&postProcessJPO=IMS_QP:postProcess_IMS_QP&submitAction=refreshCaller"
     alt ""
     user "all"
     setting "Access Expression" "context.user.isassigned[IMS_Admin]==True"

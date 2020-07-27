@@ -40,6 +40,15 @@ mxUpdate form "${NAME}" {
         setting "format" "date"
     }
     field {
+        name "short_code "
+        label "Short code"
+        businessobject "$<attribute[attribute_IMS_QP_DEPShortCode]>"
+        setting "Access Expression" "true"
+        setting "Editable" "true"
+        setting "Field Type" "attribute"
+        setting "Registered Suite" "Framework"
+    }
+    field {
         name "DisciplineCode"
         label "Discipline code"
         businessobject "$<to[IMS_QP_Discipline2DEP].from.name>"
