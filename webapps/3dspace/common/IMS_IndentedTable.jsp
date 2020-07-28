@@ -449,10 +449,6 @@
     }
   }
 %>
-
-<%-- After this javascript/html code --%>
-<%@include  file="emxFreezePaneLayout.inc" %>
-
 <!-- IMS begin -->
 <script src="scripts/IMS_KDD.js?version=2020-04-20"></script>
 <script src="scripts/IMS_DragNDrop.js?version=2020-04-20"></script>
@@ -467,3 +463,7 @@
   observer.observe(document.body, { childList: true, subtree: true });
 </script>
 <!-- IMS end -->
+
+<%-- After this javascript/html code --%>
+<%@include  file="emxFreezePaneLayout.inc" %>
+
