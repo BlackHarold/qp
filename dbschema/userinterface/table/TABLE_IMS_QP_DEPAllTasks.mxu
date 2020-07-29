@@ -1,0 +1,78 @@
+################################################################################
+# TABLE_IMS_QP_DEPAllTasks.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate table "${NAME}" {
+    symbolicname "table_IMS_QP_DEPAllTasks"
+    description ""
+    column {
+        name "Code"
+        label "emxFramework.Label.QP_Code"
+        businessobject "name"
+        href "${COMMON_DIR}/emxPortal.jsp?portal=IMS_QP_QPTask_Portal"
+        user "all"
+        setting "Editable" "false"
+        setting "Registered Suite" "Framework"
+    }
+    column {
+        name "Name"
+        label "emxFramework.Attribute.QP_IMS_Name"
+        businessobject "attribute[IMS_Name]"
+        user "all"
+        setting "Width" "300"
+        setting "Admin Type" "attribute_IMS_Name"
+        setting "Editable" "true"
+        setting "Field Type" "attribute"
+        setting "Registered Suite" "Framework"
+    }
+    column {
+        name "NameRu"
+        label "emxFramework.Attribute.QP_IMS_NameRu"
+        businessobject "attribute[IMS_NameRu]"
+        user "all"
+        setting "Width" "300"
+        setting "Admin Type" "attribute_IMS_NameRu"
+        setting "Editable" "true"
+        setting "Field Type" "attribute"
+    }
+    column {
+        name "related_stage"
+        label "Related stage"
+        businessobject "$<to[IMS_QP_DEPSubStage2DEPTask].from.name>"
+        user "all"
+        setting "Width" "100"
+        setting "Registered Suite" "Framework"
+    }
+    column {
+        name "DEPTaskInput"
+        label "Input"
+        user "all"
+        setting "Column Type" "programHTMLOutput"
+        setting "Editable" "false"
+        setting "Width" "150"
+        setting "Registered Suite" "Framework"
+        setting "Sortable" "false"
+        setting "function" "getDEPTaskInput"
+        setting "program" "IMS_QP_AllTask"
+    }
+    column {
+        name "DEPTaskOutput"
+        label "Output"
+        user "all"
+        setting "Column Type" "programHTMLOutput"
+        setting "Editable" "false"
+        setting "Width" "150"
+        setting "Registered Suite" "Framework"
+        setting "Sortable" "false"
+        setting "function" "getDEPTaskOutput"
+        setting "program" "IMS_QP_AllTask"
+    }
+    ################################################## Info Start
+    property "author" value "IMS Team"
+    property "original name" value "IMS_QP_DEPAllTasks"
+    property "application" value "IMS"
+    property "version" value "1"
+    ################################################## Info End
+}

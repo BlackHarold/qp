@@ -15,53 +15,79 @@ import java.util.*;
 
 public class IMS_QP_Task_mxJPO {
 
-    private static final Logger LOG = Logger.getLogger("blackLogger");
+    static final Logger LOG = Logger.getLogger("blackLogger");
 
-    private static final String TYPE_IMS_QP_DEP = "IMS_QP_DEP";
-    private static final String TYPE_IMS_QP_DEPTask = "IMS_QP_DEPTask";
-    private static final String RELATIONSHIP_IMS_QP_DEP2DEPProjectStage = "IMS_QP_DEP2DEPProjectStage";
-    private static final String RELATIONSHIP_IMS_QP_DEPProjectStage2DEPSubStage = "IMS_QP_DEPProjectStage2DEPSubStage";
-    private static final String RELATIONSHIP_IMS_QP_DEPSubStage2DEPTask = "IMS_QP_DEPSubStage2DEPTask";
-    private static final String RELATIONSHIP_IMS_QP_DEPTask2DEPTask = "IMS_QP_DEPTask2DEPTask";
-    private static final String RELATIONSHIP_IMS_QP_DEPTask2DEP = "IMS_QP_DEPTask2DEP";
+    static final String TYPE_IMS_QP_DEP = "IMS_QP_DEP";
+    static final String TYPE_IMS_QP_DEPTask = "IMS_QP_DEPTask";
+    static final String RELATIONSHIP_IMS_QP_DEP2DEPProjectStage = "IMS_QP_DEP2DEPProjectStage";
+    static final String RELATIONSHIP_IMS_QP_DEPProjectStage2DEPSubStage = "IMS_QP_DEPProjectStage2DEPSubStage";
+    static final String RELATIONSHIP_IMS_QP_DEPSubStage2DEPTask = "IMS_QP_DEPSubStage2DEPTask";
+    static final String RELATIONSHIP_IMS_QP_DEPTask2DEPTask = "IMS_QP_DEPTask2DEPTask";
+    static final String RELATIONSHIP_IMS_QP_DEPTask2DEP = "IMS_QP_DEPTask2DEP";
 
-    private static final String ATTRIBUTE_IMS_Name = "IMS_Name";
-    private static final String ATTRIBUTE_IMS_NameRu = "IMS_NameRu";
+    static final String ATTRIBUTE_IMS_Name = "IMS_Name";
+    static final String ATTRIBUTE_IMS_NameRu = "IMS_NameRu";
 
-    private static final String SELECT_DEP_ID = String.format(
+    static final String SELECT_DEP_ID = String.format(
             "to[%s].from.to[%s].from.to[%s].from.id",
             RELATIONSHIP_IMS_QP_DEPSubStage2DEPTask,
             RELATIONSHIP_IMS_QP_DEPProjectStage2DEPSubStage,
             RELATIONSHIP_IMS_QP_DEP2DEPProjectStage);
 
-    private static final String SELECT_DEP_NAME = String.format(
+    static final String SELECT_DEP_NAME = String.format(
             "to[%s].from.to[%s].from.to[%s].from.name",
             RELATIONSHIP_IMS_QP_DEPSubStage2DEPTask,
             RELATIONSHIP_IMS_QP_DEPProjectStage2DEPSubStage,
             RELATIONSHIP_IMS_QP_DEP2DEPProjectStage);
 
-    private static final String SELECT_DEP_IMS_NAME = String.format(
+    static final String SELECT_DEP_IMS_NAME = String.format(
             "to[%s].from.to[%s].from.to[%s].from.%s",
             RELATIONSHIP_IMS_QP_DEPSubStage2DEPTask,
             RELATIONSHIP_IMS_QP_DEPProjectStage2DEPSubStage,
             RELATIONSHIP_IMS_QP_DEP2DEPProjectStage,
             DomainObject.getAttributeSelect(ATTRIBUTE_IMS_Name));
 
-    private static final String SELECT_DEP_IMS_NAME_RU = String.format(
+    static final String SELECT_DEP_IMS_NAME_RU = String.format(
             "to[%s].from.to[%s].from.to[%s].from.%s",
             RELATIONSHIP_IMS_QP_DEPSubStage2DEPTask,
             RELATIONSHIP_IMS_QP_DEPProjectStage2DEPSubStage,
             RELATIONSHIP_IMS_QP_DEP2DEPProjectStage,
             DomainObject.getAttributeSelect(ATTRIBUTE_IMS_NameRu));
 
-    private static final String SOURCE_DEP = "D_E_P"; // Because source lists are checked using indexOf
-    private static final String SOURCE_DEPTask = "DEPTask";
+    static final String SOURCE_DEP = "D_E_P"; // Because source lists are checked using indexOf
+    static final String SOURCE_DEPTask = "DEPTask";
 
-    private static String getIconUrl(String type) {
+    public static String getIconUrl(String type) {
         return IMS_KDD_mxJPO.COMMON_IMAGES + type + "_16x16.png";
     }
 
-    private Vector getDEPTaskRelatedObjects(Context context, String[] args, boolean in) {
+    /**
+     * Method to show the table of related with DEP-object IMS_QP_DEPTask elements
+     */
+    public MapList getAllRelatedTasksForDistributionButton(Context context, String[] args) throws Exception {
+
+        LOG.info("distribution button pressed");
+
+        Map argsMap = JPO.unpackArgs(args);
+
+        //get objectID
+        String objectId = (String) argsMap.get("objectId");
+
+        StringList selects = new StringList("id");
+
+        //get all tasks
+        MapList result = DomainObject.findObjects(context,
+                /*type*/"IMS_QP_DEPTask",
+                "eService Production",
+                /*where*/"to[IMS_QP_DEPSubStage2DEPTask].from.to[IMS_QP_DEPProjectStage2DEPSubStage].from.to[IMS_QP_DEP2DEPProjectStage].from.id==" + objectId,
+                /*selects*/ selects);
+
+        LOG.info("related map: " + result);
+
+        return result;
+    }
+
+    public Vector getDEPTaskRelatedObjects(Context context, String[] args, boolean in) {
 
         Vector result = new Vector();
         try {
@@ -70,8 +96,6 @@ public class IMS_QP_Task_mxJPO {
             boolean isRuLocale = IMS_KDD_mxJPO.isRuLocale(args);
 
             Map argsMap = JPO.unpackArgs(args);
-            LOG.info("argsMap: " + argsMap);
-
             MapList argsList = (MapList) argsMap.get("objectList");
 
             List<Map> items = new ArrayList<>();
@@ -88,7 +112,6 @@ public class IMS_QP_Task_mxJPO {
 
                 String mainTaskID = (String) map.get("id");
                 String mainLevel = (String) map.get("id[level]");
-                LOG.info("id[level]=" + map.get("id[level]"));
                 DomainObject objectMainTask = new DomainObject(mainTaskID);
 
 //                boolean currentUserIsDEPOwner = IMS_QP_Security_mxJPO.currentUserIsDEPOwner(context, depTaskObject);
@@ -112,9 +135,12 @@ public class IMS_QP_Task_mxJPO {
                 selects.add("from[IMS_QP_DEPTask2DEPTask].to.id");
                 selects.add("from[IMS_QP_DEPTask2DEPTask].attribute[IMS_QP_DEPTaskStatus]");
 
+                String relationships = getTo ? "IMS_QP_DEPTask2DEPTask,IMS_QP_DEPTask2DEP" : "IMS_QP_DEPTask2DEPTask";
+                String types = getTo ? "IMS_QP_DEP,IMS_QP_DEPTask" : "IMS_QP_DEPTask";
+
                 MapList relatedTasks = objectMainTask.getRelatedObjects(context,
-                        /*relationship*/"IMS_QP_DEPTask2DEPTask,IMS_QP_DEPTask2DEP",
-                        /*type*/"IMS_QP_DEP,IMS_QP_DEPTask",
+                        /*relationship*/relationships,
+                        /*type*/types,
                         /*object attributes*/ selects,
                         /*relationship selects*/ null,
                         /*getTo*/ getTo, /*getFrom*/ !getTo,
@@ -123,11 +149,12 @@ public class IMS_QP_Task_mxJPO {
                         /*relationship where*/ null,
                         /*limit*/ 0);
 
-                String id, name = "", rawLink = "";
+                String id, name, rawLink = "";
 
                 /*get all states for related tasks*/
                 Map<String, String> taskStates = new HashMap<>();
 
+                LOG.info("main name: " + map.get("name"));
                 for (Object object : relatedTasks) {
                     Map relatedMap = (Map) object;
                     id = (String) relatedMap.get("id");
@@ -169,13 +196,13 @@ public class IMS_QP_Task_mxJPO {
                     if (currentUserIsDEPOwner) {
                         //TODO brush the links red&green colors by states
                         String state = UIUtil.isNotNullAndNotEmpty(taskStates.get(mainTaskID)) ? taskStates.get(mainTaskID) : "";
-                        LOG.info("[id " + id + " name " + new DomainObject(id).getName(context) + "] | [main id " + mainTaskID + " main name " + new DomainObject(mainTaskID).getName(context) + "] | state: " + state);
                         if (state.equals("Draft") || state.equals("")) {
-                            if (getTypeFromMap(relatedMap).equals(TYPE_IMS_QP_DEPTask)) {
-//                                stringBuilder.append(" " + getCheckLinkHTML("IMS_QP_Task", "approveConnection", /*main task*/mainTaskID, id, virtualRelationship, "Accept", "function(){emxEditableTable.refreshRowByRowId(" + mainLevel + ");}"));
+                            if (getTypeFromMap(relatedMap).equals(TYPE_IMS_QP_DEPTask) && !map.get("type").equals("IMS_QP_DEP")) {
+                                LOG.info("task name: " + relatedMap.get("name") + " is check");
                                 stringBuilder.append(" " + getCheckLinkHTML("IMS_QP_Task", "approveConnection", /*main task*/mainTaskID, id, virtualRelationship, "Accept", mainLevel));
-                            } else if (getTypeFromMap(relatedMap).equals(TYPE_IMS_QP_DEP)) {
-                                stringBuilder.append(" " + getCheckLinkHTML("IMS_QP_Task", "distributionArrow", /*main task*/mainTaskID, id, virtualRelationship, "Arrow", mainLevel));
+                            } else {
+                                LOG.info("task name: " + relatedMap.get("name") + " is distribute");
+                                stringBuilder.append(" " + getDistributeHTMLLink(getCheckLinkHTML(null, "distributionArrow", /*main task*/mainTaskID, id, null, "Distribute task", null)));
                             }
                             stringBuilder.append(" " + getCheckLinkHTML("IMS_QP_Task", "rejectConnection", /*main task*/mainTaskID, id, virtualRelationship, "Reject", mainLevel));
                         }
@@ -195,6 +222,14 @@ public class IMS_QP_Task_mxJPO {
             }
         }
         return result;
+    }
+
+    public String getDistributeHTMLLink(String rawLink) {
+        LOG.info("rawLink: " + rawLink);
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append(rawLink);
+        LOG.info("getDistributeHTMLLink: " + stringBuilder.toString());
+        return stringBuilder.toString();
     }
 
     public StringList getStringList(Object object) {
@@ -253,7 +288,7 @@ public class IMS_QP_Task_mxJPO {
         return "";
     }
 
-    private void setAttributeDepTaskStaus(Context context, String check, String... args) {
+    public void setAttributeDepTaskStaus(Context context, String check, String... args) {
 
         String mainTaskID = args[0];
         String taskID = args[1];
@@ -330,7 +365,7 @@ public class IMS_QP_Task_mxJPO {
         String icon = "";
 
         switch (title) {
-            case "Arrow":
+            case "Distribute task":
                 icon = "arrow.png";
                 break;
             case "Accept":
@@ -366,16 +401,14 @@ public class IMS_QP_Task_mxJPO {
                         onDisconnected != null && !onDisconnected.isEmpty() ? onDisconnected : "", imageUrl,
                         HtmlEscapers.htmlEscaper().escape(title));
 
-//        LOG.info("link: " + link);
-
         return link;
     }
 
-    private String getEcma(String string) {
+    public String getEcma(String string) {
         return StringEscapeUtils.escapeEcmaScript(string);
     }
 
-    private String getTypeFromMap(Object obj) {
+    public String getTypeFromMap(Object obj) {
         return obj != null ? (String) ((Map) obj).get(DomainConstants.SELECT_TYPE) : null;
     }
 }

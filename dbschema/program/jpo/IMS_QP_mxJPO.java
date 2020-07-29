@@ -288,22 +288,25 @@ public class IMS_QP_mxJPO extends DomainObject {
      */
     public MapList getAllRelatedTasksForTable(Context context, String[] args) throws Exception {
 
+        MapList result = new MapList();
         Map argsMap = JPO.unpackArgs(args);
-
 
         //get objectID
         String objectId = (String) argsMap.get("objectId");
 
         StringList selects = new StringList("id");
-        DomainObject parent = new DomainObject(objectId);
-        //get all substages
-//                MapList allSystems = DomainObject.findObjects(context, /*types*/typePattern, /*vault*/ "eService Production", /*where*/"", /*selects*/objectSelects);
-        MapList result = DomainObject.findObjects(context,
+
+        //get all tasks
+        Map depMap = new HashMap<>();
+        depMap.put("type", "IMS_QP_DEP");
+        depMap.put("id", objectId);
+        result.add(depMap);
+
+        result.addAll(DomainObject.findObjects(context,
                 /*type*/"IMS_QP_DEPTask",
                 "eService Production",
                 /*where*/"to[IMS_QP_DEPSubStage2DEPTask].from.to[IMS_QP_DEPProjectStage2DEPSubStage].from.to[IMS_QP_DEP2DEPProjectStage].from.id==" + objectId,
-                /*selects*/ selects);
-
+                /*selects*/ selects));
         return result;
     }
 
