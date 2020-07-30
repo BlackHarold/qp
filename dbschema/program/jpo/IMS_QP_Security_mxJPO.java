@@ -34,6 +34,8 @@ public class IMS_QP_Security_mxJPO {
 
     private static final String PROGRAM_IMS_QP_Security = "IMS_QP_Security";
 
+    private static final String STATE_DONE = "Done";
+
     public IMS_QP_Security_mxJPO(Context context, String[] args) throws Exception {
     }
 
@@ -234,6 +236,11 @@ public class IMS_QP_Security_mxJPO {
         removePersonNameDEPOwner(context, args[0], args[1]);
     }
 
+    private static boolean isDEPOwnerPrivate(Map map) {
+        return !STATE_DONE.equals(map.get(DomainConstants.SELECT_CURRENT)) &&
+                "TRUE".equalsIgnoreCase((String) map.get(String.format("from[%s]", RELATIONSHIP_IMS_QP_DEP2Owner)));
+    }
+
     private static boolean isDEPOwnerPrivate(Context context, DomainObject personObject, DomainObject object) throws Exception {
         if (currentUserIsAdmin(context)) {
             return true;
@@ -243,7 +250,8 @@ public class IMS_QP_Security_mxJPO {
         }
 
         if (object.getType(context).equals(TYPE_IMS_QP_DEP)) {
-            return IMS_KDD_mxJPO.isConnected(context, RELATIONSHIP_IMS_QP_DEP2Owner, object, personObject);
+            return !STATE_DONE.equals(object.getCurrentState(context).getName()) &&
+                    IMS_KDD_mxJPO.isConnected(context, RELATIONSHIP_IMS_QP_DEP2Owner, object, personObject);
         }
 
         MapList mapList = object.getRelatedObjects(
@@ -264,14 +272,17 @@ public class IMS_QP_Security_mxJPO {
                                 TYPE_IMS_QP_DEPTask
                         },
                         ','),
-                new StringList(String.format("from[%s|to.id==%s]", RELATIONSHIP_IMS_QP_DEP2Owner, personObject.getId(context))),
+                new StringList(new String[]{
+                        DomainConstants.SELECT_CURRENT,
+                        String.format("from[%s|to.id==%s]", RELATIONSHIP_IMS_QP_DEP2Owner, personObject.getId(context))
+                }),
                 null,
                 true, false, (short) 0,
                 null,
                 null);
 
-        for (Object map : mapList) {
-            if ("TRUE".equalsIgnoreCase((String) ((Map) map).get(String.format("from[%s]", RELATIONSHIP_IMS_QP_DEP2Owner)))) {
+        for (Object item : mapList) {
+            if (isDEPOwnerPrivate((Map) item)) {
                 return true;
             }
         }
@@ -292,8 +303,8 @@ public class IMS_QP_Security_mxJPO {
                 null,
                 null);
 
-        for (Object map : mapList) {
-            if ("TRUE".equalsIgnoreCase((String) ((Map) map).get(String.format("from[%s]", RELATIONSHIP_IMS_QP_DEP2Owner)))) {
+        for (Object item : mapList) {
+            if (isDEPOwnerPrivate((Map) item)) {
                 return true;
             }
         }
@@ -478,7 +489,7 @@ public class IMS_QP_Security_mxJPO {
             if (sb.length() > 0) {
                 sb.append("<br />");
             }
-            
+
             if (currentUserIsDEPOwner && !context.getUser().equals(IMS_KDD_mxJPO.getNameFromMap(relatedMap))) {
 
                 sb.append(IMS_KDD_mxJPO.getDisconnectLinkHTML(
