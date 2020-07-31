@@ -12,8 +12,8 @@ mxUpdate policy "${NAME}" {
     defaultformat ""
     sequence ""
     store ""
-    state "Inactive" {
-        registeredname "state_Inactive"
+    state "Draft" {
+        registeredname "state_Draft"
         !enforcereserveaccess
         majorrevision
         minorrevision
@@ -24,8 +24,8 @@ mxUpdate policy "${NAME}" {
         owner {all}
         public {all}
     }
-    state "Active" {
-        registeredname "state_Active"
+    state "Done" {
+        registeredname "state_Done"
         !enforcereserveaccess
         majorrevision
         minorrevision
