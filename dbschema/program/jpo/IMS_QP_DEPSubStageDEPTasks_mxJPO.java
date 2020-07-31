@@ -421,7 +421,7 @@ public class IMS_QP_DEPSubStageDEPTasks_mxJPO {
                 String rowId = IMS_KDD_mxJPO.getRowId(map);
                 String id = IMS_KDD_mxJPO.getIdFromMap(map);
                 DomainObject depTaskObject = IMS_KDD_mxJPO.idToObject(context, id);
-                boolean currentUserIsDEPOwner = IMS_QP_Security_mxJPO.currentUserIsDEPOwner(context, depTaskObject);
+                boolean currentUserIsRowDEPOwner = IMS_QP_Security_mxJPO.currentUserIsDEPOwner(context, depTaskObject);
 
                 List<Map> relatedMaps = IMS_KDD_mxJPO.getRelatedObjectMaps(
                         context, depTaskObject,
@@ -439,7 +439,9 @@ public class IMS_QP_DEPSubStageDEPTasks_mxJPO {
                         sb.append("<br />");
                     }
 
-                    if (currentUserIsDEPOwner) {
+                    if (currentUserIsRowDEPOwner &&
+                            IMS_QP_Security_mxJPO.currentUserIsDEPOwner(context, IMS_KDD_mxJPO.getIdFromMap(relatedMap))) {
+
                         sb.append(IMS_KDD_mxJPO.getDisconnectLinkHTML(
                                 PROGRAM_IMS_QP_DEPSubStageDEPTasks, "disconnectDEPTask",
                                 id, IMS_KDD_mxJPO.getIdFromMap(relatedMap),
@@ -490,7 +492,7 @@ public class IMS_QP_DEPSubStageDEPTasks_mxJPO {
                     }
                 }
 
-                if (currentUserIsDEPOwner) {
+                if (currentUserIsRowDEPOwner) {
                     sb.append(IMS_DragNDrop_mxJPO.getConnectDropAreaHTML(
                             PROGRAM_IMS_QP_DEPSubStageDEPTasks, "connectDEPTask",
                             virtualRelationship, !in,
@@ -645,17 +647,23 @@ public class IMS_QP_DEPSubStageDEPTasks_mxJPO {
             @Override
             public String connect(Context context, String from, String to, String relationship) throws Exception {
 
+                DomainObject fromObject = new DomainObject(from);
                 DomainObject toObject = new DomainObject(to);
 
-                IMS_KDD_mxJPO.connectIfNotConnected(
-                        context,
-                        toObject.getType(context).equals(TYPE_IMS_QP_DEPTask) ?
-                                RELATIONSHIP_IMS_QP_DEPTask2DEPTask :
-                                RELATIONSHIP_IMS_QP_DEPTask2DEP,
-                        new DomainObject(from),
-                        toObject);
+                if (IMS_QP_Security_mxJPO.currentUserIsDEPOwner(context, fromObject) &&
+                        IMS_QP_Security_mxJPO.currentUserIsDEPOwner(context, toObject)) {
 
-                return "";
+                    IMS_KDD_mxJPO.connectIfNotConnected(
+                            context,
+                            toObject.getType(context).equals(TYPE_IMS_QP_DEPTask) ?
+                                    RELATIONSHIP_IMS_QP_DEPTask2DEPTask :
+                                    RELATIONSHIP_IMS_QP_DEPTask2DEP,
+                            fromObject,
+                            toObject);
+
+                    return "";
+                }
+                return "Access denied.";
             }
         });
     }
@@ -666,17 +674,23 @@ public class IMS_QP_DEPSubStageDEPTasks_mxJPO {
             @Override
             public String disconnect(Context context, String from, String to, String relationship) throws Exception {
 
+                DomainObject fromObject = new DomainObject(from);
                 DomainObject toObject = new DomainObject(to);
 
-                new DomainObject(from).disconnect(
-                        context,
-                        new RelationshipType(toObject.getType(context).equals(TYPE_IMS_QP_DEPTask) ?
-                                RELATIONSHIP_IMS_QP_DEPTask2DEPTask :
-                                RELATIONSHIP_IMS_QP_DEPTask2DEP),
-                        !relationship.equals("in"),
-                        toObject);
+                if (IMS_QP_Security_mxJPO.currentUserIsDEPOwner(context, fromObject) &&
+                        IMS_QP_Security_mxJPO.currentUserIsDEPOwner(context, toObject)) {
 
-                return "";
+                    fromObject.disconnect(
+                            context,
+                            new RelationshipType(toObject.getType(context).equals(TYPE_IMS_QP_DEPTask) ?
+                                    RELATIONSHIP_IMS_QP_DEPTask2DEPTask :
+                                    RELATIONSHIP_IMS_QP_DEPTask2DEP),
+                            !relationship.equals("in"),
+                            toObject);
+
+                    return "";
+                }
+                return "Access denied.";
             }
         });
     }
