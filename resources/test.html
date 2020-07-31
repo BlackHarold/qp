@@ -1,1 +1,54 @@
-IMS_CheckTask('IMS_QP_Task', 'approveConnection', '24020.5799.43019.59189', '24020.5799.57428.30006', 'in', '0c18e3a6-7a3c-40c5-a3a4-f76716e8c65e', 'fe2fbc3d-8433-47c9-95c7-d6e4504411b0', 'function(){emxEditableTable.refreshRowByRowId('0,29');}')
+<!DOCTYPE html>
+
+
+<!-- ESAPI -->
+<script type="text/javascript" language="JavaScript" src="../plugins/esapi4js/esapi-min.js"></script>
+<script type="text/javascript" language="JavaScript"
+        src="../plugins/esapi4js/resources/i18n/ESAPI_Standard_en_US.properties.js"></script>
+<script type="text/javascript" language="JavaScript"
+        src="../plugins/esapi4js/resources/Base.esapi.properties.js"></script>
+<script type="text/javascript" language="JavaScript">
+    org.owasp.esapi.ESAPI.initialize();
+</script>
+
+<script src="scripts/IMS_KDD.js?version=2020-04-27"></script>
+<script src="scripts/IMS_DragNDrop.js?version=2020-04-27"></script>
+
+
+<!-- //XSSOK -->
+<script language="javascript" src="/3dspace/common/scripts/emxUICore.js"></script>
+<!-- //XSSOK -->
+<script language="javascript" src="/3dspace/common/scripts/emxUIModal.js"></script>
+<script language="Javascript">
+
+</script>
+
+
+<script language="JavaScript">
+
+    var DisplayErrorMsg = "";
+
+</script>
+
+
+<script>
+    console.log("Scenario\x3A\x0A\x0ATransaction\x20started...\x0A\x0Aget\x20relationship\x3A\x2024020.5799.44562.3145\x20rel\x20type\x3A\x20\x7BIMS_QP_DEPTaskStatus\x3D\x7Bname\x3DIMS_QP_DEPTaskStatus,\x20type\x3Dstring,\x20choices\x3D\x5BApproved,\x20Draft,\x20Rejected\x5D,\x20value\x3DDraft,\x20multiline\x3Dfalse\x7D\x7D\x0A\x0A...relationship\x20disconnected\x0A\x0Afor\x20each\x20taskID\x20from\x20table\x20creating\x20new\x20connection\x0A\x0A\x20act\x201\x20\x2D\x20connect\x20from\x203DID\x2D01\x2D01\x20id\x2024020.5799.48042.15346\x0A\x20relationship\x3A\x20RelationshipType\x28\x22IMS_QP_DEPTask2DEP\x22\x29\x20\x0Ato\x20CID\x2D04\x2D01\x20id\x3A\x2024020.5799.36856.14023\x0A\x0Aset\x20attribute\x20for\x20current\x20relationship\x20\x22IMS_QP_DEPTaskStatus\x22\x20value\x20\x22Approved\x22");
+    console.log(document);
+    // getTopWindow().close();
+</script>
+
+
+<script language="javascript">
+    var boolcheck = false;
+
+    if (boolcheck && typeof doCheckbox == "function") {
+        doCheckbox();
+    }
+</script>
+
+</body>
+</html>
+
+
+
+

@@ -17,6 +17,8 @@ public class IMS_QP_Task_mxJPO {
 
     static final Logger LOG = Logger.getLogger("blackLogger");
 
+
+    //TODO move to the IMS_QP_Constants after tests
     static final String TYPE_IMS_QP_DEP = "IMS_QP_DEP";
     static final String TYPE_IMS_QP_DEPTask = "IMS_QP_DEPTask";
     static final String RELATIONSHIP_IMS_QP_DEP2DEPProjectStage = "IMS_QP_DEP2DEPProjectStage";
@@ -66,8 +68,6 @@ public class IMS_QP_Task_mxJPO {
      */
     public MapList getAllRelatedTasksForDistributionButton(Context context, String[] args) throws Exception {
 
-        LOG.info("distribution button pressed");
-
         Map argsMap = JPO.unpackArgs(args);
 
         //get objectID
@@ -81,8 +81,6 @@ public class IMS_QP_Task_mxJPO {
                 "eService Production",
                 /*where*/"to[IMS_QP_DEPSubStage2DEPTask].from.to[IMS_QP_DEPProjectStage2DEPSubStage].from.to[IMS_QP_DEP2DEPProjectStage].from.id==" + objectId,
                 /*selects*/ selects);
-
-        LOG.info("related map: " + result);
 
         return result;
     }
@@ -114,9 +112,9 @@ public class IMS_QP_Task_mxJPO {
                 String mainLevel = (String) map.get("id[level]");
                 DomainObject objectMainTask = new DomainObject(mainTaskID);
 
-//                boolean currentUserIsDEPOwner = IMS_QP_Security_mxJPO.currentUserIsDEPOwner(context, depTaskObject);
+                boolean currentUserIsDEPOwner = IMS_QP_Security_mxJPO.currentUserIsDEPOwner(context, objectMainTask);
                 //TODO uncomment after test
-                boolean currentUserIsDEPOwner = true;
+//                boolean currentUserIsDEPOwner = true;
 
                 StringList selects = new StringList();
                 selects.add("id");
@@ -134,6 +132,9 @@ public class IMS_QP_Task_mxJPO {
                 /*OUTPUT getFrom*/
                 selects.add("from[IMS_QP_DEPTask2DEPTask].to.id");
                 selects.add("from[IMS_QP_DEPTask2DEPTask].attribute[IMS_QP_DEPTaskStatus]");
+                /*OUTPUT getDepFrom*/
+                selects.add("from[IMS_QP_DEPTask2DEP].to.id");
+                selects.add("from[IMS_QP_DEPTask2DEP].attribute[IMS_QP_DEPTaskStatus]");
 
                 String relationships = getTo ? "IMS_QP_DEPTask2DEPTask,IMS_QP_DEPTask2DEP" : "IMS_QP_DEPTask2DEPTask";
                 String types = getTo ? "IMS_QP_DEP,IMS_QP_DEPTask" : "IMS_QP_DEPTask";
@@ -153,15 +154,14 @@ public class IMS_QP_Task_mxJPO {
 
                 /*get all states for related tasks*/
                 Map<String, String> taskStates = new HashMap<>();
-
-                LOG.info("main name: " + map.get("name"));
                 for (Object object : relatedTasks) {
                     Map relatedMap = (Map) object;
                     id = (String) relatedMap.get("id");
 
                     /*getting list of all related tasks with states*/
-                    List<String> toId, toState, fromId, fromState;
+                    List<String> toId, toState, fromId, fromState, fromDepId, fromDepState;
                     if (!getTo) {
+
                         toId = getStringList(relatedMap.get("to[IMS_QP_DEPTask2DEPTask].from.id"));
                         toState = getStringList(relatedMap.get("to[IMS_QP_DEPTask2DEPTask].attribute[IMS_QP_DEPTaskStatus]"));
 
@@ -171,11 +171,19 @@ public class IMS_QP_Task_mxJPO {
                     }
 
                     if (getTo) {
+
                         fromId = getStringList(relatedMap.get("from[IMS_QP_DEPTask2DEPTask].to.id"));
                         fromState = getStringList(relatedMap.get("from[IMS_QP_DEPTask2DEPTask].attribute[IMS_QP_DEPTaskStatus]"));
                         for (int i = 0; i < fromId.size(); i++) {
                             taskStates.put(fromId.get(i), fromState.get(i));
                         }
+
+                        fromDepId = getStringList(relatedMap.get("from[IMS_QP_DEPTask2DEP].to.id"));
+                        fromDepState = getStringList(relatedMap.get("from[IMS_QP_DEPTask2DEP].attribute[IMS_QP_DEPTaskStatus]"));
+                        for (int i = 0; i < fromDepId.size(); i++) {
+                            taskStates.put(fromDepId.get(i), fromDepState.get(i));
+                        }
+                        LOG.info("getTo tastStates: " + taskStates);
                     }
 
                     /*rotate all related tasks and generating links*/
@@ -186,22 +194,20 @@ public class IMS_QP_Task_mxJPO {
                     name = (String) relatedMap.get(isRuLocale ? "attribute[IMS_NameRu]" : "attribute[IMS_Name]");
                     name = UIUtil.isNotNullAndNotEmpty(name) ? name : "error";
 
+                    String state = UIUtil.isNotNullAndNotEmpty(taskStates.get(mainTaskID)) ? taskStates.get(mainTaskID) : "";
                     if (getTypeFromMap(relatedMap).equals(TYPE_IMS_QP_DEPTask))
-                        rawLink = getLinkHTML(relatedMap, SOURCE_DEPTask, getIconUrl(TYPE_IMS_QP_DEPTask), name);
+                        rawLink = getLinkHTML(relatedMap, SOURCE_DEPTask, getIconUrl(TYPE_IMS_QP_DEPTask), name, state);
                     else if (getTypeFromMap(relatedMap).equals(TYPE_IMS_QP_DEP))
-                        rawLink = getLinkHTML(relatedMap, SOURCE_DEP, getIconUrl(TYPE_IMS_QP_DEP), name);
+                        rawLink = getLinkHTML(relatedMap, SOURCE_DEP, getIconUrl(TYPE_IMS_QP_DEP), name, state);
 
                     stringBuilder.append(rawLink);
 
                     if (currentUserIsDEPOwner) {
                         //TODO brush the links red&green colors by states
-                        String state = UIUtil.isNotNullAndNotEmpty(taskStates.get(mainTaskID)) ? taskStates.get(mainTaskID) : "";
                         if (state.equals("Draft") || state.equals("")) {
                             if (getTypeFromMap(relatedMap).equals(TYPE_IMS_QP_DEPTask) && !map.get("type").equals("IMS_QP_DEP")) {
-                                LOG.info("task name: " + relatedMap.get("name") + " is check");
                                 stringBuilder.append(" " + getCheckLinkHTML("IMS_QP_Task", "approveConnection", /*main task*/mainTaskID, id, virtualRelationship, "Accept", mainLevel));
                             } else {
-                                LOG.info("task name: " + relatedMap.get("name") + " is distribute");
                                 stringBuilder.append(" " + getDistributeHTMLLink(getCheckLinkHTML(null, "distributionArrow", /*main task*/mainTaskID, id, null, "Distribute task", null)));
                             }
                             stringBuilder.append(" " + getCheckLinkHTML("IMS_QP_Task", "rejectConnection", /*main task*/mainTaskID, id, virtualRelationship, "Reject", mainLevel));
@@ -215,8 +221,8 @@ public class IMS_QP_Task_mxJPO {
         } catch (Exception e) {
             try {
                 emxContextUtil_mxJPO.mqlWarning(context, e.toString());
-                LOG.info("result link: " + result);
-                LOG.info("error getting url string: " + e.getMessage());
+                LOG.error("result link: " + result);
+                LOG.error("error getting url string: " + e.getMessage());
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
@@ -225,10 +231,8 @@ public class IMS_QP_Task_mxJPO {
     }
 
     public String getDistributeHTMLLink(String rawLink) {
-        LOG.info("rawLink: " + rawLink);
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append(rawLink);
-        LOG.info("getDistributeHTMLLink: " + stringBuilder.toString());
         return stringBuilder.toString();
     }
 
@@ -242,13 +246,12 @@ public class IMS_QP_Task_mxJPO {
                 list = (StringList) object;
             }
         } catch (ClassCastException cce) {
-            LOG.info("error getting StringList: " + object.getClass().getCanonicalName() + " message: " + cce.getMessage());
+            LOG.error("error getting StringList: " + object.getClass().getCanonicalName() + " message: " + cce.getMessage());
         }
         return list;
     }
 
-    public String getLinkHTML(Map objectMap, String source, String imageURL, String title) throws Exception {
-        String fontSize = "12px";
+    public String getLinkHTML(Map objectMap, String source, String imageURL, String title, String state) throws Exception {
         String id = (String) objectMap.get("id");
         String name = (String) objectMap.get("name");
 
@@ -265,7 +268,12 @@ public class IMS_QP_Task_mxJPO {
         if (imageURL != null)
             sb.append(String.format("<img src='%s'%s/>", HtmlEscapers.htmlEscaper().escape(imageURL), onDragStart));
 
-        String style = fontSize != null ? String.format(" style=\"font-size: %s\"", fontSize) : "";
+        String fontSize = "12px";
+        String textDecoration = !state.equals("Rejected") ? "none" : "line-through";
+        String color = state.equals("Approved") ? "green" : "";
+        color = state.equals("Rejected") ? "red" : color;
+        String style = fontSize != null ? String.format(" style=\"font-size: %s; text-decoration: %s; color: %s\"", fontSize, textDecoration, color) : "";
+
         String titleHTML = title != null ? String.format(" title=\"%s\"", HtmlEscapers.htmlEscaper().escape(title.replace("&#10;", "|")).replace("|", "&#10;")) : "";
 
         sb.append(String.format("<a href=\"javascript:emxTableColumnLinkClick('../common/emxTree.jsp?objectId=%2$s')\"%3$s%4$s%5$s>%1$s</a>",
@@ -275,20 +283,16 @@ public class IMS_QP_Task_mxJPO {
     }
 
     public String approveConnection(Context context, String[] args) {
-        LOG.info("in approve connection");
-        setAttributeDepTaskStaus(context, "Approved", args);
-        //TODO return reload that row
+        setAttributeDepTaskStatus(context, "Approved", args);
         return "";
     }
 
     public String rejectConnection(Context context, String[] args) {
-        LOG.info("in reject connection");
-        setAttributeDepTaskStaus(context, "Rejected", args);
-        //TODO return reload that row
+        setAttributeDepTaskStatus(context, "Rejected", args);
         return "";
     }
 
-    public void setAttributeDepTaskStaus(Context context, String check, String... args) {
+    public void setAttributeDepTaskStatus(Context context, String check, String... args) {
 
         String mainTaskID = args[0];
         String taskID = args[1];
@@ -308,7 +312,7 @@ public class IMS_QP_Task_mxJPO {
 
             /*getting relationship between main task & current task*/
             MapList currentTask = mainTask.getRelatedObjects(context,
-                    /*relationship*/"IMS_QP_DEPTask2DEPTask",
+                    /*relationship*/"IMS_QP_DEPTask2DEPTask,IMS_QP_DEPTask2DEP",
                     /*type*/"IMS_QP_DEPTask",
                     /*object attributes*/ null,
                     /*relationship selects*/ relselects,
@@ -321,25 +325,17 @@ public class IMS_QP_Task_mxJPO {
 
             /*getting relationship ID and set to the attribute*/
             relationshipID = UIUtil.isNotNullAndNotEmpty((String) currentRelationship.get("id")) ? (String) currentRelationship.get("id") : "";
-            LOG.info(relationshipID + " getting to: " + check);
 
             if (relationshipID.equals("")) throw new FrameworkException("error: relationship id is empty");
 
             DomainRelationship relationship = new DomainRelationship(relationshipID);
-            LOG.info("before: " + relationship.getAttributeValue(context, "IMS_QP_DEPTaskStatus"));
             relationship.setAttributeValue(context, "IMS_QP_DEPTaskStatus", check);
-            LOG.info("after: " + relationship.getAttributeValue(context, "IMS_QP_DEPTaskStatus"));
 
         } catch (FrameworkException fe) {
             LOG.error(check + "operation caused error: " + fe.getMessage());
         } catch (Exception e) {
             LOG.error("error getting domain object with ID: " + mainTaskID + " message: " + e.getMessage());
         }
-    }
-
-    public String distributionArrow(Context context, String[] args) throws Exception {
-        LOG.error("distributionArrow(): " + Arrays.deepToString(args));
-        return "false";
     }
 
     public Vector getDEPTaskInput(Context context, String[] args) throws Exception {
@@ -385,8 +381,6 @@ public class IMS_QP_Task_mxJPO {
 
         String linkId = UUID.randomUUID().toString();
         String spinnerId = UUID.randomUUID().toString();
-
-//        LOG.info("toId: " + toId + " ToId: " + escapeToId + " fromId: " + fromId);
 
         String link = String.format(
                 "<img id=\"%s\" src=\"%sspinner_16x16.png\" style=\"display:none;\" />",

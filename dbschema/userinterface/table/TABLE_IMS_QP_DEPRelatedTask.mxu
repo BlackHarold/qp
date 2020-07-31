@@ -21,29 +21,29 @@ mxUpdate table "${NAME}" {
         label "emxFramework.Attribute.QP_IMS_Name"
         businessobject "attribute[IMS_Name]"
         user "all"
-        setting "Width" "300"
         setting "Admin Type" "attribute_IMS_Name"
         setting "Editable" "true"
         setting "Field Type" "attribute"
         setting "Registered Suite" "Framework"
+        setting "Width" "300"
     }
     column {
         name "NameRu"
         label "emxFramework.Attribute.QP_IMS_NameRu"
         businessobject "attribute[IMS_NameRu]"
         user "all"
-        setting "Width" "300"
         setting "Admin Type" "attribute_IMS_NameRu"
         setting "Editable" "true"
         setting "Field Type" "attribute"
+        setting "Width" "300"
     }
     column {
         name "related_stage"
         label "Related stage"
         businessobject "$<to[IMS_QP_DEPSubStage2DEPTask].from.name>"
         user "all"
-        setting "Width" "100"
         setting "Registered Suite" "Framework"
+        setting "Width" "100"
     }
     column {
         name "DEPTaskInput"
@@ -51,9 +51,9 @@ mxUpdate table "${NAME}" {
         user "all"
         setting "Column Type" "programHTMLOutput"
         setting "Editable" "false"
-        setting "Width" "150"
         setting "Registered Suite" "Framework"
         setting "Sortable" "false"
+        setting "Width" "150"
         setting "function" "getDEPTaskInput"
         setting "program" "IMS_QP_Task"
     }
@@ -63,9 +63,9 @@ mxUpdate table "${NAME}" {
         user "all"
         setting "Column Type" "programHTMLOutput"
         setting "Editable" "false"
-        setting "Width" "150"
         setting "Registered Suite" "Framework"
         setting "Sortable" "false"
+        setting "Width" "150"
         setting "function" "getDEPTaskOutput"
         setting "program" "IMS_QP_Task"
     }

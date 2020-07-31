@@ -1,14 +1,16 @@
 import com.google.common.html.HtmlEscapers;
 import com.matrixone.apps.domain.DomainObject;
+import com.matrixone.apps.domain.DomainRelationship;
+import com.matrixone.apps.domain.util.ContextUtil;
 import com.matrixone.apps.domain.util.MapList;
 import com.matrixone.apps.framework.ui.UIUtil;
 import matrix.db.Context;
 import matrix.db.JPO;
+import matrix.db.RelationshipType;
 import matrix.util.StringList;
 
-import java.util.Map;
-import java.util.UUID;
-import java.util.Vector;
+import javax.management.relation.RelationType;
+import java.util.*;
 
 public class IMS_QP_AllTask_mxJPO extends IMS_QP_Task_mxJPO {
 
@@ -73,15 +75,13 @@ public class IMS_QP_AllTask_mxJPO extends IMS_QP_Task_mxJPO {
                     name = UIUtil.isNotNullAndNotEmpty(name) ? name : "error";
 
                     if (getTypeFromMap(relatedMap).equals(TYPE_IMS_QP_DEPTask))
-                        rawLink = getLinkHTML(relatedMap, SOURCE_DEPTask, /*image url*/null, name);
+                        rawLink = getLinkHTML(relatedMap, SOURCE_DEPTask, /*image url*/null, name, "");
 
                     stringBuilder.append(rawLink);
                 }
 
                 result.addElement(stringBuilder.toString());
             }
-
-            LOG.info("result: " + result);
 
         } catch (Exception e) {
             try {
@@ -118,5 +118,107 @@ public class IMS_QP_AllTask_mxJPO extends IMS_QP_Task_mxJPO {
                         HtmlEscapers.htmlEscaper().escape(title));
 
         return link;
+    }
+
+    /**
+     * Method distributes relationship from Task
+     * disconnecting to DEP and then connecting to selected rows
+     */
+    public Map distributeTaskConnection(Context context, String[] args) {
+
+        //get all table ids
+        HashMap<String, Object> argsMap = null;
+        try {
+            argsMap = JPO.unpackArgs(args);
+        } catch (Exception e) {
+            LOG.error("error: " + e.getMessage());
+            argsMap.put("message", "error getting arguments: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        String[] rowIDs = (String[]) argsMap.get("emxTableRowId");
+        if (rowIDs.length == 0) {
+            LOG.info("table row ids is null");
+            return null;
+        }
+
+        LOG.info("empty rowIDs!: " + rowIDs);
+        String[] taskIDs = new String[rowIDs.length];
+        for (int i = 0; i < rowIDs.length; i++) {
+            taskIDs[i] = rowIDs[i].substring(0, rowIDs[i].indexOf("|"));
+        }
+
+        String depTaskID = (String) argsMap.get("parentOID"), currentTaskID = (String) argsMap.get("objectId");
+
+        String relationshipID = getRelationshipId(context, depTaskID, "IMS_QP_DEPTask2DEP", currentTaskID);
+        if (relationshipID != null) {
+            LOG.info("relationshipID is not null: " + relationshipID);
+
+            StringBuilder stringBuilder = new StringBuilder("Scenario:");
+
+            try {
+                ContextUtil.startTransaction(context, true);
+                DomainRelationship relationship = new DomainRelationship(relationshipID);
+
+                stringBuilder.append("\n\nTransaction started..." +
+                        "\n\nget relationship: " + relationshipID + " rel type: " + relationship.getAttributeDetails(context));
+                relationship.remove(context);
+                stringBuilder.append("\n\n...relationship disconnected");
+                stringBuilder.append("\n\nfor each taskID from table creating new connection");
+
+                int counter = 1;
+                for (int i = 0; i < taskIDs.length; i++) {
+                    DomainObject depTask = new DomainObject(depTaskID), currentTask = new DomainObject(currentTaskID), task = new DomainObject(taskIDs[i]);
+                    stringBuilder.append("\n\n act " + counter++ + " - connect from " + depTask.getName(context) + " id " + depTaskID +
+                            "\n relationship: RelationshipType(\"IMS_QP_DEPTask2DEP\") \nto " + task.getName(context) + " id: " + taskIDs[i]);
+                    relationship = DomainRelationship.connect(context, depTask, new RelationshipType("IMS_QP_DEPTask2DEPTask"), task);
+                    stringBuilder.append("\n\nset attribute for current relationship \"IMS_QP_DEPTaskStatus\" value \"Approved\"");
+                    relationship.setAttributeValue(context, "IMS_QP_DEPTaskStatus", "Approved");
+                    argsMap.put("message", stringBuilder.toString());
+                    LOG.info("message: " + stringBuilder.toString());
+                }
+                ContextUtil.commitTransaction(context);
+            } catch (Exception e) {
+                LOG.error("error distibute relationship: " + e.getMessage());
+                argsMap.put("message", "error distibute relationship: " + e.getMessage());
+                ContextUtil.abortTransaction(context);
+            }
+        }
+
+        return argsMap;
+    }
+
+    private String getRelationshipId(Context context, String fromObjectId, String relationshipType, String toObjectId) {
+        String result;
+
+        try {
+            DomainObject fromObject = new DomainObject(fromObjectId);
+            DomainObject toObject = new DomainObject(toObjectId);
+            LOG.info(fromObject.getName(context) + " from: " + fromObject.getInfo(context, "from[" + relationshipType + "].to.name"));
+            LOG.info(toObject.getName(context) + " to: " + toObject.getInfo(context, "to[" + relationshipType + "].from.name"));
+            StringList fromObjectIDs = fromObject.getInfoList(context, "from[" + relationshipType + "].id");
+            StringList toObjectIDs = toObject.getInfoList(context, "to[" + relationshipType + "].id");
+
+            List<String> retainID = retainCollection(fromObjectIDs, toObjectIDs);
+            LOG.info("retainID: " + retainID);
+
+            if (retainID.size() > 1) {
+                throw new Exception("DEP has nore than one relations with task, check this. from object: " +
+                        fromObjectIDs + " / to object: " +
+                        toObjectIDs + " retain result: " + retainID);
+            }
+
+            result = retainID.get(0);
+
+        } catch (Exception ex) {
+            LOG.error("error getting relationship id: " + ex.getMessage());
+            return null;
+        }
+        return result;
+    }
+
+    private List retainCollection(List l1, List l2) {
+        l1.retainAll(l2);
+        return l1;
     }
 }
