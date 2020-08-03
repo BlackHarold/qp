@@ -1,11 +1,11 @@
 ################################################################################
-# PORTAL_IMS_QP_DEPLeftPortal.mxu
+# PORTAL_IMS_QP_DEPTaskPortal.mxu
 #
 #            This file describes the target of a Configuration Item.
 ################################################################################
 
 mxUpdate portal "${NAME}" {
-    symbolicname "portal_IMS_QP_DEPLeftPortal"
+    symbolicname "portal_IMS_QP_DEPTaskPortal"
     description ""
     label ""
     href ""
@@ -14,7 +14,7 @@ mxUpdate portal "${NAME}" {
     channel "IMS_QP_DEPForm_channel"
     ################################################## Info Start
     property "author" value "IMS Team"
-    property "original name" value "IMS_QP_DEPLeftPortal"
+    property "original name" value "IMS_QP_DEPTaskPortal"
     property "application" value "IMS"
     property "version" value "1"
     ################################################## Info End

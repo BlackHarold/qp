@@ -5,11 +5,12 @@
 ################################################################################
 
 mxUpdate channel "${NAME}" {
-    symbolicname "channel_IMS_QP_DEPForm_сhannel"
+    symbolicname "channel_IMS_QP_DEPForm_channel"
     description ""
     label ""
     href ""
     alt ""
+    height 50
     setting "Registered Suite" "Framework"
     command "IMS_QP_DEP_Form"
     command "IMS_QP_DEPRelatedTask_table"

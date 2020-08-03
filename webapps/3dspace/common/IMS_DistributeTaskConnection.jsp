@@ -15,6 +15,18 @@
     String objectId = request.getParameter("objectId");
     String parentId = request.getParameter("parentOID");
     String[] tableIDs = emxGetParameterValues(request, "emxTableRowId");
+    if (tableIDs==null||tableIDs.length==0) {
+            String message = "No one row is selected";
+    %>
+<script>
+    //so this jsp targeted to hidden frame alertify message called for top frame
+    top.alert("<%=message%>");
+    top.location.reload();
+</script>
+<%
+        return;
+    }
+
     Map objectMap = UIUtil.parseRelAndObjectIds(context, tableIDs, false);
     tableIDs = (String[]) objectMap.get("objectIds");
     String message = "";
@@ -38,8 +50,8 @@
 %>
 <%@include file="emxNavigatorBottomErrorInclude.inc" %>
 <script language="javascript">
-    window.top.opener.location.reload(true);
-    getTopWindow().close();
+    window.top.opener.location.reload();
+    top.close();
 </script>
     <%
     } catch (Exception ex) {
