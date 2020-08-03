@@ -1,3 +1,5 @@
+import com.matrixone.apps.domain.DomainObject;
+
 public class IMS_QP_Constants_mxJPO {
 
     public static final String FROM_IMS_QP_DEPSUB_STAGE_2_DEPTASK = "from[IMS_QP_DEPSubStage2DEPTask]";
@@ -45,6 +47,47 @@ public class IMS_QP_Constants_mxJPO {
     public static final String relationship_IMS_QP_ResultType2Family = "IMS_QP_ResultType2Family";
     public static final String relationship_IMS_QP_QP2QPlan = "IMS_QP_QP2QPlan";
     public static final String relationship_IMS_QP_QPlan2QPTask = "IMS_QP_QPlan2QPTask";
+
+
+    static final String TYPE_IMS_QP_DEP = "IMS_QP_DEP";
+    static final String TYPE_IMS_QP_DEPTask = "IMS_QP_DEPTask";
+    static final String RELATIONSHIP_IMS_QP_DEP2DEPProjectStage = "IMS_QP_DEP2DEPProjectStage";
+    static final String RELATIONSHIP_IMS_QP_DEPProjectStage2DEPSubStage = "IMS_QP_DEPProjectStage2DEPSubStage";
+    static final String RELATIONSHIP_IMS_QP_DEPSubStage2DEPTask = "IMS_QP_DEPSubStage2DEPTask";
+    static final String RELATIONSHIP_IMS_QP_DEPTask2DEPTask = "IMS_QP_DEPTask2DEPTask";
+    static final String RELATIONSHIP_IMS_QP_DEPTask2DEP = "IMS_QP_DEPTask2DEP";
+
+    static final String ATTRIBUTE_IMS_Name = "IMS_Name";
+    static final String ATTRIBUTE_IMS_NameRu = "IMS_NameRu";
+
+    static final String SELECT_DEP_ID = String.format(
+            "to[%s].from.to[%s].from.to[%s].from.id",
+            RELATIONSHIP_IMS_QP_DEPSubStage2DEPTask,
+            RELATIONSHIP_IMS_QP_DEPProjectStage2DEPSubStage,
+            RELATIONSHIP_IMS_QP_DEP2DEPProjectStage);
+
+    static final String SELECT_DEP_NAME = String.format(
+            "to[%s].from.to[%s].from.to[%s].from.name",
+            RELATIONSHIP_IMS_QP_DEPSubStage2DEPTask,
+            RELATIONSHIP_IMS_QP_DEPProjectStage2DEPSubStage,
+            RELATIONSHIP_IMS_QP_DEP2DEPProjectStage);
+
+    static final String SELECT_DEP_IMS_NAME = String.format(
+            "to[%s].from.to[%s].from.to[%s].from.%s",
+            RELATIONSHIP_IMS_QP_DEPSubStage2DEPTask,
+            RELATIONSHIP_IMS_QP_DEPProjectStage2DEPSubStage,
+            RELATIONSHIP_IMS_QP_DEP2DEPProjectStage,
+            DomainObject.getAttributeSelect(ATTRIBUTE_IMS_Name));
+
+    static final String SELECT_DEP_IMS_NAME_RU = String.format(
+            "to[%s].from.to[%s].from.to[%s].from.%s",
+            RELATIONSHIP_IMS_QP_DEPSubStage2DEPTask,
+            RELATIONSHIP_IMS_QP_DEPProjectStage2DEPSubStage,
+            RELATIONSHIP_IMS_QP_DEP2DEPProjectStage,
+            DomainObject.getAttributeSelect(ATTRIBUTE_IMS_NameRu));
+
+    static final String SOURCE_DEP = "D_E_P"; // Because source lists are checked using indexOf
+    static final String SOURCE_DEPTask = "DEPTask";
 
     public static final String relationship_IMS_QP_DEPTask2QPTask = "IMS_QP_DEPTask2QPTask";
     public static final String relationshipIMS_QP_DEPTask2DEPTask = "IMS_QP_DEPTask2DEPTask";

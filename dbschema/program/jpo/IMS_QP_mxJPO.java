@@ -115,9 +115,7 @@ public class IMS_QP_mxJPO extends DomainObject {
     /**
      * Label program for  Tree structure
      */
-    public String getIcons1(Context context,
-                            String[] args
-    ) {
+    public String getIcons1(Context context, String[] args) {
 
         String strTreeName = "IMS_QP_QPlan_16x16.png";
         return "";
@@ -130,8 +128,6 @@ public class IMS_QP_mxJPO extends DomainObject {
             Map programMap = (Map) JPO.unpackArgs(args);
             // get object list
             MapList ObjectList = (MapList) programMap.get("objectList");
-//            LOG.info("programMap " + programMap);
-//            LOG.info("ObjectList " + ObjectList);
 
             String bArr[] = new String[ObjectList.size()];
             StringList bSel = new StringList();
@@ -155,7 +151,8 @@ public class IMS_QP_mxJPO extends DomainObject {
 
                 HashMap retMap = new HashMap();
                 HashMap alternateMap = new HashMap();
-                // Based on the object state add the required icon
+
+                //Based on the object state add the required icon
                 //Pass the required information to this method and get the required icon //name.
                 String objectIcon = getIcons(context, type, sPolicyClassification);
 
@@ -166,7 +163,6 @@ public class IMS_QP_mxJPO extends DomainObject {
         } catch (FrameworkException e) {
             throw new FrameworkException(e.toString());
         }
-//        LOG.info("ICONS-------->" + iconList);
         return iconList;
     }
 
@@ -178,7 +174,6 @@ public class IMS_QP_mxJPO extends DomainObject {
             return "buttonWizardNextDisabled.gif";
         else {
             String typeIcon = UINavigatorUtil.getTypeIconProperty(context, typeName);
-//            LOG.info("TYPE---------->" + typeIcon);
             return "buttonWizardNextDisabled.gif";
         }
     }
@@ -457,7 +452,6 @@ public class IMS_QP_mxJPO extends DomainObject {
 
         if (messageDel.length() > 0)
             message.append(messageDel).append(" was deleted!");
-
 
         mapMessage.put("message", message.toString());
         return mapMessage;

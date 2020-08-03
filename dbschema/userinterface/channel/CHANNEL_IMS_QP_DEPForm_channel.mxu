@@ -17,7 +17,7 @@ mxUpdate channel "${NAME}" {
     ################################################## Info Start
     property "author" value "IMS Team"
     property "original name" value "IMS_QP_DEPForm_channel"
-    property "application" value "IMS"
+    property "application" value "IMS_QP"
     property "version" value "1"
     ################################################## Info End
 }

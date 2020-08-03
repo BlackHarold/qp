@@ -9,7 +9,6 @@ import matrix.db.JPO;
 import matrix.db.RelationshipType;
 import matrix.util.StringList;
 
-import javax.management.relation.RelationType;
 import java.util.*;
 
 public class IMS_QP_AllTask_mxJPO extends IMS_QP_Task_mxJPO {
@@ -86,8 +85,6 @@ public class IMS_QP_AllTask_mxJPO extends IMS_QP_Task_mxJPO {
         } catch (Exception e) {
             try {
                 emxContextUtil_mxJPO.mqlWarning(context, e.toString());
-                LOG.info("result link: " + result);
-                LOG.info("error getting url string: " + e.getMessage());
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
@@ -95,8 +92,7 @@ public class IMS_QP_AllTask_mxJPO extends IMS_QP_Task_mxJPO {
         return result;
     }
 
-    final String COMMON_IMAGES = "../common/images/";
-
+    private final String COMMON_IMAGES = "../common/images/";
 
     public String getCheckLinkHTML(String program, String function, String fromId, String toId,
                                    boolean escapeToId, String relationships, String imageUrl, /*8*/String title, String onDisconnected) {
@@ -138,11 +134,9 @@ public class IMS_QP_AllTask_mxJPO extends IMS_QP_Task_mxJPO {
 
         String[] rowIDs = (String[]) argsMap.get("emxTableRowId");
         if (rowIDs.length == 0) {
-            LOG.info("table row ids is null");
             return null;
         }
 
-        LOG.info("empty rowIDs!: " + rowIDs);
         String[] taskIDs = new String[rowIDs.length];
         for (int i = 0; i < rowIDs.length; i++) {
             taskIDs[i] = rowIDs[i].substring(0, rowIDs[i].indexOf("|"));
@@ -152,10 +146,7 @@ public class IMS_QP_AllTask_mxJPO extends IMS_QP_Task_mxJPO {
 
         String relationshipID = getRelationshipId(context, depTaskID, "IMS_QP_DEPTask2DEP", currentTaskID);
         if (relationshipID != null) {
-            LOG.info("relationshipID is not null: " + relationshipID);
-
             StringBuilder stringBuilder = new StringBuilder("Scenario:");
-
             try {
                 ContextUtil.startTransaction(context, true);
                 DomainRelationship relationship = new DomainRelationship(relationshipID);
@@ -175,7 +166,6 @@ public class IMS_QP_AllTask_mxJPO extends IMS_QP_Task_mxJPO {
                     stringBuilder.append("\n\nset attribute for current relationship \"IMS_QP_DEPTaskStatus\" value \"Approved\"");
                     relationship.setAttributeValue(context, "IMS_QP_DEPTaskStatus", "Approved");
                     argsMap.put("message", stringBuilder.toString());
-                    LOG.info("message: " + stringBuilder.toString());
                 }
                 ContextUtil.commitTransaction(context);
             } catch (Exception e) {
@@ -194,13 +184,10 @@ public class IMS_QP_AllTask_mxJPO extends IMS_QP_Task_mxJPO {
         try {
             DomainObject fromObject = new DomainObject(fromObjectId);
             DomainObject toObject = new DomainObject(toObjectId);
-            LOG.info(fromObject.getName(context) + " from: " + fromObject.getInfo(context, "from[" + relationshipType + "].to.name"));
-            LOG.info(toObject.getName(context) + " to: " + toObject.getInfo(context, "to[" + relationshipType + "].from.name"));
             StringList fromObjectIDs = fromObject.getInfoList(context, "from[" + relationshipType + "].id");
             StringList toObjectIDs = toObject.getInfoList(context, "to[" + relationshipType + "].id");
 
             List<String> retainID = retainCollection(fromObjectIDs, toObjectIDs);
-            LOG.info("retainID: " + retainID);
 
             if (retainID.size() > 1) {
                 throw new Exception("DEP has nore than one relations with task, check this. from object: " +

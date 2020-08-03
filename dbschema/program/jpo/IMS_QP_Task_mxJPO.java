@@ -15,49 +15,7 @@ import java.util.*;
 
 public class IMS_QP_Task_mxJPO {
 
-    static final Logger LOG = Logger.getLogger("blackLogger");
-
-
-    //TODO move to the IMS_QP_Constants after tests
-    static final String TYPE_IMS_QP_DEP = "IMS_QP_DEP";
-    static final String TYPE_IMS_QP_DEPTask = "IMS_QP_DEPTask";
-    static final String RELATIONSHIP_IMS_QP_DEP2DEPProjectStage = "IMS_QP_DEP2DEPProjectStage";
-    static final String RELATIONSHIP_IMS_QP_DEPProjectStage2DEPSubStage = "IMS_QP_DEPProjectStage2DEPSubStage";
-    static final String RELATIONSHIP_IMS_QP_DEPSubStage2DEPTask = "IMS_QP_DEPSubStage2DEPTask";
-    static final String RELATIONSHIP_IMS_QP_DEPTask2DEPTask = "IMS_QP_DEPTask2DEPTask";
-    static final String RELATIONSHIP_IMS_QP_DEPTask2DEP = "IMS_QP_DEPTask2DEP";
-
-    static final String ATTRIBUTE_IMS_Name = "IMS_Name";
-    static final String ATTRIBUTE_IMS_NameRu = "IMS_NameRu";
-
-    static final String SELECT_DEP_ID = String.format(
-            "to[%s].from.to[%s].from.to[%s].from.id",
-            RELATIONSHIP_IMS_QP_DEPSubStage2DEPTask,
-            RELATIONSHIP_IMS_QP_DEPProjectStage2DEPSubStage,
-            RELATIONSHIP_IMS_QP_DEP2DEPProjectStage);
-
-    static final String SELECT_DEP_NAME = String.format(
-            "to[%s].from.to[%s].from.to[%s].from.name",
-            RELATIONSHIP_IMS_QP_DEPSubStage2DEPTask,
-            RELATIONSHIP_IMS_QP_DEPProjectStage2DEPSubStage,
-            RELATIONSHIP_IMS_QP_DEP2DEPProjectStage);
-
-    static final String SELECT_DEP_IMS_NAME = String.format(
-            "to[%s].from.to[%s].from.to[%s].from.%s",
-            RELATIONSHIP_IMS_QP_DEPSubStage2DEPTask,
-            RELATIONSHIP_IMS_QP_DEPProjectStage2DEPSubStage,
-            RELATIONSHIP_IMS_QP_DEP2DEPProjectStage,
-            DomainObject.getAttributeSelect(ATTRIBUTE_IMS_Name));
-
-    static final String SELECT_DEP_IMS_NAME_RU = String.format(
-            "to[%s].from.to[%s].from.to[%s].from.%s",
-            RELATIONSHIP_IMS_QP_DEPSubStage2DEPTask,
-            RELATIONSHIP_IMS_QP_DEPProjectStage2DEPSubStage,
-            RELATIONSHIP_IMS_QP_DEP2DEPProjectStage,
-            DomainObject.getAttributeSelect(ATTRIBUTE_IMS_NameRu));
-
-    static final String SOURCE_DEP = "D_E_P"; // Because source lists are checked using indexOf
-    static final String SOURCE_DEPTask = "DEPTask";
+    static final Logger LOG = Logger.getLogger("distributeTask");
 
     public static String getIconUrl(String type) {
         return IMS_KDD_mxJPO.COMMON_IMAGES + type + "_16x16.png";
@@ -113,16 +71,16 @@ public class IMS_QP_Task_mxJPO {
                 DomainObject objectMainTask = new DomainObject(mainTaskID);
 
                 boolean currentUserIsDEPOwner = IMS_QP_Security_mxJPO.currentUserIsDEPOwner(context, objectMainTask);
-                //TODO uncomment after test
-//                boolean currentUserIsDEPOwner = true;
+                //TODO uncomment this row for tests who is assignees IMS_Admin role
+                //boolean currentUserIsDEPOwner = true;
 
                 StringList selects = new StringList();
                 selects.add("id");
                 selects.add("name");
-                selects.add(SELECT_DEP_ID);
-                selects.add(SELECT_DEP_NAME);
-                selects.add(SELECT_DEP_IMS_NAME);
-                selects.add(SELECT_DEP_IMS_NAME_RU);
+                selects.add(IMS_QP_Constants_mxJPO.SELECT_DEP_ID);
+                selects.add(IMS_QP_Constants_mxJPO.SELECT_DEP_NAME);
+                selects.add(IMS_QP_Constants_mxJPO.SELECT_DEP_IMS_NAME);
+                selects.add(IMS_QP_Constants_mxJPO.SELECT_DEP_IMS_NAME_RU);
                 selects.add("to[IMS_QP_DEPSubStage2DEPTask].from.id");
                 selects.add("attribute[IMS_NameRu]");
                 selects.add("attribute[IMS_Name]");
@@ -183,7 +141,6 @@ public class IMS_QP_Task_mxJPO {
                         for (int i = 0; i < fromDepId.size(); i++) {
                             taskStates.put(fromDepId.get(i), fromDepState.get(i));
                         }
-                        LOG.info("getTo tastStates: " + taskStates);
                     }
 
                     /*rotate all related tasks and generating links*/
@@ -195,17 +152,17 @@ public class IMS_QP_Task_mxJPO {
                     name = UIUtil.isNotNullAndNotEmpty(name) ? name : "error";
 
                     String state = UIUtil.isNotNullAndNotEmpty(taskStates.get(mainTaskID)) ? taskStates.get(mainTaskID) : "";
-                    if (getTypeFromMap(relatedMap).equals(TYPE_IMS_QP_DEPTask))
-                        rawLink = getLinkHTML(relatedMap, SOURCE_DEPTask, getIconUrl(TYPE_IMS_QP_DEPTask), name, state);
-                    else if (getTypeFromMap(relatedMap).equals(TYPE_IMS_QP_DEP))
-                        rawLink = getLinkHTML(relatedMap, SOURCE_DEP, getIconUrl(TYPE_IMS_QP_DEP), name, state);
+                    if (getTypeFromMap(relatedMap).equals(IMS_QP_Constants_mxJPO.TYPE_IMS_QP_DEPTask))
+                        rawLink = getLinkHTML(relatedMap, IMS_QP_Constants_mxJPO.SOURCE_DEPTask, getIconUrl(IMS_QP_Constants_mxJPO.TYPE_IMS_QP_DEPTask), name, state);
+                    else if (getTypeFromMap(relatedMap).equals(IMS_QP_Constants_mxJPO.TYPE_IMS_QP_DEP))
+                        rawLink = getLinkHTML(relatedMap, IMS_QP_Constants_mxJPO.SOURCE_DEP, getIconUrl(IMS_QP_Constants_mxJPO.TYPE_IMS_QP_DEP), name, state);
 
                     stringBuilder.append(rawLink);
 
                     if (currentUserIsDEPOwner) {
                         //TODO brush the links red&green colors by states
                         if (state.equals("Draft") || state.equals("")) {
-                            if (getTypeFromMap(relatedMap).equals(TYPE_IMS_QP_DEPTask) && !map.get("type").equals("IMS_QP_DEP")) {
+                            if (getTypeFromMap(relatedMap).equals(IMS_QP_Constants_mxJPO.TYPE_IMS_QP_DEPTask) && !map.get("type").equals("IMS_QP_DEP")) {
                                 stringBuilder.append(" " + getCheckLinkHTML("IMS_QP_Task", "approveConnection", /*main task*/mainTaskID, id, virtualRelationship, "Accept", mainLevel));
                             } else {
                                 stringBuilder.append(" " + getDistributeHTMLLink(getCheckLinkHTML(null, "distributionArrow", /*main task*/mainTaskID, id, null, "Distribute task", null)));
