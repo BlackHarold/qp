@@ -16,16 +16,24 @@ mxUpdate form "${NAME}" {
         setting "Editable" "false"
         setting "Field Type" "basic"
         setting "Registered Suite" "Components"
-        }
+    }
     field {
         name "project_stage"
         label "Project stage"
         setting "Input Type" "combobox"
+        setting "OnChange Handler" "onchangeComboboxStage"
         setting "Range Function" "getProjectStageNames"
         setting "Range Program" "IMS_QualityPlanBase"
         setting "Registered Suite" "Framework"
         setting "Required" "true"
-        setting "OnChange Handler" "onchangeComboboxStage"
+    }
+    field {
+        name "stage"
+        label "Stage"
+        setting "Input Type" "combobox"
+        setting "OnChange Handler" "onchangeBDStage"
+        setting "Registered Suite" "Framework"
+        setting "Required" "false"
     }
     field {
         name "baseline"
@@ -34,30 +42,30 @@ mxUpdate form "${NAME}" {
         setting "Editable" "true"
         setting "Field Type" "attribute"
         setting "Input Type" "combobox"
+        setting "OnFocus Handler" "onfocusComboboxSubstage"
         setting "Range Function" "getBaseLineNames"
         setting "Range Program" "IMS_QualityPlanBase"
         setting "Registered Suite" "Components"
-        setting "OnFocus Handler" "onfocusComboboxSubstage"
-        setting "Update Program" "IMS_QualityPlanBase"
         setting "Update Function" "updateBaselineCombo"
+        setting "Update Program" "IMS_QP_TestEverything"
     }
     field {
         name "IMS_Name"
         label "Name"
         businessobject "$<attribute[IMS_Name]>"
         setting "Editable" "true"
+        setting "Field Size" "75"
         setting "Field Type" "attribute"
         setting "Registered Suite" "Components"
-        setting "Field Size" "75"
     }
     field {
         name "IMS_NameRu"
         label "Name RU"
         businessobject "$<attribute[IMS_NameRu]>"
         setting "Editable" "true"
+        setting "Field Size" "75"
         setting "Field Type" "attribute"
         setting "Registered Suite" "Components"
-        setting "Field Size" "75"
     }
     field {
         name "IMS_DescriptionEn"
@@ -65,8 +73,8 @@ mxUpdate form "${NAME}" {
         businessobject "$<attribute[IMS_DescriptionEn]>"
         setting "Editable" "true"
         setting "Field Type" "attribute"
-        setting "Registered Suite" "Components"
         setting "Input Type" "textarea"
+        setting "Registered Suite" "Components"
     }
     field {
         name "IMS_DescriptionRu"
@@ -74,8 +82,8 @@ mxUpdate form "${NAME}" {
         businessobject "$<attribute[IMS_DescriptionRu]>"
         setting "Editable" "true"
         setting "Field Type" "attribute"
-        setting "Registered Suite" "Components"
         setting "Input Type" "textarea"
+        setting "Registered Suite" "Components"
     }
     ################################################## Info Start
     property "author" value "The IMS Team"

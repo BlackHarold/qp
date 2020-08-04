@@ -44,8 +44,16 @@
                 baselineCombobox[0][i].style.display = 'block';
             }
         }
-
     }
+
+    function onchangeBDStage() {
+        var stageCombobox = document.getElementsByName("project_stage");
+        console.log("stageCombobox: " + stageCombobox);
+        // for (var i = 1; i < baselineCombobox[0].length; i++) {
+        //
+        // }
+    }
+
 </script>
 
 <%
