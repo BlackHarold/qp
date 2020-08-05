@@ -1,0 +1,17 @@
+################################################################################
+# COMMAND_IMS_QP_Delete_ExpectedResult.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate command "${NAME}" {
+    description ""
+    label "Delete"
+    href "${COMMON_DIR}/emxGenericDeleteProcess.jsp"
+    alt ""
+    user "all"
+    setting "Registered Suite" "Framework"
+    setting "Row Select" "multi"
+    setting "Submit" "true"
+    setting "Target Location" "listHidden"
+}

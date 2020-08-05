@@ -1,0 +1,13 @@
+################################################################################
+# COMMAND_IMS_QP_Create_ExpectedResult.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate command "${NAME}" {
+    description ""
+    label "Create"
+    href "${COMMON_DIR}/IMS_QP_CreateER.jsp?type=type_IMS_QP_ExpectedResult&typeChooser=false&form=IMS_QP_Create_ExpectedResult&findMxLink=false&nameField=autoName&policy=policy_QP_ExpectedResult&postProcessJPO=IMS_QP_DEPTask:createExpectedResult&submitAction=refreshCaller"
+    alt ""
+    user "all"
+}

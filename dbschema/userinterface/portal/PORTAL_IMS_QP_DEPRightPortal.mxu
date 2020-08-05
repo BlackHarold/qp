@@ -1,0 +1,21 @@
+################################################################################
+# PORTAL_IMS_QP_DEPRightPortal.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate portal "${NAME}" {
+    symbolicname "portal_IMS_QP_DEPRightPortal"
+    description ""
+    label ""
+    href ""
+    alt ""
+    setting "Registered Suite" "Framework"
+    channel "IMS_QP_DEPRightChannel"
+    ################################################## Info Start
+    property "author" value "The MxUpdate Team"
+    property "original name" value "IMS_QP_DEPRightPortal"
+    property "application" value "Unknown"
+    property "version"
+    ################################################## Info End
+}

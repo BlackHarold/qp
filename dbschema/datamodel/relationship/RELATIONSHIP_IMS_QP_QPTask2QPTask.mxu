@@ -1,0 +1,33 @@
+################################################################################
+# RELATIONSHIP_IMS_QP_QPTask2QPTask.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate relationship "${NAME}" {
+    description ""
+    !hidden
+    preventduplicates
+    from {
+        meaning ""
+        cardinality many
+        revision none
+        clone none
+        !propagatemodify
+        propagateconnection
+    }
+    to {
+        meaning ""
+        cardinality many
+        revision none
+        clone none
+        !propagatemodify
+        propagateconnection
+    }
+    ################################################## Info Start
+    property "author" value "IMS_Team"
+    property "original name" value "IMS_QP_DEPTask2DEPTask"
+    property "application" value "IMS"
+    property "version" value "1"
+    ################################################## Info End
+}

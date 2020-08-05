@@ -1,0 +1,22 @@
+################################################################################
+# ATTRIBUTE_IMS_Frozen.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate attribute "${NAME}" {
+    kind boolean
+    symbolicname "attribute_IMS_Frozen"
+    description ""
+    !hidden
+    !multivalue
+    !resetonclone
+    !resetonrevision
+    default ""
+    ################################################## Info Start
+    property "author" value "The MxUpdate Team"
+    property "original name" value "IMS_Frozen"
+    property "application" value "Unknown"
+    property "version"
+    ################################################## Info End
+}

@@ -1,0 +1,14 @@
+################################################################################
+# MENU_IMS_QP_ExpectedResult.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate menu "${NAME}" {
+    description ""
+    label ""
+    href ""
+    alt ""
+    command "IMS_QP_Create_ExpectedResult"
+    command "IMS_QP_Delete_ExpectedResult"
+}

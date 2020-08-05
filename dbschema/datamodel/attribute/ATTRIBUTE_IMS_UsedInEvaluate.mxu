@@ -1,0 +1,15 @@
+################################################################################
+# ATTRIBUTE_IMS_UsedInEvaluate.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate attribute "${NAME}" {
+    kind boolean
+    description ""
+    !hidden
+    !multivalue
+    !resetonclone
+    !resetonrevision
+    default "FALSE"
+}

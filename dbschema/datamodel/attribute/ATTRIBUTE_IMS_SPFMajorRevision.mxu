@@ -1,0 +1,24 @@
+################################################################################
+# ATTRIBUTE_IMS_SPFMajorRevision.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate attribute "${NAME}" {
+    kind string
+    symbolicname "attribute_IMS_SPFMajorRevision"
+    description "IMS_SPFMajorRevision"
+    !hidden
+    !multivalue
+    !resetonclone
+    !resetonrevision
+    !multiline
+    maxlength 0
+    default ""
+    ################################################## Info Start
+    property "author" value "The MxUpdate Team"
+    property "original name" value "IMS_SPFMajorRevision"
+    property "application" value "Unknown"
+    property "version"
+    ################################################## Info End
+}

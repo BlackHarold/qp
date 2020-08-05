@@ -1,0 +1,86 @@
+################################################################################
+# FORM_IMS_QP_DEPSubStage_create.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate form "${NAME}" {
+    symbolicname "FORM_IMS_QP_DEPSubStage_create"
+    description ""
+    field {
+        name "name"
+        label "Name"
+        businessobject "name"
+        setting "Access Expression" "true"
+        setting "Default" "xxx"
+        setting "Editable" "false"
+        setting "Field Type" "basic"
+        setting "Registered Suite" "Components"
+        }
+    field {
+        name "project_stage"
+        label "Project stage"
+        setting "Input Type" "combobox"
+        setting "Range Function" "getProjectStageNames"
+        setting "Range Program" "IMS_QualityPlanBase"
+        setting "Registered Suite" "Framework"
+        setting "Required" "true"
+        setting "OnChange Handler" "onchangeComboboxStage"
+    }
+    field {
+        name "baseline"
+        label "Baseline"
+        businessobject "$<to[IMS_QP_BaseLine2DEPSubStage].from.name>"
+        setting "Editable" "true"
+        setting "Field Type" "attribute"
+        setting "Input Type" "combobox"
+        setting "Range Function" "getBaseLineNames"
+        setting "Range Program" "IMS_QualityPlanBase"
+        setting "Registered Suite" "Components"
+        setting "OnFocus Handler" "onfocusComboboxSubstage"
+        setting "Update Program" "IMS_QualityPlanBase"
+        setting "Update Function" "updateBaselineCombo"
+    }
+    field {
+        name "IMS_Name"
+        label "Name"
+        businessobject "$<attribute[IMS_Name]>"
+        setting "Editable" "true"
+        setting "Field Type" "attribute"
+        setting "Registered Suite" "Components"
+        setting "Field Size" "75"
+    }
+    field {
+        name "IMS_NameRu"
+        label "Name RU"
+        businessobject "$<attribute[IMS_NameRu]>"
+        setting "Editable" "true"
+        setting "Field Type" "attribute"
+        setting "Registered Suite" "Components"
+        setting "Field Size" "75"
+    }
+    field {
+        name "IMS_DescriptionEn"
+        label "Description"
+        businessobject "$<attribute[IMS_DescriptionEn]>"
+        setting "Editable" "true"
+        setting "Field Type" "attribute"
+        setting "Registered Suite" "Components"
+        setting "Input Type" "textarea"
+    }
+    field {
+        name "IMS_DescriptionRu"
+        label "Description RU"
+        businessobject "$<attribute[IMS_DescriptionRu]>"
+        setting "Editable" "true"
+        setting "Field Type" "attribute"
+        setting "Registered Suite" "Components"
+        setting "Input Type" "textarea"
+    }
+    ################################################## Info Start
+    property "author" value "The IMS Team"
+    property "original name" value "IMS_QP_DEPSubStage_create"
+    property "application" value "IMS"
+    property "version" value "1"
+    ################################################## Info End
+}

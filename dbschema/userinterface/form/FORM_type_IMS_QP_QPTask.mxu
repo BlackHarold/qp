@@ -1,0 +1,85 @@
+################################################################################
+# FORM_type_IMS_QP_QPTask.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate form "${NAME}" {
+    description "Quality Plan Form"
+    field {
+        name "info"
+        label "Main Information"
+        setting "Field Type" "Section Header"
+        setting "Section Level" "2"
+    }
+    field {
+        name "Name"
+        label "emxFramework.label.Code"
+        businessobject "name"
+        setting "Access Expression" "true"
+        setting "Field Type" "basic"
+        setting "Registered Suite" "Framework"
+    }
+    field {
+        name "owner"
+        label "emxComponents.Common.Owner"
+        businessobject "owner"
+        setting "Access Expression" "true"
+        setting "Editable" "false"
+        setting "Field Type" "basic"
+        setting "Registered Suite" "Components"
+        setting "format" "user"
+    }
+    field {
+        name "Originated"
+        label "emxComponents.Common.Originated"
+        businessobject "originated"
+        setting "Access Expression" "true"
+        setting "Editable" "false"
+        setting "Field Type" "basic"
+        setting "Registered Suite" "Components"
+        setting "format" "date"
+    }
+    field {
+        name "IMS_Name"
+        label "emxFramework.Attribute.QP_IMS_Name"
+        businessobject "$<attribute[attribute_IMS_Name]>"
+        setting "Access Expression" "true"
+        setting "Editable" "false"
+        setting "Field Type" "attribute"
+        setting "Registered Suite" "Framework"
+    }
+    field {
+        name "IMS_NameRu"
+        label "emxFramework.Attribute.QP_IMS_NameRu"
+        businessobject "$<attribute[attribute_IMS_NameRu]>"
+        setting "Access Expression" "true"
+        setting "Editable" "false"
+        setting "Field Type" "attribute"
+        setting "Registered Suite" "Framework"
+    }
+    field {
+        name "IMS_DescriptionRu"
+        label "emxFramework.Attribute.QP_IMS_DescriptionRu"
+        businessobject "$<attribute[attribute_IMS_DescriptionRu]>"
+        setting "Access Expression" "true"
+        setting "Editable" "false"
+        setting "Field Type" "attribute"
+        setting "Registered Suite" "Framework"
+    }
+    field {
+        name "description"
+        label "emxComponents.Common.Description"
+        businessobject "description"
+        setting "Registered Suite" "Components"
+    }
+    field {
+        name "ExternalDocumentSet"
+        label "Document Set"
+        setting "Editable" "false"
+        setting "Field Type" "programHTMLOutput"
+        setting "Registered Suite" "Framework"
+        setting "function" "getConnectedExternalDocumentSetHTML"
+        setting "program" "IMS_QP_DEPSubStageDEPTasks"
+    }
+}

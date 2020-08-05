@@ -1,0 +1,22 @@
+################################################################################
+# TYPE_IMS_QP_DEPSubStage.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate type "${NAME}" {
+    symbolicname "type_IMS_QP_DEPSubStage"
+    description ""
+    !hidden
+    attribute "Baseline Text"
+    attribute "IMS_DescriptionEn"
+    attribute "IMS_DescriptionRu"
+    attribute "IMS_Name"
+    attribute "IMS_NameRu"
+    ################################################## Info Start
+    property "author" value "The IMS Team"
+    property "original name" value "IMS_QP_DEPSubStage"
+    property "application" value "IMS"
+    property "version" value "1"
+    ################################################## Info End
+}

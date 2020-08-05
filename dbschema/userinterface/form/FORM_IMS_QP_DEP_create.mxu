@@ -1,0 +1,65 @@
+################################################################################
+# FORM_IMS_QP_DEP_create.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate form "${NAME}" {
+    symbolicname "FORM_IMS_QP_DEP_create"
+    description ""
+    field {
+        name "form_title"
+        label "form_title"
+        setting "Field Type" "Section Header"
+        setting "Section Level" "1"
+    }
+    field {
+        name "form_description"
+        label "form_description"
+        setting "Field Type" "Section Header"
+        setting "Section Level" "2"
+    }
+    field {
+        name "name"
+        label "Name"
+        businessobject "name"
+        setting "Access Expression" "true"
+        setting "Editable" "false"
+        setting "Field Type" "basic"
+        setting "Registered Suite" "Components"
+    }
+    field {
+        name "short_code "
+        label "Short code"
+        businessobject "$<attribute[attribute_IMS_QP_DEPShortCode]>"
+        setting "Access Expression" "true"
+        setting "Editable" "true"
+        setting "Field Type" "attribute"
+        setting "Registered Suite" "Framework"
+        setting "Required" "true"
+    }
+    field {
+        name "DisciplineCode"
+        label "Discipline"
+        setting "Input Type" "combobox"
+        setting "Range Function" "getDisciplineCode"
+        setting "Range Program" "IMS_QP"
+        setting "Registered Suite" "Framework"
+        setting "Required" "true"
+    }
+    field {
+        name "DocCode"
+        label "Document Code"
+        businessobject "$<attribute[attribute_IMS_DocCode]>"
+        setting "Access Expression" "true"
+        setting "Editable" "true"
+        setting "Field Type" "attribute"
+        setting "Registered Suite" "Framework"
+    }
+    ################################################## Info Start
+    property "author" value "The MxUpdate Team"
+    property "original name" value "IMS_QP_DEP_create"
+    property "application" value "IMS"
+    property "version" value "1"
+    ################################################## Info End
+}

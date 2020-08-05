@@ -1,0 +1,36 @@
+################################################################################
+# RELATIONSHIP_IMS_Object2ExternalSystem.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate relationship "${NAME}" {
+    symbolicname "relationship_IMS_Object2ExternalSystem"
+    description ""
+    !hidden
+    preventduplicates
+    from {
+        meaning ""
+        cardinality many
+        revision none
+        clone none
+        !propagatemodify
+        propagateconnection
+        type all
+    }
+    to {
+        meaning ""
+        cardinality many
+        revision none
+        clone none
+        !propagatemodify
+        propagateconnection
+        type "IMS_ExternalSystem"
+    }
+    ################################################## Info Start
+    property "author" value "The MxUpdate Team"
+    property "original name" value "IMS_Object2ExternalSystem"
+    property "application" value "Unknown"
+    property "version"
+    ################################################## Info End
+}

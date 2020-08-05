@@ -1,0 +1,72 @@
+################################################################################
+# FORM_type_IMS_PBSFunctionalArea.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate form "${NAME}" {
+    description "Functional area form"
+    field {
+        name "info"
+        label "Main Information"
+        setting "Field Type" "Section Header"
+        setting "Section Level" "2"
+    }
+    field {
+        name "name"
+        label "emxComponents.Common.Name"
+        businessobject "name"
+        setting "Access Expression" "true"
+        setting "Field Type" "basic"
+        setting "Registered Suite" "Components"
+    }
+    field {
+        name "description"
+        label "emxComponents.Common.Description"
+        businessobject "description"
+        setting "Registered Suite" "Components"
+    }
+    field {
+        name "originator"
+        label "Originator"
+        businessobject "owner"
+        setting "Editable" "false"
+        setting "Field Type" "basic"
+        setting "Registered Suite" "Components"
+        setting "format" "user"
+    }
+    field {
+        name "originated"
+        label "emxComponents.Common.Originated"
+        businessobject "originated"
+        setting "Access Expression" "true"
+        setting "Editable" "false"
+        setting "Field Type" "basic"
+        setting "Registered Suite" "Components"
+        setting "format" "date"
+    }
+    field {
+        name "IMS_DescriptionEn"
+        label "Description EN"
+        businessobject "$<attribute[IMS_DescriptionEn]>"
+        setting "Editable" "true"
+        setting "Field Type" "attribute"
+        setting "Input Type" "textarea"
+        setting "Registered Suite" "Components"
+    }
+    field {
+        name "IMS_DescriptionRu"
+        label "Description RU"
+        businessobject "$<attribute[IMS_DescriptionRu]>"
+        setting "Editable" "true"
+        setting "Field Type" "attribute"
+        setting "Input Type" "textarea"
+        setting "Registered Suite" "Components"
+    }
+    ################################################## Info Start
+    property "author" value "The IMS Team"
+    property "original name" value "IMS_PBSFunctionalArea_form"
+    property "application" value "IMS"
+    property "version" value "1"
+    ################################################## Info End
+}

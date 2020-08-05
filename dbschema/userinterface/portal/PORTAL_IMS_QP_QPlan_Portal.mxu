@@ -1,0 +1,13 @@
+################################################################################
+# PORTAL_IMS_QP_QPlan_Portal.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate portal "${NAME}" {
+    description ""
+    label ""
+    href ""
+    alt ""
+    channel "IMS_QP_QPlan_Channel"
+}

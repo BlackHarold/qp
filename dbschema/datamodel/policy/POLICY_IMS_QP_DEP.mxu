@@ -1,0 +1,39 @@
+################################################################################
+# POLICY_IMS_QP_DEP.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate policy "${NAME}" {
+    symbolicname "policy_IMS_QP_DEP"
+    description ""
+    !hidden
+    type "IMS_QP_DEP"
+    defaultformat ""
+    sequence ""
+    store ""
+    state "Draft" {
+        registeredname "state_Draft"
+        !enforcereserveaccess
+        majorrevision
+        minorrevision
+        version
+        !promote
+        checkouthistory
+        !published
+        owner {all}
+        public {all}
+    }
+    state "Done" {
+        registeredname "state_Done"
+        !enforcereserveaccess
+        majorrevision
+        minorrevision
+        version
+        !promote
+        checkouthistory
+        !published
+        owner {all}
+        public {all}
+    }
+}

@@ -1,0 +1,21 @@
+################################################################################
+# PORTAL_IMS_QP_QPlanRightPortal.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate portal "${NAME}" {
+    symbolicname "portal_IMS_QP_QPlanRightPortal"
+    description ""
+    label ""
+    href ""
+    alt ""
+    setting "Registered Suite" "Framework"
+    channel "IMS_QP_QPlanRightChannel"
+    ################################################## Info Start
+    property "author" value "The MxUpdate Team"
+    property "original name" value "IMS_QP_QPlanRightPortal"
+    property "application" value "Unknown"
+    property "version"
+    ################################################## Info End
+}

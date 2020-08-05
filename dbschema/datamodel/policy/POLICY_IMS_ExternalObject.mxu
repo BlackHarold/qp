@@ -1,0 +1,35 @@
+################################################################################
+# POLICY_IMS_ExternalObject.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate policy "${NAME}" {
+    symbolicname "policy_IMS_ExternalObject"
+    description ""
+    !hidden
+    type "IMS_ExternalDocumentSet"
+    defaultformat ""
+    sequence ""
+    store ""
+    allstate {
+        public {all}
+    }
+    state "Exists" {
+        registeredname "state_Exists"
+        !enforcereserveaccess
+        majorrevision
+        !minorrevision
+        !version
+        !promote
+        !checkouthistory
+        !published
+        public {all}
+    }
+    ################################################## Info Start
+    property "author" value "The MxUpdate Team"
+    property "original name" value "IMS_ExternalObject"
+    property "application" value "Unknown"
+    property "version"
+    ################################################## Info End
+}

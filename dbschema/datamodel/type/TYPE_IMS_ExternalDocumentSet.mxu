@@ -1,0 +1,21 @@
+################################################################################
+# TYPE_IMS_ExternalDocumentSet.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate type "${NAME}" {
+    symbolicname "type_IMS_ExternalDocumentSet"
+    description ""
+    !hidden
+    attribute "IMS_Frozen"
+    attribute "IMS_ProjDocStatus"
+    attribute "IMS_SPFDocVersion"
+    attribute "IMS_SPFMajorRevision"
+    ################################################## Info Start
+    property "author" value "The MxUpdate Team"
+    property "original name" value "IMS_ExternalDocumentSet"
+    property "application" value "Unknown"
+    property "version"
+    ################################################## Info End
+}

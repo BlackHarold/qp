@@ -1,0 +1,85 @@
+################################################################################
+# TABLE_IMS_ExternalDocumentSet.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate table "${NAME}" {
+    description ""
+    column {
+        name "Name"
+        label "emxFramework.Basic.Name"
+        user "all"
+        setting "Column Type" "programHTMLOutput"
+        setting "Registered Suite" "Framework"
+        setting "Sortable" "false"
+        setting "function" "getExternalObjectLinkTableHTML"
+        setting "program" "IMS_ExternalSystem"
+    }
+    column {
+        name "Description"
+        label "emxFramework.Basic.Description"
+        user "all"
+        setting "Column Type" "program"
+        setting "Registered Suite" "Framework"
+        setting "Sortable" "false"
+        setting "function" "getObjectMapValue"
+        setting "program" "IMS_ExternalSystem"
+        setting "objectMapKey" "description"
+    }
+    column {
+        name "State"
+        label "emxFramework.Basic.Current"
+        user "all"
+        setting "Column Type" "program"
+        setting "Registered Suite" "Framework"
+        setting "Sortable" "false"
+        setting "function" "getObjectMapValue"
+        setting "program" "IMS_ExternalSystem"
+        setting "objectMapKey" "current"
+    }
+    column {
+        name "IMS_SPFMajorRevision"
+        label "Major Revision"
+        user "all"
+        setting "Column Type" "program"
+        setting "Registered Suite" "Framework"
+        setting "Sortable" "false"
+        setting "function" "getObjectMapValue"
+        setting "program" "IMS_ExternalSystem"
+        setting "objectMapKey" "attribute[IMS_SPFMajorRevision]"
+    }
+    column {
+        name "IMS_SPFDocVersion"
+        label "Doc Version"
+        user "all"
+        setting "Column Type" "program"
+        setting "Registered Suite" "Framework"
+        setting "Sortable" "false"
+        setting "function" "getObjectMapValue"
+        setting "program" "IMS_ExternalSystem"
+        setting "objectMapKey" "attribute[IMS_SPFDocVersion]"
+    }
+    column {
+        name "IMS_ProjDocStatus"
+        label "Doc Status"
+        user "all"
+        setting "Column Type" "program"
+        setting "Registered Suite" "Framework"
+        setting "Sortable" "false"
+        setting "function" "getObjectMapValue"
+        setting "program" "IMS_ExternalSystem"
+        setting "objectMapKey" "attribute[IMS_ProjDocStatus]"
+    }
+    column {
+        name "IMS_Frozen"
+        label "Frozen"
+        user "all"
+        setting "Column Type" "program"
+        setting "Registered Suite" "Framework"
+        setting "Sortable" "false"
+        setting "function" "getObjectMapValue"
+        setting "program" "IMS_ExternalSystem"
+        setting "objectMapKey" "attribute[IMS_Frozen]"
+    }
+}

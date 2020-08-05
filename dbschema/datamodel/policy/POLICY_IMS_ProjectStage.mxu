@@ -1,0 +1,35 @@
+################################################################################
+# POLICY_IMS_ProjectStage.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate policy "${NAME}" {
+    symbolicname "policy_IMS_ProjectStage"
+    description "policy IMS_ProjectStage"
+    !hidden
+    type "IMS_ProjectStage"
+    defaultformat ""
+    sequence ""
+    store ""
+    allstate {
+        owner {all}
+        public {checkin checkout fromconnect fromdisconnect read show toconnect todisconnect viewform}
+    }
+    state "Created" {
+        registeredname "state_Created"
+        !enforcereserveaccess
+        majorrevision
+        !minorrevision
+        !version
+        !promote
+        !checkouthistory
+        !published
+    }
+    ################################################## Info Start
+    property "author" value "The MxUpdate Team"
+    property "original name" value "IMS_ProjectStage"
+    property "application" value "Unknown"
+    property "version"
+    ################################################## Info End
+}

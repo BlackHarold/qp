@@ -1,0 +1,21 @@
+################################################################################
+# CHANNEL_IMS_QP_DEPTask_Channel.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate channel "${NAME}" {
+    description ""
+    label ""
+    href ""
+    alt ""
+    height 0
+    command "IMS_QP_DEPTask_Form"
+    command "IMS_QP_RelatedExpectedResult"
+    ################################################## Info Start
+    property "author" value "The MxUpdate Team"
+    property "original name" value "IMS_QP_DEPTask_Channel"
+    property "application" value "IMS"
+    property "version" value "1"
+    ################################################## Info End
+}

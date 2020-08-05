@@ -1,0 +1,22 @@
+################################################################################
+# TYPE_IMS_ExternalSystem.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate type "${NAME}" {
+    symbolicname "type_IMS_ExternalSystem"
+    description ""
+    !hidden
+    attribute "IMS_ExternalSystemPassword"
+    attribute "IMS_ExternalSystemProgram"
+    attribute "IMS_ExternalSystemServiceUrl"
+    attribute "IMS_ExternalSystemUrl"
+    attribute "IMS_ExternalSystemUser"
+    ################################################## Info Start
+    property "author" value "The MxUpdate Team"
+    property "original name" value "IMS_ExternalSystem"
+    property "application" value "Unknown"
+    property "version"
+    ################################################## Info End
+}

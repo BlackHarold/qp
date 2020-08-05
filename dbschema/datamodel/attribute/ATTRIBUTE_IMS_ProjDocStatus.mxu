@@ -1,0 +1,31 @@
+################################################################################
+# ATTRIBUTE_IMS_ProjDocStatus.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate attribute "${NAME}" {
+    kind string
+    symbolicname "attribute_IMS_ProjDocStatus"
+    description "Project Document Status"
+    !hidden
+    !multivalue
+    !resetonclone
+    !resetonrevision
+    !multiline
+    maxlength 0
+    default "Preliminary"
+    range = "Certified as Executed"
+    range = "Certified for Construction"
+    range = "Certified for Execution"
+    range = "Draft"
+    range = "Finalized"
+    range = "Obsolete"
+    range = "Preliminary"
+    ################################################## Info Start
+    property "author" value "The MxUpdate Team"
+    property "original name" value "IMS_ProjDocStatus"
+    property "application" value "Unknown"
+    property "version"
+    ################################################## Info End
+}

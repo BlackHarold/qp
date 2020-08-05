@@ -1,0 +1,26 @@
+################################################################################
+# POLICY_IMS_PBSFunctionalArea.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate policy "${NAME}" {
+    symbolicname "policy_IMS_PBSFunctionalArea"
+    description ""
+    !hidden
+    type "IMS_PBSFunctionalArea"
+    defaultformat ""
+    sequence ""
+    store ""
+    state "Exist" {
+        !enforcereserveaccess
+        majorrevision
+        minorrevision
+        version
+        !promote
+        checkouthistory
+        !published
+        owner {all}
+        public {checkin checkout fromconnect fromdisconnect read show toconnect todisconnect viewform}
+    }
+}

@@ -1,0 +1,41 @@
+################################################################################
+# FORM_IMS_QP_Create_DEPTask.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate form "${NAME}" {
+    description ""
+    field {
+        name "NameEn"
+        label "emxFramework.Attribute.QP_IMS_Name"
+        businessobject "attribute[IMS_Name]"
+        setting "Admin Type" "attribute_IMS_Name"
+        setting "Field Type" "attribute"
+        setting "Registered Suite" "Framework"
+    }
+    field {
+        name "NameRu"
+        label "emxFramework.Attribute.QP_IMS_NameRu"
+        businessobject "attribute[IMS_NameRu]"
+        setting "Admin Type" "IMS_IMS_NameRu"
+        setting "Field Type" "attribute"
+        setting "Registered Suite" "Framework"
+    }
+    field {
+        name "DescriptionEn"
+        label "emxFramework.Attribute.QP_IMS_DescriptionEn"
+        businessobject "attribute[IMS_DescriptionEn]"
+        setting "Admin Type" "attribute_IMS_DescriptionEn"
+        setting "Field Type" "attribute"
+        setting "Registered Suite" "Framework"
+    }
+    field {
+        name "DescriptionRu"
+        label "emxFramework.Attribute.QP_IMS_DescriptionRu"
+        businessobject "attribute[IMS_DescriptionRu]"
+        setting "Admin Type" "attribute_IMS_DescriptionRu"
+        setting "Field Type" "attribute"
+        setting "Registered Suite" "Framework"
+    }
+}

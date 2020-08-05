@@ -1,0 +1,20 @@
+################################################################################
+# COMMAND_IMS_QP_to_portal.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate command "${NAME}" {
+    description "IMS_QP_to_portal"
+    label "QP Portal"
+    href "${COMMON_DIR}/emxPortal.jsp?portal=IMS_QP_Portal&portalMode=true&H elpMarker=HelpMarker&header=PowerView"
+    alt ""
+    user "all"
+    setting "Registered Suite" "Framework"
+    ################################################## Info Start
+    property "author" value "The MxUpdate Team"
+    property "original name" value "IMS_QP_to_portal"
+    property "application" value "IMS_HNH19"
+    property "version" value "1"
+    ################################################## Info End
+}

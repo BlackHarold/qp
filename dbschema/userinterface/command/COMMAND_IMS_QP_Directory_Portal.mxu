@@ -1,0 +1,17 @@
+################################################################################
+# COMMAND_IMS_QP_Directory_Portal.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate command "${NAME}" {
+    description "Directory Portal"
+    label "Directory Portal"
+    href "${COMMON_DIR}/emxPortal.jsp?portal=IMS_QP_Directory_Portal"
+    alt ""
+    ################################################## Info Start
+    property "original name" value "IMS_QP_Directory_Portal"
+    property "application" value "IMS_HNH19"
+    property "version" value "1"
+    ################################################## Info End
+}

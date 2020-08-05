@@ -1,0 +1,14 @@
+################################################################################
+# COMMAND_IMS_QP_ExpectedResultEdit.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate command "${NAME}" {
+    description ""
+    label ""
+    href "${COMMON_DIR}/emxFormQP.jsp?form=type_IMS_QP_ExpectedResult&mode=edit&HelpMarker=emxhelpdocumenteditdetails&formHeader=emxComponents.Common.EditDetailsHeadingWithoutRev"
+    alt ""
+    user "all"
+    setting "Image" "${COMMON_DIR}/images/iconActionEdit.gif"
+}

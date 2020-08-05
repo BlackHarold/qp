@@ -1,0 +1,18 @@
+################################################################################
+# ROLE_IMS_TaskForce_Groups.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate role "${NAME}" {
+    kind project
+    symbolicname "role_IMS_TaskForce_Groups"
+    description "TaskForce_Groups"
+    !hidden
+    ################################################## Info Start
+    property "author" value "The MxUpdate Team"
+    property "original name" value "IMS_TaskForce_Groups"
+    property "application" value "Unknown"
+    property "version"
+    ################################################## Info End
+}

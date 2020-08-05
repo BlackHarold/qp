@@ -1,0 +1,15 @@
+################################################################################
+# INTERFACE_IMS_ExternalObject.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate interface "${NAME}" {
+    description ""
+    !hidden
+    attribute "IMS_ExternalObjectId"
+    attribute "IMS_ExternalObjectPolicy"
+    attribute "IMS_ExternalObjectState"
+    attribute "IMS_ExternalObjectType"
+    for type "IMS_ExternalDocumentSet"
+}
