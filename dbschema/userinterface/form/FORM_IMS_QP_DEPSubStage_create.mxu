@@ -31,7 +31,6 @@ mxUpdate form "${NAME}" {
         name "stage"
         label "Stage"
         setting "Input Type" "combobox"
-        setting "OnChange Handler" "onchangeBDStage"
         setting "Range Function" "getStages"
         setting "Range Program" "IMS_QualityPlanBase"
         setting "Registered Suite" "Framework"

@@ -229,8 +229,6 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
         Map requestMap = (Map) argsMap.get("requestMap");
         Map paramMap = (Map) argsMap.get("paramMap");
 
-        LOG.info("requestMap: " + requestMap);
-        LOG.info("paramMap: " + paramMap);
         //all required params
         String projectStageID = (String) requestMap.get("project_stage");
         String parentOID = (String) requestMap.get("parentOID");
@@ -250,6 +248,8 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
         if (UIUtil.isNotNullAndNotEmpty(baselineID))
             baselineID = baselineID.substring(0, baselineID.indexOf("_")) != null ? baselineID.substring(0, baselineID.indexOf("_")) : "";
         else baselineID = "";
+
+        String stage = (String) requestMap.get("stage");
 
         //parent
         DomainObject parent = new DomainObject(parentOID);
@@ -306,8 +306,7 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
                 LOG.info("new object created: " + newDEPProjectStage.getName() + ": " + newDEPProjectStage.getId(context));
 
                 //set unique name
-                uniqueNameSubStage = setUniqueFieldName(context, parent, newDEPProjectStage);
-                LOG.info("if uniqueNameSubStage: " + uniqueNameSubStage);
+                uniqueNameSubStage = setUniqueFieldName(context, parent, stage, newDEPProjectStage);
 
                 //connect parent -> object
                 LOG.info(parent.getId(context) + "->IMS_QP_DEP2DEPProjectStage->" + newDEPProjectStage.getId(context));
@@ -343,8 +342,7 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
 
                 //set unique name
                 DomainObject depProjectStage = new DomainObject(depProjectStageID);
-                uniqueNameSubStage = setUniqueFieldName(context, parent, depProjectStage);
-                LOG.info("else uniqueNameSubStage: " + uniqueNameSubStage);
+                uniqueNameSubStage = setUniqueFieldName(context, parent, stage, depProjectStage);
 
                 //connect new IMS_QP_SubStage <- IMS_QP_DEPProjectStage <- projectStageID.
                 LOG.info("depProjectStage: " + depProjectStage);
@@ -421,7 +419,7 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
         }
     }
 
-    public String setUniqueFieldName(Context context, DomainObject parent, DomainObject depProjectStage) throws Exception {
+    public String setUniqueFieldName(Context context, DomainObject parent, String stage, DomainObject depProjectStage) throws Exception {
         //set unique name for the new substage
 //        String indexParent = parent.getName().substring(4, 5);
         String indexParent = parent.getInfo(context, "attribute[IMS_QP_DEPShortCode]") != null ?
@@ -449,7 +447,7 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
         LOG.info("set unique name counter: " + counter);
 
         //concate unique name
-        String uniqueName = indexParent + depProjectStageName + "-" + counter;
+        String uniqueName = indexParent + depProjectStageName + stage + "-" + counter;
 
         LOG.info("unique name to return: " + uniqueName);
         //return new name to the field
@@ -478,9 +476,9 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
         if (!baselineName.equals("") && baselineName.contains("_")) {
             baselineName = baselineName.substring(0, baselineName.indexOf("_"));
             LOG.info("baselineName: " + baselineName);
-            baselineID=baselineName;
+            baselineID = baselineName;
         } else if (!baselineName.equals("")) {
-            String where = "name smatch '" + baselineName+"'";
+            String where = "name smatch '" + baselineName + "'";
             MapList currentBaseline = DomainObject.findObjects(context, "IMS_Baseline", "eService Production", where, new StringList("id"));
             Map id = (Map) currentBaseline.get(0);
             baselineID = (String) id.get("id");
@@ -761,15 +759,13 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
 
     public Object getStages(Context context, String[] args) throws FrameworkException {
 
-        StringList fieldRangeValues = new StringList();
-        StringList fieldDisplayRangeValues = new StringList();
+        StringList fieldRangeValues = new StringList("");
+        StringList fieldDisplayRangeValues = new StringList("<empty value>");
 
-            fieldRangeValues.add(" ");
-            fieldRangeValues.add("1");
-            fieldRangeValues.add("2");
-            fieldDisplayRangeValues.add(" ");
-            fieldDisplayRangeValues.add("1");
-            fieldDisplayRangeValues.add("2");
+        fieldRangeValues.add("1");
+        fieldRangeValues.add("2");
+        fieldDisplayRangeValues.add("1");
+        fieldDisplayRangeValues.add("2");
 
 
         HashMap tempMap = new HashMap();
