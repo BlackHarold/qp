@@ -12,7 +12,14 @@ public class IMS_QP_Constants_mxJPO {
     private IMS_QP_Constants_mxJPO() {
     }
 
-    public static final String BELL_DELIMITER = "\u0007";
+    static final String TO_IMS_QP_DEPSUB_STAGE_2_DEPTASK_FROM_ID = "to[IMS_QP_DEPSubStage2DEPTask].from.id";
+    static final String ATTRIBUTE_IMS_NAME_RU = "attribute[IMS_NameRu]";
+    static final String ATTRIBUTE_IMS_NAME = "attribute[IMS_Name]";
+    static final String TO_IMS_QP_DEPTASK_2_DEPTASK_FROM_ID = "to[IMS_QP_DEPTask2DEPTask].from.id";
+    static final String TO_IMS_QP_DEPTASK_2_DEPTASK_ATTRIBUTE_IMS_QP_DEPTASK_STATUS = "to[IMS_QP_DEPTask2DEPTask].attribute[IMS_QP_DEPTaskStatus]";
+    static final String FROM_IMS_QP_DEPTASK_2_DEPTASK_TO_ID = "from[IMS_QP_DEPTask2DEPTask].to.id";
+    static final String FROM_IMS_QP_DEPTASK_2_DEPTASK_ATTRIBUTE_IMS_QP_DEPTASK_STATUS = "from[IMS_QP_DEPTask2DEPTask].attribute[IMS_QP_DEPTaskStatus]";
+
 
     public static final String type_IMS_QP = "IMS_QP";
     public static final String type_IMS_QP_Directory = "IMS_QP_Directory";
@@ -88,6 +95,8 @@ public class IMS_QP_Constants_mxJPO {
 
     static final String SOURCE_DEP = "D_E_P"; // Because source lists are checked using indexOf
     static final String SOURCE_DEPTask = "DEPTask";
+
+    public static final String BELL_DELIMITER = "\u0007";
 
     public static final String relationship_IMS_QP_DEPTask2QPTask = "IMS_QP_DEPTask2QPTask";
     public static final String relationshipIMS_QP_DEPTask2DEPTask = "IMS_QP_DEPTask2DEPTask";

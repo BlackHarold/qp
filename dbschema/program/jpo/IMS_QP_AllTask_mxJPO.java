@@ -9,6 +9,7 @@ import matrix.db.JPO;
 import matrix.db.RelationshipType;
 import matrix.util.StringList;
 
+import javax.management.relation.RelationType;
 import java.util.*;
 
 public class IMS_QP_AllTask_mxJPO extends IMS_QP_Task_mxJPO {
@@ -36,19 +37,19 @@ public class IMS_QP_AllTask_mxJPO extends IMS_QP_Task_mxJPO {
                 StringList selects = new StringList();
                 selects.add("id");
                 selects.add("name");
-                selects.add(SELECT_DEP_ID);
-                selects.add(SELECT_DEP_NAME);
-                selects.add(SELECT_DEP_IMS_NAME);
-                selects.add(SELECT_DEP_IMS_NAME_RU);
-                selects.add("to[IMS_QP_DEPSubStage2DEPTask].from.id");
-                selects.add("attribute[IMS_NameRu]");
-                selects.add("attribute[IMS_Name]");
+                selects.add(IMS_QP_Constants_mxJPO.SELECT_DEP_ID);
+                selects.add(IMS_QP_Constants_mxJPO.SELECT_DEP_NAME);
+                selects.add(IMS_QP_Constants_mxJPO.SELECT_DEP_IMS_NAME);
+                selects.add(IMS_QP_Constants_mxJPO.SELECT_DEP_IMS_NAME_RU);
+                selects.add(IMS_QP_Constants_mxJPO.TO_IMS_QP_DEPSUB_STAGE_2_DEPTASK_FROM_ID);
+                selects.add(IMS_QP_Constants_mxJPO.ATTRIBUTE_IMS_NAME_RU);
+                selects.add(IMS_QP_Constants_mxJPO.ATTRIBUTE_IMS_NAME);
                 /*INPUT getTo*/
-                selects.add("to[IMS_QP_DEPTask2DEPTask].from.id");
-                selects.add("to[IMS_QP_DEPTask2DEPTask].attribute[IMS_QP_DEPTaskStatus]");
+                selects.add(IMS_QP_Constants_mxJPO.TO_IMS_QP_DEPTASK_2_DEPTASK_FROM_ID);
+                selects.add(IMS_QP_Constants_mxJPO.TO_IMS_QP_DEPTASK_2_DEPTASK_ATTRIBUTE_IMS_QP_DEPTASK_STATUS);
                 /*OUTPUT getFrom*/
-                selects.add("from[IMS_QP_DEPTask2DEPTask].to.id");
-                selects.add("from[IMS_QP_DEPTask2DEPTask].attribute[IMS_QP_DEPTaskStatus]");
+                selects.add(IMS_QP_Constants_mxJPO.FROM_IMS_QP_DEPTASK_2_DEPTASK_TO_ID);
+                selects.add(IMS_QP_Constants_mxJPO.FROM_IMS_QP_DEPTASK_2_DEPTASK_ATTRIBUTE_IMS_QP_DEPTASK_STATUS);
 
                 MapList relatedTasks = objectMainTask.getRelatedObjects(context,
                         /*relationship*/"IMS_QP_DEPTask2DEPTask",
@@ -73,8 +74,8 @@ public class IMS_QP_AllTask_mxJPO extends IMS_QP_Task_mxJPO {
                     name = (String) relatedMap.get(isRuLocale ? "attribute[IMS_NameRu]" : "attribute[IMS_Name]");
                     name = UIUtil.isNotNullAndNotEmpty(name) ? name : "error";
 
-                    if (getTypeFromMap(relatedMap).equals(TYPE_IMS_QP_DEPTask))
-                        rawLink = getLinkHTML(relatedMap, SOURCE_DEPTask, /*image url*/null, name, "");
+                    if (getTypeFromMap(relatedMap).equals(IMS_QP_Constants_mxJPO.TYPE_IMS_QP_DEPTask))
+                        rawLink = getLinkHTML(relatedMap, IMS_QP_Constants_mxJPO.SOURCE_DEPTask, /*image url*/null, name, "");
 
                     stringBuilder.append(rawLink);
                 }
@@ -91,8 +92,6 @@ public class IMS_QP_AllTask_mxJPO extends IMS_QP_Task_mxJPO {
         }
         return result;
     }
-
-    private final String COMMON_IMAGES = "../common/images/";
 
     public String getCheckLinkHTML(String program, String function, String fromId, String toId,
                                    boolean escapeToId, String relationships, String imageUrl, /*8*/String title, String onDisconnected) {
@@ -146,31 +145,27 @@ public class IMS_QP_AllTask_mxJPO extends IMS_QP_Task_mxJPO {
 
         String relationshipID = getRelationshipId(context, depTaskID, "IMS_QP_DEPTask2DEP", currentTaskID);
         if (relationshipID != null) {
-            StringBuilder stringBuilder = new StringBuilder("Scenario:");
+            StringBuilder stringBuilder = new StringBuilder();
             try {
                 ContextUtil.startTransaction(context, true);
                 DomainRelationship relationship = new DomainRelationship(relationshipID);
 
-                stringBuilder.append("\n\nTransaction started..." +
-                        "\n\nget relationship: " + relationshipID + " rel type: " + relationship.getAttributeDetails(context));
+                stringBuilder.append("get relationship: " + relationshipID + " rel type: " + relationship.getAttributeDetails(context));
                 relationship.remove(context);
-                stringBuilder.append("\n\n...relationship disconnected");
-                stringBuilder.append("\n\nfor each taskID from table creating new connection");
 
                 int counter = 1;
                 for (int i = 0; i < taskIDs.length; i++) {
                     DomainObject depTask = new DomainObject(depTaskID), currentTask = new DomainObject(currentTaskID), task = new DomainObject(taskIDs[i]);
-                    stringBuilder.append("\n\n act " + counter++ + " - connect from " + depTask.getName(context) + " id " + depTaskID +
+                    stringBuilder.append("\n act " + counter++ + " - connect from " + depTask.getName(context) + " id " + depTaskID +
                             "\n relationship: RelationshipType(\"IMS_QP_DEPTask2DEP\") \nto " + task.getName(context) + " id: " + taskIDs[i]);
                     relationship = DomainRelationship.connect(context, depTask, new RelationshipType("IMS_QP_DEPTask2DEPTask"), task);
-                    stringBuilder.append("\n\nset attribute for current relationship \"IMS_QP_DEPTaskStatus\" value \"Approved\"");
                     relationship.setAttributeValue(context, "IMS_QP_DEPTaskStatus", "Approved");
                     argsMap.put("message", stringBuilder.toString());
                 }
                 ContextUtil.commitTransaction(context);
             } catch (Exception e) {
-                LOG.error("error distibute relationship: " + e.getMessage());
-                argsMap.put("message", "error distibute relationship: " + e.getMessage());
+                LOG.error("error distribute relationship: " + e.getMessage());
+                argsMap.put("message", "error distribute relationship: " + e.getMessage());
                 ContextUtil.abortTransaction(context);
             }
         }

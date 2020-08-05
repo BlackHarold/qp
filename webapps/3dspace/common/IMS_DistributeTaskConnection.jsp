@@ -9,7 +9,7 @@
 <%@include file="emxNavigatorTopErrorInclude.inc" %>
 
 <%
-    Logger LOG = Logger.getLogger("blackLogger");
+    Logger LOG = Logger.getLogger("IMS_QP_DEP");
 
     String objectId = request.getParameter("objectId");
     String parentId = request.getParameter("parentOID");
