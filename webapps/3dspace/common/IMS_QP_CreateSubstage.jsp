@@ -11,6 +11,9 @@
 
 
 <script>
+    document.getElementById("calc_stage").style.display = 'table-row';
+    console.log("log!")
+
     function onchangeComboboxStage() {
         var baselineCombobox = document.getElementsByName("baseline");
         var stageCombobox = document.getElementsByName("project_stage");

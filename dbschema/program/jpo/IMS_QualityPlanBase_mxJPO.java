@@ -43,14 +43,14 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
         //selects all subtasks  with their subtasks
         StringList selects = new StringList();
         selects.add("id");
-        selects.add("from[IMS_QP_DEPSubStage2DEPTask]");
+        selects.add(IMS_QP_Constants_mxJPO.FROM_IMS_QP_DEPSUB_STAGE_2_DEPTASK);
         selects.add("name");
 
         MapList objectsInfo = null;
         try {
             objectsInfo = DomainObject.getInfo(context, substagesIDs, selects);
         } catch (FrameworkException e) {
-            LOG.info("error getting info: " + e.getMessage());
+            LOG.error("error getting info: " + e.getMessage());
             e.printStackTrace();
         }
 
@@ -62,7 +62,7 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
         boolean flag = false;
         for (int i = 0; i < objectsInfo.size(); i++) {
             Map map = (Map) objectsInfo.get(i);
-            if ("TRUE".equals(map.get("from[IMS_QP_DEPSubStage2DEPTask]"))) {
+            if ("TRUE".equals(map.get(IMS_QP_Constants_mxJPO.FROM_IMS_QP_DEPSUB_STAGE_2_DEPTASK))) {
                 buffer.append(map.get("name") + "\n");
                 badNames.add((String) map.get("name"));
                 flag = true;
@@ -71,14 +71,8 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
             }
         }
 
-//        String bufferMessage = "";
-        if (flag) {
-            LOG.info("buffer: " + buffer.toString());
-//            bufferMessage = buffer.toString();
-        }
         Map mapMessage = new HashMap();
         if (flag) {
-//            mapMessage.put("message", bufferMessage);
             mapMessage.put("array", badNames);
         }
 
@@ -92,9 +86,8 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
             if (var1 != null && var1.length > 0)
                 DomainObject.deleteObjects(context, var1);
             LOG.info("objects deleted: " + Arrays.deepToString(var1));
-//            emxContextUtil_mxJPO.mqlWarning(context, buffer.toString());
         } catch (Exception e) {
-            LOG.info("delete error: " + e.getMessage());
+            LOG.error("delete error: " + e.getMessage());
             e.printStackTrace();
         }
 
@@ -118,7 +111,7 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
         //get all substages
         MapList result = parent.getRelatedObjects(context,
                 /*relationship*/null,
-                /*type*/"IMS_QP_DEPSubStage",
+                /*type*/IMS_QP_Constants_mxJPO.IMS_QP_DEP_SUB_STAGE,
                 /*object attributes*/ selects,
                 /*relationship selects*/ null,
                 /*getTo*/ false, /*getFrom*/ true,
@@ -240,7 +233,6 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
         //log all required initial params
         LOG.info("projectStageID: " + projectStageID);
         LOG.info("parentID: " + objectId);
-        LOG.info("relID: " + relId);
         LOG.info("parentOID: " + parentOID);
 
         String baselineID = (String) requestMap.get("baseline");
@@ -259,7 +251,7 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
         StringList selects = new StringList();
         selects.add("id");
 
-        String where = "from[IMS_QP_ProjectStage2DEPProjectStage].to.to[IMS_QP_DEP2DEPProjectStage].from.id==" + parentOID;
+        String where = IMS_QP_Constants_mxJPO.FROM_IMS_QP_PROJECT_STAGE_2_DEPPROJECT_STAGE_TO_TO_IMS_QP_DEP_2_DEPPROJECT_STAGE_FROM_ID + parentOID;
 //        print bus 59479.11672.23687.9771 select from[IMS_QP_DEP2DEPProjectStage].to.id;
 //        print bus 59479.11672.23687.9771 select id from[IMS_QP_DEP2DEPProjectStage].to.to[IMS_QP_ProjectStage2DEPProjectStage].from.name;
         LOG.info("where: " + where);
@@ -281,7 +273,7 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
 
 
         LOG.info("allProjectStagesConnectingToDEP: " + allProjectStagesConnectingToDEP);
-        LOG.info(parent.getInfo(context, "name") + " prepare parent stage: " + parent.getInfo(context, "from[IMS_QP_DEP2DEPProjectStage].to.to[IMS_QP_ProjectStage2DEPProjectStage].from.id"));
+        LOG.info(parent.getInfo(context, "name") + " prepare parent stage: " + parent.getInfo(context, IMS_QP_Constants_mxJPO.FROM_IMS_QP_DEP_2_DEPPROJECT_STAGE_TO_TO_IMS_QP_PROJECT_STAGE_2_DEPPROJECT_STAGE_FROM_ID));
 
         DomainObject newDEPProjectStage;
         try {
@@ -326,7 +318,7 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
                 selects.add("id");
 
                 where = "name smatch '*" + projectStage.getInfo(context, "name") + "*' && to[IMS_QP_DEP2DEPProjectStage].from.id==" + parentOID;
-                LOG.info("where: " + where);
+                LOG.info("else where: " + where);
 
                 result = parent.findObjects(context,
                         /*type*/ "IMS_QP_DEPProjectStage",
@@ -432,7 +424,7 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
         StringList selects = new StringList();
         selects.add("id");
 
-        String where = "to[IMS_QP_DEPProjectStage2DEPSubStage].from.id==" + depProjectStage.getInfo(context, "id");
+        String where = IMS_QP_Constants_mxJPO.TO_IMS_QP_DEPPROJECT_STAGE_2_DEPSUB_STAGE_FROM_ID + depProjectStage.getInfo(context, "id");
         LOG.info("where: " + where);
 
         MapList result = parent.findObjects(context,
@@ -486,8 +478,8 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
         }
 
         DomainObject substage = new DomainObject(subStageID);
-        String substageBaseline = UIUtil.isNotNullAndNotEmpty(substage.getInfo(context, "to[IMS_QP_BaseLine2DEPSubStage].from.id")) ?
-                substage.getInfo(context, "to[IMS_QP_BaseLine2DEPSubStage].from.id") : "";
+        String substageBaseline = UIUtil.isNotNullAndNotEmpty(substage.getInfo(context, IMS_QP_Constants_mxJPO.TO_IMS_QP_BASE_LINE_2_DEPSUB_STAGE_FROM_ID)) ?
+                substage.getInfo(context, IMS_QP_Constants_mxJPO.TO_IMS_QP_BASE_LINE_2_DEPSUB_STAGE_FROM_ID) : "";
         LOG.info("substageBaseline: " + substageBaseline);
 
         //check if baselines is equals -> return
@@ -741,6 +733,16 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
 
         MapList allStages = DomainObject.findObjects(context, typePattern, "eService Production", null, objectSelects);
 
+        Collections.sort(allStages, new Comparator<Map>() {
+            @Override
+            public int compare(Map o1, Map o2) {
+                String str1 = (String) o1.get("name");
+                String str2 = (String) o2.get("name");
+                LOG.info("str1: " + str1 + " comparing str2:" + str2);
+                return str1.compareTo(str2);
+            }
+        });
+
         StringList fieldRangeValues = new StringList();
         StringList fieldDisplayRangeValues = new StringList();
 
@@ -750,7 +752,7 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
             fieldDisplayRangeValues.add(map.get("name"));
         }
 
-        HashMap tempMap = new HashMap();
+        Map tempMap = new HashMap();
         tempMap.put("field_choices", fieldRangeValues);
         tempMap.put("field_display_choices", fieldDisplayRangeValues);
 
@@ -768,7 +770,7 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
         fieldDisplayRangeValues.add("2");
 
 
-        HashMap tempMap = new HashMap();
+        Map tempMap = new LinkedHashMap();
         tempMap.put("field_choices", fieldRangeValues);
         tempMap.put("field_display_choices", fieldDisplayRangeValues);
 
@@ -790,22 +792,7 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
         objectSelects.add("to[IMS_ProjectStage2CB].from.id");
 
         MapList allBaselineNames = DomainObject.findObjects(context, typePattern, "eService Production", null, objectSelects);
-        LOG.info("allBaselineNames: " + allBaselineNames);
-
-        StringList fieldRangeValues = new StringList("");
-        StringList fieldDisplayRangeValues = new StringList("<empty value>");
-
-        for (Object rawStage : allBaselineNames) {
-            Map<String, String> map = (Map<String, String>) rawStage;
-            fieldRangeValues.add(map.get("id") + "_" + map.get("to[IMS_ProjectStage2CB].from.id"));
-            fieldDisplayRangeValues.add(map.get("name"));
-        }
-
-        HashMap tempMap = new HashMap();
-        tempMap.put("field_choices", fieldRangeValues);
-        tempMap.put("field_display_choices", fieldDisplayRangeValues);
-
-        return tempMap;
+        return getBaselines(allBaselineNames);
     }
 
     /**
@@ -832,8 +819,10 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
         String where = "to[IMS_ProjectStage2CB].from.from[IMS_QP_ProjectStage2DEPProjectStage].to.from[IMS_QP_DEPProjectStage2DEPSubStage].to.id==" + objectId;
 
         MapList allBaselineNames = DomainObject.findObjects(context, typePattern, "eService Production", where, objectSelects);
+        return getBaselines(allBaselineNames);
+    }
 
-        LOG.info("allBaselineNames: " + allBaselineNames);
+    private Object getBaselines(MapList allBaselineNames) {
 
         StringList fieldRangeValues = new StringList("");
         StringList fieldDisplayRangeValues = new StringList("<empty value>");
