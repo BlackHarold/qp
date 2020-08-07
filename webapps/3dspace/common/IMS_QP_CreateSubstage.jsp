@@ -1,21 +1,19 @@
-<%@ page import="java.util.*,
-                 java.io.*,
+<%@ page import="com.matrixone.apps.framework.ui.UINavigatorUtil,
+                 com.matrixone.apps.framework.ui.UIUtil,
                  com.matrixone.jdom.*,
                  com.matrixone.jdom.output.*,
                  com.matrixone.jdom.transform.*,
-                 com.matrixone.apps.framework.ui.UINavigatorUtil" %>
+                 java.util.*" %>
 <%@include file="emxNavigatorInclude.inc" %>
 
 <%@include file="emxNavigatorTopErrorInclude.inc" %>
-<%@ page import="com.matrixone.util.*,
-                 java.util.*,
-                 com.matrixone.jdom.*,
-                 com.matrixone.jdom.output.*" %>
-<%@page import="com.matrixone.apps.framework.ui.UIUtil" %>
 <jsp:useBean id="createBean" class="com.matrixone.apps.framework.ui.UIForm" scope="session"/>
 
 
 <script>
+    document.getElementById("calc_stage").style.display = 'table-row';
+    console.log("log!")
+
     function onchangeComboboxStage() {
         var baselineCombobox = document.getElementsByName("baseline");
         var stageCombobox = document.getElementsByName("project_stage");
@@ -29,7 +27,18 @@
             }
         }
 
+        let selected = document.getElementById("project_stageId");
+        let selectedText = selected.options[selected.selectedIndex].text;
+        console.log(selectedText);
+
+        if (selectedText != "BD") {
+            document.getElementById("calc_stage").style.display = 'none';
+        } else {
+            document.getElementById("calc_stage").style.display = 'table-row';
+        }
+
         document.getElementById("baselineId").selectedIndex = "0";
+        document.getElementById("stageId").selectedIndex = "0";
     }
 
     function onfocusComboboxSubstage() {
@@ -44,8 +53,8 @@
                 baselineCombobox[0][i].style.display = 'block';
             }
         }
-
     }
+
 </script>
 
 <%

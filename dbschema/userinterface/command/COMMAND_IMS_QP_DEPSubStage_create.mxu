@@ -8,7 +8,7 @@ mxUpdate command "${NAME}" {
     symbolicname "COMMAND_IMS_QP_DEPSubStage_create"
     description ""
     label "New sub stage"
-    href "${COMMON_DIR}/IMS_CreateSubstage.jsp?type=IMS_QP_DEPSubStage&typeChooser=false&form=IMS_QP_DEPSubStage_create&policy=IMS_QP_DEPSubStage&header=IMS_QP_DEPSubStage&postProcessJPO=IMS_QualityPlanBase:createPostProcess&submitAction=refreshCaller&nameField=autoName"
+    href "${COMMON_DIR}/IMS_QP_CreateSubstage.jsp?type=IMS_QP_DEPSubStage&typeChooser=false&form=IMS_QP_DEPSubStage_create&policy=IMS_QP_DEPSubStage&header=IMS_QP_DEPSubStage&postProcessJPO=IMS_QualityPlanBase:createPostProcess&submitAction=refreshCaller&nameField=autoName"
     alt ""
     user "all"
     setting "Access Function" "checkAccess"
