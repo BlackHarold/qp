@@ -2,13 +2,6 @@ import com.matrixone.apps.domain.DomainObject;
 
 public class IMS_QP_Constants_mxJPO {
 
-    public static final String FROM_IMS_QP_DEPSUB_STAGE_2_DEPTASK = "from[IMS_QP_DEPSubStage2DEPTask]";
-    public static final String TO_IMS_QP_BASE_LINE_2_DEPSUB_STAGE_FROM_ID = "to[IMS_QP_BaseLine2DEPSubStage].from.id";
-    public static final String TO_IMS_QP_DEPPROJECT_STAGE_2_DEPSUB_STAGE_FROM_ID = "to[IMS_QP_DEPProjectStage2DEPSubStage].from.id==";
-    public static final String FROM_IMS_QP_DEP_2_DEPPROJECT_STAGE_TO_TO_IMS_QP_PROJECT_STAGE_2_DEPPROJECT_STAGE_FROM_ID = "from[IMS_QP_DEP2DEPProjectStage].to.to[IMS_QP_ProjectStage2DEPProjectStage].from.id";
-    public static final String FROM_IMS_QP_PROJECT_STAGE_2_DEPPROJECT_STAGE_TO_TO_IMS_QP_DEP_2_DEPPROJECT_STAGE_FROM_ID = "from[IMS_QP_ProjectStage2DEPProjectStage].to.to[IMS_QP_DEP2DEPProjectStage].from.id==";
-    public static final String IMS_QP_DEP_SUB_STAGE = "IMS_QP_DEPSubStage";
-
     private IMS_QP_Constants_mxJPO() {
     }
 
