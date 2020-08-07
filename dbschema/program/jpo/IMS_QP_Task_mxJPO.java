@@ -317,7 +317,7 @@ public class IMS_QP_Task_mxJPO {
                             new DomainObject(taskID).getName(context) + " for route \'" + route + "\' by user: " + login + "\"");
             MQLCommand.exec(context, exec);
 
-            LOG.info("Coordination event - : " + new DomainObject(taskID).getName(context) + " task status: \'" + check + "\' route: \'" + route + "\' related task: \'" + new DomainObject(mainTaskID).getName(context) + "\' by user: " + login + "");
+            LOG.info("Coordination event - : \'" + new DomainObject(taskID).getName(context) + "\' task status: \'" + check + "\' route: \'" + route + "\' related task: \'" + new DomainObject(mainTaskID).getName(context) + "\' by user: " + login + "");
 
             ContextUtil.popContext(context);
 
