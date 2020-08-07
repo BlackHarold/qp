@@ -27,10 +27,11 @@ mxUpdate relationship "${NAME}" {
         propagateconnection
         type "IMS_QP_DEP"
     }
+    attribute "IMS_QP_DEPTaskStatus"
     ################################################## Info Start
-    property "author" value "IMS_Team"
+    property "author" value "IMS Team"
     property "original name" value "IMS_QP_DEPTask2DEP"
-    property "application" value "IMS"
+    property "application" value "IMS_QP"
     property "version" value "1"
     ################################################## Info End
 }
