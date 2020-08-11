@@ -31,10 +31,14 @@ public class IMS_QP_Constants_mxJPO {
     public static final String type_IMS_QP_DEPProjectStage = "" + type_IMS_QP_DEP + "ProjectStage";
     public static final String type_IMS_QP_DEPSubStage = "" + type_IMS_QP_DEP + "SubStage";
     public static final String type_IMS_QP_DEPTask = "" + type_IMS_QP_DEP + "Task";
+    public static final String type_IMS_QP_ExpectedResult = "IMS_QP_ExpectedResult";
+    public static final String type_IMS_QP_QPTask = "IMS_QP_QPTask";
     public static final String type_IMS_Family = "IMS_Family";
     public static final String type_IMS_PBSSystem = "IMS_PBSSystem";
     public static final String type_IMS_GBSBuilding = "IMS_GBSBuilding";
     public static final String type_IMS_PBSFunctionalArea = "IMS_PBSFunctionalArea";
+
+    public static final String policy_IMS_QP_QPTask = "IMS_QP_QPTask";
 
     public static final String relationship_IMS_QP_Project2QP = "IMS_QP_Project2QP";
     public static final String relationship_IMS_QP_Project2Directory = "IMS_QP_Project2Directory";
@@ -53,6 +57,12 @@ public class IMS_QP_Constants_mxJPO {
     public static final String relationship_IMS_QP_ResultType2Family = "IMS_QP_ResultType2Family";
     public static final String relationship_IMS_QP_QP2QPlan = "IMS_QP_QP2QPlan";
     public static final String relationship_IMS_QP_QPlan2QPTask = "IMS_QP_QPlan2QPTask";
+    public static final String relationship_IMS_QP_ExpectedResult2DEPTask = "IMS_QP_ExpectedResult2DEPTask";
+    public static final String relationship_IMS_QP_ResultType2ExpectedResult = "IMS_QP_ResultType2ExpectedResult";
+    public static final String relationship_IMS_QP_ExpectedResult2QPTask    = "IMS_QP_ExpectedResult2QPTask";
+
+    static final String ATTRIBUTE_IMS_DescriptionEn = "IMS_DescriptionEn";
+    static final String ATTRIBUTE_IMS_DescriptionRu = "IMS_DescriptionRu";
 
 
     static final String TYPE_IMS_QP_DEP = "IMS_QP_DEP";
@@ -102,4 +112,5 @@ public class IMS_QP_Constants_mxJPO {
     public static final String relationship_IMS_QP_DEPTaskStatus = "IMS_QP_DEPTaskStatus";
     public static final String relationship_IMS_QP_DEPTask2DEPTask = "IMS_QP_DEPTask2DEPTask";
     public static final String relationship_IMS_QP_QPTask2QPTask = "IMS_QP_QPTask2QPTask";
+>>>>>>> dbschema/program/jpo/IMS_QP_Constants_mxJPO.java
 }
