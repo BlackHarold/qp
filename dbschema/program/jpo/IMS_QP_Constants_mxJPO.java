@@ -112,5 +112,4 @@ public class IMS_QP_Constants_mxJPO {
     public static final String relationship_IMS_QP_DEPTaskStatus = "IMS_QP_DEPTaskStatus";
     public static final String relationship_IMS_QP_DEPTask2DEPTask = "IMS_QP_DEPTask2DEPTask";
     public static final String relationship_IMS_QP_QPTask2QPTask = "IMS_QP_QPTask2QPTask";
->>>>>>> dbschema/program/jpo/IMS_QP_Constants_mxJPO.java
 }
