@@ -412,20 +412,21 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
     }
 
     public String setUniqueFieldName(Context context, DomainObject parent, String stage, DomainObject depProjectStage) throws Exception {
+
         //set unique name for the new substage
-//        String indexParent = parent.getName().substring(4, 5);
         String indexParent = parent.getInfo(context, "attribute[IMS_QP_DEPShortCode]") != null ?
                 parent.getInfo(context, "attribute[IMS_QP_DEPShortCode]") : "";
         String depProjectStageName = depProjectStage.getInfo(context, "name");
 
         //count all substages at this DEP ProjectStage
-
-//        String allSubStages = parent.getInfo(context, "from[IMS_QP_DEP2DEPProjectStage].to.id");
         StringList selects = new StringList();
         selects.add("id");
 
-        String where = IMS_QP_Constants_mxJPO.TO_IMS_QP_DEPPROJECT_STAGE_2_DEPSUB_STAGE_FROM_ID + depProjectStage.getInfo(context, "id");
-        LOG.info("where: " + where);
+        String nameTail = !stage.equals("") ?
+                "&&name smatch *" + depProjectStageName + stage + "*" :                                                 //if stage 1 or 2
+                "&&name nsmatch *" + depProjectStageName + "1*&&name nsmatch *" + depProjectStageName + "2*";           //if stage is empty
+        String where = IMS_QP_Constants_mxJPO.TO_IMS_QP_DEPPROJECT_STAGE_2_DEPSUB_STAGE_FROM_ID +
+                depProjectStage.getInfo(context, "id") + nameTail;
 
         MapList result = parent.findObjects(context,
                 /*type*/ "IMS_QP_DEPSubStage",
