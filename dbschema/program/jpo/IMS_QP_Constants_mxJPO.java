@@ -59,11 +59,10 @@ public class IMS_QP_Constants_mxJPO {
     public static final String relationship_IMS_QP_QPlan2QPTask = "IMS_QP_QPlan2QPTask";
     public static final String relationship_IMS_QP_ExpectedResult2DEPTask = "IMS_QP_ExpectedResult2DEPTask";
     public static final String relationship_IMS_QP_ResultType2ExpectedResult = "IMS_QP_ResultType2ExpectedResult";
-    public static final String relationship_IMS_QP_ExpectedResult2QPTask    = "IMS_QP_ExpectedResult2QPTask";
+    public static final String relationship_IMS_QP_ExpectedResult2QPTask = "IMS_QP_ExpectedResult2QPTask";
 
     static final String ATTRIBUTE_IMS_DescriptionEn = "IMS_DescriptionEn";
     static final String ATTRIBUTE_IMS_DescriptionRu = "IMS_DescriptionRu";
-
 
     static final String TYPE_IMS_QP_DEP = "IMS_QP_DEP";
     static final String TYPE_IMS_QP_DEPTask = "IMS_QP_DEPTask";
@@ -112,4 +111,3 @@ public class IMS_QP_Constants_mxJPO {
     public static final String relationship_IMS_QP_DEPTaskStatus = "IMS_QP_DEPTaskStatus";
     public static final String relationship_IMS_QP_DEPTask2DEPTask = "IMS_QP_DEPTask2DEPTask";
     public static final String relationship_IMS_QP_QPTask2QPTask = "IMS_QP_QPTask2QPTask";
-}
