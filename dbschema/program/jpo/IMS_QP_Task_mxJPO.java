@@ -63,7 +63,6 @@ public class IMS_QP_Task_mxJPO {
                 Map rawMap = (Map) o;
                 mainTaskIDs.add((String) rawMap.get("id"));
             }
-            LOG.info("items ids: " + mainTaskIDs);
 
             /*top level Codes by items*/
             StringBuilder stringBuilder = new StringBuilder();
@@ -192,8 +191,6 @@ public class IMS_QP_Task_mxJPO {
         } catch (Exception e) {
             try {
                 emxContextUtil_mxJPO.mqlWarning(context, e.toString());
-                LOG.error("result link: " + result);
-                LOG.error("error getting url string: " + e.getMessage());
             } catch (Exception ex) {
                 ex.printStackTrace();
             }

@@ -1,15 +1,19 @@
 import com.google.common.html.HtmlEscapers;
 import com.matrixone.apps.domain.DomainConstants;
 import com.matrixone.apps.domain.DomainObject;
+import com.matrixone.apps.domain.DomainRelationship;
 import com.matrixone.apps.domain.util.MapList;
 import matrix.db.Context;
 import matrix.db.RelationshipType;
 import matrix.util.StringList;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.log4j.Logger;
 
 import java.util.*;
 
 public class IMS_QP_DEPSubStageDEPTasks_mxJPO {
+
+    private static final Logger LOG = Logger.getLogger("IMS_QP_DEP");
 
     private static final String PROGRAM_IMS_QP_DEPSubStageDEPTasks = "IMS_QP_DEPSubStageDEPTasks";
 
@@ -120,20 +124,17 @@ public class IMS_QP_DEPSubStageDEPTasks_mxJPO {
                 RELATIONSHIP_IMS_QP_DEP2DEPProjectStage));
     }
 
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
     @SuppressWarnings("unused")
     public MapList getQPTreeRootObjects(Context context, String[] args) throws Exception {
         try {
             MapList mapList = DomainObject.findObjects(
                     context, TYPE_IMS_QP_Project, "*", "*", "*", "*",
-                    null,true,
+                    null, true,
                     getQPTreeSelects());
 
             IMS_KDD_mxJPO.sortMapsByName(mapList);
             return mapList;
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             emxContextUtil_mxJPO.mqlWarning(context, e.toString());
             throw e;
         }
@@ -168,14 +169,11 @@ public class IMS_QP_DEPSubStageDEPTasks_mxJPO {
 
             IMS_KDD_mxJPO.sortMapsByName(maps);
             return new MapList(maps);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             emxContextUtil_mxJPO.mqlWarning(context, e.toString());
             throw e;
         }
     }
-
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     @SuppressWarnings("unused")
     public MapList getOtherDEPsRootObjects(Context context, String[] args) throws Exception {
@@ -196,8 +194,7 @@ public class IMS_QP_DEPSubStageDEPTasks_mxJPO {
 
             IMS_KDD_mxJPO.sortMapsByName(mapList);
             return mapList;
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             emxContextUtil_mxJPO.mqlWarning(context, e.toString());
             throw e;
         }
@@ -225,9 +222,9 @@ public class IMS_QP_DEPSubStageDEPTasks_mxJPO {
                     ),
                     String.format(
                             "from[%s|to.id==%s]==True ||" +
-                            "from[%s].to.from[%s|to.id==%s]==True ||" +
-                            "from[%s].to.from[%s].to.from[%s|to.id==%s]==True ||" +
-                            "from[%s].to.from[%s].to.from[%s].to.from[%s|to.id==%s]==True",
+                                    "from[%s].to.from[%s|to.id==%s]==True ||" +
+                                    "from[%s].to.from[%s].to.from[%s|to.id==%s]==True ||" +
+                                    "from[%s].to.from[%s].to.from[%s].to.from[%s|to.id==%s]==True",
                             RELATIONSHIP_IMS_QP_DEPTask2DEP,
                             currentDEPId,
 
@@ -255,14 +252,11 @@ public class IMS_QP_DEPSubStageDEPTasks_mxJPO {
 
             IMS_KDD_mxJPO.sortMapsByName(maps);
             return new MapList(maps);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             emxContextUtil_mxJPO.mqlWarning(context, e.toString());
             throw e;
         }
     }
-
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     @SuppressWarnings("unused")
     public MapList getCurrentDEPTreeRootObjects(Context context, String[] args) throws Exception {
@@ -275,14 +269,11 @@ public class IMS_QP_DEPSubStageDEPTasks_mxJPO {
 
             IMS_KDD_mxJPO.sortMapsByName(mapList);
             return mapList;
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             emxContextUtil_mxJPO.mqlWarning(context, e.toString());
             throw e;
         }
     }
-
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     @SuppressWarnings("unused")
     public MapList expandQPlanQPTreeObject(Context context, String[] args) throws Exception {
@@ -342,21 +333,17 @@ public class IMS_QP_DEPSubStageDEPTasks_mxJPO {
                         filteredMaps.add(map);
                     }
                 }
-            }
-            else {
+            } else {
                 filteredMaps = maps;
             }
 
             IMS_KDD_mxJPO.sortMapsByName(filteredMaps);
             return new MapList(filteredMaps);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             emxContextUtil_mxJPO.mqlWarning(context, e.toString());
             throw e;
         }
     }
-
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     @SuppressWarnings("unused")
     public Vector getQPTreeObjectCode(Context context, String[] args) throws Exception {
@@ -407,8 +394,6 @@ public class IMS_QP_DEPSubStageDEPTasks_mxJPO {
         return results;
     }
 
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
     private Vector getDEPTaskRelatedObjects(Context context, String[] args, boolean in) throws Exception {
         try {
             String virtualRelationship = in ? "in" : "out";
@@ -451,23 +436,6 @@ public class IMS_QP_DEPSubStageDEPTasks_mxJPO {
                     }
 
                     if (IMS_KDD_mxJPO.getTypeFromMap(relatedMap).equals(TYPE_IMS_QP_DEPTask)) {
-//                        Map depMap = new HashMap();
-//                        depMap.put(DomainConstants.SELECT_ID, relatedMap.get(SELECT_DEP_ID));
-//                        depMap.put(DomainConstants.SELECT_NAME, relatedMap.get(SELECT_DEP_NAME));
-//
-//                        sb.append(IMS_KDD_mxJPO.getLinkHTML(
-//                                context, depMap, SOURCE_DEP, null,
-//                                getIconUrl(TYPE_IMS_QP_DEP),
-//                                "12px",
-//                                (String) relatedMap.get(
-//                                        isRuLocale ?
-//                                                SELECT_DEP_IMS_NAME_RU :
-//                                                SELECT_DEP_IMS_NAME),
-//                                null, true, false, null, true, null, false));
-//
-//                        sb.append(String.format(
-//                                "&#160;&#160;<img src=\"%s\" />&#160;",
-//                                IMS_KDD_mxJPO.FUGUE_16x16 + "arrow.png"));
 
                         sb.append(IMS_KDD_mxJPO.getLinkHTML(
                                 context, relatedMap, SOURCE_DEPTask, null,
@@ -478,8 +446,7 @@ public class IMS_QP_DEPSubStageDEPTasks_mxJPO {
                                                 ATTRIBUTE_IMS_NameRu :
                                                 ATTRIBUTE_IMS_Name)),
                                 null, true, false, null, true, null, false));
-                    }
-                    else if (IMS_KDD_mxJPO.getTypeFromMap(relatedMap).equals(TYPE_IMS_QP_DEP)) {
+                    } else if (IMS_KDD_mxJPO.getTypeFromMap(relatedMap).equals(TYPE_IMS_QP_DEP)) {
                         sb.append(IMS_KDD_mxJPO.getLinkHTML(
                                 context, relatedMap, SOURCE_DEP, null,
                                 getIconUrl(TYPE_IMS_QP_DEP),
@@ -512,8 +479,7 @@ public class IMS_QP_DEPSubStageDEPTasks_mxJPO {
             }
 
             return results;
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             emxContextUtil_mxJPO.mqlWarning(context, e.toString());
             throw e;
         }
@@ -528,8 +494,6 @@ public class IMS_QP_DEPSubStageDEPTasks_mxJPO {
     public Vector getDEPTaskOutput(Context context, String[] args) throws Exception {
         return getDEPTaskRelatedObjects(context, args, false);
     }
-
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     private Vector getQPTaskRelatedObjects(Context context, String[] args, boolean in) throws Exception {
         try {
@@ -581,8 +545,7 @@ public class IMS_QP_DEPSubStageDEPTasks_mxJPO {
                                 break;
                             }
                         }
-                    }
-                    else {
+                    } else {
                         for (Object rowQPTaskDEPTaskOutputDEPTaskId : rowQPTaskDEPTaskOutputDEPTaskIds) {
                             if (relatedQPTaskDEPTaskInputDEPTaskIds.contains(rowQPTaskDEPTaskOutputDEPTaskId)) {
                                 thereAreConnectedQPTaskDEPTasks = true;
@@ -622,8 +585,7 @@ public class IMS_QP_DEPSubStageDEPTasks_mxJPO {
             }
 
             return results;
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             emxContextUtil_mxJPO.mqlWarning(context, e.toString());
             throw e;
         }
@@ -639,10 +601,8 @@ public class IMS_QP_DEPSubStageDEPTasks_mxJPO {
         return getQPTaskRelatedObjects(context, args, false);
     }
 
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
     @SuppressWarnings("unused")
-    public String connectDEPTask(Context context, String[] args) throws Exception {
+    public String connectDEPTask(Context context, String[] args) {
         return IMS_KDD_mxJPO.connect(context, args, new IMS_KDD_mxJPO.Connector() {
             @Override
             public String connect(Context context, String from, String to, String relationship) throws Exception {
@@ -653,13 +613,24 @@ public class IMS_QP_DEPSubStageDEPTasks_mxJPO {
                 if (IMS_QP_Security_mxJPO.currentUserIsDEPOwner(context, fromObject) &&
                         IMS_QP_Security_mxJPO.currentUserIsDEPOwner(context, toObject)) {
 
-                    IMS_KDD_mxJPO.connectIfNotConnected(
+
+                    String depIdFromObject = fromObject.getInfo(context, IMS_QP_Constants_mxJPO.TO_IMS_QP_DEPSUB_STAGE_2_DEPTASK_FROM_TO_IMS_QP_DEPPROJECT_STAGE_2_DEPSUB_STAGE_FROM_TO_IMS_QP_DEP_2_DEPPROJECT_STAGE_FROM_ID);
+                    String depIdToObject = toObject.getInfo(context, IMS_QP_Constants_mxJPO.TO_IMS_QP_DEPSUB_STAGE_2_DEPTASK_FROM_TO_IMS_QP_DEPPROJECT_STAGE_2_DEPSUB_STAGE_FROM_TO_IMS_QP_DEP_2_DEPPROJECT_STAGE_FROM_ID);
+                    LOG.info("depFromId:" + depIdFromObject + " equals depToId: " + depIdToObject + " relationship IMS_QP_DEPTaskStatus state will be \'Approved\'");
+
+                    DomainRelationship domainRelationship = IMS_KDD_mxJPO.connectIfNotConnected(
                             context,
                             toObject.getType(context).equals(TYPE_IMS_QP_DEPTask) ?
                                     RELATIONSHIP_IMS_QP_DEPTask2DEPTask :
                                     RELATIONSHIP_IMS_QP_DEPTask2DEP,
                             fromObject,
                             toObject);
+
+                    if (depIdFromObject.equals(depIdToObject)) {
+                        String oldStatus = domainRelationship.getAttributeValue(context, "IMS_QP_DEPTaskStatus");
+                        domainRelationship.setAttributeValue(context, "IMS_QP_DEPTaskStatus", "Approved");
+                        LOG.info("relation status was: " + oldStatus + " now: " + domainRelationship.getAttributeValue(context, "IMS_QP_DEPTaskStatus"));
+                    }
 
                     return "";
                 }
@@ -694,8 +665,6 @@ public class IMS_QP_DEPSubStageDEPTasks_mxJPO {
             }
         });
     }
-
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     @SuppressWarnings("unused")
     public String connectQPTask(Context context, String[] args) throws Exception {
@@ -733,8 +702,6 @@ public class IMS_QP_DEPSubStageDEPTasks_mxJPO {
         });
     }
 
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
     @SuppressWarnings("unused")
     public static StringList getDEPTaskInputCellStyle(Context context, String[] args) throws Exception {
         StringList styles = new StringList();
@@ -752,8 +719,6 @@ public class IMS_QP_DEPSubStageDEPTasks_mxJPO {
         }
         return styles;
     }
-
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     @SuppressWarnings("unused")
     public String getConnectedExternalDocumentSetHTML(Context context, String[] args) throws Exception {
@@ -798,8 +763,7 @@ public class IMS_QP_DEPSubStageDEPTasks_mxJPO {
                         IMS_KDD_mxJPO.FUGUE_16x16 + "document.png",
                         HtmlEscapers.htmlEscaper().escape(IMS_KDD_mxJPO.getNameFromMap(externalDocumentSetMap))));
             }
-        }
-        else {
+        } else {
             sb.append(String.format(
                     "<a href=\"javascript:%s\"><img src=\"%s\" title=\"%s\" /></a>",
                     String.format(
@@ -832,8 +796,6 @@ public class IMS_QP_DEPSubStageDEPTasks_mxJPO {
             }
         });
     }
-
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     public static void linkQPExpectedResultDocs(Context context, String externalSystemName, boolean testMode) throws Exception {
         String docCodeSelect = String.format("to[%s].from.attribute[%s]", RELATIONSHIP_IMS_QP_ExpectedResult2QPTask, ATTRIBUTE_IMS_QP_DocumentCode);
@@ -870,11 +832,9 @@ public class IMS_QP_DEPSubStageDEPTasks_mxJPO {
                 if (StringUtils.isNotBlank(result)) {
                     System.out.println("    " + result);
                 }
-            }
-            else if (externalDocMapList.size() == 0) {
+            } else if (externalDocMapList.size() == 0) {
                 System.out.println("  No external documents found");
-            }
-            else {
+            } else {
                 System.out.println("  Multiple external documents found");
             }
         }
@@ -883,6 +843,4 @@ public class IMS_QP_DEPSubStageDEPTasks_mxJPO {
     public static void linkQPExpectedResultDocs(final Context context, final String[] args) throws Exception {
         linkQPExpectedResultDocs(context, args[0], IMS_KDD_mxJPO.isTestMode(args));
     }
-
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 }
