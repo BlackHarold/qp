@@ -48,7 +48,7 @@ mxUpdate form "${NAME}" {
         setting "Range Program" "IMS_QualityPlanBase"
         setting "Registered Suite" "Components"
         setting "Update Function" "updateBaselineCombo"
-        setting "Update Program" "IMS_QP_TestEverything"
+        setting "Update Program" "IMS_QualityPlanBase"
     }
     field {
         name "IMS_Name"
