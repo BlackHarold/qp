@@ -424,7 +424,7 @@ public class IMS_QP_DEPSubStageDEPTasks_mxJPO {
                         sb.append("<br />");
                     }
 
-                    if (currentUserIsRowDEPOwner &&
+                    if (currentUserIsRowDEPOwner ||
                             IMS_QP_Security_mxJPO.currentUserIsDEPOwner(context, IMS_KDD_mxJPO.getIdFromMap(relatedMap))) {
 
                         sb.append(IMS_KDD_mxJPO.getDisconnectLinkHTML(
@@ -436,6 +436,23 @@ public class IMS_QP_DEPSubStageDEPTasks_mxJPO {
                     }
 
                     if (IMS_KDD_mxJPO.getTypeFromMap(relatedMap).equals(TYPE_IMS_QP_DEPTask)) {
+//                        Map depMap = new HashMap();
+//                        depMap.put(DomainConstants.SELECT_ID, relatedMap.get(SELECT_DEP_ID));
+//                        depMap.put(DomainConstants.SELECT_NAME, relatedMap.get(SELECT_DEP_NAME));
+//
+//                        sb.append(IMS_KDD_mxJPO.getLinkHTML(
+//                                context, depMap, SOURCE_DEP, null,
+//                                getIconUrl(TYPE_IMS_QP_DEP),
+//                                "12px",
+//                                (String) relatedMap.get(
+//                                        isRuLocale ?
+//                                                SELECT_DEP_IMS_NAME_RU :
+//                                                SELECT_DEP_IMS_NAME),
+//                                null, true, false, null, true, null, false));
+//
+//                        sb.append(String.format(
+//                                "&#160;&#160;<img src=\"%s\" />&#160;",
+//                                IMS_KDD_mxJPO.FUGUE_16x16 + "arrow.png"));
 
                         sb.append(IMS_KDD_mxJPO.getLinkHTML(
                                 context, relatedMap, SOURCE_DEPTask, null,
@@ -459,21 +476,19 @@ public class IMS_QP_DEPSubStageDEPTasks_mxJPO {
                     }
                 }
 
-                if (currentUserIsRowDEPOwner) {
-                    sb.append(IMS_DragNDrop_mxJPO.getConnectDropAreaHTML(
-                            PROGRAM_IMS_QP_DEPSubStageDEPTasks, "connectDEPTask",
-                            virtualRelationship, !in,
-                            rowId, id,
-                            IMS_KDD_mxJPO.getRefreshAllRowsFunction(),
-                            in ?
-                                    SOURCE_DEPTask :
-                                    StringUtils.join(Arrays.asList(SOURCE_DEPTask, SOURCE_DEP), ','),
-                            String.format(
-                                    "Drop %s %s here",
-                                    in ? "input" : "output",
-                                    in ? "DEP Task" : "DEP Task or DEP"),
-                            "26px", "10px"));
-                }
+                sb.append(IMS_DragNDrop_mxJPO.getConnectDropAreaHTML(
+                        PROGRAM_IMS_QP_DEPSubStageDEPTasks, "connectDEPTask",
+                        virtualRelationship, !in,
+                        rowId, id,
+                        IMS_KDD_mxJPO.getRefreshAllRowsFunction(),
+                        in ?
+                                SOURCE_DEPTask :
+                                StringUtils.join(Arrays.asList(SOURCE_DEPTask, SOURCE_DEP), ','),
+                        String.format(
+                                "Drop %s %s here",
+                                in ? "input" : "output",
+                                in ? "DEP Task" : "DEP Task or DEP"),
+                        "26px", "10px"));
 
                 results.addElement(sb.toString());
             }
@@ -610,7 +625,7 @@ public class IMS_QP_DEPSubStageDEPTasks_mxJPO {
                 DomainObject fromObject = new DomainObject(from);
                 DomainObject toObject = new DomainObject(to);
 
-                if (IMS_QP_Security_mxJPO.currentUserIsDEPOwner(context, fromObject) &&
+                if (IMS_QP_Security_mxJPO.currentUserIsDEPOwner(context, fromObject) ||
                         IMS_QP_Security_mxJPO.currentUserIsDEPOwner(context, toObject)) {
 
 
@@ -648,7 +663,7 @@ public class IMS_QP_DEPSubStageDEPTasks_mxJPO {
                 DomainObject fromObject = new DomainObject(from);
                 DomainObject toObject = new DomainObject(to);
 
-                if (IMS_QP_Security_mxJPO.currentUserIsDEPOwner(context, fromObject) &&
+                if (IMS_QP_Security_mxJPO.currentUserIsDEPOwner(context, fromObject) ||
                         IMS_QP_Security_mxJPO.currentUserIsDEPOwner(context, toObject)) {
 
                     fromObject.disconnect(

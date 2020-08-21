@@ -707,7 +707,7 @@ public class IMS_KDD_mxJPO {
     }
 
     public static DomainObject getCompanyObject(Context context, String name) throws MatrixException {
-        return new DomainObject(new BusinessObject(Types.Company, name, "-", Vaults.eService_Production));
+        return new DomainObject(new BusinessObject(Types.Company, name, "-", context.getVault().getName()));
     }
 
     public static boolean isConnected(Context context, String relationship, DomainObject fromObject, DomainObject toObject) throws FrameworkException {
@@ -792,6 +792,10 @@ public class IMS_KDD_mxJPO {
 
     public static String getFromTypeSelect(String relationship) {
         return getFromSelectPrefix(relationship) + "type";
+    }
+
+    public static String getFromAttributeSelect(String relationship, String attribute) {
+        return getFromSelectPrefix(relationship) + DomainObject.getAttributeSelect(attribute);
     }
 
     public static String getFromConnectionOwnerSelect(String relationship) {
