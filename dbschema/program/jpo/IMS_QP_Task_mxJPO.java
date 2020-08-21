@@ -91,9 +91,11 @@ public class IMS_QP_Task_mxJPO {
                 /*INPUT getTo*/
                 selects.add("to[IMS_QP_DEPTask2DEPTask].from.id");
                 selects.add("to[IMS_QP_DEPTask2DEPTask].attribute[IMS_QP_DEPTaskStatus]");
+                selects.add("to[IMS_QP_DEPTask2DEPTask].owner");
                 /*OUTPUT getFrom*/
                 selects.add("from[IMS_QP_DEPTask2DEPTask].to.id");
                 selects.add("from[IMS_QP_DEPTask2DEPTask].attribute[IMS_QP_DEPTaskStatus]");
+                selects.add("from[IMS_QP_DEPTask2DEPTask].owner");
                 /*OUTPUT getDepFrom*/
                 selects.add("from[IMS_QP_DEPTask2DEP].to.id");
                 selects.add("from[IMS_QP_DEPTask2DEP].attribute[IMS_QP_DEPTaskStatus]");
@@ -116,24 +118,24 @@ public class IMS_QP_Task_mxJPO {
 
                 /*get all states for related tasks*/
                 Map<String, String> taskStates = new HashMap<>();
+                Map<String, String> relationshipOwners = new HashMap<>();
 
                 //in-out DEPTask
-                String logString = objectMainTask.getName(context) + ":: ";
                 for (Object object : relatedTasks) {
                     Map relatedMap = (Map) object;
                     id = (String) relatedMap.get("id");
 
-                    logString += " " + mainTaskIDs.contains(id) + ":" + id + "|";
-
                     /*getting list of all related tasks with states*/
-                    List<String> toId, toState, fromId, fromState, fromDepId, fromDepState;
+                    List<String> toId, toState, toRelationshipOwner, fromId, fromState, fromRelationshipOwner, fromDepId, fromDepState;
                     if (!getTo) {
 
                         toId = getStringList(relatedMap.get("to[IMS_QP_DEPTask2DEPTask].from.id"));
                         toState = getStringList(relatedMap.get("to[IMS_QP_DEPTask2DEPTask].attribute[IMS_QP_DEPTaskStatus]"));
+                        toRelationshipOwner = getStringList(relatedMap.get("to[IMS_QP_DEPTask2DEPTask].owner"));
 
                         for (int i = 0; i < toId.size(); i++) {
                             taskStates.put(toId.get(i), toState.get(i));
+                            relationshipOwners.put(toId.get(i), toRelationshipOwner.get(i));
                         }
                     }
 
@@ -141,16 +143,19 @@ public class IMS_QP_Task_mxJPO {
 
                         fromId = getStringList(relatedMap.get("from[IMS_QP_DEPTask2DEPTask].to.id"));
                         fromState = getStringList(relatedMap.get("from[IMS_QP_DEPTask2DEPTask].attribute[IMS_QP_DEPTaskStatus]"));
+                        fromRelationshipOwner = getStringList(relatedMap.get("from[IMS_QP_DEPTask2DEPTask].owner"));
+
                         for (int i = 0; i < fromId.size(); i++) {
                             taskStates.put(fromId.get(i), fromState.get(i));
+                            relationshipOwners.put(fromId.get(i), fromRelationshipOwner.get(i));
                         }
 
                         fromDepId = getStringList(relatedMap.get("from[IMS_QP_DEPTask2DEP].to.id"));
                         fromDepState = getStringList(relatedMap.get("from[IMS_QP_DEPTask2DEP].attribute[IMS_QP_DEPTaskStatus]"));
+
                         for (int i = 0; i < fromDepId.size(); i++) {
                             taskStates.put(fromDepId.get(i), fromDepState.get(i));
                         }
-//                        LOG.info("getTo tastStates: " + taskStates);
                     }
 
                     /*rotate all related tasks and generating links*/
@@ -169,8 +174,29 @@ public class IMS_QP_Task_mxJPO {
 
                     stringBuilder.append(rawLink);
 
-                    if (currentUserIsDEPOwner) {
-                        //TODO brush the links red&green colors by states
+                    /* check if the current user is the dep owner, if owner/originator of the task*/
+
+                    //1. main task is mine
+                    boolean currentUserIsMainTaskOwner = IMS_QP_Security_mxJPO.currentUserIsDEPOwner(context, objectMainTask);
+
+                    //2. task is not mine
+                    DomainObject taskObject = new DomainObject(id);
+                    boolean currentUserIsTaskOwner = IMS_QP_Security_mxJPO.currentUserIsDEPOwner(context, taskObject);
+
+                    //3. main task owner is not me
+                    String relationshipOwner = UIUtil.isNotNullAndNotEmpty(relationshipOwners.get(mainTaskID)) ? relationshipOwners.get(mainTaskID) : "";
+                    String contextUser = context.getUser();
+                    boolean currentUserContextIsDEPTaskOwner = contextUser.equals(relationshipOwner);
+
+                    LOG.info("context user:" + contextUser + "|" +
+                            objectMainTask.getName(context) +
+                            " is owner:" + currentUserIsMainTaskOwner + "|" +
+                            taskObject.getName(context) +
+                            " is task owner:" + currentUserIsTaskOwner + "|" +
+                            relationshipOwner +
+                            " is relation owner: " + currentUserContextIsDEPTaskOwner);
+
+                    if (currentUserIsMainTaskOwner && !currentUserIsTaskOwner && !currentUserContextIsDEPTaskOwner) {
                         if (!mainTaskIDs.contains(id) && (state.equals("Draft") || state.equals(""))) {
                             if (getTypeFromMap(relatedMap).equals(IMS_QP_Constants_mxJPO.TYPE_IMS_QP_DEPTask) && !map.get("type").equals("IMS_QP_DEP")) {
                                 stringBuilder.append(" " + getCheckLinkHTML("IMS_QP_Task", "approveConnection", /*main task*/mainTaskID, id, virtualRelationship, "Accept", mainLevel));
@@ -181,9 +207,6 @@ public class IMS_QP_Task_mxJPO {
                         }
                     }
                 }
-
-                LOG.info("element: " + logString);
-
                 String element = FrameworkUtil.findAndReplace(stringBuilder.toString(), "&", "&amp;");
                 result.addElement(element);
             }
@@ -191,6 +214,8 @@ public class IMS_QP_Task_mxJPO {
         } catch (Exception e) {
             try {
                 emxContextUtil_mxJPO.mqlWarning(context, e.toString());
+                LOG.error("result link: " + result);
+                LOG.error("error getting url string: " + e.getMessage());
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
@@ -219,7 +244,7 @@ public class IMS_QP_Task_mxJPO {
         return list;
     }
 
-    public String getLinkHTML(Map objectMap, String source, String imageURL, String title, String state) throws Exception {
+    public String getLinkHTML(Map objectMap, String source, String imageURL, String title, String state) {
         String id = (String) objectMap.get("id");
         String name = (String) objectMap.get("name");
 
@@ -325,7 +350,9 @@ public class IMS_QP_Task_mxJPO {
                             new DomainObject(taskID).getName(context) + " for route \'" + route + "\' by user: " + login + "\"");
             MQLCommand.exec(context, exec);
 
-            LOG.info("Coordination event - : \'" + new DomainObject(taskID).getName(context) + "\' task status: \'" + check + "\' route: \'" + route + "\' related task: \'" + new DomainObject(mainTaskID).getName(context) + "\' by user: " + login + "");
+            LOG.info("Coordination event - : \'" + new DomainObject(taskID).getName(context) +
+                    "\' task status: \'" + check + "\' route: \'" + route + "\' related task: \'" +
+                    new DomainObject(mainTaskID).getName(context) + "\' by user: " + login + "");
 
             ContextUtil.popContext(context);
 
@@ -333,7 +360,7 @@ public class IMS_QP_Task_mxJPO {
             LOG.error("framework exception: " + me.getMessage());
             me.printStackTrace();
         } catch (Exception e) {
-            LOG.info("error DomainObject initialisation: " + e.getMessage());
+            LOG.error("error DomainObject initialisation: " + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -388,8 +415,9 @@ public class IMS_QP_Task_mxJPO {
                 String.format(
                         "<a id=\"%s\" href=\"javascript:IMS_CheckTask('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')\">" +
                                 "<img src=\"%s\" title=\"%s\"/></a>",
+                        //with borders ->
                         /*"<a id=\"%s\" href=\"javascript:IMS_CheckTask('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')\">" +
-                                "<img src=\"%s\" title=\"%s\" style=\"border: 1px solid #992211;\"/></a>",*///          <- with borders
+                                "<img src=\"%s\" title=\"%s\" style=\"border: 1px solid #992211;\"/></a>",*/
                         HtmlEscapers.htmlEscaper().escape(linkId), getEcma(program), getEcma(function), getEcma(fromId),
                         escapeToId ? getEcma(toId) : toId, getEcma(relationships), getEcma(linkId), getEcma(spinnerId),
                         onDisconnected != null && !onDisconnected.isEmpty() ? onDisconnected : "", imageUrl,
@@ -744,7 +772,7 @@ public class IMS_QP_Task_mxJPO {
             LOG.error("framework exception: " + me.getMessage());
             me.printStackTrace();
         } catch (Exception e) {
-            LOG.info("error DomainObject initialisation: " + e.getMessage());
+            LOG.error("error DomainObject initialisation: " + e.getMessage());
             e.printStackTrace();
         }
     }
