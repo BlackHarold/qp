@@ -17,6 +17,7 @@ public class IMS_QP_Security_mxJPO {
 
     private static final String ROLE_IMS_QP_DEPOwner = "IMS_QP_DEPOwner";
     private static final String ROLE_IMS_Admin = "IMS_Admin";
+    private static final String ROLE_IMS_QP_SuperUser = "IMS_QP_SuperUser";
 
     private static final String RELATIONSHIP_IMS_QP_DEP2Owner = "IMS_QP_DEP2Owner";
 
@@ -45,6 +46,10 @@ public class IMS_QP_Security_mxJPO {
 
     private static boolean currentUserIsAdmin(Context context) throws MatrixException {
         return context.isAssigned(ROLE_IMS_Admin);
+    }
+
+    public static boolean currentUserIsQPSuperUser(Context context) throws MatrixException {
+        return context.isAssigned(ROLE_IMS_QP_SuperUser);
     }
 
     private static boolean hasDEPOwnerRole(Context context, String personName) throws MatrixException {

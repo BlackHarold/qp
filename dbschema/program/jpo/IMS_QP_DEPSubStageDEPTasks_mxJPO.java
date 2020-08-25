@@ -424,9 +424,13 @@ public class IMS_QP_DEPSubStageDEPTasks_mxJPO {
                         sb.append("<br />");
                     }
 
-                    if (currentUserIsRowDEPOwner ||
-                            IMS_QP_Security_mxJPO.currentUserIsDEPOwner(context, IMS_KDD_mxJPO.getIdFromMap(relatedMap))) {
+                    DomainObject objectTask = new DomainObject((String) relatedMap.get("id"));
+                    boolean isTaskOwner = IMS_QP_Security_mxJPO.currentUserIsDEPOwner(context, objectTask);
+                    boolean isSuperUser = IMS_QP_Security_mxJPO.currentUserIsQPSuperUser(context);
+                    LOG.info(context.getUser() + " " + depTaskObject.getName(context) + " owner: " + IMS_QP_Security_mxJPO.currentUserIsDEPOwner(context, depTaskObject));
+                    LOG.info(context.getUser() + " " + objectTask.getName(context) + " owner: " + isTaskOwner);
 
+                    if (isSuperUser || (isTaskOwner && currentUserIsRowDEPOwner)) {
                         sb.append(IMS_KDD_mxJPO.getDisconnectLinkHTML(
                                 PROGRAM_IMS_QP_DEPSubStageDEPTasks, "disconnectDEPTask",
                                 id, IMS_KDD_mxJPO.getIdFromMap(relatedMap),
@@ -625,21 +629,24 @@ public class IMS_QP_DEPSubStageDEPTasks_mxJPO {
                 DomainObject fromObject = new DomainObject(from);
                 DomainObject toObject = new DomainObject(to);
 
-                if (IMS_QP_Security_mxJPO.currentUserIsDEPOwner(context, fromObject) ||
-                        IMS_QP_Security_mxJPO.currentUserIsDEPOwner(context, toObject)) {
+                boolean taskFromIdOwner = IMS_QP_Security_mxJPO.currentUserIsDEPOwner(context, fromObject);
+                boolean taskToIdOwner = IMS_QP_Security_mxJPO.currentUserIsDEPOwner(context, toObject);
+                boolean isSuperUser = IMS_QP_Security_mxJPO.currentUserIsQPSuperUser(context);
 
+                if (isSuperUser || taskFromIdOwner || taskToIdOwner) {
 
                     String depIdFromObject = fromObject.getInfo(context, IMS_QP_Constants_mxJPO.TO_IMS_QP_DEPSUB_STAGE_2_DEPTASK_FROM_TO_IMS_QP_DEPPROJECT_STAGE_2_DEPSUB_STAGE_FROM_TO_IMS_QP_DEP_2_DEPPROJECT_STAGE_FROM_ID);
                     String depIdToObject = toObject.getInfo(context, IMS_QP_Constants_mxJPO.TO_IMS_QP_DEPSUB_STAGE_2_DEPTASK_FROM_TO_IMS_QP_DEPPROJECT_STAGE_2_DEPSUB_STAGE_FROM_TO_IMS_QP_DEP_2_DEPPROJECT_STAGE_FROM_ID);
-                    LOG.info("depFromId:" + depIdFromObject + " equals depToId: " + depIdToObject + " relationship IMS_QP_DEPTaskStatus state will be \'Approved\'");
+                    LOG.info("depFromId:" + depIdFromObject + " if equals depToId: " + depIdToObject + " relationship IMS_QP_DEPTaskStatus state will be \'Approved\'");
 
                     DomainRelationship domainRelationship = IMS_KDD_mxJPO.connectIfNotConnected(context, toObject.getType(context).equals(TYPE_IMS_QP_DEPTask) ?
                             RELATIONSHIP_IMS_QP_DEPTask2DEPTask : RELATIONSHIP_IMS_QP_DEPTask2DEP, fromObject, toObject);
 
-                    String oldStatus = domainRelationship.getAttributeValue(context, "IMS_QP_DEPTaskStatus");
-                    domainRelationship.setAttributeValue(context, "IMS_QP_DEPTaskStatus", "Approved");
-                    LOG.info("relation status was: " + oldStatus + " now: " + domainRelationship.getAttributeValue(context, "IMS_QP_DEPTaskStatus"));
-
+                    if (depIdFromObject.equals(depIdToObject) || (taskFromIdOwner && taskToIdOwner)) {
+                        String oldStatus = domainRelationship.getAttributeValue(context, "IMS_QP_DEPTaskStatus");
+                        domainRelationship.setAttributeValue(context, "IMS_QP_DEPTaskStatus", "Approved");
+                        LOG.info("relation status was: " + oldStatus + " now: " + domainRelationship.getAttributeValue(context, "IMS_QP_DEPTaskStatus"));
+                    }
                     return "";
                 }
                 return "Access denied.";
@@ -655,9 +662,11 @@ public class IMS_QP_DEPSubStageDEPTasks_mxJPO {
 
                 DomainObject fromObject = new DomainObject(from);
                 DomainObject toObject = new DomainObject(to);
+                boolean isSuperUser = IMS_QP_Security_mxJPO.currentUserIsQPSuperUser(context);
 
-                if (IMS_QP_Security_mxJPO.currentUserIsDEPOwner(context, fromObject) ||
-                        IMS_QP_Security_mxJPO.currentUserIsDEPOwner(context, toObject)) {
+                if (isSuperUser
+                        || IMS_QP_Security_mxJPO.currentUserIsDEPOwner(context, fromObject)
+                        || IMS_QP_Security_mxJPO.currentUserIsDEPOwner(context, toObject)) {
 
                     fromObject.disconnect(
                             context,
