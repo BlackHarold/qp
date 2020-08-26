@@ -13,6 +13,7 @@ import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.Map;
 
 
@@ -466,5 +467,77 @@ public class IMS_QP_mxJPO extends DomainObject {
         String objId = (String) programMap.get("objectId");
 
         return IMS_QP_Security_mxJPO.currentUserIsDEPOwner(context, objId);
+    }
+
+    /**
+     * works with TRIGGER_IMS_QPDEPPolicyDraftPromoteCheck
+     *
+     * @param context
+     * @param args
+     * @return
+     * @throws Exception
+     */
+    public int checkPromoteConditionToDone(Context context,
+                                           String[] args
+    ) throws Exception {
+        String id = args[0];
+        StringBuilder message = new StringBuilder();
+
+        String TaskStatus = String.format("from[%s].to.from[%s].to.from[%s].to.to[%s].attribute[IMS_QP_DEPTaskStatus]",
+                IMS_QP_Constants_mxJPO.RELATIONSHIP_IMS_QP_DEP2DEPProjectStage,
+                IMS_QP_Constants_mxJPO.RELATIONSHIP_IMS_QP_DEPProjectStage2DEPSubStage,
+                IMS_QP_Constants_mxJPO.RELATIONSHIP_IMS_QP_DEPSubStage2DEPTask,
+                IMS_QP_Constants_mxJPO.RELATIONSHIP_IMS_QP_DEPTask2DEPTask);
+        String taskName =  String.format("from[%s].to.from[%s].to.from[%s].to.to[%s].from.name",
+                IMS_QP_Constants_mxJPO.RELATIONSHIP_IMS_QP_DEP2DEPProjectStage,
+                IMS_QP_Constants_mxJPO.RELATIONSHIP_IMS_QP_DEPProjectStage2DEPSubStage,
+                IMS_QP_Constants_mxJPO.RELATIONSHIP_IMS_QP_DEPSubStage2DEPTask,
+                IMS_QP_Constants_mxJPO.RELATIONSHIP_IMS_QP_DEPTask2DEPTask);
+
+        if(IMS_QP_Security_mxJPO.currentUserIsDEPOwner(context, id)) {
+
+            StringList select = new StringList(TaskStatus);
+            select.add(taskName);
+            Hashtable setOfrelsToTaskApproved = new DomainObject(id).getBusinessObjectData(context,select);
+
+            StringList getSetsStatus = (StringList) setOfrelsToTaskApproved.get(TaskStatus);
+            StringList getSetsName = (StringList) setOfrelsToTaskApproved.get(taskName);
+
+            for (int i = 0; i<getSetsStatus.size();i++) {
+                if(!"Approved".equals(getSetsStatus.get(i))){
+                    message.append("\n");
+                    message.append(getSetsName.get(i));
+                    message.append(" - ");
+                    message.append(getSetsStatus.get(i));
+                }
+            }
+
+            if (message.length()>0) {
+                message.append("\n Some tasks have no approved relations.");
+                emxContextUtil_mxJPO.mqlWarning(context, message.toString());
+                return 1;
+            }
+        }
+
+        return 0;
+    }
+
+    /**
+     * works with TRIGGER_IMS_QPDEPPolicyDoneDemoteCheck
+     *
+     * @param context
+     * @param args
+     * @return
+     * @throws Exception
+     */
+    public int checkDemoteConditionToDraft(Context context,
+                                           String[] args
+    ) throws Exception {
+        if(IMS_KDD_mxJPO.isConnected(context, "IMS_QP_DEP2Owner",
+                new DomainObject(args[0]),  new DomainObject(new BusinessObject("Person", context.getUser(), "-", context.getVault().getName())))) {
+            emxContextUtil_mxJPO.mqlWarning(context, "You do not have permission to change state from Done to Draft.");
+            return 1;
+        }
+        return 0;
     }
 }
