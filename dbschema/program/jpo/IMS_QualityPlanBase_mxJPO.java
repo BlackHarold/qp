@@ -441,33 +441,6 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
 
         //create domain objects
 
-            //check if system type is functional area
-            boolean arrow = systemType.equals("IMS_PBSFunctionalArea");
-            String forkConnection = arrow ? "from[IMS_PBSFunctionalArea2" + systemType + "].to" : "to[IMS_PBSFunctionalArea2" + systemType + "].from";
-            LOG.info("fork arrow: " + forkConnection);
-
-            //getting info about other QPlan connections
-            String relationshipFromQPlan = UIUtil.isNotNullAndNotEmpty(system.getInfo(context, forkConnection + ".to[IMS_QP_QPlan2Object]")) ?
-                    system.getInfo(context, forkConnection + ".to[IMS_QP_QPlan2Object]") : "";
-            LOG.info("functional area to Q plan: " + relationshipFromQPlan);
-
-            if (relationshipFromQPlan.equals("TRUE")) {
-                String message = "this " + systemType.substring(systemType.lastIndexOf("_") + 1) + " is part of Functional Area";
-                throw new MatrixException(message);
-            }
-            objectPBS.setId(systemID);
-            qpPlanName = objectPBS.getName(context);
-        } else if (depFieldFromForm.endsWith("_TRUE")) {
-            if (UIUtil.isNotNullAndNotEmpty(plantID))
-                objectPBS.setId(plantID);
-            qpPlanName = "Plant_" + objectDEP.getName(context);
-        }
-
-        //log all needs params
-        LOG.info("parent: " + parentID + "->relId: " + relId + "->newObjectId: " + newObjectId + " from DEP: " + cleanDepID + " to system: " + systemID);
-
-        //create domain objects
-
         try {
             //start transactional
             ContextUtil.startTransaction(context, true);
