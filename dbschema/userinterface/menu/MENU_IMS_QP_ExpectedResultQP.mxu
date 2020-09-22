@@ -1,5 +1,5 @@
 ################################################################################
-# MENU_IMS_QP_QPTask.mxu
+# MENU_IMS_QP_ExpectedResultQP.mxu
 #
 #            This file describes the target of a Configuration Item.
 ################################################################################
@@ -9,11 +9,9 @@ mxUpdate menu "${NAME}" {
     label ""
     href ""
     alt ""
-    setting "Access Function" "isOwnerQPlan"
+    setting "Access Function" "isOwnerQPlanFromTask"
     setting "Access Program" "IMS_QP_Security"
-    command "IMS_QP_Create_QPTask"
-    command "IMS_QP_Create_QPTask_Multi"
-    command "IMS_QP_Delete_QPTask"
-    command "IMS_QP_Create_Rel_OUT_IN"
-    command "IMS_QP_EditTableQPTask"
+    command "IMS_QP_Create_ExpectedResultQP"
+    command "IMS_QP_Delete_ExpectedResultQP"
+    command "IMS_QP_EditTableQP"
 }

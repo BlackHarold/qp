@@ -73,4 +73,13 @@ mxUpdate form "${NAME}" {
         setting "function" "getDEPOwnersHTML"
         setting "program" "IMS_QP_Security"
     }
+    field {
+        name "interdisciplinary"
+        label "Interdisciplinary"
+        setting "Editable" "false"
+        setting "Field Type" "programHTMLOutput"
+        setting "Registered Suite" "Framework"
+        setting "function" "getInterdisciplinaryCheck"
+        setting "program" "IMS_QP_DEP"
+    }
 }

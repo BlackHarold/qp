@@ -1,0 +1,27 @@
+################################################################################
+# PAGE_IMS_QP_FrameworkStringMessages_en.properties.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate page "${NAME}" {
+    description ""
+    mime ""
+    content
+"
+
+IMS_QP_Framework.Message.resultCheckRelations=show into log file
+IMS_QP_Framework.Message.commandFilePath=C:\\Temp\\pbs_data.txt
+IMS_QP_Framework.Message.internalServerError=500
+IMS_QP_Framework.Message.passedOK=200
+
+IMS_QP_Framework.Message.hasDepDONE = One of DEP has 'DONE' state
+IMS_QP_Framework.Message.accessDenied = Access denied.
+IMS_QP_Framework.Message.couldntDelete = Couldn't to delete next stages:
+
+IMS_QP_Framework.Message.hasAcceptedDEP = DEP has some task on DEP level to accept.:
+IMS_QP_Framework.Message.haveNoApproved = Some tasks have no approved relations.:
+IMS_QP_Framework.Message.noPermissions = You do not have permission to change state from Done to Draft.
+
+"
+}

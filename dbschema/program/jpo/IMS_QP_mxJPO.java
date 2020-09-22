@@ -1,6 +1,7 @@
 import com.matrixone.apps.domain.DomainConstants;
 import com.matrixone.apps.domain.DomainObject;
 import com.matrixone.apps.domain.DomainRelationship;
+import com.matrixone.apps.domain.util.EnoviaResourceBundle;
 import com.matrixone.apps.domain.util.FrameworkException;
 import com.matrixone.apps.domain.util.MapList;
 import com.matrixone.apps.framework.ui.UINavigatorUtil;
@@ -19,10 +20,6 @@ import java.util.Map;
 
 public class IMS_QP_mxJPO extends DomainObject {
 
-//    static final String relationship_IMS_QP_DEP2DEPProjectStage = "IMS_QP_DEP2DEPProjectStage";
-//    static final String relationship_IMS_QP_DEPProjectStage2DEPSubStage = "IMS_QP_DEPProjectStage2DEPSubStage";
-//    static final String relationship_IMS_QP_QPlan2QPTask = "IMS_QP_QPlan2QPTask";
-
     public IMS_QP_mxJPO(Context context, String[] args) throws Exception {
         super();
         if (args != null && args.length > 0) {
@@ -30,9 +27,7 @@ public class IMS_QP_mxJPO extends DomainObject {
         }
     }
 
-    public static MapList getStructureList(Context context,
-                                           String[] args
-    ) throws FrameworkException {
+    public static MapList getStructureList(Context context, String[] args) throws FrameworkException {
         MapList componentsList = null;
         try {
             HashMap programMap = JPO.unpackArgs(args);
@@ -171,7 +166,7 @@ public class IMS_QP_mxJPO extends DomainObject {
     }
 
 
-    private static Logger LOG = Logger.getLogger("blackLogger");
+    private static final Logger LOG = Logger.getLogger("IMS_QP_DEP");
 
     public static String getIcons(Context context, String typeName, String sPolicyClassification) {
         if (sPolicyClassification.equalsIgnoreCase("Equivalent"))
@@ -278,6 +273,22 @@ public class IMS_QP_mxJPO extends DomainObject {
                 /*relationship where*/ null,
                 /*limit*/ 0);
 
+        return result;
+    }
+
+    /**
+     * It's retrieve DEPs for table IMS_QP_DEP
+     */
+    public MapList getAllPBS(Context context, String[] args) throws Exception {
+
+        Map argsMap = JPO.unpackArgs(args);
+
+        //get objectID
+        String objectId = (String) argsMap.get("objectId");
+        StringList selects = new StringList();
+        selects.add("id");
+
+        MapList result = findObjects(context, IMS_QP_Constants_mxJPO.SYSTEM_TYPES, "*", "", new StringList("id"));
         return result;
     }
 
@@ -474,51 +485,94 @@ public class IMS_QP_mxJPO extends DomainObject {
      *
      * @param context
      * @param args
-     * @return
+     * @return Integer
      * @throws Exception
      */
-    public int checkPromoteConditionToDone(Context context,
-                                           String[] args
-    ) throws Exception {
+    public int checkPromoteConditionToDone(Context context, String[] args) throws Exception {
         String id = args[0];
         StringBuilder message = new StringBuilder();
 
-        String TaskStatus = String.format("from[%s].to.from[%s].to.from[%s].to.to[%s].attribute[IMS_QP_DEPTaskStatus]",
+        String taskNameLevelDep = String.format("to[%s].from.name",
+                IMS_QP_Constants_mxJPO.RELATIONSHIP_IMS_QP_DEPTask2DEP);
+        String taskStatusLevelDep = String.format("to[%s].attribute[IMS_QP_DEPTaskStatus]",
+                IMS_QP_Constants_mxJPO.RELATIONSHIP_IMS_QP_DEPTask2DEP);
+        String fromTaskStatus = String.format("from[%s].to.from[%s].to.from[%s].to.to[%s].attribute[IMS_QP_DEPTaskStatus]",
                 IMS_QP_Constants_mxJPO.RELATIONSHIP_IMS_QP_DEP2DEPProjectStage,
                 IMS_QP_Constants_mxJPO.RELATIONSHIP_IMS_QP_DEPProjectStage2DEPSubStage,
                 IMS_QP_Constants_mxJPO.RELATIONSHIP_IMS_QP_DEPSubStage2DEPTask,
                 IMS_QP_Constants_mxJPO.RELATIONSHIP_IMS_QP_DEPTask2DEPTask);
-        String taskName =  String.format("from[%s].to.from[%s].to.from[%s].to.to[%s].from.name",
+        String fromTaskName = String.format("from[%s].to.from[%s].to.from[%s].to.to[%s].from.name",
+                IMS_QP_Constants_mxJPO.RELATIONSHIP_IMS_QP_DEP2DEPProjectStage,
+                IMS_QP_Constants_mxJPO.RELATIONSHIP_IMS_QP_DEPProjectStage2DEPSubStage,
+                IMS_QP_Constants_mxJPO.RELATIONSHIP_IMS_QP_DEPSubStage2DEPTask,
+                IMS_QP_Constants_mxJPO.RELATIONSHIP_IMS_QP_DEPTask2DEPTask);
+        String toTaskStatus = String.format("from[%s].to.from[%s].to.from[%s].to.from[%s].attribute[IMS_QP_DEPTaskStatus]",
+                IMS_QP_Constants_mxJPO.RELATIONSHIP_IMS_QP_DEP2DEPProjectStage,
+                IMS_QP_Constants_mxJPO.RELATIONSHIP_IMS_QP_DEPProjectStage2DEPSubStage,
+                IMS_QP_Constants_mxJPO.RELATIONSHIP_IMS_QP_DEPSubStage2DEPTask,
+                IMS_QP_Constants_mxJPO.RELATIONSHIP_IMS_QP_DEPTask2DEPTask);
+        String toTaskName = String.format("from[%s].to.from[%s].to.from[%s].to.from[%s].to.name",
                 IMS_QP_Constants_mxJPO.RELATIONSHIP_IMS_QP_DEP2DEPProjectStage,
                 IMS_QP_Constants_mxJPO.RELATIONSHIP_IMS_QP_DEPProjectStage2DEPSubStage,
                 IMS_QP_Constants_mxJPO.RELATIONSHIP_IMS_QP_DEPSubStage2DEPTask,
                 IMS_QP_Constants_mxJPO.RELATIONSHIP_IMS_QP_DEPTask2DEPTask);
 
-        if(IMS_QP_Security_mxJPO.currentUserIsDEPOwner(context, id)) {
 
-            StringList select = new StringList(TaskStatus);
-            select.add(taskName);
-            Hashtable setOfrelsToTaskApproved = new DomainObject(id).getBusinessObjectData(context,select);
+        DomainObject domainObjectFrom = new DomainObject(args[0]);
+        DomainObject domainObjectTo = new DomainObject(new BusinessObject("Person", context.getUser(), "-", context.getVault().getName()));
+        boolean isConnectedOwner = IMS_KDD_mxJPO.isConnected(context, "IMS_QP_DEP2Owner", /*from*/ domainObjectFrom, /*to*/ domainObjectTo);
+        boolean isDEPOwner = IMS_QP_Security_mxJPO.currentUserIsDEPOwner(context, domainObjectTo);
 
-            StringList getSetsStatus = (StringList) setOfrelsToTaskApproved.get(TaskStatus);
-            StringList getSetsName = (StringList) setOfrelsToTaskApproved.get(taskName);
+        if (isDEPOwner || isConnectedOwner) {
+            StringList select = new StringList();
+            select.add(taskNameLevelDep);
+            select.add(taskStatusLevelDep);
+            select.add(fromTaskName);
+            select.add(fromTaskStatus);
+            select.add(toTaskName);
+            select.add(toTaskStatus);
 
-            for (int i = 0; i<getSetsStatus.size();i++) {
-                if(!"Approved".equals(getSetsStatus.get(i))){
-                    message.append("\n");
-                    message.append(getSetsName.get(i));
-                    message.append(" - ");
-                    message.append(getSetsStatus.get(i));
+            Hashtable setOfrelsToTaskApproved = new DomainObject(id).getBusinessObjectData(context, select);
+
+            /*check relationships to DEP*/
+            StringList getSetsNameLevelDep = (StringList) setOfrelsToTaskApproved.get(taskNameLevelDep);
+            StringList getSetStatusLevelDep = (StringList) setOfrelsToTaskApproved.get(taskStatusLevelDep);
+            /*check Draft status from tasks*/
+            StringList getSetsFromStatus = (StringList) setOfrelsToTaskApproved.get(fromTaskStatus);
+            StringList getSetsFromName = (StringList) setOfrelsToTaskApproved.get(fromTaskName);
+            /*check Draft status to tasks*/
+            StringList getSetsToStatus = (StringList) setOfrelsToTaskApproved.get(toTaskStatus);
+            StringList getSetsToName = (StringList) setOfrelsToTaskApproved.get(toTaskName);
+
+            for (int i = 0; i < getSetStatusLevelDep.size(); i++) {
+                if ("draft".equalsIgnoreCase((String) (getSetStatusLevelDep.get(i)))) {
+                    message.append("\n" + getSetsNameLevelDep.get(i));
+                }
+            }
+            if (message.length() > 0) {
+                message.append(EnoviaResourceBundle.getProperty(context, "IMS_QP_FrameworkStringMessages", context.getLocale(), "IMS_QP_Framework.Message.hasAcceptedDEP"));
+            }
+
+            for (int i = 0; i < getSetsFromStatus.size(); i++) {
+                if ("draft".equalsIgnoreCase((String) (getSetsFromStatus.get(i)))) {
+                    message.append("\n" + getSetsFromName.get(i));
+                    message.append(" - " + getSetsFromStatus.get(i));
                 }
             }
 
-            if (message.length()>0) {
-                message.append("\n Some tasks have no approved relations.");
+            for (int i = 0; i < getSetsToStatus.size(); i++) {
+                if ("Draft".equals((getSetsToStatus.get(i)))) {
+                    message.append("\n" + getSetsToName.get(i));
+                    message.append(" - " + getSetsToStatus.get(i));
+                }
+            }
+
+            if (message.length() > 0) {
+                message.append(EnoviaResourceBundle.getProperty(context, "IMS_QP_FrameworkStringMessages", context.getLocale(), "IMS_QP_Framework.Message.haveNoApproved"));
                 emxContextUtil_mxJPO.mqlWarning(context, message.toString());
                 return 1;
             }
         }
-
         return 0;
     }
 
@@ -533,9 +587,9 @@ public class IMS_QP_mxJPO extends DomainObject {
     public int checkDemoteConditionToDraft(Context context,
                                            String[] args
     ) throws Exception {
-        if(IMS_KDD_mxJPO.isConnected(context, "IMS_QP_DEP2Owner",
-                new DomainObject(args[0]),  new DomainObject(new BusinessObject("Person", context.getUser(), "-", context.getVault().getName())))) {
-            emxContextUtil_mxJPO.mqlWarning(context, "You do not have permission to change state from Done to Draft.");
+        if (IMS_KDD_mxJPO.isConnected(context, "IMS_QP_DEP2Owner",
+                new DomainObject(args[0]), new DomainObject(new BusinessObject("Person", context.getUser(), "-", context.getVault().getName())))) {
+            emxContextUtil_mxJPO.mqlWarning(context, EnoviaResourceBundle.getProperty(context, "IMS_QP_FrameworkStringMessages", context.getLocale(), "IMS_QP_Framework.Message.noPermissions"));
             return 1;
         }
         return 0;

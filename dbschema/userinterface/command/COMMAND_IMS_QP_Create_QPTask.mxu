@@ -5,9 +5,18 @@
 ################################################################################
 
 mxUpdate command "${NAME}" {
+    symbolicname "command_IMS_QP_Create_QPTask"
     description ""
     label "Create"
-    href "${COMMON_DIR}/emxCreate.jsp?type=type_IMS_QP_QPTask&typeChooser=false&form=IMS_QP_Create_QPTask&findMxLink=false&nameField=autoName&relationship=relationship_IMS_QP_QPlan2QPTask&policy=policy_IMS_QP_QPTask&postProcessJPO=IMS_QP_DEPTask:createQPTask&submitAction=refreshCaller"
+    href "${COMMON_DIR}/IMS_QP_CreateER.jsp?type=type_IMS_QP_QPTask&typeChooser=false&form=IMS_QP_Create_QPTask&findMxLink=false&nameField=autoName&relationship=relationship_IMS_QP_QPlan2QPTask&policy=policy_IMS_QP_QPTask&postProcessJPO=IMS_QP_DEPTask:createQPTask&submitAction=refreshCaller"
     alt ""
     user "all"
+    setting "Access Expression" "context.user.isassigned[IMS_Admin]==True"
+    setting "Registered Suite" "Framework"
+    ################################################## Info Start
+    property "author" value "The IMS Team"
+    property "original name" value "IMS_QP_Create_QPTask"
+    property "application" value "IMS_QP"
+    property "version" value "1"
+    ################################################## Info End
 }

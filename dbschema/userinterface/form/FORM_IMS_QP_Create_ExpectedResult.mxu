@@ -75,5 +75,6 @@ mxUpdate form "${NAME}" {
         setting "Range Program" "IMS_QP_DEPTask"
         setting "Update Function" "setResultType"
         setting "Update Program" "IMS_QP_DEPTask"
+        setting "Required" "true"
     }
 }
