@@ -5,14 +5,21 @@
 ################################################################################
 
 mxUpdate command "${NAME}" {
+    symbolicname "command_IMS_QP_Delete_DEPTask"
     description ""
     label "Delete"
-    href "${COMMON_DIR}/emxGenericDeleteProcess.jsp"
+    href "${COMMON_DIR}/IMS_QP_DEPTask_delete.jsp"
     alt ""
     user "all"
-    setting "Confirm Message" "emxFramework.GenericDelete.confirmMessage"
+    setting "Access Function" "currentUserIsDEPOwner"
+    setting "Access Program" "IMS_QP_Security"
     setting "Registered Suite" "Framework"
     setting "Row Select" "multi"
     setting "Submit" "true"
-    setting "Target Location" "listHidden"
+    ################################################## Info Start
+    property "author" value "IMS Team"
+    property "original name" value "IMS_QP_Delete_DEPTask"
+    property "application" value "IMS_QP"
+    property "version" value "1"
+    ################################################## Info End
 }

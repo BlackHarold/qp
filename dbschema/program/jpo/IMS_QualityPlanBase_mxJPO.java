@@ -4,9 +4,11 @@ import com.matrixone.apps.domain.DomainRelationship;
 import com.matrixone.apps.domain.util.ContextUtil;
 import com.matrixone.apps.domain.util.FrameworkException;
 import com.matrixone.apps.domain.util.MapList;
+import com.matrixone.apps.domain.util.MqlUtil;
 import com.matrixone.apps.framework.ui.UIUtil;
 import matrix.db.Context;
 import matrix.db.JPO;
+import matrix.util.MatrixException;
 import matrix.util.SelectList;
 import matrix.util.StringList;
 import org.apache.log4j.Logger;
@@ -15,7 +17,7 @@ import java.util.*;
 
 public class IMS_QualityPlanBase_mxJPO extends DomainObject {
 
-    private static Logger LOG = Logger.getLogger("blackLogger");
+    private static final Logger LOG = Logger.getLogger("IMS_QP_DEP");
 
     /**
      * Method to deleting IMS_QP_DEPSubStages if their hasn't any SubTasks
@@ -256,7 +258,7 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
 //        print bus 59479.11672.23687.9771 select id from[IMS_QP_DEP2DEPProjectStage].to.to[IMS_QP_ProjectStage2DEPProjectStage].from.name;
         LOG.info("where: " + where);
 
-        MapList result = parent.findObjects(context,
+        MapList result = findObjects(context,
                 /*type*/ "IMS_ProjectStage",
                 /*?*/ "*",
                 /*where*/ where,
@@ -320,7 +322,7 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
                 where = "name smatch '*" + projectStage.getInfo(context, "name") + "*' && to[IMS_QP_DEP2DEPProjectStage].from.id==" + parentOID;
                 LOG.info("else where: " + where);
 
-                result = parent.findObjects(context,
+                result = findObjects(context,
                         /*type*/ "IMS_QP_DEPProjectStage",
                         /*?*/ "*",
                         /*where*/ where,
@@ -364,44 +366,98 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
     public void createQPlanPostProcess(Context context, String[] args) throws Exception {
 
         Map argsMap = JPO.unpackArgs(args);
-        LOG.info(argsMap);
 
         Map requestMap = (Map) argsMap.get("requestMap");
         Map paramMap = (Map) argsMap.get("paramMap");
 
-        String parentOID = (String) requestMap.get("parentOID");
+        String parentID = (String) requestMap.get("parentOID");
+
         String systemID = (String) requestMap.get("systemOID");
-        String depID = (String) requestMap.get("dep");
+        String systemName = (String) requestMap.get("systemDisplay");
+
+        String depFieldFromForm = (String) requestMap.get("dep");
+        String cleanDepID = UIUtil.isNotNullAndNotEmpty(depFieldFromForm) ? depFieldFromForm.substring(0, depFieldFromForm.indexOf("_")) : "";
+
         String newObjectId = (String) paramMap.get("newObjectId");
-        String relId = (String) paramMap.get("relId");
-
-
-        //log all needed params
-        LOG.info("parent: " + parentOID + "->relId: " + relId + "->newObjectId: " + newObjectId + " from DEP: " + depID + " to system: " + systemID);
-
-        //create domainobjects
-        DomainObject system = new DomainObject(systemID);
-//        DomainObject dep = new DomainObject(depID);
         DomainObject newObject = new DomainObject(newObjectId);
+        DomainObject objectPBS = new DomainObject();
+        DomainObject objectDEP = new DomainObject(cleanDepID);
+        String plantID = objectDEP.getInfo(context, "from[IMS_PBS2DEP].to.id");
+        String qpPlanName = "";
+        String relId = (String) paramMap.get("relId");
+        LOG.info("systemID:" + systemID);
+        if (systemName.isEmpty() && depFieldFromForm.endsWith("_FALSE")) {
+            throw new Exception("You have to select a System!");
+        } else if (!systemName.equals("empty") && depFieldFromForm.endsWith("_FALSE")) {
+            DomainObject system = new DomainObject(systemID);
+            String systemType = system.getType(context);
+
+            /*check the owner of system*/
+            String owners = system.getInfo(context, "from[IMS_PBS2Owner].to.name");
+            LOG.info("owners: " + owners);
+            String userName = context.getUser();
+            if (owners == null || !owners.contains(userName)) {
+                throw new MatrixException(String.format("%s is not QPlan owner of %s %s ", userName, systemType, systemName));
+            }
+
+            /*check the dep of system*/
+            String systemDEPs = system.getInfo(context, "from[IMS_PBS2DEP].to.id");
+            LOG.info(system.getName(context) + " system deps: " + systemDEPs + " clean dep: " + cleanDepID);
+            if (systemDEPs == null || !systemDEPs.contains(cleanDepID)) {
+                throw new MatrixException(String.format("%s does not include the specified dep", systemName));
+            }
+
+            DomainObject depObject = new DomainObject(cleanDepID);
+            String depState = depObject.getInfo(context, "current");
+            LOG.info("depState: " + depState);
+            if (!depState.equals("Done")) {
+                throw new MatrixException(String.format("%s is not finished yet and has status \'%s\'", depObject.getName(context), depState));
+            }
+
+            //check if system type is functional area
+            boolean arrow = systemType.equals("IMS_PBSFunctionalArea");
+            String forkConnection = arrow ? "from[IMS_PBSFunctionalArea2" + systemType + "].to" : "to[IMS_PBSFunctionalArea2" + systemType + "].from";
+            LOG.info("fork arrow: " + forkConnection);
+
+            //getting info about other QPlan connections
+            String relationshipFromQPlan = UIUtil.isNotNullAndNotEmpty(system.getInfo(context, forkConnection + ".to[IMS_QP_QPlan2Object]")) ?
+                    system.getInfo(context, forkConnection + ".to[IMS_QP_QPlan2Object]") : "";
+            LOG.info("functional area to Q plan: " + relationshipFromQPlan);
+
+            if (relationshipFromQPlan.equals("TRUE")) {
+                String message = "this " + systemType.substring(systemType.lastIndexOf("_") + 1) + " is part of Functional Area";
+                throw new MatrixException(message);
+            }
+            objectPBS.setId(systemID);
+            qpPlanName = objectPBS.getName(context);
+        } else if (depFieldFromForm.endsWith("_TRUE")) {
+            if (UIUtil.isNotNullAndNotEmpty(plantID))
+                objectPBS.setId(plantID);
+            qpPlanName = "Plant_" + objectDEP.getName(context);
+        }
+
+        //log all needs params
+        LOG.info("parent: " + parentID + "->relId: " + relId + "->newObjectId: " + newObjectId + " from DEP: " + cleanDepID + " to system: " + systemID);
+
+        //create domain objects
 
         try {
             //start transactional
             ContextUtil.startTransaction(context, true);
             LOG.info("before set name: " + newObject.getName());
 
-            String systemName = system.getInfo(context, DomainObject.SELECT_NAME);
-            LOG.info("systemName: " + systemName);
-
             //change name for new object mask: QP-PBS /QP-10FAL/
-            newObject.setName(context, "QP-" + systemName);
+            newObject.setName(context, "QP-" + qpPlanName);
             LOG.info("new name: " + newObject.getName());
 
             //connect relations
-            DomainRelationship.connect(context, new DomainObject(depID), "IMS_QP_DEP2QPlan", newObject);
-            LOG.info("connect " + depID + " -> IMS_QP_DEP2QPlan ->" + newObject.getName());
+            DomainRelationship.connect(context, objectDEP, "IMS_QP_DEP2QPlan", newObject);
+            LOG.info("connect " + cleanDepID + " -> IMS_QP_DEP2QPlan ->" + newObject.getName());
 
-            DomainRelationship.connect(context, newObject, "IMS_QP_QPlan2Object", new DomainObject(system));
-            LOG.info("connect new object " + newObjectId + " -> IMS_QP_QPlan2Object ->" + system.getName());
+            if (objectPBS.exists(context)) {
+                DomainRelationship.connect(context, newObject, "IMS_QP_QPlan2Object", objectPBS);
+                LOG.info("connect new object " + newObjectId + " -> IMS_QP_QPlan2Object ->" + objectPBS.getName());
+            }
 
             //commit transaction
             ContextUtil.commitTransaction(context);
@@ -428,7 +484,7 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
         String where = IMS_QP_Constants_mxJPO.TO_IMS_QP_DEPPROJECT_STAGE_2_DEPSUB_STAGE_FROM_ID +
                 depProjectStage.getInfo(context, "id") + nameTail;
 
-        MapList result = parent.findObjects(context,
+        MapList result = findObjects(context,
                 /*type*/ "IMS_QP_DEPSubStage",
                 /*?*/ "*",
                 /*where*/ where,
@@ -520,7 +576,7 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
     }
 
     /**
-     * Method to edit current IMS_QP_DEPSubStage
+     * Method to edit current IMS_QP_QPlan
      *
      * @param context
      * @param args
@@ -529,70 +585,17 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
     public void editQPlanPostProcess(Context context, String[] args) throws Exception {
 
         Map argsMap = JPO.unpackArgs(args);
-
-
         Map paramMap = (Map) argsMap.get("paramMap");
 
         String objectId = (String) paramMap.get("objectId");
         String description = (String) paramMap.get("description");
-        String depID = (String) paramMap.get("dep");
-        String systemID = UIUtil.isNotNullAndNotEmpty((String) paramMap.get("systemOID")) ? (String) paramMap.get("systemOID") : "empty";
-
-        LOG.info("objectId: " + objectId + " depID: " + depID + " systemID: " + systemID);
 
         DomainObject qPlan = new DomainObject(objectId);
-
         //change description
         String currentDescription = qPlan.getDescription(context);
         if (!currentDescription.equals(description)) {
-            if (!currentDescription.equals(description)) qPlan.setDescription(context, description);
-            LOG.info("description: " + qPlan.getDescription(context));
-        }
-        LOG.info("description changed: " + currentDescription + " -> " + description);
-
-        //disconnect current system
-        String currentDEPID = UIUtil.isNotNullAndNotEmpty(qPlan.getInfo(context, "to[IMS_QP_DEP2QPlan].from.id"))
-                ? qPlan.getInfo(context, "to[IMS_QP_DEP2QPlan].from.id") : "empty";
-        String currentSystemID = UIUtil.isNotNullAndNotEmpty(qPlan.getInfo(context, "from[IMS_QP_QPlan2Object].to.id"))
-                ? qPlan.getInfo(context, "from[IMS_QP_QPlan2Object].to.id") : "empty";
-        LOG.info("currentRelationDEPId: " + currentDEPID);
-        LOG.info("currentRelationSystemID: " + currentSystemID);
-
-        //connect new system
-        try {
-            ContextUtil.startTransaction(context, true);
-
-            if (!currentSystemID.equals(systemID)) {
-                if (!currentSystemID.equals("empty")) {
-                    LOG.info("currentSystem: " + qPlan.getInfo(context, "name") + ": " + qPlan.getInfo(context, "from[IMS_QP_QPlan2Object].id"));
-                    DomainRelationship.disconnect(context, qPlan.getInfo(context, "from[IMS_QP_QPlan2Object].id"));
-                    LOG.info("currentSystem: " + currentSystemID + " disconnected");
-                }
-                if (!systemID.equals("empty")) {
-                    LOG.info("systemID: " + systemID);
-                    DomainRelationship.connect(context, qPlan, "IMS_QP_QPlan2Object", new DomainObject(systemID));
-                    LOG.info("from " + objectId + " ->IMS_QP_QPlan2Object-> " + systemID);
-                }
-            }
-
-            if (!currentDEPID.equals(depID)) {
-                if (!currentDEPID.equals("empty")) {
-                    LOG.info("currentDEP: " + qPlan.getId(context) + ": " + qPlan.getInfo(context, "to[IMS_QP_DEP2QPlan].from.name"));
-                    DomainRelationship.disconnect(context, qPlan.getInfo(context, "to[IMS_QP_DEP2QPlan].id"));
-                    LOG.info("currentDEPID: " + currentDEPID + " disconnected");
-                }
-                if (!depID.equals("")) {
-                    DomainRelationship.connect(context, new DomainObject(depID), "IMS_QP_DEP2QPlan", qPlan);
-                    LOG.info("from " + depID + " ->IMS_QP_DEP2QPlan-> " + objectId);
-                }
-            }
-
-            ContextUtil.commitTransaction(context);
-            LOG.info("transaction commited");
-
-        } catch (Exception e) {
-            ContextUtil.abortTransaction(context);
-            LOG.error("transaction aborted: " + e.getMessage());
+            qPlan.setDescription(context, description);
+            LOG.info("description changed: " + currentDescription + " -> " + description);
         }
     }
 
@@ -635,22 +638,33 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
      */
     public Object getQPDEPNames(Context context, String[] args) throws FrameworkException {
 
+        LOG.info("getQPDEPNames");
+
         String typePattern = "IMS_QP_DEP";
         StringList objectSelects = new StringList();
         objectSelects.add(DomainConstants.SELECT_ID);
         objectSelects.add(DomainConstants.SELECT_NAME);
         objectSelects.add("from[IMS_QP_DEP2QPlan].to.id");
+        objectSelects.add("attribute[IMS_QP_InterdisciplinaryDEP]");
+        objectSelects.add("to[IMS_PBS2DEP].from.id");
 
         MapList allDEPs = DomainObject.findObjects(context, typePattern, "eService Production", null, objectSelects);
 
-        StringList fieldRangeValues = new StringList();
-        StringList fieldDisplayRangeValues = new StringList();
+        //initialize with empty string first value
+        StringList fieldRangeValues = new StringList("");
+        StringList fieldDisplayRangeValues = new StringList("");
 
         for (Object rawStage : allDEPs) {
             Map<String, String> map = (Map<String, String>) rawStage;
-            fieldRangeValues.add(map.get("id"));
+
+            String pbsArray = UIUtil.isNotNullAndNotEmpty(map.get("to[IMS_PBS2DEP].from.id")) ? map.get("to[IMS_PBS2DEP].from.id") : "";
+            String rangeValue = map.get("id") + "_" + pbsArray + "_" + map.get("attribute[IMS_QP_InterdisciplinaryDEP]");
+            rangeValue = rangeValue.replaceAll(IMS_QP_Constants_mxJPO.BELL_DELIMITER, ",");
+            fieldRangeValues.add(rangeValue);
             fieldDisplayRangeValues.add(map.get("name"));
         }
+
+        LOG.info("fieldRangeValues: " + fieldRangeValues);
 
 
         HashMap tempMap = new HashMap();
@@ -704,7 +718,7 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
             SelectList selectList = new SelectList();
             selectList.add(SELECT_ID);
 
-            String typePattern = "IMS_PBSSystem,IMS_GBSBuilding,IMS_PBSFunctionalArea";
+            String typePattern = IMS_QP_Constants_mxJPO.SYSTEM_TYPES;
 
             MapList allSystems = DomainObject.findObjects(context, typePattern, "eService Production", null, selectList);
             LOG.info("allSystems: " + allSystems);
@@ -817,7 +831,7 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
         objectSelects.add(DomainConstants.SELECT_NAME);
         objectSelects.add("to[IMS_ProjectStage2CB].from.id");
 
-        String where = "to[IMS_ProjectStage2CB].from.from[IMS_QP_ProjectStage2DEPProjectStage].to.from[IMS_QP_DEPProjectStage2DEPSubStage].to.id==" + objectId;
+        String where = IMS_QP_Constants_mxJPO.BASELINES_BY_STAGE + ".id==" + objectId;
 
         MapList allBaselineNames = DomainObject.findObjects(context, typePattern, "eService Production", where, objectSelects);
         return getBaselines(allBaselineNames);
@@ -844,5 +858,82 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
     public Object updateBaselineCombo(Context context, String[] args) throws Exception {
         Map map = new HashMap();
         return map;
+    }
+
+    /**
+     * Method to deleting IMS_QP_QPTask if their hasn't any approved related tasks
+     *
+     * @param context
+     * @param args
+     */
+    public Map deleteQPTasks(Context context, String[] args) {
+
+        //get all ids
+        HashMap<String, Object> argsMap = null;
+        try {
+            argsMap = JPO.unpackArgs(args);
+        } catch (Exception e) {
+            LOG.error("error: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        String[] rowIDs = (String[]) argsMap.get("emxTableRowId");
+        String[] taskIDs = new String[rowIDs.length];
+        for (int i = 0; i < rowIDs.length; i++) {
+            taskIDs[i] = rowIDs[i].substring(0, rowIDs[i].indexOf("|"));
+        }
+
+        //selects all tasks  with their subtasks
+        StringList selects = new StringList("id");
+        selects.add("name");
+
+        MapList objectsInfo = null;
+        try {
+            objectsInfo = DomainObject.getInfo(context, taskIDs, selects);
+        } catch (FrameworkException e) {
+            LOG.error("error getting info: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        //check if substage has some subtask
+        List<String> deletingIDs = new ArrayList();
+
+        StringBuffer buffer = new StringBuffer("\nCouldn't to delete next stages: \n");
+        List<String> badNames = new ArrayList<>();
+        boolean flag = false;
+
+        for (int i = 0; i < objectsInfo.size(); i++) {
+            Map map = (Map) objectsInfo.get(i);
+            if (!IMS_QP_Security_mxJPO.isOwnerQPlanFromTaskID(context, (String) map.get("id"))) {
+                buffer.append(map.get("name") + "\n");
+                badNames.add((String) map.get("name"));
+                flag = true;
+            } else {
+                deletingIDs.add((String) map.get("id"));
+            }
+        }
+
+        Map mapMessage = new HashMap();
+        if (flag) {
+            mapMessage.put("array", badNames);
+        }
+
+        String[] var1 = new String[deletingIDs.size()];
+        for (int i = 0; i < deletingIDs.size(); i++) {
+            var1[i] = deletingIDs.get(i);
+        }
+
+        //delete tasks
+        try {
+            if (var1 != null && var1.length > 0)
+                DomainObject.deleteObjects(context, var1);
+            LOG.info("objects deleted: " + Arrays.deepToString(var1));
+        } catch (Exception e) {
+            LOG.error("delete error: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        LOG.info("return map: " + mapMessage);
+        return mapMessage;
     }
 }

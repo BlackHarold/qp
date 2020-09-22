@@ -1,11 +1,11 @@
 ################################################################################
-# RELATIONSHIP_IMS_QP_QPlan2Object.mxu
+# RELATIONSHIP_IMS_QP_PBSSystem2PBSFunctionalArea.mxu
 #
 #            This file describes the target of a Configuration Item.
 ################################################################################
 
 mxUpdate relationship "${NAME}" {
-    symbolicname "relationship_IMS_QP_QPlan2Object"
+    symbolicname "relationship_IMS_QP_PBSSystem2PBSFunctionalArea"
     description ""
     !hidden
     preventduplicates
@@ -16,7 +16,7 @@ mxUpdate relationship "${NAME}" {
         clone none
         !propagatemodify
         propagateconnection
-        type "IMS_QP_QPlan"
+        type "IMS_PBSSystem"
     }
     to {
         meaning ""
@@ -25,13 +25,11 @@ mxUpdate relationship "${NAME}" {
         clone none
         !propagatemodify
         propagateconnection
-        type "IMS_GBSBuilding"
         type "IMS_PBSFunctionalArea"
-        type "IMS_PBSSystem"
     }
     ################################################## Info Start
     property "author" value "IMS_Team"
-    property "original name" value "IMS_QP_QPlan2Object"
+    property "original name" value "IMS_QP_PBSSystem2PBSFunctionalArea"
     property "application" value "IMS_QP"
     property "version" value "1"
     ################################################## Info End

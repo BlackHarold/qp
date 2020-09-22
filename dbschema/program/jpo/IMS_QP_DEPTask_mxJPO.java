@@ -9,13 +9,9 @@ import matrix.util.StringList;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 
-import javax.mail.internet.*;
 import java.io.File;
 import java.io.*;
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Vector;
+import java.util.*;
 
 public class IMS_QP_DEPTask_mxJPO {
 
@@ -80,7 +76,7 @@ public class IMS_QP_DEPTask_mxJPO {
             DomainObject parent = new DomainObject(parentOID);
             MapList depTask = getRelatedMapList(context, parent, RELATIONSHIP_IMS_QP_DEP_SUB_STAGE_2_DEP_TASK, TYPE_IMS_QP_DEP_TASK, true, true, (short) 1, "", null, 0);
 
-            getNextName(context, objectId, parent, depTask, 1, 1);
+            getNextName(context, objectId, parent, depTask, "", 1, 1);
 
         } catch (Exception ex) {
             returnMap.put("Message", ex.toString());
@@ -89,7 +85,7 @@ public class IMS_QP_DEPTask_mxJPO {
         return returnMap;
     }
 
-    private DomainObject getNextName(Context context, String objectId, DomainObject parent, MapList mapList, int i, int element) throws Exception {
+    private DomainObject getNextName(Context context, String objectId, DomainObject parent, MapList mapList, String family, int i, int element) throws Exception {
         DomainObject newObject = new DomainObject(objectId);
         String number = "01";
         mapList.addSortKey(DomainConstants.SELECT_ORIGINATED, "descending", "date");
@@ -99,7 +95,16 @@ public class IMS_QP_DEPTask_mxJPO {
             int numberInt = Integer.parseInt(name.substring(name.length() - 2)) + 1;
             number = (numberInt < 10) ? "0" + numberInt : Integer.toString(numberInt);
         }
-        newObject.setName(context, parent.getInfo(context, DomainObject.SELECT_NAME) + "-" + number);
+
+        /*mask name: [Task name]_[Type level 2]_[Count]*/
+        String familyPostfix = "";
+        if (!family.equals("")) {
+            String familyName = new DomainObject(family.substring(0, family.lastIndexOf("_"))).getName(context);
+            familyPostfix = "_" + familyName;
+
+        }
+        LOG.info("set name: " + parent.getInfo(context, DomainObject.SELECT_NAME) + familyPostfix + "-" + number);
+        newObject.setName(context, parent.getInfo(context, DomainObject.SELECT_NAME) + familyPostfix + "-" + number);
         return newObject;
     }
 
@@ -316,7 +321,7 @@ public class IMS_QP_DEPTask_mxJPO {
             setFactExp(context, parent, 1);
 
             MapList depTask = getRelatedMapList(context, parent, RELATIONSHIP_IMS_QPlan2QPTask, TYPE_IMS_QP_QPTASK, true, true, (short) 1, "", "", 0);
-            getNextName(context, objectId, parent, depTask, 1, 1);
+            getNextName(context, objectId, parent, depTask, "", 1, 1);
 
         } catch (Exception ex) {
             returnMap.put("Message", ex.toString());
@@ -430,7 +435,7 @@ public class IMS_QP_DEPTask_mxJPO {
             DomainObject parent = new DomainObject(parentOID);
             MapList depTask = getRelatedMapList(context, parent, relationship, TYPE_IMS_QP_EXPECTED_RESULT, true, true, (short) 1, "", null, 0);
 
-            DomainObject newObject = getNextName(context, objectId, parent, depTask, 0, 0);
+            DomainObject newObject = getNextName(context, objectId, parent, depTask, "", 0, 0);
 
             if (DEPexpected != null && !DEPexpected.equals("")) {
                 DomainObject depTaskObject = new DomainObject(DEPexpected);
@@ -478,12 +483,14 @@ public class IMS_QP_DEPTask_mxJPO {
             String objectId = (String) paramMap.get("objectId");
             String parentOID = (String) requestMap.get("parentOID");
             String fromto = (String) requestMap.get("fromto");
+            String family = (String) requestMap.get("family");
+            LOG.info("family: " + family);
             DomainObject parent = new DomainObject(parentOID);
             String relationship = RELATIONSHIP_IMS_QP_EXPECTED_RESULT_2_DEP_TASK;
 
             MapList depTask = getRelatedMapList(context, parent, relationship, TYPE_IMS_QP_EXPECTED_RESULT, true, true, (short) 1, "", null, 0);
 
-            DomainObject newObject = getNextName(context, objectId, parent, depTask, 0, 0);
+            DomainObject newObject = getNextName(context, objectId, parent, depTask, family, 0, 0);
 
             if (fromto.equals(FROM)) {
                 DomainRelationship.connect(context, newObject, relationship, parent);
@@ -784,9 +791,6 @@ public class IMS_QP_DEPTask_mxJPO {
 
 
     public static StringList getFactColumnStyle(Context context, String[] args) throws Exception {
-        PrintWriter pw = new PrintWriter(new BufferedWriter(new OutputStreamWriter(
-                new FileOutputStream(new java.io.File("c:/temp/IMS_QPTrigger.txt"), true))), true);
-        pw.println("hi");
         Map programMap = JPO.unpackArgs(args);
         MapList mlObList = (MapList) programMap.get("objectList");
         StringList returnList = new StringList();
@@ -797,20 +801,14 @@ public class IMS_QP_DEPTask_mxJPO {
             int factGot = Integer.parseInt(object.getInfo(context, SELECT_ATTRIBUTE_IMS_QP_FACT_GOT));
             if (factExp > 0) {
                 if (factExp == factGot) {
-                    pw.println("green");
-
                     returnList.add("IMS_QP_Green");
                 } else if (factExp > factGot) {
-                    pw.println("red");
-
                     returnList.add("IMS_QP_Red");
                 } else {
                     returnList.add("");
-                    pw.println("er");
                 }
             } else {
                 returnList.add("");
-                pw.println("-");
             }
         }
         return returnList;
@@ -1273,4 +1271,84 @@ public class IMS_QP_DEPTask_mxJPO {
         }
     }
 
+    /**
+     * Method to deleting IMS_QP_DEPSubStages if their hasn't any SubTasks
+     *
+     * @param context
+     * @param args
+     */
+    public Map deleteTasks(Context context, String[] args) {
+        LOG.info("delete tasks");
+        //get all ids
+        HashMap<String, Object> argsMap = null;
+        try {
+            argsMap = JPO.unpackArgs(args);
+        } catch (Exception e) {
+            LOG.error("error: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        String[] rowIDs = (String[]) argsMap.get("emxTableRowId");
+        String[] taskIDs = new String[rowIDs.length];
+        for (int i = 0; i < rowIDs.length; i++) {
+            taskIDs[i] = rowIDs[i].substring(0, rowIDs[i].indexOf("|"));
+        }
+
+        //selects all tasks
+        StringList selects = new StringList();
+        selects.add("id");
+        selects.add(IMS_QP_Constants_mxJPO.FROM_IMS_QP_DEPTASK_2_DEPTASK_ATTRIBUTE_IMS_QP_DEPTASK_STATUS);
+        selects.add("to[IMS_QP_DEPTask2DEPTask].attribute[IMS_QP_DEPTaskStatus]");
+        selects.add("name");
+
+        MapList objectsInfo = new MapList();
+        try {
+            objectsInfo = DomainObject.getInfo(context, taskIDs, selects);
+            LOG.info("objectsInfo: " + objectsInfo);
+        } catch (FrameworkException e) {
+            LOG.error("error getting info: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        //check if substage has some task in state Approved
+        List<String> deletingIDs = new ArrayList();
+
+        StringBuffer buffer = new StringBuffer(EnoviaResourceBundle.getProperty(context, "IMS_QP_FrameworkStringMessages", context.getLocale(), "IMS_QP_Framework.Message.couldntDelete"));
+        List<String> badNames = new ArrayList<>();
+        boolean flag = false;
+        for (int i = 0; i < objectsInfo.size(); i++) {
+            Map map = (Map) objectsInfo.get(i);
+            String taskStates = "" + map.get(IMS_QP_Constants_mxJPO.FROM_IMS_QP_DEPTASK_2_DEPTASK_ATTRIBUTE_IMS_QP_DEPTASK_STATUS);
+            if (taskStates.contains("Approved")) {
+                buffer.append(map.get("name") + "\n");
+                badNames.add((String) map.get("name"));
+                flag = true;
+            } else {
+                deletingIDs.add((String) map.get("id"));
+            }
+        }
+
+        Map mapMessage = new HashMap();
+        if (flag) {
+            mapMessage.put("array", badNames);
+        }
+
+        String[] var1 = new String[deletingIDs.size()];
+        for (int i = 0; i < deletingIDs.size(); i++) {
+            var1[i] = deletingIDs.get(i);
+        }
+
+        //delete tasks
+        try {
+            if (var1 != null && var1.length > 0)
+                DomainObject.deleteObjects(context, var1);
+            LOG.info("objects for deleting: " + Arrays.deepToString(var1));
+        } catch (Exception e) {
+            LOG.error("deleting error: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        LOG.info("return map: " + mapMessage);
+        return mapMessage;
+    }
 }

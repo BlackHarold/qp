@@ -2,6 +2,8 @@ import com.google.common.html.HtmlEscapers;
 import com.matrixone.apps.domain.DomainConstants;
 import com.matrixone.apps.domain.DomainObject;
 import com.matrixone.apps.domain.DomainRelationship;
+import com.matrixone.apps.domain.util.EnoviaResourceBundle;
+import com.matrixone.apps.domain.util.FrameworkException;
 import com.matrixone.apps.domain.util.MapList;
 import matrix.db.Context;
 import matrix.db.RelationshipType;
@@ -406,7 +408,6 @@ public class IMS_QP_DEPSubStageDEPTasks_mxJPO {
                 String rowId = IMS_KDD_mxJPO.getRowId(map);
                 String id = IMS_KDD_mxJPO.getIdFromMap(map);
                 DomainObject depTaskObject = IMS_KDD_mxJPO.idToObject(context, id);
-                boolean currentUserIsRowDEPOwner = IMS_QP_Security_mxJPO.currentUserIsDEPOwner(context, depTaskObject);
 
                 List<Map> relatedMaps = IMS_KDD_mxJPO.getRelatedObjectMaps(
                         context, depTaskObject,
@@ -420,64 +421,66 @@ public class IMS_QP_DEPSubStageDEPTasks_mxJPO {
                         null, null, false);
 
                 for (Map relatedMap : relatedMaps) {
+                    String relatedMapID = IMS_KDD_mxJPO.getIdFromMap(relatedMap);
+
                     if (sb.length() > 0) {
                         sb.append("<br />");
                     }
 
+                    boolean isSuperUser = IMS_QP_Security_mxJPO.currentUserIsQPSuperUser(context);
+                    boolean isDepTaskOwner = IMS_QP_Security_mxJPO.currentUserIsDEPOwner(context, depTaskObject);
+
                     DomainObject objectTask = new DomainObject((String) relatedMap.get("id"));
                     boolean isTaskOwner = IMS_QP_Security_mxJPO.currentUserIsDEPOwner(context, objectTask);
-                    boolean isSuperUser = IMS_QP_Security_mxJPO.currentUserIsQPSuperUser(context);
-                    LOG.info(context.getUser() + " " + depTaskObject.getName(context) + " owner: " + IMS_QP_Security_mxJPO.currentUserIsDEPOwner(context, depTaskObject));
-                    LOG.info(context.getUser() + " " + objectTask.getName(context) + " owner: " + isTaskOwner);
 
-                    if (isSuperUser || (isTaskOwner && currentUserIsRowDEPOwner)) {
+                    LOG.info(context.getUser() + "|" + depTaskObject.getName(context) + "|owner:" + isDepTaskOwner + "| |" +
+                            context.getUser() + "|" + objectTask.getName(context) + "|owner:" + isTaskOwner);
+
+                    String type = IMS_KDD_mxJPO.getTypeFromMap(relatedMap);
+                    String state = getState(context, type, id, relatedMapID, virtualRelationship);
+
+                    if (state.equals("Rejected")) continue;
+
+                    //check can only be deleted in Draft state by one of the owners
+                    boolean checkerDraft = (isTaskOwner || isDepTaskOwner) && state.equals("Draft");
+                    //check can only be deleted by SU or owners for both tasks
+                    boolean checkerOwner = isSuperUser || isTaskOwner && isDepTaskOwner;
+
+                    if (checkerDraft || checkerOwner) {
                         sb.append(IMS_KDD_mxJPO.getDisconnectLinkHTML(
                                 PROGRAM_IMS_QP_DEPSubStageDEPTasks, "disconnectDEPTask",
-                                id, IMS_KDD_mxJPO.getIdFromMap(relatedMap),
+                                id, relatedMapID,
                                 virtualRelationship,
                                 "Disconnect",
                                 IMS_KDD_mxJPO.getRefreshAllRowsFunction()));
                     }
 
-                    if (IMS_KDD_mxJPO.getTypeFromMap(relatedMap).equals(TYPE_IMS_QP_DEPTask)) {
-//                        Map depMap = new HashMap();
-//                        depMap.put(DomainConstants.SELECT_ID, relatedMap.get(SELECT_DEP_ID));
-//                        depMap.put(DomainConstants.SELECT_NAME, relatedMap.get(SELECT_DEP_NAME));
-//
-//                        sb.append(IMS_KDD_mxJPO.getLinkHTML(
-//                                context, depMap, SOURCE_DEP, null,
-//                                getIconUrl(TYPE_IMS_QP_DEP),
-//                                "12px",
-//                                (String) relatedMap.get(
-//                                        isRuLocale ?
-//                                                SELECT_DEP_IMS_NAME_RU :
-//                                                SELECT_DEP_IMS_NAME),
-//                                null, true, false, null, true, null, false));
-//
-//                        sb.append(String.format(
-//                                "&#160;&#160;<img src=\"%s\" />&#160;",
-//                                IMS_KDD_mxJPO.FUGUE_16x16 + "arrow.png"));
+                    String iconUrl = "", source = "";
 
-                        sb.append(IMS_KDD_mxJPO.getLinkHTML(
-                                context, relatedMap, SOURCE_DEPTask, null,
-                                getIconUrl(TYPE_IMS_QP_DEPTask),
-                                "12px",
-                                (String) relatedMap.get(DomainObject.getAttributeSelect(
-                                        isRuLocale ?
-                                                ATTRIBUTE_IMS_NameRu :
-                                                ATTRIBUTE_IMS_Name)),
-                                null, true, false, null, true, null, false));
-                    } else if (IMS_KDD_mxJPO.getTypeFromMap(relatedMap).equals(TYPE_IMS_QP_DEP)) {
-                        sb.append(IMS_KDD_mxJPO.getLinkHTML(
-                                context, relatedMap, SOURCE_DEP, null,
-                                getIconUrl(TYPE_IMS_QP_DEP),
-                                "12px",
-                                (String) relatedMap.get(DomainObject.getAttributeSelect(
-                                        isRuLocale ?
-                                                ATTRIBUTE_IMS_NameRu :
-                                                ATTRIBUTE_IMS_Name)),
-                                null, true, false, null, true, null, false));
+                    if (type.equals(TYPE_IMS_QP_DEPTask)) {
+                        iconUrl = getIconUrl(TYPE_IMS_QP_DEPTask);
+                        source = SOURCE_DEPTask;
+                    } else if (type.equals(TYPE_IMS_QP_DEP)) {
+                        iconUrl = getIconUrl(TYPE_IMS_QP_DEP);
+                        source = SOURCE_DEP;
                     }
+
+                    String color = "", textDecoration = "";
+                    try {
+                        textDecoration = !state.equals("Rejected") ? "none" : "line-through";
+                        color = state.equals("Approved") ? "darkgreen" : "";
+                        color = state.equals("Rejected") ? "grey" : color;
+
+                    } catch (Exception e) {
+                        LOG.error("error info: " + id + "|" + relatedMapID);
+                        throw e;
+                    }
+
+                    String combinedStyle = "12 px; " + " text-decoration:" + textDecoration + "; color: " + color + ";";
+                    String linkHTML = IMS_KDD_mxJPO.getLinkHTML(context, relatedMap, source, null, iconUrl, combinedStyle,
+                            (String) relatedMap.get(DomainObject.getAttributeSelect(isRuLocale ? ATTRIBUTE_IMS_NameRu : ATTRIBUTE_IMS_Name)),
+                            null, true, false, null, true, null, false);
+                    sb.append(linkHTML);
                 }
 
                 sb.append(IMS_DragNDrop_mxJPO.getConnectDropAreaHTML(
@@ -502,6 +505,28 @@ public class IMS_QP_DEPSubStageDEPTasks_mxJPO {
             emxContextUtil_mxJPO.mqlWarning(context, e.toString());
             throw e;
         }
+    }
+
+    private String getState(Context context, String type, String depTaskId, String taskId, String virtualRelationship) {
+        String state = "null";
+
+        boolean getTo = virtualRelationship.equals("in") ? true : false;
+
+        String relationship = type.equals(TYPE_IMS_QP_DEP) ? "IMS_QP_DEPTask2DEP" : "IMS_QP_DEPTask2DEPTask";
+        String select = getTo ? "to[" + relationship + "|.from.id==" + taskId + "].attribute[IMS_QP_DEPTaskStatus]" : "from[" + relationship + "|.to.id==" + taskId + "].attribute[IMS_QP_DEPTaskStatus]";
+
+        try {
+            MapList rawMapList = new DomainObject(depTaskId).getInfo(context, new String[]{depTaskId}, new StringList(select));
+            Map rawMap = (Map) rawMapList.get(0);
+
+            String key = getTo ? "to[" + relationship + "].attribute[IMS_QP_DEPTaskStatus]" : "from[" + relationship + "].attribute[IMS_QP_DEPTaskStatus]";
+            state = (String) rawMap.get(key);
+
+        } catch (Exception e) {
+            LOG.info("error when getting state between: " + depTaskId + "|" + taskId + "|state is not defined: " + state);
+            LOG.info(e.getMessage());
+        }
+        return state;
     }
 
     @SuppressWarnings("unused")
@@ -620,6 +645,14 @@ public class IMS_QP_DEPSubStageDEPTasks_mxJPO {
         return getQPTaskRelatedObjects(context, args, false);
     }
 
+    /**
+     * The method is responsible for attaching objects of type IMS_QP_DEPTask to each other
+     * the roles for which this action is available are defined
+     *
+     * @param context
+     * @param args
+     * @return
+     */
     @SuppressWarnings("unused")
     public String connectDEPTask(Context context, String[] args) {
         return IMS_KDD_mxJPO.connect(context, args, new IMS_KDD_mxJPO.Connector() {
@@ -629,31 +662,99 @@ public class IMS_QP_DEPSubStageDEPTasks_mxJPO {
                 DomainObject fromObject = new DomainObject(from);
                 DomainObject toObject = new DomainObject(to);
 
+                LOG.info("connectDEPTask: " + fromObject.getName(context) + "|" + toObject.getName(context));
+                String relationshipType = toObject.getType(context).equals(TYPE_IMS_QP_DEPTask) ?
+                        RELATIONSHIP_IMS_QP_DEPTask2DEPTask : RELATIONSHIP_IMS_QP_DEPTask2DEP;
+
                 boolean taskFromIdOwner = IMS_QP_Security_mxJPO.currentUserIsDEPOwner(context, fromObject);
                 boolean taskToIdOwner = IMS_QP_Security_mxJPO.currentUserIsDEPOwner(context, toObject);
                 boolean isSuperUser = IMS_QP_Security_mxJPO.currentUserIsQPSuperUser(context);
 
-                if (isSuperUser || taskFromIdOwner || taskToIdOwner) {
-
-                    String depIdFromObject = fromObject.getInfo(context, IMS_QP_Constants_mxJPO.TO_IMS_QP_DEPSUB_STAGE_2_DEPTASK_FROM_TO_IMS_QP_DEPPROJECT_STAGE_2_DEPSUB_STAGE_FROM_TO_IMS_QP_DEP_2_DEPPROJECT_STAGE_FROM_ID);
-                    String depIdToObject = toObject.getInfo(context, IMS_QP_Constants_mxJPO.TO_IMS_QP_DEPSUB_STAGE_2_DEPTASK_FROM_TO_IMS_QP_DEPPROJECT_STAGE_2_DEPSUB_STAGE_FROM_TO_IMS_QP_DEP_2_DEPPROJECT_STAGE_FROM_ID);
-                    LOG.info("depFromId:" + depIdFromObject + " if equals depToId: " + depIdToObject + " relationship IMS_QP_DEPTaskStatus state will be \'Approved\'");
-
-                    DomainRelationship domainRelationship = IMS_KDD_mxJPO.connectIfNotConnected(context, toObject.getType(context).equals(TYPE_IMS_QP_DEPTask) ?
-                            RELATIONSHIP_IMS_QP_DEPTask2DEPTask : RELATIONSHIP_IMS_QP_DEPTask2DEP, fromObject, toObject);
-
-                    if (depIdFromObject.equals(depIdToObject) || (taskFromIdOwner && taskToIdOwner)) {
-                        String oldStatus = domainRelationship.getAttributeValue(context, "IMS_QP_DEPTaskStatus");
-                        domainRelationship.setAttributeValue(context, "IMS_QP_DEPTaskStatus", "Approved");
-                        LOG.info("relation status was: " + oldStatus + " now: " + domainRelationship.getAttributeValue(context, "IMS_QP_DEPTaskStatus"));
-                    }
-                    return "";
+                if (checkDraftOwnersDep(context, fromObject, toObject, relationshipType)) {
+                    LOG.info("check draft dep: " + checkDraftOwnersDep(context, fromObject, toObject, relationshipType));
+                    LOG.info(EnoviaResourceBundle.getProperty(context, "IMS_QP_FrameworkStringMessages", context.getLocale(), "IMS_QP_Framework.Message.hasDepDONE"));
+                    return EnoviaResourceBundle.getProperty(context, "IMS_QP_FrameworkStringMessages", context.getLocale(), "IMS_QP_Framework.Message.hasDepDONE");
                 }
-                return "Access denied.";
+
+                if (isSuperUser || taskFromIdOwner || taskToIdOwner) {
+                    DomainRelationship domainRelationship = IMS_KDD_mxJPO.connectIfNotConnected(context, relationshipType, fromObject, toObject);
+
+                    if (relationshipType.equals(RELATIONSHIP_IMS_QP_DEPTask2DEPTask)) {
+                        String oldStatus = domainRelationship.getAttributeValue(context, "IMS_QP_DEPTaskStatus");
+                        String depIdFromObject = fromObject.getInfo(context, IMS_QP_Constants_mxJPO.DEP_ID_FOR_TASK);
+                        String depIdToObject = toObject.getInfo(context, IMS_QP_Constants_mxJPO.DEP_ID_FOR_TASK);
+                        if (depIdFromObject.equals(depIdToObject) || (taskFromIdOwner && taskToIdOwner)) {
+                            domainRelationship.setAttributeValue(context, "IMS_QP_DEPTaskStatus", "Approved");
+                            LOG.info("relation status was: " + oldStatus + " now: " + domainRelationship.getAttributeValue(context, "IMS_QP_DEPTaskStatus"));
+                        } else if (oldStatus.equals("Rejected"))
+                            domainRelationship.setAttributeValue(context, "IMS_QP_DEPTaskStatus", "Draft");
+                        return "";
+                    }
+                }
+                return EnoviaResourceBundle.getProperty(context, "IMS_QP_FrameworkStringMessages", context.getLocale(), "IMS_QP_Framework.Message.accessDenied");
             }
         });
     }
 
+    /**
+     * Used to prohibit adding links by the condition that the status dep is done, and the linked object is draft
+     *
+     * @return
+     */
+    private boolean checkDraftOwnersDep(Context context, DomainObject fromObject, DomainObject toObject, String relationshipType) {
+
+        //define DEPs for each tasks (from&to)
+        String depFromId = "", depToId = "";
+        String toObjectSelect = relationshipType.equals(RELATIONSHIP_IMS_QP_DEPTask2DEPTask) ?
+                IMS_QP_Constants_mxJPO.DEP_ID_FOR_TASK : "id";
+        try {
+            depFromId = fromObject.getInfo(context, IMS_QP_Constants_mxJPO.DEP_ID_FOR_TASK);
+            depToId = toObject.getInfo(context, toObjectSelect);
+        } catch (FrameworkException fe) {
+            LOG.error("error getting info from Domain Object:\n" + fe.getMessage());
+        }
+
+        //getting states for each DEPs
+        String depFromState = "", depToState = "";
+        if (!depFromId.isEmpty() && !depToId.isEmpty()) {
+            try {
+                depFromState = new DomainObject(depFromId).getInfo(context, "current");
+                depToState = new DomainObject(depToId).getInfo(context, "current");
+            } catch (Exception e) {
+                LOG.error("error when initializing Domain Object:\n" + e.getMessage());
+            }
+        }
+        LOG.info(depFromId + "|" + depFromState + ":" + depToId + "|" + depToState);
+
+        //if one of DEPs has Draft state reject connection
+        LOG.info(depFromState + ":" + depFromState.equalsIgnoreCase("Draft") + "|" + depToState + ":" + depToState.equalsIgnoreCase("Draft"));
+        return depFromState.equals("Done") || depToState.equals("Done");
+    }
+
+    @SuppressWarnings("unused")
+    public String connectQPTask(Context context, String[] args) throws Exception {
+        return IMS_KDD_mxJPO.connect(context, args, new IMS_KDD_mxJPO.Connector() {
+            @Override
+            public String connect(Context context, String from, String to, String relationship) throws Exception {
+
+                IMS_KDD_mxJPO.connectIfNotConnected(
+                        context,
+                        RELATIONSHIP_IMS_QP_QPTask2QPTask,
+                        new DomainObject(from),
+                        new DomainObject(to));
+                return "";
+            }
+        });
+    }
+
+    /**
+     * The method is responsible for attaching objects of type IMS_QP_DEPTask to each other
+     * the roles for which this action is available are defined
+     *
+     * @param context
+     * @param args
+     * @return
+     */
     @SuppressWarnings("unused")
     public String disconnectDEPTask(Context context, String[] args) throws Exception {
         return IMS_KDD_mxJPO.disconnect(context, args, new IMS_KDD_mxJPO.Disconnector() {
@@ -679,23 +780,6 @@ public class IMS_QP_DEPSubStageDEPTasks_mxJPO {
                     return "";
                 }
                 return "Access denied.";
-            }
-        });
-    }
-
-    @SuppressWarnings("unused")
-    public String connectQPTask(Context context, String[] args) throws Exception {
-        return IMS_KDD_mxJPO.connect(context, args, new IMS_KDD_mxJPO.Connector() {
-            @Override
-            public String connect(Context context, String from, String to, String relationship) throws Exception {
-
-                IMS_KDD_mxJPO.connectIfNotConnected(
-                        context,
-                        RELATIONSHIP_IMS_QP_QPTask2QPTask,
-                        new DomainObject(from),
-                        new DomainObject(to));
-
-                return "";
             }
         });
     }

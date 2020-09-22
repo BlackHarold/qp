@@ -1,20 +1,22 @@
 ################################################################################
-# COMMAND_IMS_QP_QPlan_Portal.mxu
+# ATTRIBUTE_IMS_QP_InterdisciplinaryDEP.mxu
 #
 #            This file describes the target of a Configuration Item.
 ################################################################################
 
-mxUpdate command "${NAME}" {
-    symbolicname "COMMAND_IMS_QP_QPlan_Portal"
+mxUpdate attribute "${NAME}" {
+    kind boolean
+    symbolicname "attribute_IMS_QP_InterdisciplinaryDEP"
     description ""
-    label ""
-    href "${COMMON_DIR}/emxPortal.jsp?portal=IMS_QP_QPlan_Portal"
-    alt ""
-    user "all"
+    !hidden
+    !multivalue
+    !resetonclone
+    !resetonrevision
+    default "false"
     ################################################## Info Start
-    property "author" value "The IMS Team"
-    property "original name" value "IMS_QP_QPlan_Portal"
+    property "author" value "The MxUpdate Team"
+    property "original name" value "IMS_QP_InterdisciplinaryDEP"
     property "application" value "IMS_QP"
-    property "version" value "1"
+    property "version" value 1
     ################################################## Info End
 }

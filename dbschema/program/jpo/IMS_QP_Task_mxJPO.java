@@ -16,7 +16,7 @@ import java.util.*;
 
 public class IMS_QP_Task_mxJPO {
 
-    static final Logger LOG = Logger.getLogger("IMS_QP_DEP");
+    private static final Logger LOG = Logger.getLogger("IMS_QP_DEP");
 
     public static String getIconUrl(String type) {
         return IMS_KDD_mxJPO.COMMON_IMAGES + type + "_16x16.png";
@@ -167,7 +167,7 @@ public class IMS_QP_Task_mxJPO {
                     name = UIUtil.isNotNullAndNotEmpty(name) ? name : "error";
 
                     String state = UIUtil.isNotNullAndNotEmpty(taskStates.get(mainTaskID)) ? taskStates.get(mainTaskID) : "";
-                    if (getTypeFromMap(relatedMap).equals(IMS_QP_Constants_mxJPO.TYPE_IMS_QP_DEPTask))
+                    if (!state.equals("Rejected") && getTypeFromMap(relatedMap).equals(IMS_QP_Constants_mxJPO.TYPE_IMS_QP_DEPTask))
                         rawLink = getLinkHTML(relatedMap, IMS_QP_Constants_mxJPO.SOURCE_DEPTask, getIconUrl(IMS_QP_Constants_mxJPO.TYPE_IMS_QP_DEPTask), name, state);
                     else if (getTypeFromMap(relatedMap).equals(IMS_QP_Constants_mxJPO.TYPE_IMS_QP_DEP))
                         rawLink = getLinkHTML(relatedMap, IMS_QP_Constants_mxJPO.SOURCE_DEP, getIconUrl(IMS_QP_Constants_mxJPO.TYPE_IMS_QP_DEP), name, state);
@@ -577,7 +577,6 @@ public class IMS_QP_Task_mxJPO {
 
             /*top level Codes by items*/
             StringBuilder stringBuilder = new StringBuilder();
-            int counter = 1;
             for (Map map : items) {
                 stringBuilder.setLength(0);
 
@@ -585,7 +584,8 @@ public class IMS_QP_Task_mxJPO {
                 String mainLevel = (String) map.get("id[level]");
                 DomainObject objectMainTask = new DomainObject(mainTaskID);
 
-                boolean currentUserIsDEPOwner = IMS_QP_Security_mxJPO.currentUserIsDEPOwner(context, objectMainTask);
+                LOG.info(objectMainTask.getName(context) + "|" + IMS_QP_Security_mxJPO.isOwnerQPlanFromTask(context, mainTaskID));
+                boolean currentUserIsQPlanOwner = IMS_QP_Security_mxJPO.isOwnerQPlanFromTaskID(context, mainTaskID);
 
                 StringList selects = new StringList();
                 selects.add("id");
@@ -652,16 +652,15 @@ public class IMS_QP_Task_mxJPO {
 
                     String state = UIUtil.isNotNullAndNotEmpty(taskStates.get(mainTaskID)) ? taskStates.get(mainTaskID) : "";
 
-                    if (getTypeFromMap(relatedMap).equals(IMS_QP_Constants_mxJPO.type_IMS_QP_QPTask)) {
+                    if (!state.equals("Rejected") && getTypeFromMap(relatedMap).equals(IMS_QP_Constants_mxJPO.type_IMS_QP_QPTask)) {
                         rawLink = getLinkHTML(relatedMap, IMS_QP_Constants_mxJPO.SOURCE_DEPTask, getIconUrl(IMS_QP_Constants_mxJPO.type_IMS_QP_QPTask), name, state);
-                    } else if
-                    (getTypeFromMap(relatedMap).equals(IMS_QP_Constants_mxJPO.TYPE_IMS_QP_DEP)) {
+                    } else if (getTypeFromMap(relatedMap).equals(IMS_QP_Constants_mxJPO.TYPE_IMS_QP_DEP)) {
                         rawLink = getLinkHTML(relatedMap, IMS_QP_Constants_mxJPO.SOURCE_DEP, getIconUrl(IMS_QP_Constants_mxJPO.TYPE_IMS_QP_DEP), name, state);
                     }
 
                     stringBuilder.append(rawLink);
 
-                    if (currentUserIsDEPOwner) {
+                    if (currentUserIsQPlanOwner) {
                         //TODO brush the links red&green colors by states
                         if ((state.equals("Draft") || state.equals("")) && in) {
                             stringBuilder.append(" " + getCheckLinkHTML("IMS_QP_Task", "approveConnectionQP",
@@ -671,7 +670,6 @@ public class IMS_QP_Task_mxJPO {
                         }
                     }
                 }
-
 
                 result.addElement(FrameworkUtil.findAndReplace(stringBuilder.toString(), "&", "&amp;"));
             }

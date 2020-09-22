@@ -1,5 +1,5 @@
 ################################################################################
-# TABLE_IMS_QP_QPTask.mxu
+# TABLE_IMS_QP_ExpectedResultQP.mxu
 #
 #            This file describes the target of a Configuration Item.
 ################################################################################
@@ -10,12 +10,29 @@ mxUpdate table "${NAME}" {
         name "Code"
         label "emxFramework.Label.QP_Code"
         businessobject "name"
-        href "${COMMON_DIR}/emxPortal.jsp?portal=IMS_QP_QPTask_Portal"
+        href "${COMMON_DIR}/emxForm.jsp?form=type_IMS_QP_ExpectedResult&formHeader=Quality Expected Result&toolbar=IMS_QP_ExpectedResultToolbarQP"
         user "all"
         setting "Editable" "false"
         setting "Registered Suite" "Framework"
-        setting "Style Function" "getFactColumnStyle"
-        setting "Style Program" "IMS_QP_DEPTask"
+    }
+    column {
+        name "DocCode"
+        label "emxFramework.Attribute.IMS_QP_DocumentCode"
+        businessobject "attribute[IMS_QP_DocumentCode]"
+        user "all"
+        setting "Admin Type" "attribute_IMS_QP_DocumentCode"
+        setting "Editable" "true"
+        setting "Field Type" "attribute"
+        setting "Registered Suite" "Framework"
+    }
+    column {
+        name "QPTask"
+        label "Input Task"
+        businessobject "from[IMS_QP_ExpectedResult2QPTask].to.name"
+        href "${COMMON_DIR}/emxPortal.jsp?portal=IMS_QP_QPTask_Portal"
+        user "all"
+        setting "Editable" "true"
+        setting "Registered Suite" "Framework"
     }
     column {
         name "Name"
@@ -57,31 +74,17 @@ mxUpdate table "${NAME}" {
         setting "Registered Suite" "Framework"
     }
     column {
-        name "QPTaskInput"
-        label "Input"
+        name "fromto"
+        label "Direction"
         user "all"
-        setting "Column Type" "programHTMLOutput"
-        setting "Editable" "false"
-        setting "Registered Suite" "Framework"
-        setting "Sortable" "false"
-        setting "Style Function" "getDEPTaskInputCellStyle"
-        setting "Style Program" "IMS_QP_DEPSubStageDEPTasks"
-        setting "Width" "150"
-        setting "function" "getQPTaskInput"
-        setting "program" "IMS_QP_Task"
+        setting "Column Type" "program"
+        setting "function" "getFromTo"
+        setting "program" "IMS_QP_DEPTask"
     }
     column {
-        name "QPTaskOutput"
-        label "Output"
+        name "Type"
+        label "Type"
+        businessobject "to[IMS_QP_ResultType2ExpectedResult].from.name"
         user "all"
-        setting "Column Type" "programHTMLOutput"
-        setting "Editable" "false"
-        setting "Registered Suite" "Framework"
-        setting "Sortable" "false"
-        setting "Style Function" "getDEPTaskOutputCellStyle"
-        setting "Style Program" "IMS_QP_DEPSubStageDEPTasks"
-        setting "Width" "300"
-        setting "function" "getQPTaskOutput"
-        setting "program" "IMS_QP_Task"
     }
 }
