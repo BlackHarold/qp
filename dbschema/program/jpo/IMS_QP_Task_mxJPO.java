@@ -584,7 +584,6 @@ public class IMS_QP_Task_mxJPO {
                 String mainLevel = (String) map.get("id[level]");
                 DomainObject objectMainTask = new DomainObject(mainTaskID);
 
-                LOG.info(objectMainTask.getName(context) + "|" + IMS_QP_Security_mxJPO.isOwnerQPlanFromTask(context, mainTaskID));
                 boolean currentUserIsQPlanOwner = IMS_QP_Security_mxJPO.isOwnerQPlanFromTaskID(context, mainTaskID);
 
                 StringList selects = new StringList();
