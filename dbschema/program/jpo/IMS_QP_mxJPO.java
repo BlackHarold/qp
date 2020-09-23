@@ -94,9 +94,7 @@ public class IMS_QP_mxJPO extends DomainObject {
     /**
      * Label program for  Tree structure
      */
-    public String getDisplayNameForNavigator(Context context,
-                                             String[] args
-    ) throws Exception {
+    public String getDisplayNameForNavigator(Context context, String[] args) throws Exception {
 
         HashMap paramMap = (HashMap) ((HashMap) JPO.unpackArgs(args)).get("paramMap");
         String objectId = (String) paramMap.get("objectId");
@@ -169,6 +167,7 @@ public class IMS_QP_mxJPO extends DomainObject {
     private static final Logger LOG = Logger.getLogger("IMS_QP_DEP");
 
     public static String getIcons(Context context, String typeName, String sPolicyClassification) {
+        //TODO rewrite this method
         if (sPolicyClassification.equalsIgnoreCase("Equivalent"))
             return "buttonWizardNextDisabled.gif";
         else {
@@ -351,9 +350,7 @@ public class IMS_QP_mxJPO extends DomainObject {
     /**
      * It deletes IMS_DEP in the table IMS_QP_DEP
      */
-    public Map deleteDEP(Context context,
-                         String[] args
-    ) throws Exception {
+    public Map deleteDEP(Context context, String[] args) throws Exception {
 
         StringBuffer message = new StringBuffer();
         StringBuffer messageDel = new StringBuffer();
@@ -379,16 +376,7 @@ public class IMS_QP_mxJPO extends DomainObject {
             Map map = (Map) objectsInfo.get(i);
             String subStage = (String) (map.get("from[" + IMS_QP_Constants_mxJPO.relationship_IMS_QP_DEP2DEPProjectStage + "].to." +
                     "from[" + IMS_QP_Constants_mxJPO.relationship_IMS_QP_DEPProjectStage2DEPSubStage + "]"));
-            if (subStage != null && (subStage).contains("TRUE")) {
-                if (message.length() > 0)
-                    message.append(", ");
-                message.append(map.get(DomainObject.SELECT_NAME));
-            } else {
-                if (messageDel.length() > 0)
-                    messageDel.append(", ");
-                messageDel.append(map.get(DomainObject.SELECT_NAME));
-                delObjs.add((String) map.get(DomainObject.SELECT_ID));
-            }
+            getMessage(message, messageDel, delObjs, map, subStage);
         }
 
         String[] deletion = new String[delObjs.size()];
@@ -407,6 +395,19 @@ public class IMS_QP_mxJPO extends DomainObject {
 
         mapMessage.put("message", message.toString());
         return mapMessage;
+    }
+
+    private void getMessage(StringBuffer message, StringBuffer messageDel, ArrayList<String> delObjs, Map map, String subStage) {
+        if (subStage != null && (subStage).contains("TRUE")) {
+            if (message.length() > 0)
+                message.append(", ");
+            message.append(map.get(DomainObject.SELECT_NAME));
+        } else {
+            if (messageDel.length() > 0)
+                messageDel.append(", ");
+            messageDel.append(map.get(DomainObject.SELECT_NAME));
+            delObjs.add((String) map.get(DomainObject.SELECT_ID));
+        }
     }
 
     /**
@@ -438,16 +439,7 @@ public class IMS_QP_mxJPO extends DomainObject {
         for (int i = 0; i < objectsInfo.size(); i++) {
             Map map = (Map) objectsInfo.get(i);
             String tasks = (String) (map.get("from[" + IMS_QP_Constants_mxJPO.relationship_IMS_QP_QPlan2QPTask + "]"));
-            if (tasks != null && (tasks).contains("TRUE")) {
-                if (message.length() > 0)
-                    message.append(", ");
-                message.append(map.get(DomainObject.SELECT_NAME));
-            } else {
-                if (messageDel.length() > 0)
-                    messageDel.append(", ");
-                messageDel.append(map.get(DomainObject.SELECT_NAME));
-                delObjs.add((String) map.get(DomainObject.SELECT_ID));
-            }
+            getMessage(message, messageDel, delObjs, map, tasks);
         }
 
 

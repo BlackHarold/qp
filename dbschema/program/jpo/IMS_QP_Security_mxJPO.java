@@ -38,6 +38,8 @@ public class IMS_QP_Security_mxJPO {
 
     private static final String STATE_DONE = "Done";
 
+    private static final Logger LOG = Logger.getLogger("IMS_QP_DEP");
+
     public IMS_QP_Security_mxJPO(Context context, String[] args) throws Exception {
     }
 
@@ -530,8 +532,6 @@ public class IMS_QP_Security_mxJPO {
         return sb.toString();
     }
 
-    private static final Logger LOG = Logger.getLogger("blackLogger");
-
     public Vector getQPOwnersHTML(Context context, String[] args) {
 
         Vector result = new Vector();
@@ -578,12 +578,13 @@ public class IMS_QP_Security_mxJPO {
                             stringBuilder.append("<br/>");
                         }
 
-                        stringBuilder.append(IMS_KDD_mxJPO.getDisconnectLinkHTML(
-                                PROGRAM_IMS_QP_Security, "disconnectQPlanOwner",
-                                pbsID, IMS_KDD_mxJPO.getIdFromMap(relatedMap),
-                                RELATIONSHIP_IMS_PBS2Owner,
-                                "Disconnect",
-                                IMS_KDD_mxJPO.getRefreshRowFunction((String) map.get("id[level]"))));
+                        if (isUserAdminOrSuper)
+                            stringBuilder.append(IMS_KDD_mxJPO.getDisconnectLinkHTML(
+                                    PROGRAM_IMS_QP_Security, "disconnectQPlanOwner",
+                                    pbsID, IMS_KDD_mxJPO.getIdFromMap(relatedMap),
+                                    RELATIONSHIP_IMS_PBS2Owner,
+                                    "Disconnect",
+                                    IMS_KDD_mxJPO.getRefreshRowFunction((String) map.get("id[level]"))));
 
                         stringBuilder.append(IMS_KDD_mxJPO.getLinkHTML(
                                 context, relatedMap, null, null,
@@ -712,15 +713,12 @@ public class IMS_QP_Security_mxJPO {
             argsMap = JPO.unpackArgs(args);
 
             String id = (String) argsMap.get("parentOID");
-            LOG.info("id: " + id);
             DomainObject object = new DomainObject(id);
 
             String personName = object.getInfo(context, "from[IMS_QP_QPlan2Object].to.from[IMS_PBS2Owner].to.name");
             personName = UIUtil.isNotNullAndNotEmpty(personName) ? personName : "";
             isOwnerQPlan = personName.equals(context.getUser());
-            LOG.info("person name: " + personName + " isOwner: " + isOwner(context, args) + " & isOwnerQplan: " + isOwnerQPlan);
 
-            LOG.info(object.getName(context) + " isOwner(context, args) && isOwnerQPlan: " + (isOwner(context, args) && isOwnerQPlan));
         } catch (Exception e) {
             LOG.error("error in method isOwnerQPlan: " + e.getMessage());
         }
@@ -740,17 +738,14 @@ public class IMS_QP_Security_mxJPO {
             DomainObject object = new DomainObject(id);
 
             //getting target qPlan ID
-            LOG.info("object type: " + object.getType(context));
             if (object.getType(context).equals("IMS_QP_QPTask")) {
                 id = object.getInfo(context, "to[IMS_QP_QPlan2QPTask].from.id");
-                LOG.info("task id: " + id + " child qplan id: " + id);
             }
 
             //change ID in args map
             argsMap.put("parentOID", id);
             isOwnerQPlanFromTask = isOwnerQPlan(context, JPO.packArgs(argsMap));
 
-            LOG.info(object.getName(context) + " isOwner(context, args) && isOwnerQPlanFromTask: " + (isOwner(context, args) && isOwnerQPlanFromTask || isUserAdmin(context)));
         } catch (Exception e) {
             LOG.error("error in method isOwnerQPlan: " + e.getMessage());
         }
@@ -769,11 +764,10 @@ public class IMS_QP_Security_mxJPO {
      */
     public static boolean isOwnerQPlanFromTaskID(Context context, String id) {
         try {
+
             Map argsMap = new HashMap();
             argsMap.put("parentOID", id);
-            LOG.info("check id: " + id + "|" + new DomainObject(id).getName(context) + "|" + isOwnerQPlanFromTask(context, JPO.packArgs(argsMap)));
             return isOwnerQPlanFromTask(context, JPO.packArgs(argsMap));
-
 
         } catch (Exception e) {
             e.printStackTrace();

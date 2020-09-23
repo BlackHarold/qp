@@ -1,14 +1,16 @@
 import com.matrixone.apps.domain.DomainConstants;
 import com.matrixone.apps.domain.DomainObject;
 import com.matrixone.apps.domain.DomainRelationship;
-import com.matrixone.apps.domain.util.*;
+import com.matrixone.apps.domain.util.ContextUtil;
+import com.matrixone.apps.domain.util.EnoviaResourceBundle;
+import com.matrixone.apps.domain.util.FrameworkUtil;
+import com.matrixone.apps.domain.util.MapList;
 import com.matrixone.apps.framework.ui.UIUtil;
 import matrix.db.Context;
 import matrix.db.JPO;
 import matrix.util.StringList;
 import org.apache.log4j.Logger;
 
-import java.io.*;
 import java.util.*;
 
 public class IMS_QP_TaskAssignment_mxJPO {
@@ -63,6 +65,8 @@ public class IMS_QP_TaskAssignment_mxJPO {
     public static final String FIELD_TASKNAME = "TASKNAME";
     public static final String FIELD_IMS_RES_ID = "IMS_RES_ID";
     public static final String FIELD_IMS_PARENT_ID = "id[parent]";
+
+    private static final Logger LOG = Logger.getLogger("IMS_QP_DEP");
 
     public MapList getAvailableTasks(Context context, String[] args) throws Exception {
 
@@ -276,15 +280,9 @@ public class IMS_QP_TaskAssignment_mxJPO {
      * @param args
      * @throws Exception
      */
-
-    private static final Logger LOG = Logger.getLogger("IMS_QP_DEP");
-
     static public void copyTasks(Context context, String[] args) throws Exception {
-        LOG.info("in copyTasks");
-        // createQPlan(context, args);
         HashMap programMap = JPO.unpackArgs(args);
         HashMap requestMap = (HashMap) programMap.get("requestMap");
-//        HashMap paramMap = (HashMap) programMap.get("paramMap");
 
         String createFromId = (String) requestMap.get("rowIds");
         String systems = (String) requestMap.get("systemOID");
@@ -296,10 +294,8 @@ public class IMS_QP_TaskAssignment_mxJPO {
 
         //getting DEP info from the main task
         DomainObject fromObject = new DomainObject(objectId);
-        LOG.info("fromObject: " + fromObject.getName(context));
         String fromMainSystemToDepID = fromObject.getInfo(context, "from[IMS_QP_QPlan2Object].to.from[IMS_PBS2DEP].to.id");
         fromMainSystemToDepID = UIUtil.isNotNullAndNotEmpty(fromMainSystemToDepID) ? fromMainSystemToDepID : "empty";
-        LOG.info("fromMainTaskToSystemDepID: " + fromMainSystemToDepID);
 
         try {
             StringList systemArray = FrameworkUtil.split(systems, "|");
@@ -309,19 +305,17 @@ public class IMS_QP_TaskAssignment_mxJPO {
                 //check equals dep IDs of the main task with the copied Task
                 String systemToDepID = system.getInfo(context, "from[IMS_PBS2DEP].to.id");
                 systemToDepID = UIUtil.isNotNullAndNotEmpty(systemToDepID) ? systemToDepID : "not equals";
-                LOG.info("system equal ids check: " + systemToDepID + "|" + fromMainSystemToDepID + "|" + fromMainSystemToDepID.equals(systemToDepID));
                 if (!fromMainSystemToDepID.equals(systemToDepID)) continue;
 
                 //check the system owner
                 String systemOwner = system.getInfo(context, "from[IMS_PBS2Owner].to.name");
                 systemOwner = UIUtil.isNotNullAndNotEmpty(systemOwner) ? systemOwner : "";
-                LOG.info("system owner check: " + systemOwner + "|" + context.getUser() + "|" + systemOwner.equals(context.getUser()));
                 if (!systemOwner.equals(context.getUser())) continue;
 
                 //get system name
                 String systemName = system.getInfo(context, DomainObject.SELECT_NAME);
 
-                //*******start transactional
+                //start transactional
                 ContextUtil.startTransaction(context, true);
                 DomainObject planObj = new DomainObject();
                 String newObjName = "QP_" + systemName;
@@ -341,6 +335,8 @@ public class IMS_QP_TaskAssignment_mxJPO {
                 //Copy tasks
                 copyQPTasks(context, new DomainObject(createFromId), planObj, useConnection);
                 IMS_QP_DEPTask_mxJPO.setFactExp(context, planObj, 1);
+
+                //end transaction
                 ContextUtil.commitTransaction(context);
             }
         } catch (Exception e) {
@@ -356,6 +352,7 @@ public class IMS_QP_TaskAssignment_mxJPO {
         String fromSystem = fromPlan.getInfo(context, SELECT_SYSTEM);
         String targetPlanName = toPlan.getInfo(context, DomainConstants.SELECT_NAME);
         String systemName = toPlan.getInfo(context, SELECT_SYSTEM);
+
         //Create list of existed task
         StringList select = new StringList();
         select.add(DomainConstants.SELECT_NAME);
