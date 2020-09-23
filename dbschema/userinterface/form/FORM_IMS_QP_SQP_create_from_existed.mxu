@@ -17,7 +17,7 @@ mxUpdate form "${NAME}" {
     field {
         name "system"
         label "System / Building"
-        range "${COMMON_DIR}/emxFullSearch.jsp?field=TYPES=IMS_PBSSystem,IMS_GBSBuilding&table=AEFGeneralSearchResults&selection=multiple&mode=chooser&showInitialResults=true&HelpMarker=emxhelpfullsearch&submitLabel=emxFramework.GlobalSearch.Done&CancelButton=true"
+        range "${COMMON_DIR}/emxFullSearch.jsp?field=TYPES=IMS_PBSSystem,IMS_GBSBuilding,IMS_PBSFunctionalArea&table=AEFGeneralSearchResults&selection=multiple&mode=chooser&showInitialResults=true&HelpMarker=emxhelpfullsearch&submitLabel=emxFramework.GlobalSearch.Done&CancelButton=true"
         setting "Editable" "true"
         setting "Input Type" "textbox"
         setting "Registered Suite" "Framework"

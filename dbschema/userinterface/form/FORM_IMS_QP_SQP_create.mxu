@@ -23,7 +23,7 @@ mxUpdate form "${NAME}" {
         setting "Input Type" "textbox"
         setting "OnChange Handler" "onchangeTextboxPBS"
         setting "Registered Suite" "Framework"
-        setting "Required" "true"
+        setting "Required" "false"
     }
     field {
         name "dep"

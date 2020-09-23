@@ -9,8 +9,6 @@ mxUpdate command "${NAME}" {
     label "Rel OUT&IN"
     href "${COMMON_DIR}/IMS_QP_Create_Rel_OUT_IN.jsp"
     alt ""
-    setting "Access Function" "isOwnerQPlan"
-    setting "Access Program" "IMS_QP_Security"
     setting "Popup Modal" "true"
     setting "Registered Suite" "Framework"
     setting "Row Select" "multi"

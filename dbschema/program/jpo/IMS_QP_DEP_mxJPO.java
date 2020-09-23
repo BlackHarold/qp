@@ -37,7 +37,7 @@ public class IMS_QP_DEP_mxJPO {
 
         // showing icons iconLicenseAvailable.gif or iconLicenseUnavailable.gif
         String available = interdisciplinary ? "Available" : "Unavailable";
-        sb.append("<img src=\"../common/images/iconLicense").append(available).append(".gif\">");
+        sb.append("<img src=\"../common/images/iconLicenseBox").append(available).append(".png\">");
         LOG.info("sb: " + sb.toString());
 
         return sb.toString();

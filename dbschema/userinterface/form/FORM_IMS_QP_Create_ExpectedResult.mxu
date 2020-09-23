@@ -73,8 +73,8 @@ mxUpdate form "${NAME}" {
         setting "OnFocus Handler" "onfocusComboboxResultType"
         setting "Range Function" "getRangeFamily"
         setting "Range Program" "IMS_QP_DEPTask"
+        setting "Required" "true"
         setting "Update Function" "setResultType"
         setting "Update Program" "IMS_QP_DEPTask"
-        setting "Required" "true"
     }
 }

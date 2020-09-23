@@ -11,8 +11,6 @@ mxUpdate command "${NAME}" {
     href "${COMMON_DIR}/emxIndentedTable.jsp?table=IMS_QP_AvailableTasks&program=IMS_QP_TaskAssignment:getAvailableTasks&sortColumnName=Code&showPageHeader=false&rowGroupingColumnNames=TASKNAME&customize=false&mode=view&sortDirection=descending&freezePane=Code&showPageURLIcon=false&triggerValidation=false&suiteKey=Framework&editLink=false&SuiteDirectory=common&displayView=details&portalMode=true&StringResourceFileId=emxFrameworkStringResource&showRMB=false&hideLaunchButton=true&selection=multiple&rowGrouping=false&showClipboard=false&objectCompare=false&submitURL=IMS_QP_CreateQPTask.jsp&cancelButton=true&cancelLabel=emxFramework.Button.Cancel&submitLabel=emxFramework.Common.Done"
     alt ""
     user "all"
-    setting "Access Function" "isOwnerQPlan"
-    setting "Access Program" "IMS_QP_Security"
     setting "Registered Suite" "Framework"
     ################################################## Info Start
     property "author" value "The IMS Team"

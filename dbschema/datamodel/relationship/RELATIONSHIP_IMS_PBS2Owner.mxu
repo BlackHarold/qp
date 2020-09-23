@@ -16,9 +16,9 @@ mxUpdate relationship "${NAME}" {
         clone none
         !propagatemodify
         propagateconnection
+        type "IMS_GBSBuilding"
         type "IMS_PBSFunctionalArea"
         type "IMS_PBSSystem"
-        type "IMS_GBSBuilding"
     }
     to {
         meaning ""

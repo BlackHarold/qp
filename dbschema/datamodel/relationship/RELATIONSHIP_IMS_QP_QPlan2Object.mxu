@@ -28,6 +28,7 @@ mxUpdate relationship "${NAME}" {
         type "IMS_GBSBuilding"
         type "IMS_PBSFunctionalArea"
         type "IMS_PBSSystem"
+        type "Plant"
     }
     ################################################## Info Start
     property "author" value "IMS_Team"

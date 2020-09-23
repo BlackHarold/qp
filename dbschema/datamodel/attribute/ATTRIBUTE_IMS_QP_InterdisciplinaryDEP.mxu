@@ -12,11 +12,13 @@ mxUpdate attribute "${NAME}" {
     !multivalue
     !resetonclone
     !resetonrevision
-    default "false"
+    default "FALSE"
+    range = "FALSE"
+    range = "TRUE"
     ################################################## Info Start
     property "author" value "The MxUpdate Team"
     property "original name" value "IMS_QP_InterdisciplinaryDEP"
     property "application" value "IMS_QP"
-    property "version" value 1
+    property "version" value "1"
     ################################################## Info End
 }

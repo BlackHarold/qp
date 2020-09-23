@@ -1,5 +1,6 @@
 import com.matrixone.apps.domain.DomainConstants;
 import com.matrixone.apps.domain.DomainObject;
+import com.matrixone.apps.domain.DomainRelationship;
 import com.matrixone.apps.domain.util.MapList;
 import com.matrixone.apps.domain.util.MqlUtil;
 import com.matrixone.apps.framework.ui.UIUtil;
@@ -9,6 +10,7 @@ import matrix.util.StringList;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
+import javax.management.relation.RelationType;
 import java.util.*;
 
 public class IMS_QP_Security_mxJPO {
@@ -621,10 +623,12 @@ public class IMS_QP_Security_mxJPO {
     }
 
     public String connectQPlanOwner(Context context, String[] args) {
+
         return IMS_KDD_mxJPO.connect(context, args, new IMS_KDD_mxJPO.Connector() {
             @Override
             public String connect(Context context, String from, String to, String relationship) {
                 try {
+                    LOG.info("connectQPlanOwner: from " + from + "to " + to);
 
                     DomainObject personObject = new DomainObject(to);
                     Person person = new Person(personObject.getName(context));
@@ -633,8 +637,10 @@ public class IMS_QP_Security_mxJPO {
                     if (!person.isAssigned(context, "IMS_QP_QPOwner"))
                         MqlUtil.mqlCommand(context, "mod person $1 assign role $2;", person.getName(), "IMS_QP_QPOwner");
 
-                    IMS_KDD_mxJPO.connectIfNotConnected(context, RELATIONSHIP_IMS_PBS2Owner,
-                            new DomainObject(from), new DomainObject(to));
+                    LOG.info(String.format("connect %s relationship %s to %s", from, RELATIONSHIP_IMS_PBS2Owner, to));
+
+                    DomainRelationship relationshipToOwner = personObject.addRelatedObject(context, new RelationshipType(RELATIONSHIP_IMS_PBS2Owner), true, from);
+                    LOG.info("" + relationshipToOwner.getAttributeValues(context));
                 } catch (Exception e) {
                     LOG.error("error connecting: " + from + " to " + to + ": " + e.getMessage());
                 }
@@ -715,14 +721,16 @@ public class IMS_QP_Security_mxJPO {
             String id = (String) argsMap.get("parentOID");
             DomainObject object = new DomainObject(id);
 
-            String personName = object.getInfo(context, "from[IMS_QP_QPlan2Object].to.from[IMS_PBS2Owner].to.name");
-            personName = UIUtil.isNotNullAndNotEmpty(personName) ? personName : "";
-            isOwnerQPlan = personName.equals(context.getUser());
+            String personNames = MqlUtil.mqlCommand(context, String.format("print bus %s select from[IMS_QP_QPlan2Object].to.from[IMS_PBS2Owner].to.name dump |", id));
+            LOG.info(id + "|" + object.getName(context) + "\nowner names: " + personNames);
+            personNames = UIUtil.isNotNullAndNotEmpty(personNames) ? personNames : "";
+            isOwnerQPlan = personNames.contains(context.getUser());
 
         } catch (Exception e) {
             LOG.error("error in method isOwnerQPlan: " + e.getMessage());
         }
 
+        LOG.info("isOwner: " + (isOwner(context, args) && isOwnerQPlan || isUserAdmin(context)));
         return isOwner(context, args) && isOwnerQPlan || isUserAdmin(context);
     }
 

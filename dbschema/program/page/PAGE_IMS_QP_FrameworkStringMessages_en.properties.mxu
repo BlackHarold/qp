@@ -7,8 +7,7 @@
 mxUpdate page "${NAME}" {
     description ""
     mime ""
-    content
-"
+    content "
 
 IMS_QP_Framework.Message.resultCheckRelations=show into log file
 IMS_QP_Framework.Message.commandFilePath=C:\\Temp\\pbs_data.txt

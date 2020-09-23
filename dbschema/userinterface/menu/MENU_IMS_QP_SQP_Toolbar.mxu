@@ -14,6 +14,7 @@ mxUpdate menu "${NAME}" {
     command "IMS_QP_QPlan_copy_existed"
     command "AEFSeparator"
     command "IMS_QP_QPlan_Delete"
+    #command "IMS_QP_SQP_Validate"
     ################################################## Info Start
     property "original name" value "type_IMS_QP_SQP_Toolbar"
     property "application" value "IMS_HNH19"

@@ -489,17 +489,7 @@ public class IMS_QP_TaskAssignment_mxJPO {
             DomainObject object = new DomainObject(sID);
             int factExp = Integer.parseInt(object.getInfo(context, IMS_QP_DEPTask_mxJPO.SELECT_ATTRIBUTE_IMS_QP_FACT_EXP));
             int factGot = Integer.parseInt(object.getInfo(context, IMS_QP_DEPTask_mxJPO.SELECT_ATTRIBUTE_IMS_QP_FACT_GOT));
-            if (factExp > 0) {
-                if (factExp == factGot) {
-                    returnList.add("IMS_QP_Green");
-                } else if (factExp > factGot) {
-                    returnList.add("IMS_QP_Red");
-                } else {
-                    returnList.add("");
-                }
-            } else {
-                returnList.add("");
-            }
+            IMS_QP_DEPTask_mxJPO.getColor(returnList, factExp, factGot);
         }
         return returnList;
     }
