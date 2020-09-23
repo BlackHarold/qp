@@ -19,7 +19,6 @@ mxUpdate table "${NAME}" {
         label "Type"
         businessobject "type"
         user "all"
-        #setting "Editable" "false"
         setting "Registered Suite" "Framework"
     }
     column {
@@ -49,7 +48,6 @@ mxUpdate table "${NAME}" {
         businessobject "description"
         setting "Registered Suite" "Components"
     }
-
     ################################################## Info Start
     property "author" value "IMS Team"
     property "original name" value "IMS_QP_DEP_KKS_PBS"

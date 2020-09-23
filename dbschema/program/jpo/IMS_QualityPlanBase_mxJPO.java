@@ -415,17 +415,32 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
             }
 
             //check if system type is functional area
-            boolean arrow = systemType.equals("IMS_PBSFunctionalArea");
-            String forkConnection = arrow ? "from[IMS_PBSFunctionalArea2" + systemType + "].to" : "to[IMS_PBSFunctionalArea2" + systemType + "].from";
+            boolean isFunctionalArea = systemType.equals("IMS_PBSFunctionalArea");
+            String forkConnection = isFunctionalArea ? "isFunctionalArea" : "to[IMS_PBSFunctionalArea2" + systemType + "].from";
             LOG.info("fork arrow: " + forkConnection);
 
             //getting info about other QPlan connections
-            String relationshipFromQPlan = UIUtil.isNotNullAndNotEmpty(system.getInfo(context, forkConnection + ".to[IMS_QP_QPlan2Object]")) ?
-                    system.getInfo(context, forkConnection + ".to[IMS_QP_QPlan2Object]") : "";
-            LOG.info("functional area to Q plan: " + relationshipFromQPlan);
+            String relationshipFromQPlan = "";
 
-            if (relationshipFromQPlan.equals("TRUE")) {
-                String message = "this " + systemType.substring(systemType.lastIndexOf("_") + 1) + " is part of Functional Area";
+            if (!forkConnection.equals("isFunctionalArea")) {
+                relationshipFromQPlan = UIUtil.isNotNullAndNotEmpty(system.getInfo(context, "to[IMS_PBSFunctionalArea2" + systemType + "].from.to[IMS_QP_QPlan2Object]")) ?
+                        system.getInfo(context, "to[IMS_PBSFunctionalArea2" + systemType + "].from.to[IMS_QP_QPlan2Object]") : "";
+                LOG.info("!isFunctionalArea: " + relationshipFromQPlan);
+            } else {
+                String systemQPlanConnection = UIUtil.isNotNullAndNotEmpty(system.getInfo(context, "from[IMS_PBSFunctionalArea2IMS_PBSSystem].to.to[IMS_QP_QPlan2Object]")) ?
+                        system.getInfo(context, "from[IMS_PBSFunctionalArea2IMS_PBSSystem].to.to[IMS_QP_QPlan2Object]") : "";
+                LOG.info("systemQPlanConnection: " + systemQPlanConnection);
+                String buildingQPlanConnection = UIUtil.isNotNullAndNotEmpty(system.getInfo(context, "from[IMS_PBSFunctionalArea2IMS_GBSBuilding].to.to[IMS_QP_QPlan2Object]")) ?
+                        system.getInfo(context, "from[IMS_PBSFunctionalArea2IMS_PBSSystem].to.to[IMS_QP_QPlan2Object]") : "";
+                LOG.info("buildingQPlanConnection: " + buildingQPlanConnection);
+                relationshipFromQPlan = systemQPlanConnection + buildingQPlanConnection;
+                LOG.info("isFunctionalArea: " + relationshipFromQPlan);
+            }
+
+            LOG.info("functional area to Q plan: " + relationshipFromQPlan);
+            if (relationshipFromQPlan.contains("TRUE")) {
+                String message = !isFunctionalArea ? "this " + systemType.substring(systemType.lastIndexOf("_") + 1) + " is part of Functional Area" :
+                        "this functional area has systems or building having some QPlans";
                 throw new MatrixException(message);
             }
             objectPBS.setId(systemID);

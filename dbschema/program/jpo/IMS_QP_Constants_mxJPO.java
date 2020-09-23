@@ -1,8 +1,6 @@
-﻿import com.matrixone.apps.domain.DomainObject;
+import com.matrixone.apps.domain.DomainObject;
 
 public class IMS_QP_Constants_mxJPO {
-
-
 
     private IMS_QP_Constants_mxJPO() {
     }

@@ -799,19 +799,23 @@ public class IMS_QP_DEPTask_mxJPO {
             DomainObject object = new DomainObject(sID);
             int factExp = Integer.parseInt(object.getInfo(context, SELECT_ATTRIBUTE_IMS_QP_FACT_EXP));
             int factGot = Integer.parseInt(object.getInfo(context, SELECT_ATTRIBUTE_IMS_QP_FACT_GOT));
-            if (factExp > 0) {
-                if (factExp == factGot) {
-                    returnList.add("IMS_QP_Green");
-                } else if (factExp > factGot) {
-                    returnList.add("IMS_QP_Red");
-                } else {
-                    returnList.add("");
-                }
+            getColor(returnList, factExp, factGot);
+        }
+        return returnList;
+    }
+
+    static void getColor(StringList returnList, int factExp, int factGot) {
+        if (factExp > 0) {
+            if (factExp == factGot) {
+                returnList.add("IMS_QP_Green");
+            } else if (factExp > factGot) {
+                returnList.add("IMS_QP_Red");
             } else {
                 returnList.add("");
             }
+        } else {
+            returnList.add("");
         }
-        return returnList;
     }
 
     public Object getNameColumn(Context context, String[] args) throws Exception {

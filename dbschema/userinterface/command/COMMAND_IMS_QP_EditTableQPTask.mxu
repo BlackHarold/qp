@@ -10,8 +10,6 @@ mxUpdate command "${NAME}" {
     href "javascript:editMode()"
     alt ""
     user "all"
-    setting "Access Function" "isOwnerQPlan"
-    setting "Access Program" "IMS_QP_Security"
     setting "Image" "${COMMON_DIR}/images/iconActionEdit.gif"
     setting "Registered Suite" "Framework"
     ################################################## Info Start
