@@ -625,7 +625,7 @@ public class IMS_QP_Security_mxJPO {
         try {
             ContextUtil.pushContext(context);
         } catch (FrameworkException e) {
-            LOG.error("push context erorr: " + e.getMessage());
+            LOG.error("push context error: " + e.getMessage());
         }
 
         return IMS_KDD_mxJPO.connect(context, args, new IMS_KDD_mxJPO.Connector() {
