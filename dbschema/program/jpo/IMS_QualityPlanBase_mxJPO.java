@@ -406,6 +406,7 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
                 throw new MatrixException(String.format("%s does not include the specified dep", systemName));
             }
 
+            /*check if the DEP is Done status*/
             DomainObject depObject = new DomainObject(cleanDepID);
             String depState = depObject.getInfo(context, "current");
             LOG.info("depState: " + depState);
@@ -418,20 +419,21 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
             String forkConnection = isFunctionalArea ? "isFunctionalArea" : "to[IMS_PBSFunctionalArea2" + systemType + "].from";
             LOG.info("fork arrow: " + forkConnection);
 
-            //getting info about other QPlan connections
+            //getting info about other QPlan connections & throw errors if that is
             String relationshipFromQPlan = "";
 
             if (!forkConnection.equals("isFunctionalArea")) {
-                relationshipFromQPlan = UIUtil.isNotNullAndNotEmpty(system.getInfo(context, "to[IMS_PBSFunctionalArea2" + systemType + "].from.to[IMS_QP_QPlan2Object]")) ?
-                        system.getInfo(context, "to[IMS_PBSFunctionalArea2" + systemType + "].from.to[IMS_QP_QPlan2Object]") : "";
+                relationshipFromQPlan = UIUtil.isNotNullAndNotEmpty(system.getInfo(context, forkConnection + ".to[IMS_QP_QPlan2Object]")) ?
+                        system.getInfo(context, forkConnection + ".to[IMS_QP_QPlan2Object]") : "";
                 LOG.info("!isFunctionalArea: " + relationshipFromQPlan);
             } else {
-                String systemQPlanConnection = UIUtil.isNotNullAndNotEmpty(system.getInfo(context, "from[IMS_PBSFunctionalArea2IMS_PBSSystem].to.to[IMS_QP_QPlan2Object]")) ?
-                        system.getInfo(context, "from[IMS_PBSFunctionalArea2IMS_PBSSystem].to.to[IMS_QP_QPlan2Object]") : "";
+
+                String systemQPlanConnection = MqlUtil.mqlCommand(context, String.format("print bus %s select from[IMS_PBSFunctionalArea2IMS_PBSSystem].to.to[IMS_QP_QPlan2Object] dump |", systemID));
                 LOG.info("systemQPlanConnection: " + systemQPlanConnection);
-                String buildingQPlanConnection = UIUtil.isNotNullAndNotEmpty(system.getInfo(context, "from[IMS_PBSFunctionalArea2IMS_GBSBuilding].to.to[IMS_QP_QPlan2Object]")) ?
-                        system.getInfo(context, "from[IMS_PBSFunctionalArea2IMS_PBSSystem].to.to[IMS_QP_QPlan2Object]") : "";
+
+                String buildingQPlanConnection = MqlUtil.mqlCommand(context, String.format("print bus %s select from[IMS_PBSFunctionalArea2IMS_GBSBuilding].to.to[IMS_QP_QPlan2Object] dump |", systemID));
                 LOG.info("buildingQPlanConnection: " + buildingQPlanConnection);
+
                 relationshipFromQPlan = systemQPlanConnection + buildingQPlanConnection;
                 LOG.info("isFunctionalArea: " + relationshipFromQPlan);
             }
