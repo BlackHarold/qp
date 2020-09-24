@@ -5,9 +5,16 @@
 ################################################################################
 
 mxUpdate command "${NAME}" {
+    symbolicname "COMMAND_IMS_QP_QPlan_Portal"
     description ""
     label ""
     href "${COMMON_DIR}/emxPortal.jsp?portal=IMS_QP_QPlan_Portal"
     alt ""
     user "all"
+    ################################################## Info Start
+    property "author" value "The IMS Team"
+    property "original name" value "IMS_QP_QPlan_Portal"
+    property "application" value "IMS_QP"
+    property "version" value "1"
+    ################################################## Info End
 }

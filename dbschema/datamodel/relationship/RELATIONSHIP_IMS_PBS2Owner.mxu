@@ -1,0 +1,38 @@
+################################################################################
+# RELATIONSHIP_IMS_PBS2Owner.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate relationship "${NAME}" {
+    symbolicname "relationship_IMS_PBS2Owner"
+    description "relation between systems/buildings/areas and users"
+    !hidden
+    preventduplicates
+    from {
+        meaning ""
+        cardinality many
+        revision none
+        clone none
+        !propagatemodify
+        propagateconnection
+        type "IMS_GBSBuilding"
+        type "IMS_PBSFunctionalArea"
+        type "IMS_PBSSystem"
+    }
+    to {
+        meaning ""
+        cardinality many
+        revision none
+        clone none
+        !propagatemodify
+        propagateconnection
+        type "Person"
+    }
+    ################################################## Info Start
+    property "author" value "IMS_Team"
+    property "original name" value "IMS_PBS2Owner"
+    property "application" value "IMS_QP"
+    property "version" value "1"
+    ################################################## Info End
+}

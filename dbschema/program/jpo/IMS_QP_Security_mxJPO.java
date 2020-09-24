@@ -1,24 +1,28 @@
 import com.matrixone.apps.domain.DomainConstants;
 import com.matrixone.apps.domain.DomainObject;
+import com.matrixone.apps.domain.DomainRelationship;
 import com.matrixone.apps.domain.util.MapList;
+import com.matrixone.apps.domain.util.MqlUtil;
+import com.matrixone.apps.framework.ui.UIUtil;
 import matrix.db.*;
 import matrix.util.MatrixException;
 import matrix.util.StringList;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.log4j.Logger;
 
+import javax.management.relation.RelationType;
 import java.util.*;
 
 public class IMS_QP_Security_mxJPO {
 
     private static final String TYPE_Person = "Person";
 
-    private static final String ATTRIBUTE_FirstName = "First Name";
-    private static final String ATTRIBUTE_LastName = "Last Name";
-
     private static final String ROLE_IMS_QP_DEPOwner = "IMS_QP_DEPOwner";
     private static final String ROLE_IMS_Admin = "IMS_Admin";
+    private static final String ROLE_IMS_QP_SuperUser = "IMS_QP_SuperUser";
 
     private static final String RELATIONSHIP_IMS_QP_DEP2Owner = "IMS_QP_DEP2Owner";
+    private static final String RELATIONSHIP_IMS_PBS2Owner = "IMS_PBS2Owner";
 
     private static final String RELATIONSHIP_IMS_QP_DEP2DEPProjectStage = "IMS_QP_DEP2DEPProjectStage";
     private static final String RELATIONSHIP_IMS_QP_DEPProjectStage2DEPSubStage = "IMS_QP_DEPProjectStage2DEPSubStage";
@@ -36,6 +40,8 @@ public class IMS_QP_Security_mxJPO {
 
     private static final String STATE_DONE = "Done";
 
+    private static final Logger LOG = Logger.getLogger("IMS_QP_DEP");
+
     public IMS_QP_Security_mxJPO(Context context, String[] args) throws Exception {
     }
 
@@ -45,6 +51,10 @@ public class IMS_QP_Security_mxJPO {
 
     private static boolean currentUserIsAdmin(Context context) throws MatrixException {
         return context.isAssigned(ROLE_IMS_Admin);
+    }
+
+    public static boolean currentUserIsQPSuperUser(Context context) throws MatrixException {
+        return context.isAssigned(ROLE_IMS_QP_SuperUser);
     }
 
     private static boolean hasDEPOwnerRole(Context context, String personName) throws MatrixException {
@@ -78,7 +88,7 @@ public class IMS_QP_Security_mxJPO {
      * The object can be a DEP or DEP descendant of any level (IMS_DEPProjectStage, IMS_DEP_SubStage, IMS_DEPTask).
      *
      * @param context the context
-     * @param object the object to check
+     * @param object  the object to check
      * @return A boolean value indicating if the current user is a DEP owner of the specified object
      * @throws Exception When something goes wrong
      */
@@ -91,7 +101,7 @@ public class IMS_QP_Security_mxJPO {
      * The object can be a DEP or DEP descendant of any level (IMS_DEPProjectStage, IMS_DEP_SubStage, IMS_DEPTask).
      *
      * @param context the context
-     * @param args the arguments
+     * @param args    the arguments
      * @return A boolean value indicating if the current user is a DEP owner of the object passed in {@code args}
      * @throws Exception When something goes wrong
      */
@@ -116,16 +126,15 @@ public class IMS_QP_Security_mxJPO {
     /**
      * Adds the specified person to the specified DEP object's owners
      *
-     * @param context the context
+     * @param context      the context
      * @param personObject the person object
-     * @param depObject the DEP object
+     * @param depObject    the DEP object
      * @throws Exception When something goes wrong
      */
     public static void addDEPOwner(final Context context, final DomainObject personObject, final DomainObject depObject) throws Exception {
         if (context.isTransactionActive()) {
             addDEPOwnerPrivate(context, personObject, depObject);
-        }
-        else {
+        } else {
             IMS_KDD_mxJPO.runInTransaction(context, new IMS_KDD_mxJPO.Action() {
                 @Override
                 public void run() throws Exception {
@@ -138,8 +147,8 @@ public class IMS_QP_Security_mxJPO {
     /**
      * Adds the specified person to the specified DEP object's owners
      *
-     * @param context the context
-     * @param personId the ID of the person
+     * @param context     the context
+     * @param personId    the ID of the person
      * @param depObjectId the ID of the DEP object
      * @throws Exception When something goes wrong
      */
@@ -154,8 +163,8 @@ public class IMS_QP_Security_mxJPO {
     /**
      * Adds the specified person to the specified DEP object's owners
      *
-     * @param context the context
-     * @param personName the name of the person
+     * @param context     the context
+     * @param personName  the name of the person
      * @param depObjectId the ID of the DEP object
      * @throws Exception When something goes wrong
      */
@@ -185,16 +194,15 @@ public class IMS_QP_Security_mxJPO {
     /**
      * Removes the specified person from the specified DEP object's owners
      *
-     * @param context the context
+     * @param context      the context
      * @param personObject the person object
-     * @param depObject the DEP object
+     * @param depObject    the DEP object
      * @throws Exception When something goes wrong
      */
     public static void removeDEPOwner(final Context context, final DomainObject personObject, final DomainObject depObject) throws Exception {
         if (context.isTransactionActive()) {
             removeDEPOwnerPrivate(context, depObject, personObject);
-        }
-        else {
+        } else {
             IMS_KDD_mxJPO.runInTransaction(context, new IMS_KDD_mxJPO.Action() {
                 @Override
                 public void run() throws Exception {
@@ -207,8 +215,8 @@ public class IMS_QP_Security_mxJPO {
     /**
      * Removes the specified person from the specified DEP object's owners
      *
-     * @param context the context
-     * @param personId the ID of the person
+     * @param context     the context
+     * @param personId    the ID of the person
      * @param depObjectId the ID of the DEP object
      * @throws Exception When something goes wrong
      */
@@ -223,8 +231,8 @@ public class IMS_QP_Security_mxJPO {
     /**
      * Removes the specified person from the specified DEP object's owners
      *
-     * @param context the context
-     * @param personName the name of the person
+     * @param context     the context
+     * @param personName  the name of the person
      * @param depObjectId the ID of the DEP object
      * @throws Exception When something goes wrong
      */
@@ -257,7 +265,7 @@ public class IMS_QP_Security_mxJPO {
         MapList mapList = object.getRelatedObjects(
                 context,
                 StringUtils.join(
-                        new String[] {
+                        new String[]{
                                 RELATIONSHIP_IMS_QP_DEP2DEPProjectStage,
                                 RELATIONSHIP_IMS_QP_DEPProjectStage2DEPSubStage,
                                 RELATIONSHIP_IMS_QP_DEPSubStage2DEPTask,
@@ -265,7 +273,7 @@ public class IMS_QP_Security_mxJPO {
                         },
                         ','),
                 StringUtils.join(
-                        new String[] {
+                        new String[]{
                                 TYPE_IMS_QP_DEP,
                                 TYPE_IMS_QP_DEPProjectStage,
                                 TYPE_IMS_QP_DEPSubStage,
@@ -316,9 +324,9 @@ public class IMS_QP_Security_mxJPO {
      * Determines if the specified person is a DEP owner of the specified object.
      * The object can be a DEP or DEP descendant of any level (IMS_DEPProjectStage, IMS_DEP_SubStage, IMS_DEPTask).
      *
-     * @param context the context
+     * @param context      the context
      * @param personObject the person object
-     * @param object the object to check
+     * @param object       the object to check
      * @return A boolean value indicating if the current user is a DEP owner of the specified object
      * @throws Exception When something goes wrong
      */
@@ -342,7 +350,7 @@ public class IMS_QP_Security_mxJPO {
      * Determines if the specified person is a DEP owner of the specified object.
      * The object can be a DEP or DEP descendant of any level (IMS_DEPProjectStage, IMS_DEP_SubStage, IMS_DEPTask).
      *
-     * @param context the context
+     * @param context  the context
      * @param personId the ID of the person
      * @param objectId the ID of the object to check
      * @return A boolean value indicating if the current user is a DEP owner of the specified object
@@ -362,9 +370,9 @@ public class IMS_QP_Security_mxJPO {
      * Determines if the specified person is a DEP owner of the specified object.
      * The object can be a DEP or DEP descendant of any level (IMS_DEPProjectStage, IMS_DEP_SubStage, IMS_DEPTask).
      *
-     * @param context the context
+     * @param context    the context
      * @param personName the name of the person
-     * @param objectId the ID of the object to check
+     * @param objectId   the ID of the object to check
      * @return A boolean value indicating if the current user is a DEP owner of the specified object
      * @throws Exception When something goes wrong
      */
@@ -382,7 +390,7 @@ public class IMS_QP_Security_mxJPO {
      * Determines if the current user is a DEP owner of the specified object.
      * The object can be a DEP or DEP descendant of any level (IMS_DEPProjectStage, IMS_DEP_SubStage, IMS_DEPTask).
      *
-     * @param context the context
+     * @param context  the context
      * @param objectId the ID of the object to check
      * @return A boolean value indicating if the current user is a DEP owner of the specified object
      * @throws Exception When something goes wrong
@@ -485,12 +493,13 @@ public class IMS_QP_Security_mxJPO {
                         DomainConstants.ATTRIBUTE_LAST_NAME),
                 null, null, true);
 
+        boolean currentUserIsQPSuperUser = currentUserIsQPSuperUser(context);
         for (Map relatedMap : relatedMaps) {
             if (sb.length() > 0) {
                 sb.append("<br />");
             }
 
-            if (currentUserIsDEPOwner && !context.getUser().equals(IMS_KDD_mxJPO.getNameFromMap(relatedMap))) {
+            if (currentUserIsQPSuperUser || currentUserIsDEPOwner && !context.getUser().equals(IMS_KDD_mxJPO.getNameFromMap(relatedMap))) {
 
                 sb.append(IMS_KDD_mxJPO.getDisconnectLinkHTML(
                         PROGRAM_IMS_QP_Security, "disconnectDEPOwner",
@@ -508,7 +517,7 @@ public class IMS_QP_Security_mxJPO {
                     null, false, false, null, false, null, false));
         }
 
-        if (currentUserIsDEPOwner) {
+        if (currentUserIsDEPOwner || currentUserIsQPSuperUser) {
 
             sb.append(IMS_DragNDrop_mxJPO.getConnectDropAreaHTML(
                     PROGRAM_IMS_QP_Security, "connectDEPOwner",
@@ -523,5 +532,254 @@ public class IMS_QP_Security_mxJPO {
         }
 
         return sb.toString();
+    }
+
+    public Vector getQPOwnersHTML(Context context, String[] args) {
+
+        Vector result = new Vector();
+        StringBuilder stringBuilder = new StringBuilder();
+
+        try {
+            Map argsMap = JPO.unpackArgs(args);
+            MapList objectList = (MapList) argsMap.get("objectList");
+
+            /*getting all systems*/
+            List<Map> items = new ArrayList<>();
+            for (Object o : objectList) {
+                items.add((Map) o);
+            }
+
+            //checking context person assignments
+            Person person = new Person(context.getUser());
+            boolean isUserAdminOrSuper = isUserAdminOrSuper(context);
+
+            /*top level Codes by items*/
+            for (Map map : items) {
+                stringBuilder.setLength(0);
+
+                String pbsID = (String) map.get("id");
+                DomainObject systemObject = new DomainObject(pbsID);
+
+                List<Map> relatedMaps = new ArrayList<>();
+
+                if (pbsID != null) {
+                    relatedMaps = IMS_KDD_mxJPO.getRelatedObjectMaps(
+                            context, systemObject, RELATIONSHIP_IMS_PBS2Owner, true,
+                            Arrays.asList(
+                                    DomainConstants.SELECT_ID,
+                                    DomainConstants.SELECT_NAME,
+                                    DomainConstants.SELECT_TYPE,
+                                    DomainConstants.ATTRIBUTE_FIRST_NAME,
+                                    DomainConstants.ATTRIBUTE_LAST_NAME),
+                            null, null, true);
+                }
+
+                if (!relatedMaps.isEmpty() && systemObject != null)
+                    for (Map relatedMap : relatedMaps) {
+                        if (stringBuilder.length() > 0) {
+                            stringBuilder.append("<br/>");
+                        }
+
+                        if (isUserAdminOrSuper)
+                            stringBuilder.append(IMS_KDD_mxJPO.getDisconnectLinkHTML(
+                                    PROGRAM_IMS_QP_Security, "disconnectQPlanOwner",
+                                    pbsID, IMS_KDD_mxJPO.getIdFromMap(relatedMap),
+                                    RELATIONSHIP_IMS_PBS2Owner,
+                                    "Disconnect",
+                                    IMS_KDD_mxJPO.getRefreshRowFunction((String) map.get("id[level]"))));
+
+                        stringBuilder.append(IMS_KDD_mxJPO.getLinkHTML(
+                                context, relatedMap, null, null,
+                                IMS_KDD_mxJPO.FUGUE_16x16 + "user.png",
+                                "12px",
+                                IMS_KDD_mxJPO.getName(context, relatedMap),
+                                null, false, false, null, false, null, false));
+                    }
+
+                if (pbsID != null && isUserAdminOrSuper) {
+                    stringBuilder.append(IMS_DragNDrop_mxJPO.getConnectDropAreaHTML(
+                            PROGRAM_IMS_QP_Security, "connectQPlanOwner",
+                            RELATIONSHIP_IMS_PBS2Owner, true,
+                            "0", pbsID,
+                            IMS_KDD_mxJPO.getRefreshRowFunction((String) map.get("id[level]")),
+                            "",
+                            SOURCE_Person,
+                            "Drop owner here",
+                            "100%",
+                            "24px", "auto", "12px"));
+                }
+
+                result.addElement(stringBuilder.toString());
+            }
+        } catch (Exception e) {
+            try {
+                emxContextUtil_mxJPO.mqlWarning(context, e.toString());
+                LOG.error("error getting url string: " + e.getMessage());
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+        return result;
+    }
+
+    public String connectQPlanOwner(Context context, String[] args) {
+
+        return IMS_KDD_mxJPO.connect(context, args, new IMS_KDD_mxJPO.Connector() {
+            @Override
+            public String connect(Context context, String from, String to, String relationship) {
+                try {
+                    LOG.info("connectQPlanOwner: from " + from + "to " + to);
+
+                    DomainObject personObject = new DomainObject(to);
+                    Person person = new Person(personObject.getName(context));
+
+                    //if the user connecting to the system is not assigned to IMS_QP_QPOwner
+                    if (!person.isAssigned(context, "IMS_QP_QPOwner"))
+                        MqlUtil.mqlCommand(context, "mod person $1 assign role $2;", person.getName(), "IMS_QP_QPOwner");
+
+                    LOG.info(String.format("connect %s relationship %s to %s", from, RELATIONSHIP_IMS_PBS2Owner, to));
+
+                    DomainRelationship relationshipToOwner = personObject.addRelatedObject(context, new RelationshipType(RELATIONSHIP_IMS_PBS2Owner), true, from);
+                    LOG.info("" + relationshipToOwner.getAttributeValues(context));
+                } catch (Exception e) {
+                    LOG.error("error connecting: " + from + " to " + to + ": " + e.getMessage());
+                }
+                return "";
+            }
+        });
+    }
+
+    public String disconnectQPlanOwner(Context context, String[] args) {
+        return IMS_KDD_mxJPO.disconnect(context, args, new IMS_KDD_mxJPO.Disconnector() {
+            @Override
+            public String disconnect(Context context, String from, String to, String relationship) {
+
+                try {
+                    new DomainObject(from).disconnect(context, new RelationshipType(RELATIONSHIP_IMS_PBS2Owner),
+                            true, new DomainObject(to));
+                } catch (Exception e) {
+                    LOG.error("error disconnecting: " + to + " from " + from);
+                }
+                return "";
+            }
+        });
+    }
+
+    public static boolean isUserAdmin(Context context) {
+        Person person = new Person(context.getUser());
+        try {
+            return person.isAssigned(context, ROLE_IMS_Admin);
+        } catch (MatrixException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    private boolean isUserAdminOrSuper(Context context) {
+        Person person = new Person(context.getUser());
+        try {
+            return person.isAssigned(context, ROLE_IMS_Admin) || person.isAssigned(context, ROLE_IMS_QP_SuperUser);
+        } catch (MatrixException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    /**
+     * @param context
+     * @param args
+     * @return
+     */
+    public static boolean isOwner(Context context, String[] args) {
+
+        String ROLE_IMS_QP_QPOwner = "IMS_QP_QPOwner";
+        boolean isOwner = false;
+        Person person = new Person(context.getUser());
+
+        try {
+            isOwner = person.isAssigned(context, ROLE_IMS_QP_QPOwner) || isUserAdmin(context);
+        } catch (MatrixException me) {
+            LOG.error("error when checking Person: " + me.getMessage());
+        }
+
+        return isOwner;
+    }
+
+    /**
+     * @param context
+     * @param args
+     * @return
+     */
+    public static boolean isOwnerQPlan(Context context, String... args) {
+
+        Map argsMap;
+        boolean isOwnerQPlan = false;
+
+        try {
+            argsMap = JPO.unpackArgs(args);
+
+            String id = (String) argsMap.get("parentOID");
+            DomainObject object = new DomainObject(id);
+
+            String personNames = MqlUtil.mqlCommand(context, String.format("print bus %s select from[IMS_QP_QPlan2Object].to.from[IMS_PBS2Owner].to.name dump |", id));
+            LOG.info(id + "|" + object.getName(context) + "\nowner names: " + personNames);
+            personNames = UIUtil.isNotNullAndNotEmpty(personNames) ? personNames : "";
+            isOwnerQPlan = personNames.contains(context.getUser());
+
+        } catch (Exception e) {
+            LOG.error("error in method isOwnerQPlan: " + e.getMessage());
+        }
+
+        LOG.info("isOwner: " + (isOwner(context, args) && isOwnerQPlan || isUserAdmin(context)));
+        return isOwner(context, args) && isOwnerQPlan || isUserAdmin(context);
+    }
+
+    public static boolean isOwnerQPlanFromTask(Context context, String... args) {
+
+        Map argsMap;
+        boolean isOwnerQPlanFromTask = false;
+
+        try {
+            argsMap = JPO.unpackArgs(args);
+
+            String id = (String) argsMap.get("parentOID");
+            DomainObject object = new DomainObject(id);
+
+            //getting target qPlan ID
+            if (object.getType(context).equals("IMS_QP_QPTask")) {
+                id = object.getInfo(context, "to[IMS_QP_QPlan2QPTask].from.id");
+            }
+
+            //change ID in args map
+            argsMap.put("parentOID", id);
+            isOwnerQPlanFromTask = isOwnerQPlan(context, JPO.packArgs(argsMap));
+
+        } catch (Exception e) {
+            LOG.error("error in method isOwnerQPlan: " + e.getMessage());
+        }
+
+        return isOwner(context, args) && isOwnerQPlanFromTask || isUserAdmin(context);
+    }
+
+
+    /**
+     * Method of checking the owner of the task from the received ID object
+     * Using in the delete task action
+     *
+     * @param context
+     * @param id
+     * @return
+     */
+    public static boolean isOwnerQPlanFromTaskID(Context context, String id) {
+        try {
+
+            Map argsMap = new HashMap();
+            argsMap.put("parentOID", id);
+            return isOwnerQPlanFromTask(context, JPO.packArgs(argsMap));
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 }

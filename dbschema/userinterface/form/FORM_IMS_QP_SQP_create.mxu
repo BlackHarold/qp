@@ -18,20 +18,23 @@ mxUpdate form "${NAME}" {
     field {
         name "system"
         label "System / Building"
-        range "${COMMON_DIR}/emxFullSearch.jsp?field=TYPES=IMS_PBSSystem,IMS_GBSBuilding&table=AEFGeneralSearchResults&selection=single&mode=chooser&showInitialResults=true&HelpMarker=emxhelpfullsearch&submitLabel=emxFramework.GlobalSearch.Done&CancelButton=true"
+        range "${COMMON_DIR}/emxFullSearch.jsp?field=TYPES=IMS_PBSSystem,IMS_GBSBuilding,IMS_PBSFunctionalArea&table=AEFGeneralSearchResults&selection=single&mode=chooser&showInitialResults=true&HelpMarker=emxhelpfullsearch&submitLabel=emxFramework.GlobalSearch.Done&CancelButton=true"
         setting "Editable" "true"
         setting "Input Type" "textbox"
+        setting "OnChange Handler" "onchangeTextboxPBS"
         setting "Registered Suite" "Framework"
-        setting "Required" "true"
+        setting "Required" "false"
     }
     field {
         name "dep"
         label "DEP"
         setting "Field Type" "attribute"
         setting "Input Type" "combobox"
+        setting "OnChange Handler" "onchangeComboboxDep"
         setting "Range Function" "getQPDEPNames"
         setting "Range Program" "IMS_QualityPlanBase"
         setting "Registered Suite" "Components"
+        setting "Required" "true"
     }
     ################################################## Info Start
     property "author" value "The MxUpdate Team"

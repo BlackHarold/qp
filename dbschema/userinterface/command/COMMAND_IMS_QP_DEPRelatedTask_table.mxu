@@ -1,0 +1,18 @@
+################################################################################
+# COMMAND_IMS_QP_DEPRelatedTesk_table.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate command "${NAME}" {
+    description "Related tasks"
+    label "Related tasks"
+    href "${COMMON_DIR}/IMS_IndentedTable.jsp?program=IMS_QP:getAllRelatedTasksForTable&table=IMS_QP_DEPRelatedTask&selection=multiple&formHeader=form_header"
+    alt ""
+    ################################################## Info Start
+    property "author" value "IMS Team"
+    property "original name" value "IMS_QP_DEPRelatedTask_table"
+    property "application" value "IMS_QP"
+    property "version" value "1"
+    ################################################## Info End
+}

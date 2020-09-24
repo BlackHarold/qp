@@ -1,0 +1,57 @@
+################################################################################
+# TABLE_IMS_QP_DEP_KKS_PBS.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate table "${NAME}" {
+    symbolicname "table_IMS_QP_DEP_KKS_PBS"
+    description ""
+    column {
+        name "code"
+        label "Code"
+        businessobject "name"
+        user "all"
+        setting "Registered Suite" "Framework"
+    }
+    column {
+        name "type"
+        label "Type"
+        businessobject "type"
+        user "all"
+        setting "Registered Suite" "Framework"
+    }
+    column {
+        name "dep"
+        label "DEP"
+        businessobject "from[IMS_PBS2DEP].to.name"
+        user "all"
+        setting "Registered Suite" "Framework"
+    }
+    column {
+        name "owner"
+        label "SQPOwner"
+        user "all"
+        setting "Column Type" "programHTMLOutput"
+        setting "Editable" "false"
+        setting "Registered Suite" "Framework"
+        setting "Sortable" "false"
+        setting "Style Function" "getDEPTaskInputCellStyle"
+        setting "Style Program" "IMS_QP_DEPSubStageDEPTasks"
+        setting "Width" "300"
+        setting "function" "getQPOwnersHTML"
+        setting "program" "IMS_QP_Security"
+    }
+    column {
+        name "description"
+        label "emxComponents.Common.Description"
+        businessobject "description"
+        setting "Registered Suite" "Components"
+    }
+    ################################################## Info Start
+    property "author" value "IMS Team"
+    property "original name" value "IMS_QP_DEP_KKS_PBS"
+    property "application" value "IMS_QP"
+    property "version" value "1"
+    ################################################## Info End
+}

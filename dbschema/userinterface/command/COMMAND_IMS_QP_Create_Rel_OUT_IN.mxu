@@ -1,0 +1,23 @@
+################################################################################
+# COMMAND_IMS_QP_Create_Rel_OUT_IN.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate command "${NAME}" {
+    description ""
+    label "Rel OUT&IN"
+    href "${COMMON_DIR}/IMS_QP_Create_Rel_OUT_IN.jsp"
+    alt ""
+    setting "Popup Modal" "true"
+    setting "Registered Suite" "Framework"
+    setting "Row Select" "multi"
+    setting "Submit" "true"
+    setting "Target Location" "popup"
+    ################################################## Info Start
+    property "author" value "The IMS Team"
+    property "original name" value "IMS_QP_Create_Rel_OUT_IN"
+    property "application" value "IMS_QP"
+    property "version" value "1"
+    ################################################## Info End
+}

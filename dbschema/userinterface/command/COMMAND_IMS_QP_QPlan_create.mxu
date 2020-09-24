@@ -8,9 +8,11 @@ mxUpdate command "${NAME}" {
     symbolicname "COMMAND_IMS_QP_QPlan_create"
     description ""
     label "New QPlan"
-    href "${COMMON_DIR}/emxCreate.jsp?type=IMS_QP_QPlan&typeChooser=false&form=IMS_QP_SQP_create&relationship=relationship_IMS_QP_QP2QPlan&policy=IMS_QP_QPlan&header=IMS_QP_QPlan&postProcessJPO=IMS_QualityPlanBase:createQPlanPostProcess&submitAction=refreshCaller&nameField=autoName"
+    href "${COMMON_DIR}/IMS_QP_SQP_Create.jsp?type=IMS_QP_QPlan&typeChooser=false&form=IMS_QP_SQP_create&relationship=relationship_IMS_QP_QP2QPlan&policy=IMS_QP_QPlan&header=IMS_QP_QPlan&postProcessJPO=IMS_QualityPlanBase:createQPlanPostProcess&submitAction=refreshCaller&nameField=autoName"
     alt ""
     user "all"
+    setting "Access Function" "isOwner"
+    setting "Access Program" "IMS_QP_Security"
     setting "Image" "${COMMON_DIR}/images/iconActionAdd.png"
     setting "Popup Modal" "true"
     setting "Popup Size" "MediumTall"
@@ -19,7 +21,7 @@ mxUpdate command "${NAME}" {
     ################################################## Info Start
     property "author" value "The MxUpdate Team"
     property "original name" value "IMS_QP_QPlan_create"
-    property "application" value "Unknown"
-    property "version"
+    property "application" value "IMS_QP"
+    property "version" value "1"
     ################################################## Info End
 }

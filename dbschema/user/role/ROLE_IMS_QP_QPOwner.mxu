@@ -1,0 +1,10 @@
+################################################################################
+# ROLE_IMS_QP_QPOwner.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate role "${NAME}" {
+    description ""
+    !hidden
+}

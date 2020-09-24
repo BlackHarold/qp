@@ -5,6 +5,7 @@
 ################################################################################
 
 mxUpdate command "${NAME}" {
+    symbolicname "IMS_QP_QPlan_form"
     description "Quality plan form"
     label "Quality plan form"
     href "${COMMON_DIR}/emxForm.jsp?form=type_IMS_QP_QPlan&formHeader='Quality plan'&toolbar=IMS_QP_QPlan_toolbar"
@@ -12,7 +13,7 @@ mxUpdate command "${NAME}" {
     ################################################## Info Start
     property "author" value "The IMS Team"
     property "original name" value "IMS_QP_QPlan_command"
-    property "application" value "IMS_HNH19"
+    property "application" value "IMS_QP"
     property "version" value "1"
     ################################################## Info End
 }

@@ -1,0 +1,41 @@
+################################################################################
+# FORM_IMS_QP_SQP_create_from_existed.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate form "${NAME}" {
+    description ""
+    field {
+        name "description"
+        label "emxComponents.Common.Description"
+        businessobject "description"
+        setting "Editable" "true"
+        setting "Input Type" "textarea"
+        setting "Registered Suite" "Components"
+    }
+    field {
+        name "system"
+        label "System / Building"
+        range "${COMMON_DIR}/emxFullSearch.jsp?field=TYPES=IMS_PBSSystem,IMS_GBSBuilding,IMS_PBSFunctionalArea&table=AEFGeneralSearchResults&selection=multiple&mode=chooser&showInitialResults=true&HelpMarker=emxhelpfullsearch&submitLabel=emxFramework.GlobalSearch.Done&CancelButton=true"
+        setting "Editable" "true"
+        setting "Input Type" "textbox"
+        setting "Registered Suite" "Framework"
+        setting "Required" "true"
+    }
+    field {
+        name "useconnection"
+        label "Form similar connections"
+        setting "Field Type" "basic"
+        setting "Input Type" "radiobutton"
+        setting "Range Function" "getCheckboxUseConnection"
+        setting "Range Program" "IMS_QP_TaskAssignment"
+        setting "Remove Range Blank" "true"
+    }
+    ################################################## Info Start
+    property "author" value "The MxUpdate Team"
+    property "original name" value "IMS_QP_SQP_create"
+    property "application" value "IMS"
+    property "version" value "1"
+    ################################################## Info End
+}

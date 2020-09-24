@@ -10,10 +10,12 @@ mxUpdate table "${NAME}" {
         name "Code"
         label "emxFramework.Label.QP_Code"
         businessobject "name"
-        href "${COMMON_DIR}/emxPortal.jsp?portal=IMS_QP_DEPTask_Portal"
+        href "${COMMON_DIR}/emxPortal.jsp?portal=IMS_QP_QPTask_Portal"
         user "all"
         setting "Editable" "false"
         setting "Registered Suite" "Framework"
+        setting "Style Function" "getFactColumnStyle"
+        setting "Style Program" "IMS_QP_DEPTask"
     }
     column {
         name "Name"
@@ -21,7 +23,7 @@ mxUpdate table "${NAME}" {
         businessobject "attribute[IMS_Name]"
         user "all"
         setting "Admin Type" "attribute_IMS_Name"
-        setting "Editable" "true"
+        setting "Editable" "false"
         setting "Field Type" "attribute"
         setting "Registered Suite" "Framework"
     }
@@ -31,7 +33,7 @@ mxUpdate table "${NAME}" {
         businessobject "attribute[IMS_NameRu]"
         user "all"
         setting "Admin Type" "attribute_IMS_NameRu"
-        setting "Editable" "true"
+        setting "Editable" "false"
         setting "Field Type" "attribute"
     }
     column {
@@ -64,9 +66,9 @@ mxUpdate table "${NAME}" {
         setting "Sortable" "false"
         setting "Style Function" "getDEPTaskInputCellStyle"
         setting "Style Program" "IMS_QP_DEPSubStageDEPTasks"
-        setting "Width" "300"
+        setting "Width" "150"
         setting "function" "getQPTaskInput"
-        setting "program" "IMS_QP_DEPSubStageDEPTasks"
+        setting "program" "IMS_QP_Task"
     }
     column {
         name "QPTaskOutput"
@@ -80,6 +82,6 @@ mxUpdate table "${NAME}" {
         setting "Style Program" "IMS_QP_DEPSubStageDEPTasks"
         setting "Width" "300"
         setting "function" "getQPTaskOutput"
-        setting "program" "IMS_QP_DEPSubStageDEPTasks"
+        setting "program" "IMS_QP_Task"
     }
 }

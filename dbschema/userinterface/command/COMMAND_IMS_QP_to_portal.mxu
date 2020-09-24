@@ -5,6 +5,7 @@
 ################################################################################
 
 mxUpdate command "${NAME}" {
+    symbolicname "COMMAND_IMS_QP_to_portal"
     description "IMS_QP_to_portal"
     label "QP Portal"
     href "${COMMON_DIR}/emxPortal.jsp?portal=IMS_QP_Portal&portalMode=true&H elpMarker=HelpMarker&header=PowerView"
@@ -12,9 +13,9 @@ mxUpdate command "${NAME}" {
     user "all"
     setting "Registered Suite" "Framework"
     ################################################## Info Start
-    property "author" value "The MxUpdate Team"
+    property "author" value "The IMS Team"
     property "original name" value "IMS_QP_to_portal"
-    property "application" value "IMS_HNH19"
+    property "application" value "IMS_QP"
     property "version" value "1"
     ################################################## Info End
 }

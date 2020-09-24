@@ -1,0 +1,23 @@
+################################################################################
+# COMMAND_IMS_QP_EditTableQP.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate command "${NAME}" {
+    description ""
+    label "Edit"
+    href "javascript:editMode()"
+    alt ""
+    user "all"
+    setting "Access Function" "isOwnerQPlanFromTask"
+    setting "Access Program" "IMS_QP_Security"
+    setting "Image" "${COMMON_DIR}/images/iconActionEdit.gif"
+    setting "Registered Suite" "Framework"
+    ################################################## Info Start
+    property "author" value "The IMS Team"
+    property "original name" value "IMS_QP_EditTableQP"
+    property "application" value "IMS_QP"
+    property "version" value "1"
+    ################################################## Info End
+}

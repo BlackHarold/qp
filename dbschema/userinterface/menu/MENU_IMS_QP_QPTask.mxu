@@ -9,6 +9,11 @@ mxUpdate menu "${NAME}" {
     label ""
     href ""
     alt ""
-    command "IMS_QP_Delete_DEPTask"
+    setting "Access Function" "isOwnerQPlan"
+    setting "Access Program" "IMS_QP_Security"
     command "IMS_QP_Create_QPTask"
+    command "IMS_QP_Create_QPTask_Multi"
+    command "IMS_QP_Delete_QPTask"
+    command "IMS_QP_Create_Rel_OUT_IN"
+    command "IMS_QP_EditTableQPTask"
 }

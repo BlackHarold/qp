@@ -9,7 +9,8 @@ mxUpdate type "${NAME}" {
     description ""
     !hidden
     attribute "IMS_DocCode"
+    attribute "IMS_QP_DEPShortCode"
     attribute "IMS_QP_FactExp"
     attribute "IMS_QP_FactGot"
-    attribute "IMS_QP_DEPShortCode"
+    attribute "IMS_QP_InterdisciplinaryDEP"
 }

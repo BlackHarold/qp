@@ -14,4 +14,10 @@ mxUpdate command "${NAME}" {
     setting "Row Select" "multi"
     setting "Submit" "true"
     setting "Target Location" "listHidden"
+    ################################################## Info Start
+    property "author" value "The IMS Team"
+    property "original name" value "IMS_QP_Delete_ExpectedResult"
+    property "application" value "IMS_QP"
+    property "version" value "1"
+    ################################################## Info End
 }

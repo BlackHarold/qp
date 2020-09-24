@@ -10,4 +10,11 @@ mxUpdate command "${NAME}" {
     href "${COMMON_DIR}/IMS_QP_CreateER.jsp?type=type_IMS_QP_ExpectedResult&typeChooser=false&form=IMS_QP_Create_ExpectedResult&findMxLink=false&nameField=autoName&policy=policy_QP_ExpectedResult&postProcessJPO=IMS_QP_DEPTask:createExpectedResult&submitAction=refreshCaller"
     alt ""
     user "all"
+    setting "Registered Suite" "Framework"
+    ################################################## Info Start
+    property "author" value "The IMS Team"
+    property "original name" value "IMS_QP_Create_ExpectedResult"
+    property "application" value "IMS_QP"
+    property "version" value "1"
+    ################################################## Info End
 }

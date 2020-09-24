@@ -1,0 +1,76 @@
+################################################################################
+# TABLE_IMS_QP_AvailableTasks.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate table "${NAME}" {
+    description ""
+    column {
+        name "Code"
+        label "emxFramework.Label.QP_Code"
+        setting "Auto Filter" "true"
+        setting "Column Type" "programHTMLOutput"
+        setting "Editable" "false"
+        setting "Export" "true"
+        setting "Registered Suite" "Framework"
+        setting "function" "getCodeColumn"
+        setting "program" "IMS_QP_TaskAssignment"
+    }
+    column {
+        name "Name"
+        label "emxFramework.Attribute.QP_IMS_Name"
+        setting "Auto Filter" "false"
+        setting "Column Type" "programHTMLOutput"
+        setting "Editable" "false"
+        setting "Export" "true"
+        setting "Registered Suite" "Framework"
+        setting "function" "getNameColumn"
+        setting "program" "IMS_QP_TaskAssignment"
+    }
+    column {
+        name "NameRu"
+        label "emxFramework.Attribute.QP_IMS_NameRu"
+        setting "Auto Filter" "false"
+        setting "Column Type" "programHTMLOutput"
+        setting "Editable" "false"
+        setting "Export" "true"
+        setting "Registered Suite" "Framework"
+        setting "function" "getNameRUColumn"
+        setting "program" "IMS_QP_TaskAssignment"
+    }
+    column {
+        name "DescriptionEn"
+        label "emxFramework.attribute.QP_IMS_DescriptionEn"
+        businessobject "attribute[IMS_DescriptionEn]"
+        setting "Auto Filter" "false"
+        setting "Column Type" "programHTMLOutput"
+        setting "Editable" "false"
+        setting "Export" "true"
+        setting "Registered Suite" "Framework"
+        setting "function" "getDescriptionENColumn"
+        setting "program" "IMS_QP_TaskAssignment"
+    }
+    column {
+        name "DescriptionRu"
+        label "emxFramework.Attribute.QP_IMS_DescriptionRu"
+        setting "Auto Filter" "false"
+        setting "Column Type" "programHTMLOutput"
+        setting "Editable" "false"
+        setting "Export" "true"
+        setting "Registered Suite" "Framework"
+        setting "function" "getDescriptionRUColumn"
+        setting "program" "IMS_QP_TaskAssignment"
+    }
+    column {
+        name "TASKNAME"
+        label ""
+        setting "Auto Filter" "false"
+        setting "Column Type" "programHTMLOutput"
+        setting "Editable" "false"
+        setting "Export" "true"
+        setting "Registered Suite" "Framework"
+        setting "function" "getTaskName"
+        setting "program" "IMS_QP_TaskAssignment"
+    }
+}

@@ -28,11 +28,12 @@ mxUpdate relationship "${NAME}" {
         type "IMS_GBSBuilding"
         type "IMS_PBSFunctionalArea"
         type "IMS_PBSSystem"
+        type "Plant"
     }
     ################################################## Info Start
     property "author" value "IMS_Team"
     property "original name" value "IMS_QP_QPlan2Object"
-    property "application" value "IMS"
+    property "application" value "IMS_QP"
     property "version" value "1"
     ################################################## Info End
 }

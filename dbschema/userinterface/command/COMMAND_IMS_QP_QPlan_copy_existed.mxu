@@ -1,0 +1,26 @@
+################################################################################
+# COMMAND_IMS_QP_QPlan_copy_existed.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate command "${NAME}" {
+    description ""
+    label "Copy"
+    href "${COMMON_DIR}/emxForm.jsp?type=IMS_QP_QPlan&typeChooser=false&form=IMS_QP_SQP_create_from_existed&relationship=relationship_IMS_QP_QP2QPlan&direction=from&policy=IMS_QP_QPlan&header=IMS_QP_QPlan&postProcessJPO=IMS_QP_TaskAssignment:copyTasks&submitAction=refreshCaller&nameField=autoName&mode=edit"
+    alt ""
+    user "all"
+    setting "Image" "${COMMON_DIR}/images/iconActionCopyTo.gif"
+    setting "Popup Modal" "true"
+    setting "Popup Size" "MediumTall"
+    setting "Registered Suite" "Framework"
+    setting "Row Select" "single"
+    setting "Submit" "true"
+    setting "Target Location" "popup"
+    ################################################## Info Start
+    property "author" value "The MxUpdate Team"
+    property "original name" value "IMS_QP_QPlan_create"
+    property "application" value "Unknown"
+    property "version"
+    ################################################## Info End
+}
