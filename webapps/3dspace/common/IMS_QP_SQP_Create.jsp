@@ -47,7 +47,7 @@
         console.log("onchangeTextboxPBS");
         //dep field
         var dep_field = document.querySelector("#depId");
-
+        
         console.log("before selected: " + dep_field.selectedIndex);
         // var depId = document.getElementById("depId");
         // var depIndex = depId.selectedIndex;

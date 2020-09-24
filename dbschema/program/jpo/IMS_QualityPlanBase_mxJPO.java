@@ -382,7 +382,6 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
         DomainObject newObject = new DomainObject(newObjectId);
         DomainObject objectPBS = new DomainObject();
         DomainObject objectDEP = new DomainObject(cleanDepID);
-        String plantID = objectDEP.getInfo(context, "from[IMS_PBS2DEP].to.id");
         String qpPlanName = "";
         String relId = (String) paramMap.get("relId");
         LOG.info("systemID:" + systemID);
@@ -446,9 +445,7 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
             objectPBS.setId(systemID);
             qpPlanName = objectPBS.getName(context);
         } else if (depFieldFromForm.endsWith("_TRUE")) {
-            if (UIUtil.isNotNullAndNotEmpty(plantID))
-                objectPBS.setId(plantID);
-            qpPlanName = "Plant_" + objectDEP.getName(context);
+            qpPlanName = objectDEP.getName(context);
         }
 
         //log all needs params
