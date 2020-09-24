@@ -1,8 +1,7 @@
 import com.matrixone.apps.domain.DomainConstants;
 import com.matrixone.apps.domain.DomainObject;
 import com.matrixone.apps.domain.DomainRelationship;
-import com.matrixone.apps.domain.util.MapList;
-import com.matrixone.apps.domain.util.MqlUtil;
+import com.matrixone.apps.domain.util.*;
 import com.matrixone.apps.framework.ui.UIUtil;
 import matrix.db.*;
 import matrix.util.MatrixException;
@@ -623,6 +622,11 @@ public class IMS_QP_Security_mxJPO {
     }
 
     public String connectQPlanOwner(Context context, String[] args) {
+        try {
+            ContextUtil.pushContext(context);
+        } catch (FrameworkException e) {
+            LOG.error("push context erorr: " + e.getMessage());
+        }
 
         return IMS_KDD_mxJPO.connect(context, args, new IMS_KDD_mxJPO.Connector() {
             @Override
@@ -640,9 +644,18 @@ public class IMS_QP_Security_mxJPO {
                     LOG.info(String.format("connect %s relationship %s to %s", from, RELATIONSHIP_IMS_PBS2Owner, to));
 
                     DomainRelationship relationshipToOwner = personObject.addRelatedObject(context, new RelationshipType(RELATIONSHIP_IMS_PBS2Owner), true, from);
+
                     LOG.info("" + relationshipToOwner.getAttributeValues(context));
                 } catch (Exception e) {
                     LOG.error("error connecting: " + from + " to " + to + ": " + e.getMessage());
+                    for (StackTraceElement er : e.getStackTrace()) {
+                        LOG.error(er.toString());
+                    }
+                }
+                try {
+                    ContextUtil.popContext(context);
+                } catch (FrameworkException e) {
+                    LOG.info("pop context error: " + e.getMessage());
                 }
                 return "";
             }
