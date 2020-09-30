@@ -406,7 +406,6 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
                 throw new MatrixException(String.format("%s does not include the specified dep", systemName));
             }
 
-            /*check if the DEP is Done status*/
             DomainObject depObject = new DomainObject(cleanDepID);
             String depState = depObject.getInfo(context, "current");
             LOG.info("depState: " + depState);
@@ -489,8 +488,9 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
         String depProjectStageName = depProjectStage.getInfo(context, "name");
 
         //count all substages at this DEP ProjectStage
-        StringList selects = new StringList();
+        StringList selects = new StringList(DomainConstants.SELECT_NAME);
         selects.add("id");
+        selects.add("attribute[IMS_SortOrder]");
 
         String nameTail = !stage.equals("") ?
                 "&&name smatch *" + depProjectStageName + stage + "*" :                                                 //if stage 1 or 2
@@ -504,9 +504,18 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
                 /*where*/ where,
                 selects
         );
+        result.addSortKey("attribute[IMS_SortOrder]", "descending", "integer");
+        result.sort();
 
-        int count = 1 + result.size();
-        String counter = count < 10 ? "0" + count : "" + count;
+        LOG.info("result: " + result);
+        int numberInt =1;
+        if(result.size()>0) {
+            String name = (String) ((Map) result.get(0)).get(DomainConstants.SELECT_NAME);
+            LOG.info("name: " + name);
+            numberInt = Integer.parseInt(name.substring(name.lastIndexOf("-") + 1)) + 1;
+        }
+        String counter = (numberInt < 10) ? "0" + numberInt : Integer.toString(numberInt);
+
         LOG.info("set unique name counter: " + counter);
 
         //concate unique name
@@ -949,5 +958,46 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
 
         LOG.info("return map: " + mapMessage);
         return mapMessage;
+    }
+
+    public MapList getFindObject(Context context, String type, String name, String revision, String expression) throws Exception {
+        StringList objectSelects = new StringList();
+        objectSelects.add(DomainConstants.SELECT_ID);
+        objectSelects.add(DomainConstants.SELECT_NAME);
+        MapList resultType = DomainObject.findObjects(context, type, name,
+                revision, "*", "*", expression, true, objectSelects);
+        return resultType;
+    }
+
+    public void setCounterForDEPProjectStage(Context context, String[] args) throws Exception {
+        try {
+            System.out.println("Start !!");
+
+            MapList resultTasks = getFindObject(context, "IMS_QP_DEPSubStage", "*",
+                    "*", "");
+            System.out.println("I found IMS_QP_DEPSubStage " + resultTasks.size());
+
+            for (Object resultObject : resultTasks) {
+                Map objTemp = (Map) resultObject;
+                String name = ((String) objTemp.get(DomainConstants.SELECT_NAME));
+                try {
+                    if(name.contains("-")) {
+                        int numberInt = Integer.parseInt(name.substring(name.lastIndexOf("-") + 1));
+                        new DomainObject((String) objTemp.get(DomainConstants.SELECT_ID)).setAttributeValue(context, "IMS_SortOrder", String.valueOf(numberInt));
+                    }else{
+                        new DomainObject((String) objTemp.get(DomainConstants.SELECT_ID)).setAttributeValue(context, "IMS_SortOrder", "0");
+                    }
+                }catch(Exception e){
+                    new DomainObject((String) objTemp.get(DomainConstants.SELECT_ID)).setAttributeValue(context, "IMS_SortOrder", "0");
+                    System.out.println(e.fillInStackTrace());
+                }
+            }
+
+            System.out.println("finish");
+
+        } catch (Exception ex) {
+            System.out.println(ex.fillInStackTrace());
+            throw ex;
+        }
     }
 }

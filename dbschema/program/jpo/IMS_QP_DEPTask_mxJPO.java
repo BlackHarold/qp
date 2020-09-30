@@ -88,11 +88,12 @@ public class IMS_QP_DEPTask_mxJPO {
     private DomainObject getNextName(Context context, String objectId, DomainObject parent, MapList mapList, String family, int i, int element) throws Exception {
         DomainObject newObject = new DomainObject(objectId);
         String number = "01";
-        mapList.addSortKey(DomainConstants.SELECT_ORIGINATED, "descending", "date");
+        int numberInt = 1;
+        mapList.addSortKey("attribute[IMS_SortOrder]", "descending", "integer");
         mapList.sort();
         if (mapList.size() > i) {
             String name = (String) ((Map) mapList.get(element)).get(DomainConstants.SELECT_NAME);
-            int numberInt = Integer.parseInt(name.substring(name.length() - 2)) + 1;
+            numberInt = Integer.parseInt(name.substring(name.lastIndexOf("-") + 1)) + 1;
             number = (numberInt < 10) ? "0" + numberInt : Integer.toString(numberInt);
         }
 
@@ -105,6 +106,7 @@ public class IMS_QP_DEPTask_mxJPO {
         }
         LOG.info("set name: " + parent.getInfo(context, DomainObject.SELECT_NAME) + familyPostfix + "-" + number);
         newObject.setName(context, parent.getInfo(context, DomainObject.SELECT_NAME) + familyPostfix + "-" + number);
+        newObject.setAttributeValue(context,"IMS_SortOrder",String.valueOf(numberInt));
         return newObject;
     }
 
@@ -335,6 +337,7 @@ public class IMS_QP_DEPTask_mxJPO {
         QAGbusSelects.add(DomainConstants.SELECT_ID);
         QAGbusSelects.add(DomainConstants.SELECT_NAME);
         QAGbusSelects.add(DomainConstants.SELECT_ORIGINATED);
+        QAGbusSelects.add("attribute[IMS_SortOrder]");
         StringList QAGrelSelects = new StringList();  // Rel
         QAGrelSelects.add(DomainConstants.SELECT_RELATIONSHIP_ID);
 
@@ -433,7 +436,11 @@ public class IMS_QP_DEPTask_mxJPO {
             String DEPexpected = (String) requestMap.get("DEPexpectedOID");
             String relationship = RELATIONSHIP_IMS_QP_EXPECTED_RESULT_2_QP_TASK;
             DomainObject parent = new DomainObject(parentOID);
-            MapList depTask = getRelatedMapList(context, parent, relationship, TYPE_IMS_QP_EXPECTED_RESULT, true, true, (short) 1, "", null, 0);
+            MapList depTaskQP = getRelatedMapList(context, parent, RELATIONSHIP_IMS_QP_EXPECTED_RESULT_2_QP_TASK, TYPE_IMS_QP_EXPECTED_RESULT, true, true, (short) 1, "", null, 0);
+            MapList depTaskDEP = getRelatedMapList(context, parent, RELATIONSHIP_IMS_QP_EXPECTED_RESULT_2_DEP_TASK, TYPE_IMS_QP_EXPECTED_RESULT, true, true, (short) 1, "", null, 0);
+            MapList depTask = depTaskQP;
+            depTask.addAll(depTaskDEP);
+            LOG.info("MAPLIST EXPEXTED before before  " + depTask);
 
             DomainObject newObject = getNextName(context, objectId, parent, depTask, "", 0, 0);
 
@@ -1355,4 +1362,64 @@ public class IMS_QP_DEPTask_mxJPO {
         LOG.info("return map: " + mapMessage);
         return mapMessage;
     }
-}
+
+    /**
+     *
+     * @param context
+     * @param args
+     * @return
+     * @throws Exception
+     */
+    @com.matrixone.apps.framework.ui.ProgramCallable
+    public int setCounterType(Context context, String args[]) throws Exception {
+        try {
+            String objID = args[0];
+            DomainObject obj = DomainObject.newInstance(context, objID);
+            String taskOrder=obj.getInfo(context, "attribute[IMS_SortOrder]");
+            String name = obj.getName(context);
+            int numberInt = Integer.parseInt(name.substring(name.lastIndexOf("-")+1));
+            obj.setAttributeValue(context,"IMS_SortOrder",String.valueOf(numberInt));
+        }
+        catch(Exception ex){
+            LOG.info("setCounterType Error");
+        }
+        return 0;
+    }
+
+
+    public void setCounterForDEPTasksAndExpectedResult(Context context, String[] args) throws Exception {
+        try {
+            System.out.println("Start !!");
+
+            MapList resultTasks = getFindObject(context, "IMS_QP_DEPTask", "*",
+                    "*", "");
+            System.out.println("I found Tasks " + resultTasks.size());
+            MapList resultExpectedResult = getFindObject(context, "IMS_QP_ExpectedResult", "*",
+                    "*", "");
+            System.out.println("I found ExpectedRes " + resultExpectedResult.size());
+
+            resultTasks.addAll(resultExpectedResult);
+
+            for (Object resultObject : resultTasks) {
+                Map objTemp = (Map) resultObject;
+                String name = ((String) objTemp.get(DomainConstants.SELECT_NAME));
+                try {
+                    if(name.contains("-")) {
+                        int numberInt = Integer.parseInt(name.substring(name.lastIndexOf("-") + 1));
+                        new DomainObject((String) objTemp.get(DomainConstants.SELECT_ID)).setAttributeValue(context, "IMS_SortOrder", String.valueOf(numberInt));
+                    }else{
+                        new DomainObject((String) objTemp.get(DomainConstants.SELECT_ID)).setAttributeValue(context, "IMS_SortOrder", "0");
+                    }
+                }catch(Exception e){
+                    new DomainObject((String) objTemp.get(DomainConstants.SELECT_ID)).setAttributeValue(context, "IMS_SortOrder", "0");
+                    System.out.println(e.fillInStackTrace());
+                }
+            }
+            System.out.println("finish");
+        } catch (Exception ex) {
+            System.out.println(ex.fillInStackTrace());
+            throw ex;
+        }
+    }
+
+    }
