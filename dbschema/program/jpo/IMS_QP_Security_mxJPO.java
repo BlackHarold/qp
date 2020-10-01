@@ -731,6 +731,18 @@ public class IMS_QP_Security_mxJPO {
         return isOwner;
     }
 
+    private static boolean isOwnerInterdisciplinaryQPlan(Context context, String id) {
+        boolean isOwnerInterdisciplinaryQPlan = false;
+        try {
+            String personNames = MqlUtil.mqlCommand(context, String.format("print bus %s select from[IMS_QP_QPlan2Owner].to.name dump |", id));
+            if (personNames.contains(context.getUser())) isOwnerInterdisciplinaryQPlan = true;
+
+        } catch (Exception e) {
+            LOG.error("error getting owners from QPLan: " + e.getMessage());
+        }
+        return isOwnerInterdisciplinaryQPlan;
+    }
+
     /**
      * @param context
      * @param args
@@ -747,10 +759,16 @@ public class IMS_QP_Security_mxJPO {
             String id = (String) argsMap.get("parentOID");
             DomainObject object = new DomainObject(id);
 
-            String personNames = MqlUtil.mqlCommand(context, String.format("print bus %s select from[IMS_QP_QPlan2Object].to.from[IMS_PBS2Owner].to.name dump |", id));
-            LOG.info(id + "|" + object.getName(context) + "\nowner names: " + personNames);
-            personNames = UIUtil.isNotNullAndNotEmpty(personNames) ? personNames : "";
-            isOwnerQPlan = personNames.contains(context.getUser());
+            if (object.getType(context).equals("IMS_QP_QPlan") && object.getInfo(context, "from[IMS_QP_QPlan2Object]").equals("FALSE")) {
+                isOwnerQPlan = isOwnerInterdisciplinaryQPlan(context, id);
+            } else {
+                String personNames = MqlUtil.mqlCommand(context, String.format("print bus %s select from[IMS_QP_QPlan2Object].to.from[IMS_PBS2Owner].to.name dump |", id));
+                if (object.getType(context).equals("IMS_QP_QPlan")) {
+                    personNames += MqlUtil.mqlCommand(context, String.format("print bus %s select from[IMS_QP_QPlan2Object].to.from[IMS_PBS2Owner].to.name dump |", id));
+                }
+                personNames = UIUtil.isNotNullAndNotEmpty(personNames) ? personNames : "";
+                isOwnerQPlan = personNames.contains(context.getUser());
+            }
 
         } catch (Exception e) {
             LOG.error("error in method isOwnerQPlan: " + e.getMessage());
