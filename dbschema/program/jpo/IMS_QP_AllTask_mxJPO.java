@@ -8,18 +8,19 @@ import matrix.db.Context;
 import matrix.db.JPO;
 import matrix.db.RelationshipType;
 import matrix.util.StringList;
+import org.apache.log4j.Logger;
 
-import javax.management.relation.RelationType;
 import java.util.*;
 
 public class IMS_QP_AllTask_mxJPO extends IMS_QP_Task_mxJPO {
 
-    public Vector getDEPTaskRelatedObjects(Context context, String[] args, boolean in) {
+    private static final Logger LOG = Logger.getLogger("IMS_QP_DEP");
+
+    public Vector getDEPTaskRelatedObjects(Context context, String[] args, boolean getTo) {
 
         Vector result = new Vector();
 
         try {
-            boolean getTo = in;
             boolean isRuLocale = IMS_KDD_mxJPO.isRuLocale(args);
 
             Map argsMap = JPO.unpackArgs(args);
@@ -154,12 +155,20 @@ public class IMS_QP_AllTask_mxJPO extends IMS_QP_Task_mxJPO {
                 relationship.remove(context);
 
                 int counter = 1;
-                for (int i = 0; i < taskIDs.length; i++) {
-                    DomainObject depTask = new DomainObject(depTaskID), currentTask = new DomainObject(currentTaskID), task = new DomainObject(taskIDs[i]);
-                    stringBuilder.append("\n act " + counter++ + " - connect from " + depTask.getName(context) + " id " + depTaskID +
-                            "\n relationship: RelationshipType(\"IMS_QP_DEPTask2DEP\") \nto " + task.getName(context) + " id: " + taskIDs[i]);
+                for (String taskID : taskIDs) {
+                    DomainObject depTask = new DomainObject(depTaskID),
+                            currentTask = new DomainObject(currentTaskID),
+                            task = new DomainObject(taskID);
+
                     relationship = DomainRelationship.connect(context, depTask, new RelationshipType("IMS_QP_DEPTask2DEPTask"), task);
                     relationship.setAttributeValue(context, "IMS_QP_DEPTaskStatus", "Approved");
+
+                    stringBuilder
+                            .append("\n act ").append(counter++)
+                            .append(" - connect from ").append(depTask.getName(context))
+                            .append(" id: ").append(depTaskID)
+                            .append("\n RelationshipType(\"IMS_QP_DEPTask2DEP\") \nto ").append(task.getName(context))
+                            .append(" id: ").append(taskID);
                     argsMap.put("message", stringBuilder.toString());
                 }
                 ContextUtil.commitTransaction(context);

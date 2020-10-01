@@ -278,16 +278,14 @@ public class IMS_QP_mxJPO extends DomainObject {
     /**
      * It's retrieve DEPs for table IMS_QP_DEP
      */
-    public MapList getAllPBS(Context context, String[] args) throws Exception {
+    public MapList getAllPBS(Context context, String[] args) {
 
-        Map argsMap = JPO.unpackArgs(args);
-
-        //get objectID
-        String objectId = (String) argsMap.get("objectId");
-        StringList selects = new StringList();
-        selects.add("id");
-
-        MapList result = findObjects(context, IMS_QP_Constants_mxJPO.SYSTEM_TYPES, "*", "", new StringList("id"));
+        MapList result = null;
+        try {
+            result = findObjects(context, IMS_QP_Constants_mxJPO.SYSTEM_TYPES, "*", "revision==last", new StringList("id"));
+        } catch (FrameworkException frameworkException) {
+            frameworkException.printStackTrace();
+        }
         return result;
     }
 
