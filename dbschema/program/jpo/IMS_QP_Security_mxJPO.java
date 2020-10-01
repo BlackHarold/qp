@@ -1,7 +1,10 @@
 import com.matrixone.apps.domain.DomainConstants;
 import com.matrixone.apps.domain.DomainObject;
 import com.matrixone.apps.domain.DomainRelationship;
-import com.matrixone.apps.domain.util.*;
+import com.matrixone.apps.domain.util.ContextUtil;
+import com.matrixone.apps.domain.util.FrameworkException;
+import com.matrixone.apps.domain.util.MapList;
+import com.matrixone.apps.domain.util.MqlUtil;
 import com.matrixone.apps.framework.ui.UIUtil;
 import matrix.db.*;
 import matrix.util.MatrixException;
@@ -639,7 +642,7 @@ public class IMS_QP_Security_mxJPO {
 
                     //if the user connecting to the system is not assigned to IMS_QP_QPOwner
                     if (!person.isAssigned(context, "IMS_QP_QPOwner"))
-                        MqlUtil.mqlCommand(context, "mod person $1 assign role $2;", person.getName(), "IMS_QP_QPOwner");
+                        MqlUtil.mqlCommand(context, "mod person $1 assign role $2", person.getName(), "IMS_QP_QPOwner");
 
                     LOG.info(String.format("connect %s relationship %s to %s", from, RELATIONSHIP_IMS_PBS2Owner, to));
 
@@ -668,9 +671,19 @@ public class IMS_QP_Security_mxJPO {
             public String disconnect(Context context, String from, String to, String relationship) {
 
                 try {
+                    DomainObject owner = new DomainObject(to);
+                    Person person = new Person(owner.getName(context));
                     new DomainObject(from).disconnect(context, new RelationshipType(RELATIONSHIP_IMS_PBS2Owner),
-                            true, new DomainObject(to));
+                            true, owner);
+
+                    String hasPBS = owner.getInfo(context, "to[IMS_PBS2Owner]");
+                    if (hasPBS.equals("FALSE")) {
+                        MqlUtil.mqlCommand(context, "mod person $1 remove assign role $2", person.getName(), "IMS_QP_QPOwner");
+                    }
                 } catch (Exception e) {
+                    for (StackTraceElement er : e.getStackTrace()) {
+                        LOG.error(er.toString());
+                    }
                     LOG.error("error disconnecting: " + to + " from " + from);
                 }
                 return "";

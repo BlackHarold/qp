@@ -15,6 +15,13 @@ mxUpdate table "${NAME}" {
         setting "Registered Suite" "Framework"
     }
     column {
+        name "revision"
+        label "Revision"
+        businessobject "revision"
+        user "all"
+        setting "Registered Suite" "Framework"
+    }
+    column {
         name "type"
         label "Type"
         businessobject "type"
