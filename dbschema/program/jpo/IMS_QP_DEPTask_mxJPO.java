@@ -106,7 +106,7 @@ public class IMS_QP_DEPTask_mxJPO {
         }
         LOG.info("set name: " + parent.getInfo(context, DomainObject.SELECT_NAME) + familyPostfix + "-" + number);
         newObject.setName(context, parent.getInfo(context, DomainObject.SELECT_NAME) + familyPostfix + "-" + number);
-        newObject.setAttributeValue(context,"IMS_SortOrder",String.valueOf(numberInt));
+        newObject.setAttributeValue(context, "IMS_SortOrder", String.valueOf(numberInt));
         return newObject;
     }
 
@@ -158,21 +158,20 @@ public class IMS_QP_DEPTask_mxJPO {
 
 
     public Object getFromTo(Context context, String[] args) throws Exception {
-        PrintWriter pw = new PrintWriter(new BufferedWriter(new OutputStreamWriter(
-                new FileOutputStream(new java.io.File("c:/temp/IMS_121232.txt"), true))), true);
-        HashMap programMap = (HashMap) JPO.unpackArgs(args);
+       
+        Map programMap = (Map) JPO.unpackArgs(args);
+		Map paramMap = (Map) programMap.get("paramList");
+		String sOID = (String) paramMap.get("objectId");
         MapList mlObList = (MapList) programMap.get("objectList");
 
         Vector returnList = new Vector();
         try {
             for (Object objTemp : mlObList) {
                 String sID = (String) ((Map) objTemp).get(DomainObject.SELECT_RELATIONSHIP_ID);
-                pw.println(sID);
                 DomainRelationship relationship = new DomainRelationship(sID);
                 relationship.openRelationship(context);
-                pw.println(relationship.getFrom());
-                pw.println(relationship.getFrom().getTypeName());
-                returnList.add(relationship.getFrom().getTypeName().equals(TYPE_IMS_QP_EXPECTED_RESULT) ? EnoviaResourceBundle.getProperty(context, "Framework", "emxFramework.Range.IMS_QP_Direction.From", context.getLocale().getLanguage()) : EnoviaResourceBundle.getProperty(context, "Framework", "emxFramework.Range.IMS_QP_Direction.To", context.getLocale().getLanguage()));
+			    returnList.add(relationship.getFrom().getTypeName().equals(TYPE_IMS_QP_EXPECTED_RESULT) || (!relationship.getFrom().getObjectId().equals(sOID) && !relationship.getTo().getObjectId().equals(sOID)) ? EnoviaResourceBundle.getProperty(context, "Framework", "emxFramework.Range.IMS_QP_Direction.From", context.getLocale().getLanguage()) : EnoviaResourceBundle.getProperty(context, "Framework", "emxFramework.Range.IMS_QP_Direction.To", context.getLocale().getLanguage()));
+            //    returnList.add(relationship.getFrom().getTypeName().equals(TYPE_IMS_QP_EXPECTED_RESULT) ? EnoviaResourceBundle.getProperty(context, "Framework", "emxFramework.Range.IMS_QP_Direction.From", context.getLocale().getLanguage()) : EnoviaResourceBundle.getProperty(context, "Framework", "emxFramework.Range.IMS_QP_Direction.To", context.getLocale().getLanguage()));
                 relationship.closeRelationship(context, true);
             }
 
@@ -226,15 +225,11 @@ public class IMS_QP_DEPTask_mxJPO {
     public void setResultType(Context context, String[] args) throws Exception {
         try {
             Map programMap = JPO.unpackArgs(args);
-            PrintWriter pw = new PrintWriter(new BufferedWriter(new OutputStreamWriter(
-                    new FileOutputStream(new java.io.File("c:/temp/IMS_RepReqPBS.txt"), true))), true);
 
             Map paramMap = (Map) programMap.get("paramMap");
             String objectId = (String) paramMap.get("objectId");
             String newValue = (String) paramMap.get("New Value");
-            pw.println("programMap" + programMap.toString());
             if (!newValue.equals("none") && !newValue.equals("")) {
-                pw.println("newValue" + newValue);
                 newValue = newValue.substring(0, newValue.indexOf("_"));
                 DomainObject exceptedResult = new DomainObject(objectId);
                 RelationshipType resultTypeToExceptedResult = new RelationshipType(RELATIONSHIP_IMS_QP_RESULT_TYPE_2_EXPECTED_RESULT);
@@ -358,8 +353,6 @@ public class IMS_QP_DEPTask_mxJPO {
             Map programMap = JPO.unpackArgs(args);
             String objectId = (String) programMap.get("objectId");
 
-            PrintWriter pw = new PrintWriter(new BufferedWriter(new OutputStreamWriter(
-                    new FileOutputStream(new java.io.File("c:/temp/IMS_RepReqPBS.txt"), true))), true);
 
             StringList stringList = new StringList();
 
@@ -367,11 +360,8 @@ public class IMS_QP_DEPTask_mxJPO {
             if (objectWhere != null && !objectWhere.equals("")) {
 
                 MapList mapList = getRelatedMapList(context, new DomainObject(objectWhere), RELATIONSHIP_IMS_QP_EXPECTED_RESULT_2_DEP_TASK, TYPE_IMS_QP_EXPECTED_RESULT, true, true, (short) 1, "", "", 0);
-                pw.println("cdsc2" + mapList.toString());
-                pw.println("cdsc2" + mapList.size());
                 for (Object resultTypObject : mapList) {
                     Map objTemp = (Map) resultTypObject;
-                    pw.println((String) objTemp.get(DomainObject.SELECT_ID));
                     stringList.add((String) objTemp.get(DomainObject.SELECT_ID));
                 }
             }
@@ -385,10 +375,7 @@ public class IMS_QP_DEPTask_mxJPO {
     public String dynamicFormTask(final Context context, final String[] args) throws Exception {
 
         try {
-            PrintWriter pw = new PrintWriter(new BufferedWriter(new OutputStreamWriter(
-                    new FileOutputStream(new java.io.File("c:/temp/IMS_DEPTASK.txt"), true))), true);
             String objectId = args[0];
-            pw.println(objectId);
             DomainObject object = new DomainObject(objectId);
 
             return object.getInfo(context, IMS_Name) + "|" + object.getInfo(context, IMS_NameRU) + "|" + object.getInfo(context, IMS_DescriptionEn) + "|" + object.getInfo(context, IMS_DescriptionRu);
@@ -514,8 +501,6 @@ public class IMS_QP_DEPTask_mxJPO {
 
     public StringList includeSearchDEP(Context context, String[] args) throws FrameworkException {
         try {
-            PrintWriter pw = new PrintWriter(new BufferedWriter(new OutputStreamWriter(
-                    new FileOutputStream(new java.io.File("c:/temp/IMS_RepR44.txt"), true))), true);
             Map programMap = JPO.unpackArgs(args);
             String objectId = (String) programMap.get("objectId");
             StringList stringList = new StringList();
@@ -607,10 +592,8 @@ public class IMS_QP_DEPTask_mxJPO {
 
     public boolean accessDEPTask(Context context, String[] args) throws FrameworkException {
         try {
-            PrintWriter pw = new PrintWriter(new BufferedWriter(new OutputStreamWriter(
-                    new FileOutputStream(new java.io.File("c:/temp/IMS_DEP.txt"), true))), true);
+            
             Map programMap = JPO.unpackArgs(args);
-            pw.println((String) programMap.get("objectId"));
             return true;
 
         } catch (Exception ex) {
@@ -621,17 +604,13 @@ public class IMS_QP_DEPTask_mxJPO {
     //триггер на удаление шага qp
     public int delFact(Context context, String[] args) throws Exception {
         try {
-            PrintWriter pw = new PrintWriter(new BufferedWriter(new OutputStreamWriter(
-                    new FileOutputStream(new java.io.File("c:/temp/IMS_QPTrigger.txt"), true))), true);
+
             String objectId = args[0];
             DomainObject task = new DomainObject(objectId);
             int factexp = Integer.parseInt(task.getInfo(context, SELECT_ATTRIBUTE_IMS_QP_FACT_EXP));
             int factgot = Integer.parseInt(task.getInfo(context, SELECT_ATTRIBUTE_IMS_QP_FACT_GOT));
-            pw.println("fact" + factexp);
-            pw.println("got" + factgot);
             MapList depTask = getRelatedMapList(context, task, RELATIONSHIP_IMS_DEPTask2QPTask, "*", true, true, (short) 1, "", "", 0);
             for (Object depObject : depTask) {
-                pw.println("dep");
 
                 Map depMap = (Map) depObject;
                 String depID = (String) depMap.get(DomainObject.SELECT_ID);
@@ -646,7 +625,6 @@ public class IMS_QP_DEPTask_mxJPO {
             MapList qpPlan = getRelatedMapList(context, task, RELATIONSHIP_IMS_QPlan2QPTask, "*", true, true, (short) 1, "", "", 0);
             for (Object qpObject : qpPlan) {
                 Map qpMap = (Map) qpObject;
-                pw.println("qp");
 
                 String qpID = (String) qpMap.get(DomainObject.SELECT_ID);
                 DomainObject qp = new DomainObject(qpID);
@@ -656,7 +634,6 @@ public class IMS_QP_DEPTask_mxJPO {
                 } else {
                     setFactGot(context, qp, -1);
                 }
-                pw.println("no error");
             }
 
         } catch (Exception ex) {
@@ -669,9 +646,7 @@ public class IMS_QP_DEPTask_mxJPO {
 
     private void delFactExpTree(Context context, DomainObject depTask, int count, int countgot) throws Exception {
         try {
-            PrintWriter pw = new PrintWriter(new BufferedWriter(new OutputStreamWriter(
-                    new FileOutputStream(new java.io.File("c:/temp/IMS_QPTrigger.txt"), true))), true);
-            pw.println("hi");
+
 
             MapList subStageMapList = getRelatedMapList(context, depTask, "IMS_QP_DEPSubStage2DEPTask", "*", true, true, (short) 1, "", "", 0);
             setFactExp(context, depTask, count);
@@ -773,17 +748,13 @@ public class IMS_QP_DEPTask_mxJPO {
 
     public int connectFact(Context context, String[] args) throws Exception {
         try {
-            PrintWriter pw = new PrintWriter(new BufferedWriter(new OutputStreamWriter(
-                    new FileOutputStream(new java.io.File("c:/temp/IMS_121232.txt"), true))), true);
+ 
             String taskId = args[0];
-            pw.println("taskid: " + taskId);
             String factId = args[1];
-            pw.println("fact id: " + factId);
             DomainObject fact = new DomainObject(factId);
             if (fact.getInfo(context, DomainObject.SELECT_TYPE).equals("IMS_ExternalDocumentSet")) {
                 if (fact.getInfo(context, "attribute[IMS_ProjDocStatus]").equals("Finalized")) {
                     DomainObject task = new DomainObject(taskId);
-                    pw.println("doc Finalized");
                     setAttributeClosedTask(context, task);
                 }
             }
@@ -990,9 +961,6 @@ public class IMS_QP_DEPTask_mxJPO {
     }
 
     public static String addExtensionScript(Context context, String[] args) throws Exception {
-        PrintWriter pw = new PrintWriter(new BufferedWriter(new OutputStreamWriter(
-                new FileOutputStream(new java.io.File("c:/temp/IMS_QPTrigger2.txt"), true))), true);
-        pw.println("hiFile2");
         Map fieldMap = ((Map) ((Map) JPO.unpackArgs(args)).get("fieldMap"));
         Map settings = ((Map) fieldMap.get("settings"));
         String regSuite = (String) settings.get("Registered Suite");
@@ -1005,8 +973,6 @@ public class IMS_QP_DEPTask_mxJPO {
     }
 
     public Map attachFile(Context context, String[] args) throws Exception {
-        PrintWriter pw = new PrintWriter(new BufferedWriter(new OutputStreamWriter(
-                new FileOutputStream(new java.io.File("c:/temp/IMS_QPTrigger2.txt"), true))), true);
         Map map = new HashMap();
         HashMap programMap = JPO.unpackArgs(args);
         InputStream inp = (InputStream) programMap.get("inp");
@@ -1020,8 +986,6 @@ public class IMS_QP_DEPTask_mxJPO {
 
     public Map attachFileGeneral(Context context, String _objectId, String _fileName, InputStream _inp, String[] args) throws Exception {
         Map map = new HashMap();
-        PrintWriter pw = new PrintWriter(new BufferedWriter(new OutputStreamWriter(
-                new FileOutputStream(new java.io.File("c:/temp/IMS_QPTrigger2.txt"), true))), true);
         InputStream inp = _inp;
         String sFileName = _fileName;
         String sObjectId = _objectId;
@@ -1054,7 +1018,6 @@ public class IMS_QP_DEPTask_mxJPO {
             String jpoName = "emxCommonDocument";
             String methodName = "commonDocumentCheckin";
             Map objectMap = JPO.invoke(context, jpoName, null, methodName, args1, Map.class);
-            pw.println(objectMap.toString());
 
             FileUtils.deleteQuietly(file);
             inp1.close();
@@ -1088,14 +1051,11 @@ public class IMS_QP_DEPTask_mxJPO {
 
     public boolean accessDocument(Context context, String[] args) throws FrameworkException {
         try {
-            PrintWriter pw = new PrintWriter(new BufferedWriter(new OutputStreamWriter(
-                    new FileOutputStream(new java.io.File("c:/temp/IMS_121232.txt"), true))), true);
 
             Map programMap = JPO.unpackArgs(args);
             String objectId = (String) programMap.get("objectId");
             DomainObject object = new DomainObject(objectId);
             MapList expectedResult = getRelatedMapList(context, object, RELATIONSHIP_IMS_QP_EXPECTED_RESULT_2_QP_TASK, "*", false, true, (short) 1, "to[" + RELATIONSHIP_IMS_QP_RESULT_TYPE_2_EXPECTED_RESULT + "].from.name!='CL-1'", "", 0);
-            pw.println(expectedResult.size());
             if (expectedResult.size() != 0) {
                 return true;
             }
@@ -1110,32 +1070,23 @@ public class IMS_QP_DEPTask_mxJPO {
     public void setAttributeClosedTask(Context context, DomainObject qpTask) throws Exception {
         try {
             String full = "Full";
-            PrintWriter pw = new PrintWriter(new BufferedWriter(new OutputStreamWriter(
-                    new FileOutputStream(new java.io.File("c:/temp/IMS_121232.txt"), true))), true);
-            pw.println();
             MapList outputQPTask = getRelatedMapList(context, qpTask, RELATIONSHIP_IMS_QP_QPTask2QPTask, "*", true, false, (short) 1, "", "", 0);
 
             for (Object objTemp : outputQPTask) {
                 String sID = (String) ((Map) objTemp).get(DomainObject.SELECT_ID);
-                pw.println("output Task: " + sID);
                 DomainObject relTask = new DomainObject(sID);
                 String closed = relTask.getInfo(context, "attribute[IMS_QP_CloseStatus]");
-                pw.println("status Task: " + closed);
                 if (!closed.equals("Full")) {
                     full = "No";
-                    pw.println("NO ");
                     break;
                 }
             }
             if (full.equals("Full")) {
-                pw.println("Full");
 
                 qpTask.setAttributeValue(context, "IMS_QP_CloseStatus", "Full");
-                pw.println("set Full");
                 setAttributeClosedTaskTree(context, qpTask);
 
             }
-            pw.println("end");
 
         } catch (Exception ex) {
             throw ex;
@@ -1145,14 +1096,10 @@ public class IMS_QP_DEPTask_mxJPO {
     public void setAttributeClosedTaskTree(Context context, DomainObject qpTask) throws Exception {
         try {
             String full = "Full";
-            PrintWriter pw = new PrintWriter(new BufferedWriter(new OutputStreamWriter(
-                    new FileOutputStream(new java.io.File("c:/temp/IMS_121232.txt"), true))), true);
-            pw.println();
 
             MapList inputQPTask = getRelatedMapList(context, qpTask, RELATIONSHIP_IMS_QP_QPTask2QPTask, "*", true, false, (short) 1, "", "", 0);
             for (Object inputMap : inputQPTask) {
                 String inputId = (String) ((Map) inputMap).get(DomainObject.SELECT_ID);
-                pw.println("input task: " + inputId);
 
                 DomainObject inputObject = new DomainObject(inputId);
                 if (isFactFull(context, qpTask)) {
@@ -1161,7 +1108,6 @@ public class IMS_QP_DEPTask_mxJPO {
                         String outputId = (String) ((Map) outputMap).get(DomainObject.SELECT_ID);
                         DomainObject outputObject = new DomainObject(outputId);
                         String closed = outputObject.getInfo(context, "attribute[IMS_QP_CloseStatus]");
-                        pw.println("output task: " + outputId + "  " + closed);
 
                         if (!closed.equals("Full")) {
                             full = "No";
@@ -1170,7 +1116,6 @@ public class IMS_QP_DEPTask_mxJPO {
                     }
                     if (full.equals("Full")) {
                         inputObject.setAttributeValue(context, "IMS_QP_CloseStatus", "Full");
-                        pw.println("Full ");
 
                         setAttributeClosedTaskTree(context, inputObject);
                     }
@@ -1236,14 +1181,11 @@ public class IMS_QP_DEPTask_mxJPO {
 
     public int modifyAttributeClosedStatus(Context context, String[] args) throws Exception {
         try {
-            PrintWriter pw = new PrintWriter(new BufferedWriter(new OutputStreamWriter(
-                    new FileOutputStream(new java.io.File("c:/temp/IMS_121232.txt"), true))), true);
 
             String qpTaskId = args[0];
             String valuenew = args[1];
             String value = args[2];
 
-            pw.println(value + "   " + valuenew);
             DomainObject qpTask = new DomainObject(qpTaskId);
             if (!value.equals("Full") && valuenew.equals("Full")) {
                 treeFact(context, qpTask, 1);
@@ -1364,7 +1306,6 @@ public class IMS_QP_DEPTask_mxJPO {
     }
 
     /**
-     *
      * @param context
      * @param args
      * @return
@@ -1375,12 +1316,11 @@ public class IMS_QP_DEPTask_mxJPO {
         try {
             String objID = args[0];
             DomainObject obj = DomainObject.newInstance(context, objID);
-            String taskOrder=obj.getInfo(context, "attribute[IMS_SortOrder]");
+            String taskOrder = obj.getInfo(context, "attribute[IMS_SortOrder]");
             String name = obj.getName(context);
-            int numberInt = Integer.parseInt(name.substring(name.lastIndexOf("-")+1));
-            obj.setAttributeValue(context,"IMS_SortOrder",String.valueOf(numberInt));
-        }
-        catch(Exception ex){
+            int numberInt = Integer.parseInt(name.substring(name.lastIndexOf("-") + 1));
+            obj.setAttributeValue(context, "IMS_SortOrder", String.valueOf(numberInt));
+        } catch (Exception ex) {
             LOG.info("setCounterType Error");
         }
         return 0;
@@ -1404,13 +1344,13 @@ public class IMS_QP_DEPTask_mxJPO {
                 Map objTemp = (Map) resultObject;
                 String name = ((String) objTemp.get(DomainConstants.SELECT_NAME));
                 try {
-                    if(name.contains("-")) {
+                    if (name.contains("-")) {
                         int numberInt = Integer.parseInt(name.substring(name.lastIndexOf("-") + 1));
                         new DomainObject((String) objTemp.get(DomainConstants.SELECT_ID)).setAttributeValue(context, "IMS_SortOrder", String.valueOf(numberInt));
-                    }else{
+                    } else {
                         new DomainObject((String) objTemp.get(DomainConstants.SELECT_ID)).setAttributeValue(context, "IMS_SortOrder", "0");
                     }
-                }catch(Exception e){
+                } catch (Exception e) {
                     new DomainObject((String) objTemp.get(DomainConstants.SELECT_ID)).setAttributeValue(context, "IMS_SortOrder", "0");
                     System.out.println(e.fillInStackTrace());
                 }
@@ -1422,4 +1362,4 @@ public class IMS_QP_DEPTask_mxJPO {
         }
     }
 
-    }
+}
