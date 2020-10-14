@@ -4,9 +4,7 @@ import com.matrixone.apps.domain.DomainObject;
 import com.matrixone.apps.domain.DomainRelationship;
 import com.matrixone.apps.domain.util.*;
 import com.matrixone.apps.framework.ui.UIUtil;
-import matrix.db.Context;
-import matrix.db.JPO;
-import matrix.db.MQLCommand;
+import matrix.db.*;
 import matrix.util.MatrixException;
 import matrix.util.StringList;
 import org.apache.commons.lang3.StringEscapeUtils;
@@ -772,5 +770,139 @@ public class IMS_QP_Task_mxJPO {
             LOG.error("error DomainObject initialisation: " + e.getMessage());
             e.printStackTrace();
         }
+    }
+
+    public void editPostProcess(Context context, String... args) {
+
+        String objectID = "", systemID = "";
+        try {
+            Map programMap = JPO.unpackArgs(args);
+            Map paramMap = (Map) programMap.get("paramMap");
+
+            objectID = (String) paramMap.get("objectId");
+            systemID = (String) paramMap.get("systemOID");
+        } catch (Exception e) {
+            LOG.error("error unpacking arguments: " + e);
+        }
+
+        //initialize qptask object
+        DomainObject object = null;
+        try {
+            object = new DomainObject(objectID);
+        } catch (Exception e) {
+            LOG.error("error when initializing object: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        DomainObject system = null;
+        if (UIUtil.isNotNullAndNotEmpty(systemID)) {
+
+            //disconnect qPlan from all systems
+            try {
+                MapList systemsRelated = object.getRelatedObjects(context,
+                        /*relationship*/"IMS_QP_QPlan2Object",
+                        /*type*/IMS_QP_Constants_mxJPO.SYSTEM_TYPES,
+                        /*object attributes*/ new StringList("id"),
+                        /*relationship selects*/ null,
+                        /*getTo*/ false, /*getFrom*/ true,
+                        /*recurse to level*/ (short) 1,
+                        /*object where*/null,
+                        /*relationship where*/ null,
+                        /*limit*/ 0);
+
+                for (Object o : systemsRelated) {
+                    Map map = (Map) o;
+                    DomainObject disconnectingSystemObject = new DomainObject((String) map.get("id"));
+                    object.disconnect(context, new RelationshipType("IMS_QP_QPlan2Object"), true, disconnectingSystemObject);
+                    LOG.info("system " + disconnectingSystemObject.getName(context) + " disconnected");
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            //connect to new one system and change name
+            try {
+
+                system = new DomainObject(systemID);
+                object.connect(context, new RelationshipType("IMS_QP_QPlan2Object"),/*from*/true, new DomainObject(systemID));
+
+                String prefix = system.getName(context) + "_", objectName = object.getName(context);
+                LOG.info("qptask name " + objectName + " has changed to: " + prefix + objectName);
+                object.setName(context, prefix + objectName);
+
+            } catch (Exception e) {
+                try {
+                    LOG.error("error when connecting " + system.getType(context) + " " + system.getName(context));
+                } catch (FrameworkException frameworkException) {
+                    LOG.error("error getting type&name of the system id: " + systemID);
+                    frameworkException.printStackTrace();
+                }
+                e.printStackTrace();
+            }
+        }
+    }
+
+    /**
+     * It's retrieve all Systems&Buildings from current Functional Area
+     */
+    public Object getSystems(Context context, String... args) {
+
+        String parentID = "";
+        try {
+            Map programMap = JPO.unpackArgs(args);
+            Map requestMap = (Map) programMap.get("requestMap");
+            parentID = (String) requestMap.get("parentOID");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        String functionalAreaID = "";
+        DomainObject functionalAreaObject = null;
+        try {
+            DomainObject qpTask = new DomainObject(parentID);
+            functionalAreaID = qpTask.getInfo(context, "to[IMS_QP_QPlan2QPTask].from.from[IMS_QP_QPlan2Object].to.id");
+            functionalAreaObject = new DomainObject(functionalAreaID);
+        } catch (Exception e) {
+            LOG.error("error getting info from qpTask " + parentID + ": " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        StringList objectSelects = new StringList();
+        objectSelects.add("id");
+        objectSelects.add("name");
+
+        MapList rawData = null;
+        if (functionalAreaObject != null) {
+            try {
+                rawData = functionalAreaObject.getRelatedObjects(context,
+                        /*relationship*/ null,
+                        /*type*/ "IMS_PBSSystem,IMS_GBSBuilding",
+                        /*object attributes*/ objectSelects,
+                        /*relationship selects*/ null,
+                        /*getTo*/false,/*getFrom*/ true,
+                        /*recurse level*/(short) 1,
+                        /*object where*/ null,
+                        /*relationship where*/ null,
+                        /*limit*/0);
+            } catch (FrameworkException frameworkException) {
+                LOG.error("Framework exception: " + frameworkException.getMessage());
+                frameworkException.printStackTrace();
+            }
+        }
+
+        StringList fieldRangeValues = new StringList();
+        StringList fieldDisplayRangeValues = new StringList();
+        if (rawData != null)
+            for (Object o : rawData) {
+                Map<String, String> map = (Map<String, String>) o;
+                fieldRangeValues.add(map.get("id"));
+                fieldDisplayRangeValues.add(map.get("name"));
+            }
+
+        Map result = new HashMap();
+        result.put("field_choices", fieldRangeValues);
+        result.put("field_display_choices", fieldDisplayRangeValues);
+
+        return result;
     }
 }

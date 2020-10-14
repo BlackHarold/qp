@@ -1,0 +1,23 @@
+################################################################################
+# COMMAND_IMS_QP_QPTask_edit.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate command "${NAME}" {
+    symbolicname "command_IMS_QP_QPTask_edit"
+    description "Editing QP task object"
+    label "Edit"
+    href "${COMMON_DIR}/IMS_QP_QPTask_edit.jsp?form=IMS_QP_QPTask_edit&mode=edit&submitAction=refreshCaller&formHeader='Quality Plan task'&postProcessJPO=IMS_QP_Task:editPostProcess"
+    alt ""
+    setting "Access Function" "isOwnerQPlanFromTask"
+    setting "Access Program" "IMS_QP_Security"
+    setting "Image" "${COMMON_DIR}/images/iconActionEdit.gif"
+    setting "Registered Suite" "Framework"
+    ################################################## Info Start
+    property "author" value "IMS Team"
+    property "original name" value "IMS_QP_QPTask_edit"
+    property "application" value "IMS_QP"
+    property "version" value "1"
+    ################################################## Info End
+}

@@ -16,6 +16,7 @@ mxUpdate relationship "${NAME}" {
         clone none
         !propagatemodify
         propagateconnection
+        type "IMS_QP_QPTask"
         type "IMS_QP_QPlan"
     }
     to {

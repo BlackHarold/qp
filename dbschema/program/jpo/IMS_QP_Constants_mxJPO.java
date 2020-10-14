@@ -5,6 +5,7 @@ public class IMS_QP_Constants_mxJPO {
     private IMS_QP_Constants_mxJPO() {
     }
 
+    public static final String ESERVICE_PRODUCTION = "eService Production";
     public static final String ATTRIBUTE_IMS_QP_INTERDISCIPLINARY_DEP = "attribute[IMS_QP_InterdisciplinaryDEP]";
 
     private static final String TO_IMS_QP_DEPSUB_STAGE_2_DEPTASK_FROM_TO_IMS_QP_DEPPROJECT_STAGE_2_DEPSUB_STAGE_FROM_TO_IMS_QP_DEP_2_DEPPROJECT_STAGE_FROM_ID = "to[IMS_QP_DEPSubStage2DEPTask].from.to[IMS_QP_DEPProjectStage2DEPSubStage].from.to[IMS_QP_DEP2DEPProjectStage].from.id";

@@ -1,0 +1,57 @@
+################################################################################
+# FORM_IMS_QP_QPTask_edit.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate form "${NAME}" {
+    symbolicname "FORM_IMS_QP_QPTask_edit"
+    description ""
+    field {
+        name "IMS_DescriptionEn"
+        label "Description"
+        businessobject "$<attribute[IMS_DescriptionEn]>"
+        setting "Editable" "true"
+        setting "Field Type" "attribute"
+        setting "Input Type" "textarea"
+        setting "Registered Suite" "Components"
+    }
+    field {
+        name "IMS_DescriptionRu"
+        label "Description RU"
+        businessobject "$<attribute[IMS_DescriptionRu]>"
+        setting "Editable" "true"
+        setting "Field Type" "attribute"
+        setting "Input Type" "textarea"
+        setting "Registered Suite" "Components"
+    }
+    field {
+        name "system"
+        label "System"
+        businessobject "$<from[IMS_QP_QPlan2Object].to.name>"
+        range "${COMMON_DIR}/emxFullSearch.jsp?field=TYPES=IMS_PBSSystem,IMS_GBSBuilding,IMS_PBSFunctionalArea&table=AEFGeneralSearchResults&selection=single&mode=chooser&showInitialResults=true&HelpMarker=emxhelpfullsearch&submitLabel=emxFramework.GlobalSearch.Done&CancelButton=true"
+        setting "Access Expression" "to[IMS_QP_QPlan2QPTask].from.from[IMS_QP_QPlan2Object]==false&&from[IMS_QP_QPlan2Object]==false"
+        setting "Editable" "true"
+        setting "Input Type" "textbox"
+        setting "Registered Suite" "Components"
+        setting "Required" "false"
+    }
+    field {
+        name "systemOID"
+        label "System"
+        businessobject "$<from[IMS_QP_QPlan2Object].to.name>"
+        setting "Access Expression" "to[IMS_QP_QPlan2QPTask].from.from[IMS_QP_QPlan2Object].to.type==IMS_PBSFunctionalArea&&from[IMS_QP_QPlan2Object]==false"
+        setting "Editable" "true"
+        setting "Input Type" "combobox"
+        setting "Range Function" "getSystems"
+        setting "Range Program" "IMS_QP_Task"
+        setting "Registered Suite" "Components"
+        setting "Required" "false"
+    }
+    ################################################## Info Start
+    property "author" value "The IMS Team"
+    property "original name" value "IMS_QP_QPTask_edit"
+    property "application" value "IMS_QP"
+    property "version" value "1"
+    ################################################## Info End
+}

@@ -1,15 +1,13 @@
 ################################################################################
-# CHANNEL_IMS_QP_QPTask_Channel.mxu
+# MENU_IMS_QP_QPTaskFormToolbar.mxu
 #
 #            This file describes the target of a Configuration Item.
 ################################################################################
 
-mxUpdate channel "${NAME}" {
+mxUpdate menu "${NAME}" {
     description ""
     label ""
     href ""
     alt ""
-    height 260
-    command "IMS_QP_QPTask_Form"
-    command "IMS_QP_RelatedExpectedResultQP"
+    command "IMS_QP_QPTask_edit"
 }
