@@ -1,34 +1,23 @@
 import com.matrixone.apps.domain.DomainConstants;
 import com.matrixone.apps.domain.DomainObject;
 import com.matrixone.apps.domain.DomainRelationship;
+import com.matrixone.apps.domain.util.ContextUtil;
 import com.matrixone.apps.domain.util.EnoviaResourceBundle;
 import com.matrixone.apps.domain.util.FrameworkException;
 import com.matrixone.apps.domain.util.MapList;
-import com.matrixone.apps.framework.ui.UINavigatorUtil;
-import matrix.db.BusinessObject;
-import matrix.db.BusinessObjectWithSelectList;
-import matrix.db.Context;
-import matrix.db.JPO;
+import matrix.db.*;
 import matrix.util.StringList;
 import org.apache.log4j.Logger;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.Map;
+import java.util.*;
 
 
 public class IMS_QP_mxJPO extends DomainObject {
 
-    public IMS_QP_mxJPO(Context context, String[] args) throws Exception {
-        super();
-        if (args != null && args.length > 0) {
-            setId(args[0]);
-        }
-    }
+    private static final Logger LOG = Logger.getLogger("IMS_QP_DEP");
 
     public static MapList getStructureList(Context context, String[] args) throws FrameworkException {
-        MapList componentsList = null;
+        MapList componentsList;
         try {
             HashMap programMap = JPO.unpackArgs(args);
             HashMap paramMap = (HashMap) programMap.get("paramMap");
@@ -92,7 +81,7 @@ public class IMS_QP_mxJPO extends DomainObject {
     }
 
     /**
-     * Label program for  Tree structure
+     * Label program for Tree structure
      */
     public String getDisplayNameForNavigator(Context context, String[] args) throws Exception {
 
@@ -102,32 +91,18 @@ public class IMS_QP_mxJPO extends DomainObject {
         select.add("type");
         select.add("name");
         Map mapInfo = (new DomainObject(objectId)).getInfo(context, select);
-        String name = mapInfo.get("name").toString();
-        String revision = mapInfo.get("revision").toString();
-        String type = mapInfo.get("type").toString();
-
-        String strTreeName = name;
-        return strTreeName;
-    }
-
-    /**
-     * Label program for  Tree structure
-     */
-    public String getIcons1(Context context, String[] args) {
-
-        String strTreeName = "IMS_QP_QPlan_16x16.png";
-        return "";
+        return mapInfo.get("name").toString();
     }
 
     public static MapList getIcons(Context context, String[] args) throws Exception {
         MapList iconList = new MapList();
         try {
             // unpack args array to get input map
-            Map programMap = (Map) JPO.unpackArgs(args);
+            Map programMap = JPO.unpackArgs(args);
             // get object list
             MapList ObjectList = (MapList) programMap.get("objectList");
 
-            String bArr[] = new String[ObjectList.size()];
+            String[] bArr = new String[ObjectList.size()];
             StringList bSel = new StringList();
             bSel.add("policy.property[PolicyClassification].value");
             bSel.add(DomainConstants.SELECT_TYPE);
@@ -148,7 +123,8 @@ public class IMS_QP_mxJPO extends DomainObject {
                 String type = bwsl.getElement(i).getSelectData("type");
 
                 HashMap retMap = new HashMap();
-                HashMap alternateMap = new HashMap();
+                //TODO rewrite code after consultating with developer of this
+                //never used                HashMap alternateMap = new HashMap();
                 // Based on the object state add the required icon
                 //Pass the required information to this method and get the required icon //name.
                 String objectIcon = getIcons(context, type, sPolicyClassification);
@@ -163,16 +139,13 @@ public class IMS_QP_mxJPO extends DomainObject {
         return iconList;
     }
 
-
-    private static final Logger LOG = Logger.getLogger("IMS_QP_DEP");
-
+    //TODO rewrite this method
     public static String getIcons(Context context, String typeName, String sPolicyClassification) {
-        //TODO rewrite this method
         if (sPolicyClassification.equalsIgnoreCase("Equivalent"))
             return "buttonWizardNextDisabled.gif";
         else {
-            String typeIcon = UINavigatorUtil.getTypeIconProperty(context, typeName);
-            return "buttonWizardNextDisabled.gif";
+            //never used            String typeIcon = UINavigatorUtil.getTypeIconProperty(context, typeName);
+            return "";
         }
     }
 
@@ -261,7 +234,7 @@ public class IMS_QP_mxJPO extends DomainObject {
 
         DomainObject parent = new DomainObject(objectId);
         //get all substages
-        MapList result = parent.getRelatedObjects(context,
+        return parent.getRelatedObjects(context,
                 /*relationship*/null,
                 /*type*/"IMS_QP_DEP",
                 /*object attributes*/ selects,
@@ -271,8 +244,6 @@ public class IMS_QP_mxJPO extends DomainObject {
                 /*object where*/ null,
                 /*relationship where*/ null,
                 /*limit*/ 0);
-
-        return result;
     }
 
     /**
@@ -331,7 +302,7 @@ public class IMS_QP_mxJPO extends DomainObject {
 
         DomainObject parent = new DomainObject(objectId);
         //get all substages
-        MapList result = parent.getRelatedObjects(context,
+        return parent.getRelatedObjects(context,
                 /*relationship*/null,
                 /*type*/"IMS_QP_QPlan",
                 /*object attributes*/ selects,
@@ -341,8 +312,6 @@ public class IMS_QP_mxJPO extends DomainObject {
                 /*object where*/ null,
                 /*relationship where*/ null,
                 /*limit*/ 0);
-
-        return result;
     }
 
     /**
@@ -369,9 +338,9 @@ public class IMS_QP_mxJPO extends DomainObject {
 
         MapList objectsInfo = DomainObject.getInfo(context, ids, selects);
 
-        ArrayList<String> delObjs = new ArrayList();
-        for (int i = 0; i < objectsInfo.size(); i++) {
-            Map map = (Map) objectsInfo.get(i);
+        ArrayList<String> delObjs = new ArrayList<>();
+        for (Object o : objectsInfo) {
+            Map map = (Map) o;
             String subStage = (String) (map.get("from[" + IMS_QP_Constants_mxJPO.relationship_IMS_QP_DEP2DEPProjectStage + "].to." +
                     "from[" + IMS_QP_Constants_mxJPO.relationship_IMS_QP_DEPProjectStage2DEPSubStage + "]"));
             getMessage(message, messageDel, delObjs, map, subStage);
@@ -382,7 +351,7 @@ public class IMS_QP_mxJPO extends DomainObject {
             deletion[i] = delObjs.get(i);
         }
 
-        if (deletion != null && deletion.length > 0)
+        if (deletion.length > 0)
             DomainObject.deleteObjects(context, deletion);
 
         if (message.length() > 0)
@@ -395,7 +364,7 @@ public class IMS_QP_mxJPO extends DomainObject {
         return mapMessage;
     }
 
-    private void getMessage(StringBuffer message, StringBuffer messageDel, ArrayList<String> delObjs, Map map, String subStage) {
+    private void getMessage(StringBuffer message, StringBuffer messageDel, List<String> delObjs, Map map, String subStage) {
         if (subStage != null && (subStage).contains("TRUE")) {
             if (message.length() > 0)
                 message.append(", ");
@@ -405,6 +374,161 @@ public class IMS_QP_mxJPO extends DomainObject {
                 messageDel.append(", ");
             messageDel.append(map.get(DomainObject.SELECT_NAME));
             delObjs.add((String) map.get(DomainObject.SELECT_ID));
+        }
+    }
+
+    /**
+     * @param context usual parameter
+     * @param args    usual parameter
+     * @return Map which contains message with results of copying
+     */
+    public Map copyQPTask(Context context, String... args) {
+        Map mapMessage = new HashMap();
+        StringBuilder stringBuilder = new StringBuilder("");
+        HashMap paramMap = null;
+        try {
+            paramMap = JPO.unpackArgs(args);
+        } catch (Exception e) {
+            stringBuilder.append("error when unpacking arguments: " + e.getMessage() + "\n");
+            LOG.error("error when unpacking arguments: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        String[] rowIDs = new String[0];
+        if (paramMap != null) {
+            rowIDs = (String[]) paramMap.get("emxTableRowId");
+        }
+        List<String> ids = new ArrayList<>();
+        for (String rowID : rowIDs) {
+            ids.add(rowID.substring(0, rowID.indexOf("|")));
+        }
+
+        //copy all ids objects with new name and not include files
+        if (!ids.isEmpty()) {
+            for (String id : ids) {
+                try {
+                    DomainObject parentTask = new DomainObject(id);
+                    String name = parentTask.getName(context), type = "IMS_QP_QPTask";
+                    MapList mapList = DomainObject.findObjects(context,
+                            /*type*/ type,
+                            /*vault*/ "eService Production",
+                            /*where*/"name smatch '*" + name + "*'",
+                            /*selects*/new StringList("id"));
+
+                    //mapList size isn't smaller than 1
+                    int counter = mapList.size();
+                    String postfix = counter < 10 ? "_0" + counter : "_" + counter;
+                    String rename = String.format("%s%s", name, postfix);
+
+                    //transaction
+                    ContextUtil.startTransaction(context, true);
+                    DomainObject targetTask = new DomainObject();
+                    targetTask.createObject(context,
+                            /*type*/type,
+                            /*name*/rename,
+                            /*revision*/"",
+                            /*policy*/type,
+                            /*vault*/ context.getVault().getName());
+                    targetTask.setAttributeValue(context, "IMS_Name", parentTask.getAttributeValue(context, "IMS_Name"));
+                    targetTask.setAttributeValue(context, "IMS_NameRu", parentTask.getAttributeValue(context, "IMS_NameRu"));
+
+                    copyRelationshipsOfTask(context, id, targetTask, postfix);
+                    ContextUtil.commitTransaction(context);
+                    LOG.info("copied to: " + targetTask.getId(context) + "|" + targetTask.getName(context) + "|transaction commited");
+
+                } catch (Exception e) {
+                    stringBuilder.append("error when coping: " + e.getMessage());
+                    LOG.error("error when coping: " + e.getMessage());
+                    ContextUtil.abortTransaction(context);
+                }
+            }
+        }
+
+        if (stringBuilder.length() == 0) stringBuilder.append("object copied");
+        mapMessage.put("message", stringBuilder.toString());
+        return mapMessage;
+    }
+
+    /**
+     * @param context      usual parameter
+     * @param id           is parent object id
+     * @param targetObject copied object
+     * @param postfix      last piece of name for copying object name
+     * @throws Exception any errors thrown by the method
+     */
+    private void copyRelationshipsOfTask(Context context, String id, DomainObject targetObject, String postfix) throws Exception {
+        LOG.info("coping procedure: parent: " + id + "|" + new DomainObject(id).getName(context));
+
+        // Instantiate the BusinessObject.
+        StringList selectBusStmts = new StringList();
+        selectBusStmts.addElement("id");
+        selectBusStmts.addElement("type");
+        selectBusStmts.addElement("name");
+
+        StringList selectRelStmts = new StringList();
+        selectRelStmts.addElement("name");
+        selectRelStmts.addElement("to.id");
+        selectRelStmts.addElement("from.id");
+        short recurse = 1;
+
+        BusinessObject parentObject = new BusinessObject(id);
+        parentObject.open(context);
+
+        // Getting the expansion
+        ExpansionWithSelect expansion = parentObject.expandSelect(context, "*", "*", selectBusStmts, selectRelStmts, true, true, recurse);
+        parentObject.close(context);
+        //--------------------------------------------------------------
+        //  _object.expandSelect(_context, - Java context object
+        //  "*",                           - relationship Pattern
+        //  "*",                           - type Pattern
+        //  selectBusStmts,                - selects for Business Objects
+        //  selectRelStmts,                - selects for Relationships
+        //  true,                          - get To relationships
+        //  true,                          - get From relationships
+        //  recurse);                      - recursion level (0 = all)
+        //--------------------------------------------------------------
+
+        // Getting Relationships.
+        RelationshipWithSelectList _relSelectList = expansion.getRelationships();
+        RelationshipWithSelectItr relItr = new RelationshipWithSelectItr(_relSelectList);
+
+        while (relItr.next()) {
+            RelationshipWithSelect relSelect = relItr.obj();
+            String relationshipType = relSelect.getSelectData("name");
+            //ignoring type of QPTask2QPTask relationships
+            if (relationshipType.equals("IMS_QP_QPTask2QPTask")) continue;
+
+            //if expected result type
+            boolean from = relSelect.getSelectData("from.id").equals(id) ? true : false;
+            if (relSelect.getSelectData("name").equals(IMS_QP_Constants_mxJPO.relationship_IMS_QP_ExpectedResult2QPTask)) {
+                DomainObject expectedResult = new DomainObject(relSelect.getSelectData((from ? "to" : "from") + ".id"));
+                String expectedResultRename = expectedResult.getName(context) + postfix;
+
+                //copied expected result
+                DomainObject clonedExpectedResult = new DomainObject();
+                clonedExpectedResult.createObject(context,
+                        /*type*/IMS_QP_Constants_mxJPO.type_IMS_QP_ExpectedResult,
+                        /*name*/expectedResultRename,
+                        /*revision*/"",
+                        /*policy*/"IMS_QP_ExpectedResult",
+                        /*vault*/ context.getVault().getName());
+
+                //connect copied ExpectedResult from ResultType which is of type IMS_Family
+                String resultTypeID = expectedResult.getInfo(context, "to[" + IMS_QP_Constants_mxJPO.relationship_IMS_QP_ResultType2ExpectedResult + "].from.id");
+                DomainObject resultType = new DomainObject(resultTypeID);
+                if (resultType.getType(context).equals("IMS_Family")) {
+                    clonedExpectedResult.connect(context, new RelationshipType(IMS_QP_Constants_mxJPO.relationship_IMS_QP_ResultType2ExpectedResult), /*from clone*/ false, resultType);
+                } else {
+                    emxContextUtil_mxJPO.mqlWarning(context, "Expected result " + expectedResult.getName(context) + " doesn't have connection from IMS_Family. Check this!");
+                    //throw new FrameworkException("Expected result doesn't have connection from IMS_Family. Check this!");
+                }
+                //connect copied Expected result from/to targetObject
+                clonedExpectedResult.connect(context, new RelationshipType(relationshipType), /*from clone*/ !from, targetObject);
+            } else {
+                //another connections
+                DomainObject anotherObject = new DomainObject(relSelect.getSelectData("from.id"));
+                DomainRelationship.connect(context, anotherObject, new RelationshipType(relationshipType), targetObject);
+            }
         }
     }
 
@@ -433,9 +557,9 @@ public class IMS_QP_mxJPO extends DomainObject {
 
         MapList objectsInfo = DomainObject.getInfo(context, ids, selects);
 
-        ArrayList<String> delObjs = new ArrayList();
-        for (int i = 0; i < objectsInfo.size(); i++) {
-            Map map = (Map) objectsInfo.get(i);
+        List<String> delObjs = new ArrayList<>();
+        for (Object o : objectsInfo) {
+            Map map = (Map) o;
             String tasks = (String) (map.get("from[" + IMS_QP_Constants_mxJPO.relationship_IMS_QP_QPlan2QPTask + "]"));
             getMessage(message, messageDel, delObjs, map, tasks);
         }
@@ -446,7 +570,7 @@ public class IMS_QP_mxJPO extends DomainObject {
             deletion[i] = delObjs.get(i);
         }
 
-        if (deletion != null && deletion.length > 0)
+        if (deletion.length > 0)
             DomainObject.deleteObjects(context, deletion);
 
         if (message.length() > 0)
@@ -473,10 +597,10 @@ public class IMS_QP_mxJPO extends DomainObject {
     /**
      * works with TRIGGER_IMS_QPDEPPolicyDraftPromoteCheck
      *
-     * @param context
-     * @param args
-     * @return Integer
-     * @throws Exception
+     * @param context usualy parameter
+     * @param args    usualy parameter
+     * @return Integer value. Usualy used in triggers. '1' if something went wrong, '0' if the method passed ok
+     * @throws Exception any errors thrown by the method
      */
     public int checkPromoteConditionToDone(Context context, String[] args) throws Exception {
         String id = args[0];
@@ -536,7 +660,7 @@ public class IMS_QP_mxJPO extends DomainObject {
 
             for (int i = 0; i < getSetStatusLevelDep.size(); i++) {
                 if ("draft".equalsIgnoreCase((String) (getSetStatusLevelDep.get(i)))) {
-                    message.append("\n" + getSetsNameLevelDep.get(i));
+                    message.append("\n").append(getSetsNameLevelDep.get(i));
                 }
             }
             if (message.length() > 0) {
@@ -545,15 +669,15 @@ public class IMS_QP_mxJPO extends DomainObject {
 
             for (int i = 0; i < getSetsFromStatus.size(); i++) {
                 if ("draft".equalsIgnoreCase((String) (getSetsFromStatus.get(i)))) {
-                    message.append("\n" + getSetsFromName.get(i));
-                    message.append(" - " + getSetsFromStatus.get(i));
+                    message.append("\n").append(getSetsFromName.get(i));
+                    message.append(" - ").append(getSetsFromStatus.get(i));
                 }
             }
 
             for (int i = 0; i < getSetsToStatus.size(); i++) {
                 if ("Draft".equals((getSetsToStatus.get(i)))) {
-                    message.append("\n" + getSetsToName.get(i));
-                    message.append(" - " + getSetsToStatus.get(i));
+                    message.append("\n").append(getSetsToName.get(i));
+                    message.append(" - ").append(getSetsToStatus.get(i));
                 }
             }
 
@@ -569,10 +693,10 @@ public class IMS_QP_mxJPO extends DomainObject {
     /**
      * works with TRIGGER_IMS_QPDEPPolicyDoneDemoteCheck
      *
-     * @param context
-     * @param args
-     * @return
-     * @throws Exception
+     * @param context usualy parameter
+     * @param args    usualy parameter
+     * @return allways retun zero
+     * @throws Exception any errors thrown by the method
      */
     public int checkDemoteConditionToDraft(Context context,
                                            String[] args

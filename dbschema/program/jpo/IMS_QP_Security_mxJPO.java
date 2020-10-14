@@ -12,7 +12,6 @@ import matrix.util.StringList;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
-import javax.management.relation.RelationType;
 import java.util.*;
 
 public class IMS_QP_Security_mxJPO {
@@ -774,7 +773,6 @@ public class IMS_QP_Security_mxJPO {
             LOG.error("error in method isOwnerQPlan: " + e.getMessage());
         }
 
-        LOG.info("isOwner: " + (isOwner(context, args) && isOwnerQPlan || isUserAdmin(context)));
         return isOwner(context, args) && isOwnerQPlan || isUserAdmin(context);
     }
 

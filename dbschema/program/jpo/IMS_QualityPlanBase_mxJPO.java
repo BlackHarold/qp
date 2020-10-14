@@ -345,19 +345,25 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
 
         String parentID = (String) requestMap.get("parentOID");
 
-        String systemID = (String) requestMap.get("systemOID");
+        String systemID = UIUtil.isNotNullAndNotEmpty((String) requestMap.get("systemOID")) ? (String) requestMap.get("systemOID") : "";
         String systemName = (String) requestMap.get("systemDisplay");
 
         String depFieldFromForm = (String) requestMap.get("dep");
         String cleanDepID = UIUtil.isNotNullAndNotEmpty(depFieldFromForm) ? depFieldFromForm.substring(0, depFieldFromForm.indexOf("_")) : "";
 
+        //set needed objects
         String newObjectId = (String) paramMap.get("newObjectId");
         DomainObject newObject = new DomainObject(newObjectId);
         DomainObject objectDEP = new DomainObject(cleanDepID);
-        DomainObject objectPBS = null;
+        DomainObject objectPBS = new DomainObject();
 
+        /*check if the DEP is Done status*/
         String depState = objectDEP.getInfo(context, "current");
-        String qpPlanName = objectDEP.getName(context);
+        if (!depState.equals("Done")) {
+            throw new MatrixException(String.format("%s is not finished yet and has status '%s'", objectDEP.getName(context), depState));
+        }
+
+        String qpPlanName = "";
 
         String relId = (String) paramMap.get("relId");
         LOG.info("systemID:" + systemID);
@@ -366,12 +372,13 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
 
         if (systemName.isEmpty() && depFieldFromForm.endsWith("_FALSE")) {
             throw new Exception("You have to select a System!");
-        } else if (!systemName.equals("empty") && depFieldFromForm.endsWith("_FALSE")) {
+        } else if (!systemID.isEmpty() && !systemName.equals("empty") && depFieldFromForm.endsWith("_FALSE")) {
+            //TODO objectPBS equals system rewrite
             DomainObject system = new DomainObject(systemID);
             String systemType = system.getType(context);
 
             /*check the owner of system*/
-            String owners = system.getInfo(context, "from[IMS_PBS2Owner].to.name");
+            String owners = MqlUtil.mqlCommand(context, String.format("print bus %s select %s", systemID, "from[IMS_PBS2Owner].to.name"));
             LOG.info("owners: " + owners);
             String userName = context.getUser();
             if (owners == null || !owners.contains(userName)) {
@@ -379,15 +386,10 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
             }
 
             /*check the dep of system*/
-            String systemDEPs = system.getInfo(context, "from[IMS_PBS2DEP].to.id");
+            String systemDEPs = MqlUtil.mqlCommand(context, String.format("print bus %s select %s dump |", systemID, "from[IMS_PBS2DEP].to.id"));
             LOG.info(system.getName(context) + " system deps: " + systemDEPs + " clean dep: " + cleanDepID);
             if (systemDEPs == null || !systemDEPs.contains(cleanDepID)) {
                 throw new MatrixException(String.format("%s does not include the specified dep", systemName));
-            }
-
-            /*check if the DEP is Done status*/
-            if (!depState.equals("Done")) {
-                throw new MatrixException(String.format("%s is not finished yet and has status '%s'", qpPlanName, depState));
             }
 
             //check if system type is functional area
@@ -403,7 +405,6 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
                         system.getInfo(context, forkConnection + ".to[IMS_QP_QPlan2Object]") : "";
                 LOG.info("!isFunctionalArea: " + relationshipFromQPlan);
             } else {
-
                 String systemQPlanConnection = MqlUtil.mqlCommand(context, String.format("print bus %s select from[IMS_PBSFunctionalArea2IMS_PBSSystem].to.to[IMS_QP_QPlan2Object] dump |", systemID));
                 LOG.info("systemQPlanConnection: " + systemQPlanConnection);
 
@@ -420,32 +421,37 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
                         "this functional area has systems or building having some QPlans";
                 throw new MatrixException(message);
             }
-            objectPBS = new DomainObject(systemID);
+            objectPBS.setId(systemID);
+            qpPlanName = objectPBS.getName(context);
         } else if (depFieldFromForm.endsWith("_TRUE")) {
-            if (!depState.equals("Done")) {
-                throw new MatrixException(String.format("%s is not finished yet and has status '%s'", qpPlanName, depState));
-            }
-            MapList depOwners = DomainObject.getInfo(context, new String[]{cleanDepID}, new StringList("from[IMS_QP_DEP2Owner].to.id"));
+            qpPlanName = objectDEP.getName(context);
+        }
+
+        MapList depOwners = DomainObject.getInfo(context, new String[]{cleanDepID}, new StringList("from[IMS_QP_DEP2Owner].to.id"));
+        try {
             Map owners = (Map) depOwners.get(0);
             String rawOwners = (String) owners.get("from[IMS_QP_DEP2Owner].to.id");
             String[] arrayOwners = rawOwners.split(IMS_QP_Constants_mxJPO.BELL_DELIMITER);
             listOwners = Arrays.asList(arrayOwners);
             LOG.info("depOwners: " + listOwners);
-
+        } catch (NullPointerException npe) {
+            throw new MatrixException("error check owners of the DEP");
         }
 
         //log all needs params
         LOG.info("parent: " + parentID + "->relId: " + relId + "->newObjectId: " + newObjectId + " from DEP: " + cleanDepID + " to system: " + systemID);
 
         //create domain objects
-
         try {
             //start transactional
             ContextUtil.startTransaction(context, true);
             LOG.info("before set name: " + newObject.getName());
 
             //change name for new object mask: QP-PBS /QP-10FAL/
-            newObject.setName(context, "QP-" + qpPlanName);
+            if (!qpPlanName.equals(""))
+                newObject.setName(context, "QP-" + qpPlanName);
+            else throw new MatrixException("unable to initialize correct name for the QPlan object");
+
             LOG.info("new name: " + newObject.getName());
 
             //connect relations
@@ -514,8 +520,8 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
         result.sort();
 
         LOG.info("result: " + result);
-        int numberInt =1;
-        if(result.size()>0) {
+        int numberInt = 1;
+        if (result.size() > 0) {
             String name = (String) ((Map) result.get(0)).get(DomainConstants.SELECT_NAME);
             LOG.info("name: " + name);
             numberInt = Integer.parseInt(name.substring(name.lastIndexOf("-") + 1)) + 1;
@@ -965,7 +971,8 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
         }
     }
 
-    public MapList getFindObject(Context context, String type, String name, String revision, String expression) throws Exception {
+    public MapList getFindObject(Context context, String type, String name, String revision, String expression) throws
+            Exception {
         StringList objectSelects = new StringList();
         objectSelects.add(DomainConstants.SELECT_ID);
         objectSelects.add(DomainConstants.SELECT_NAME);
@@ -986,13 +993,13 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
                 Map objTemp = (Map) resultObject;
                 String name = ((String) objTemp.get(DomainConstants.SELECT_NAME));
                 try {
-                    if(name.contains("-")) {
+                    if (name.contains("-")) {
                         int numberInt = Integer.parseInt(name.substring(name.lastIndexOf("-") + 1));
                         new DomainObject((String) objTemp.get(DomainConstants.SELECT_ID)).setAttributeValue(context, "IMS_SortOrder", String.valueOf(numberInt));
-                    }else{
+                    } else {
                         new DomainObject((String) objTemp.get(DomainConstants.SELECT_ID)).setAttributeValue(context, "IMS_SortOrder", "0");
                     }
-                }catch(Exception e){
+                } catch (Exception e) {
                     new DomainObject((String) objTemp.get(DomainConstants.SELECT_ID)).setAttributeValue(context, "IMS_SortOrder", "0");
                     System.out.println(e.fillInStackTrace());
                 }
