@@ -5,12 +5,15 @@ import com.matrixone.apps.domain.DomainObject;
 import com.matrixone.apps.domain.DomainRelationship;
 import com.matrixone.apps.domain.util.*;
 import matrix.db.*;
+import matrix.util.MatrixException;
 import matrix.util.StringList;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.*;
+import java.io.InputStream;
 import java.util.*;
 
 public class IMS_QP_DEPTask_mxJPO {
@@ -123,13 +126,20 @@ public class IMS_QP_DEPTask_mxJPO {
 
     public HashMap getRangeRelationshipER(Context context, String[] args) throws Exception {
 
+        Map argsMap = JPO.unpackArgs(args);
+        Map requestMap = (Map) argsMap.get("requestMap");
+        String taskId = (String) requestMap.get("objectId");
+        DomainObject taskObject = new DomainObject(taskId);
+
         HashMap result = new HashMap();
         StringList fieldRangeValues = new StringList();
         StringList fieldDisplayRangeValues = new StringList();
         fieldRangeValues.add(FROM);
         fieldDisplayRangeValues.add(EnoviaResourceBundle.getProperty(context, "Framework", "emxFramework.Range.IMS_QP_Direction.From", context.getLocale().getLanguage()));
-        fieldRangeValues.add(TO);
-        fieldDisplayRangeValues.add(EnoviaResourceBundle.getProperty(context, "Framework", "emxFramework.Range.IMS_QP_Direction.To", context.getLocale().getLanguage()));
+        if ("IMS_QP_DEPTask".equals(taskObject.getType(context))) {
+            fieldRangeValues.add(TO);
+            fieldDisplayRangeValues.add(EnoviaResourceBundle.getProperty(context, "Framework", "emxFramework.Range.IMS_QP_Direction.To", context.getLocale().getLanguage()));
+        }
         result.put("field_choices", fieldRangeValues);
         result.put("field_display_choices", fieldDisplayRangeValues);
         return result;
@@ -158,10 +168,10 @@ public class IMS_QP_DEPTask_mxJPO {
 
 
     public Object getFromTo(Context context, String[] args) throws Exception {
-       
+
         Map programMap = (Map) JPO.unpackArgs(args);
-		Map paramMap = (Map) programMap.get("paramList");
-		String sOID = (String) paramMap.get("objectId");
+        Map paramMap = (Map) programMap.get("paramList");
+        String sOID = (String) paramMap.get("objectId");
         MapList mlObList = (MapList) programMap.get("objectList");
 
         Vector returnList = new Vector();
@@ -170,11 +180,9 @@ public class IMS_QP_DEPTask_mxJPO {
                 String sID = (String) ((Map) objTemp).get(DomainObject.SELECT_RELATIONSHIP_ID);
                 DomainRelationship relationship = new DomainRelationship(sID);
                 relationship.openRelationship(context);
-			    returnList.add(relationship.getFrom().getTypeName().equals(TYPE_IMS_QP_EXPECTED_RESULT) || (!relationship.getFrom().getObjectId().equals(sOID) && !relationship.getTo().getObjectId().equals(sOID)) ? EnoviaResourceBundle.getProperty(context, "Framework", "emxFramework.Range.IMS_QP_Direction.From", context.getLocale().getLanguage()) : EnoviaResourceBundle.getProperty(context, "Framework", "emxFramework.Range.IMS_QP_Direction.To", context.getLocale().getLanguage()));
-            //    returnList.add(relationship.getFrom().getTypeName().equals(TYPE_IMS_QP_EXPECTED_RESULT) ? EnoviaResourceBundle.getProperty(context, "Framework", "emxFramework.Range.IMS_QP_Direction.From", context.getLocale().getLanguage()) : EnoviaResourceBundle.getProperty(context, "Framework", "emxFramework.Range.IMS_QP_Direction.To", context.getLocale().getLanguage()));
+                returnList.add(relationship.getFrom().getTypeName().equals(TYPE_IMS_QP_EXPECTED_RESULT) || (!relationship.getFrom().getObjectId().equals(sOID) && !relationship.getTo().getObjectId().equals(sOID)) ? EnoviaResourceBundle.getProperty(context, "Framework", "emxFramework.Range.IMS_QP_Direction.From", context.getLocale().getLanguage()) : EnoviaResourceBundle.getProperty(context, "Framework", "emxFramework.Range.IMS_QP_Direction.To", context.getLocale().getLanguage()));
                 relationship.closeRelationship(context, true);
             }
-
         } catch (Exception e) {
             LOG.error("error when getting getFromTo: " + e.getMessage());
         }
@@ -353,15 +361,15 @@ public class IMS_QP_DEPTask_mxJPO {
             Map programMap = JPO.unpackArgs(args);
             String objectId = (String) programMap.get("objectId");
 
-
             StringList stringList = new StringList();
 
             String objectWhere = new DomainObject(objectId).getInfo(context, "to[IMS_QP_DEPTask2QPTask].from.id");
             if (objectWhere != null && !objectWhere.equals("")) {
 
-                MapList mapList = getRelatedMapList(context, new DomainObject(objectWhere), RELATIONSHIP_IMS_QP_EXPECTED_RESULT_2_DEP_TASK, TYPE_IMS_QP_EXPECTED_RESULT, true, true, (short) 1, "", "", 0);
-                for (Object resultTypObject : mapList) {
-                    Map objTemp = (Map) resultTypObject;
+                MapList mapList = getRelatedMapList(context, new DomainObject(objectWhere), RELATIONSHIP_IMS_QP_EXPECTED_RESULT_2_DEP_TASK, TYPE_IMS_QP_EXPECTED_RESULT,
+                        /*direction input only*/true, false, (short) 1, "", "", 0);
+                for (Object resultTypeObject : mapList) {
+                    Map objTemp = (Map) resultTypeObject;
                     stringList.add((String) objTemp.get(DomainObject.SELECT_ID));
                 }
             }
@@ -410,7 +418,7 @@ public class IMS_QP_DEPTask_mxJPO {
 
     }
 
-    public HashMap createExpectedResultQP(Context context, String[] args) throws Exception {
+    public HashMap createExpectedResultQP(Context context, String[] args) {
 
         HashMap returnMap = new HashMap();
         try {
@@ -442,17 +450,9 @@ public class IMS_QP_DEPTask_mxJPO {
                         DomainRelationship.connect(context, new DomainObject(relatedType), RELATIONSHIP_IMS_QP_RESULT_TYPE_2_EXPECTED_RESULT, newObject);
                     }
                 }
-
-                newObject.setAttributeValue(context, "IMS_Name", depTaskObject.getInfo(context, "attribute[IMS_Name]"));
-                newObject.setAttributeValue(context, "IMS_NameRu", depTaskObject.getInfo(context, "attribute[IMS_NameRu]"));
-                newObject.setAttributeValue(context, "IMS_DescriptionRu", depTaskObject.getInfo(context, "attribute[IMS_DescriptionRu]"));
-                newObject.setAttributeValue(context, "IMS_DescriptionEn", depTaskObject.getInfo(context, "attribute[IMS_DescriptionEn]"));
-                newObject.setAttributeValue(context, "IMS_QP_DocumentCode", depTaskObject.getInfo(context, "attribute[IMS_QP_DocumentCode]"));
-
+                copyAttributes(context, depTaskObject, newObject);
             }
             String fromto = (String) requestMap.get("fromto");
-
-
             if (fromto.equals(FROM)) {
                 DomainRelationship.connect(context, newObject, relationship, parent);
             } else {
@@ -464,6 +464,26 @@ public class IMS_QP_DEPTask_mxJPO {
             returnMap.put("Action", "STOP");
         }
         return returnMap;
+    }
+
+    /**
+     * @param context usual parameter
+     * @param object1 DomainObject copied from
+     * @param object2 DomainObject copied to
+     * @throws MatrixException throwable Matrix database exception throwable
+     */
+    private void copyAttributes(Context context, DomainObject object1, DomainObject object2) throws MatrixException {
+        object1.open(context);
+        object2.open(context);
+
+        BusinessObjectAttributes businessObjectAttributes = object1.getAttributes(context);
+        AttributeList attributes = businessObjectAttributes.getAttributes();
+        LOG.info("task assignments copied attributes: " + attributes);
+        object2.setAttributes(context, attributes);
+        object2.update(context);
+
+        object1.close(context);
+        object2.close(context);
     }
 
 
@@ -478,7 +498,6 @@ public class IMS_QP_DEPTask_mxJPO {
             String parentOID = (String) requestMap.get("parentOID");
             String fromto = (String) requestMap.get("fromto");
             String family = (String) requestMap.get("family");
-            LOG.info("family: " + family);
             DomainObject parent = new DomainObject(parentOID);
             String relationship = RELATIONSHIP_IMS_QP_EXPECTED_RESULT_2_DEP_TASK;
 
@@ -591,8 +610,8 @@ public class IMS_QP_DEPTask_mxJPO {
     }
 
     public boolean accessDEPTask(Context context, String[] args) throws FrameworkException {
+
         try {
-            
             Map programMap = JPO.unpackArgs(args);
             return true;
 
@@ -747,8 +766,8 @@ public class IMS_QP_DEPTask_mxJPO {
     }
 
     public int connectFact(Context context, String[] args) throws Exception {
+
         try {
- 
             String taskId = args[0];
             String factId = args[1];
             DomainObject fact = new DomainObject(factId);
@@ -1231,7 +1250,7 @@ public class IMS_QP_DEPTask_mxJPO {
      * @param args
      */
     public Map deleteTasks(Context context, String[] args) {
-        LOG.info("delete tasks");
+
         //get all ids
         HashMap<String, Object> argsMap = null;
         try {

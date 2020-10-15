@@ -1,13 +1,13 @@
 import com.matrixone.apps.domain.DomainConstants;
 import com.matrixone.apps.domain.DomainObject;
 import com.matrixone.apps.domain.DomainRelationship;
-import com.matrixone.apps.domain.util.ContextUtil;
-import com.matrixone.apps.domain.util.EnoviaResourceBundle;
-import com.matrixone.apps.domain.util.FrameworkUtil;
-import com.matrixone.apps.domain.util.MapList;
+import com.matrixone.apps.domain.util.*;
 import com.matrixone.apps.framework.ui.UIUtil;
+import matrix.db.AttributeList;
+import matrix.db.BusinessObjectAttributes;
 import matrix.db.Context;
 import matrix.db.JPO;
+import matrix.util.MatrixException;
 import matrix.util.StringList;
 import org.apache.log4j.Logger;
 
@@ -49,6 +49,10 @@ public class IMS_QP_TaskAssignment_mxJPO {
             "from[%s].to.to[%s].from.id",
             REL_IMS_QP_ExpectedResult2QPTask,
             REL_IMS_QP_ResultType2ExpectedResult);
+
+    public static final String SELECT_RELATED_EXPECTED_RESULT = String.format(
+            "from[%s].to.id",
+            REL_IMS_QP_ExpectedResult2QPTask);
 
     public static final String SELECT_INPUT_TASKS = String.format(
             "to[%s].from.id",
@@ -233,6 +237,7 @@ public class IMS_QP_TaskAssignment_mxJPO {
 
     public void createAndConnectTask(Context context, String[] args) throws Exception {
         Map objInfo = JPO.unpackArgs(args);
+        String id = (String) objInfo.get("id");
         String name = (String) objInfo.get(FIELD_IMS_CODE);
         String qpID = (String) objInfo.get(FIELD_IMS_PARENT_ID);
         String IMS_Name = (String) objInfo.get(ATT_IMS_Name);
@@ -251,7 +256,7 @@ public class IMS_QP_TaskAssignment_mxJPO {
         taskObj.setAttributeValue(context, ATT_IMS_NameRu, IMS_NameRu);
         taskObj.setAttributeValue(context, ATT_IMS_DescriptionEn, IMS_DescriptionEn);
         taskObj.setAttributeValue(context, ATT_IMS_DescriptionRu, IMS_DescriptionRu);
-        DomainRelationship.connect(context, new DomainObject(qpID), REL_IMS_QP_QPlan2QPTask, taskObj);
+        DomainRelationship.connect(context,/*from*/ new DomainObject(qpID), REL_IMS_QP_QPlan2QPTask, /*to*/taskObj);
 
         //connect to dep task
         DomainRelationship.connect(context, new DomainObject(IMS_DEP_ID), REL_IMS_QP_DEPTask2QPTask, taskObj);
@@ -264,7 +269,12 @@ public class IMS_QP_TaskAssignment_mxJPO {
         DomainObject expObj = new DomainObject();
         expObj.createObject(context, TYPE_IMS_QP_EXPECTED_RESULT, expName, "", TYPE_IMS_QP_EXPECTED_RESULT, context.getVault().getName());
 
-        //connect expected resulte to task
+        //coping all attributes
+        DomainObject expectedResult = new DomainObject(IMS_EXP_ID);
+        copyAttributes(context, expectedResult, expObj);
+
+        //connect expected result to task
+        //TODO check that relationship arrow only from task -> to expected result (copy only output expected result)
         DomainRelationship.connect(context, taskObj, REL_IMS_QP_ExpectedResult2QPTask, expObj);
 
         //connect expected result to  type
@@ -274,13 +284,33 @@ public class IMS_QP_TaskAssignment_mxJPO {
     }
 
     /**
+     * @param context usual parameter
+     * @param object1 DomainObject copied from
+     * @param object2 DomainObject copied to
+     * @throws MatrixException throwable Matrix database exception throwable
+     */
+    private void copyAttributes(Context context, DomainObject object1, DomainObject object2) throws MatrixException {
+        object1.open(context);
+        object2.open(context);
+
+        BusinessObjectAttributes businessObjectAttributes = object1.getAttributes(context);
+        AttributeList attributes = businessObjectAttributes.getAttributes();
+        LOG.info("task assignments copied attributes: " + attributes);
+        object2.setAttributes(context, attributes);
+        object2.update(context);
+
+        object1.close(context);
+        object2.close(context);
+    }
+
+    /**
      * createQPlan(context, args);
      *
      * @param context
      * @param args
      * @throws Exception
      */
-    static public void copyTasks(Context context, String[] args) throws Exception {
+    public void copyTasks(Context context, String[] args) throws Exception {
         HashMap programMap = JPO.unpackArgs(args);
         HashMap requestMap = (HashMap) programMap.get("requestMap");
 
@@ -296,7 +326,6 @@ public class IMS_QP_TaskAssignment_mxJPO {
         DomainObject fromObject = new DomainObject(objectId);
         String fromMainSystemToDepID = fromObject.getInfo(context, "from[IMS_QP_QPlan2Object].to.from[IMS_PBS2DEP].to.id");
         fromMainSystemToDepID = UIUtil.isNotNullAndNotEmpty(fromMainSystemToDepID) ? fromMainSystemToDepID : "empty";
-
         try {
             StringList systemArray = FrameworkUtil.split(systems, "|");
             for (Object id : systemArray) {
@@ -308,9 +337,9 @@ public class IMS_QP_TaskAssignment_mxJPO {
                 if (!fromMainSystemToDepID.equals(systemToDepID)) continue;
 
                 //check the system owner
-                String systemOwner = system.getInfo(context, "from[IMS_PBS2Owner].to.name");
+                String systemOwner = MqlUtil.mqlCommand(context, "print bus " + id + " select from[IMS_PBS2Owner].to.name dump |");
                 systemOwner = UIUtil.isNotNullAndNotEmpty(systemOwner) ? systemOwner : "";
-                if (!systemOwner.equals(context.getUser())) continue;
+                if (!systemOwner.contains(context.getUser()) && !"admin_platform".equals(context.getUser())) continue;
 
                 //get system name
                 String systemName = system.getInfo(context, DomainObject.SELECT_NAME);
@@ -347,7 +376,7 @@ public class IMS_QP_TaskAssignment_mxJPO {
 
     }
 
-    public static void copyQPTasks(Context context, DomainObject fromPlan, DomainObject toPlan, boolean useconnection) throws Exception {
+    public void copyQPTasks(Context context, DomainObject fromPlan, DomainObject toPlan, boolean useconnection) throws Exception {
         String examPlanName = fromPlan.getInfo(context, DomainConstants.SELECT_NAME);
         String fromSystem = fromPlan.getInfo(context, SELECT_SYSTEM);
         String targetPlanName = toPlan.getInfo(context, DomainConstants.SELECT_NAME);
@@ -360,6 +389,7 @@ public class IMS_QP_TaskAssignment_mxJPO {
         select.add(SELECT_RELATED_DEP_ID);
         select.add(SELECT_RELATED_RESULT_TYPE);
         select.add(SELECT_INPUT_TASKS);
+        select.add(SELECT_RELATED_EXPECTED_RESULT);
 
         final MapList existedTasks = fromPlan.getRelatedObjects(context,
                 REL_IMS_QP_QPlan2QPTask,
@@ -373,17 +403,18 @@ public class IMS_QP_TaskAssignment_mxJPO {
                 null,
                 0);
 
-        Map<String, String> existedTasksNames = new HashMap<String, String>();
+        Map<String, String> existedTasksNames = new HashMap<>();
         StringList newIds = new StringList();
         if (existedTasks != null || existedTasks.size() > 0) {
-            for (Iterator it = existedTasks.iterator(); it.hasNext(); ) {
+            Iterator it = existedTasks.iterator();
+            while (it.hasNext()) {
                 Map mapInfo = (Map) it.next();
                 String examTaskId = (String) mapInfo.get(DomainConstants.SELECT_ID);
                 String examTaskName = (String) mapInfo.get(DomainConstants.SELECT_NAME);
                 String depId = (String) mapInfo.get(SELECT_RELATED_DEP_ID);
                 String resTypeId = (String) mapInfo.get(SELECT_RELATED_RESULT_TYPE);
 
-                String targetTaskName = systemName + examTaskName.substring(fromSystem.length(), examTaskName.length());
+                String targetTaskName = systemName + examTaskName.substring(fromSystem.length());
 
                 DomainObject examTask = new DomainObject(examTaskId);
                 DomainObject targetTask = new DomainObject(examTask.cloneObject(context, targetTaskName, "", context.getVault().getName(), false));
@@ -396,12 +427,12 @@ public class IMS_QP_TaskAssignment_mxJPO {
 
                 //create expected result
                 DomainObject expObj = new DomainObject();
-                expObj.createObject(context,
-                        TYPE_IMS_QP_EXPECTED_RESULT,
-                        targetTaskName,
-                        "",
-                        TYPE_IMS_QP_EXPECTED_RESULT,
-                        context.getVault().getName());
+                expObj.createObject(context, TYPE_IMS_QP_EXPECTED_RESULT,
+                        targetTaskName, "", TYPE_IMS_QP_EXPECTED_RESULT, context.getVault().getName());
+
+                DomainObject expectedResult = new DomainObject((String) mapInfo.get(SELECT_RELATED_EXPECTED_RESULT));
+                LOG.info(expectedResult.getId(context) + "|" + expectedResult.getName(context));
+                copyAttributes(context, expectedResult, expObj);
 
                 //connect expected result to task
                 DomainRelationship.connect(context, targetTask, REL_IMS_QP_ExpectedResult2QPTask, expObj);
@@ -410,17 +441,16 @@ public class IMS_QP_TaskAssignment_mxJPO {
                 DomainRelationship.connect(context, new DomainObject(resTypeId), REL_IMS_QP_ResultType2ExpectedResult, expObj);
 
                 existedTasksNames.put(examTaskName, targetTask.getId(context));
-
                 targetTask.setAttributeValue(context, ATT_IMS_QP_FACT_EXP, "1");
 
                 newIds.add(targetTask.getId(context));
             }
             //connect all tasks between each other
             if (useconnection) {
-                Iterator it = existedTasks.iterator();
+                Iterator taskIterator = existedTasks.iterator();
                 for (Object newId : newIds) {
-                    Map mapInfo = (Map) it.next();
-                    String examTaskName = (String) mapInfo.get(DomainConstants.SELECT_NAME);
+                    Map mapInfo = (Map) taskIterator.next();
+//                    String examTaskName = (String) mapInfo.get(DomainConstants.SELECT_NAME);
                     Object obj = mapInfo.get(SELECT_INPUT_TASKS);
                     StringList inputTasks = null;
                     if (obj instanceof StringList) {
