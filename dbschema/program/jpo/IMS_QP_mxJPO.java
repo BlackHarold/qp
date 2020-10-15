@@ -5,7 +5,9 @@ import com.matrixone.apps.domain.util.ContextUtil;
 import com.matrixone.apps.domain.util.EnoviaResourceBundle;
 import com.matrixone.apps.domain.util.FrameworkException;
 import com.matrixone.apps.domain.util.MapList;
+
 import matrix.db.*;
+import matrix.util.MatrixException;
 import matrix.util.StringList;
 import org.apache.log4j.Logger;
 
@@ -384,8 +386,9 @@ public class IMS_QP_mxJPO extends DomainObject {
      */
     public Map copyQPTask(Context context, String... args) {
         Map mapMessage = new HashMap();
-        StringBuilder stringBuilder = new StringBuilder("");
+        StringBuilder stringBuilder = new StringBuilder();
         HashMap paramMap = null;
+
         try {
             paramMap = JPO.unpackArgs(args);
         } catch (Exception e) {
@@ -513,7 +516,9 @@ public class IMS_QP_mxJPO extends DomainObject {
                         /*policy*/"IMS_QP_ExpectedResult",
                         /*vault*/ context.getVault().getName());
 
-                //connect copied ExpectedResult from ResultType which is of type IMS_Family
+                //coping all attributes
+                copyAttributes(context, expectedResult, clonedExpectedResult);
+
                 String resultTypeID = expectedResult.getInfo(context, "to[" + IMS_QP_Constants_mxJPO.relationship_IMS_QP_ResultType2ExpectedResult + "].from.id");
                 DomainObject resultType = new DomainObject(resultTypeID);
                 if (resultType.getType(context).equals("IMS_Family")) {
@@ -530,6 +535,26 @@ public class IMS_QP_mxJPO extends DomainObject {
                 DomainRelationship.connect(context, anotherObject, new RelationshipType(relationshipType), targetObject);
             }
         }
+    }
+
+    /**
+     * @param context usual parameter
+     * @param object1 DomainObject copied from
+     * @param object2 DomainObject copied to
+     * @throws MatrixException throwable Matrix database exception throwable
+     */
+    private void copyAttributes(Context context, DomainObject object1, DomainObject object2) throws MatrixException {
+        object1.open(context);
+        object2.open(context);
+
+        BusinessObjectAttributes businessObjectAttributes = object1.getAttributes(context);
+        AttributeList attributes = businessObjectAttributes.getAttributes();
+        LOG.info("qp class copied attributes: " + attributes);
+        object2.setAttributes(context, attributes);
+        object2.update(context);
+
+        object1.close(context);
+        object2.close(context);
     }
 
     /**
