@@ -1,0 +1,24 @@
+################################################################################
+# ATTRIBUTE_IMS_QP_Stage.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate attribute "${NAME}" {
+    kind string
+    symbolicname "attribute_IMS_QP_Stage"
+    description "IMS_QP_Stage"
+    !hidden
+    !multivalue
+    !resetonclone
+    !resetonrevision
+    !multiline
+    maxlength 1
+    default ""
+    ################################################## Info Start
+    property "author" value "The IMS Team"
+    property "original name" value "IMS_QP_Stage"
+    property "application" value "IMS_QP"
+    property "version" value "1"
+    ################################################## Info End
+}

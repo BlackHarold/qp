@@ -400,6 +400,10 @@
             }
         }
 
+        function doCancel() {
+            window.close();
+        }
+
         <%
             if ( (mode != null) && mode.equalsIgnoreCase("edit")) {
         %>
