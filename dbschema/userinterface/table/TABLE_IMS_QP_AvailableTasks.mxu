@@ -18,6 +18,17 @@ mxUpdate table "${NAME}" {
         setting "program" "IMS_QP_TaskAssignment"
     }
     column {
+        name "doc_code"
+        label "Doc code"
+        setting "Auto Filter" "false"
+        setting "Column Type" "programHTMLOutput"
+        setting "Editable" "false"
+        setting "Export" "true"
+        setting "Registered Suite" "Framework"
+        setting "function" "getDocCodeColumn"
+        setting "program" "IMS_QP_TaskAssignment"
+    }
+    column {
         name "Name"
         label "emxFramework.Attribute.QP_IMS_Name"
         setting "Auto Filter" "false"
