@@ -16,6 +16,18 @@ mxUpdate form "${NAME}" {
         setting "Registered Suite" "Components"
     }
     field {
+        name "stage"
+        label "Stage"
+        businessobject "$<attribute[IMS_QP_Stage]>"
+        setting "Field Type" "attribute"
+        setting "Input Type" "combobox"
+        setting "Editable" "true"
+        setting "Range Function" "getStages"
+        setting "Range Program" "IMS_QualityPlanBase"
+        setting "Registered Suite" "Components"
+        setting "Required" "false"
+    }
+    field {
         name "baseline"
         label "Baseline"
         businessobject "$<to[IMS_QP_BaseLine2DEPSubStage].from.name>"
