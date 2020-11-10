@@ -1,0 +1,20 @@
+################################################################################
+# COMMAND_AEFSeparator1.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate command "${NAME}" {
+    symbolicname "command_AEFSeparator"
+    description "Use as separator for toolbar buttons"
+    label "AEFSeparator"
+    href ""
+    alt "AEFSeparator"
+    setting "Action Type" "Separator"
+    setting "Registered Suite" "Framework"
+    ################################################## Info Start
+    property "original name" value "AEFSeparator1"
+    property "application" value "Framework"
+    property "version" value "1"
+    ################################################## Info End
+}

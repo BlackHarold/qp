@@ -5,7 +5,6 @@ import com.matrixone.apps.domain.util.ContextUtil;
 import com.matrixone.apps.domain.util.EnoviaResourceBundle;
 import com.matrixone.apps.domain.util.FrameworkException;
 import com.matrixone.apps.domain.util.MapList;
-
 import matrix.db.*;
 import matrix.util.MatrixException;
 import matrix.util.StringList;
@@ -249,7 +248,7 @@ public class IMS_QP_mxJPO extends DomainObject {
     }
 
     /**
-     * It's retrieve DEPs for table IMS_QP_DEP
+     * It's retrieve KKS and PBS for table DEP KKS PBS
      */
     public MapList getAllPBS(Context context, String[] args) {
 
@@ -337,27 +336,31 @@ public class IMS_QP_mxJPO extends DomainObject {
         selects.add(DomainObject.SELECT_NAME);
         selects.add("from[" + IMS_QP_Constants_mxJPO.relationship_IMS_QP_DEP2DEPProjectStage + "].to." +
                 "from[" + IMS_QP_Constants_mxJPO.relationship_IMS_QP_DEPProjectStage2DEPSubStage + "]");
+        selects.add("from[IMS_QP_DEP2QPlan]");
 
         MapList objectsInfo = DomainObject.getInfo(context, ids, selects);
 
-        ArrayList<String> delObjs = new ArrayList<>();
+        ArrayList<String> deletedObjects = new ArrayList<>();
         for (Object o : objectsInfo) {
             Map map = (Map) o;
             String subStage = (String) (map.get("from[" + IMS_QP_Constants_mxJPO.relationship_IMS_QP_DEP2DEPProjectStage + "].to." +
                     "from[" + IMS_QP_Constants_mxJPO.relationship_IMS_QP_DEPProjectStage2DEPSubStage + "]"));
-            getMessage(message, messageDel, delObjs, map, subStage);
+            String qPlan = (String) map.get("from[IMS_QP_DEP2QPlan]");
+            String concatenated = subStage + qPlan;
+            getMessage(message, messageDel, deletedObjects, map, concatenated);
+            LOG.info("message buffer: " + message.toString());
         }
 
-        String[] deletion = new String[delObjs.size()];
-        for (int i = 0; i < delObjs.size(); i++) {
-            deletion[i] = delObjs.get(i);
+        String[] deletion = new String[deletedObjects.size()];
+        for (int i = 0; i < deletedObjects.size(); i++) {
+            deletion[i] = deletedObjects.get(i);
         }
 
         if (deletion.length > 0)
             DomainObject.deleteObjects(context, deletion);
 
         if (message.length() > 0)
-            message.append(" have a DEPSubStage!\n");
+            message.append(" have a DEPSubStage or QPlan!\n");
 
         if (messageDel.length() > 0)
             message.append(messageDel).append(" were deleted!");
@@ -366,8 +369,8 @@ public class IMS_QP_mxJPO extends DomainObject {
         return mapMessage;
     }
 
-    private void getMessage(StringBuffer message, StringBuffer messageDel, List<String> delObjs, Map map, String subStage) {
-        if (subStage != null && (subStage).contains("TRUE")) {
+    private void getMessage(StringBuffer message, StringBuffer messageDel, List<String> deletedObjects, Map map, String string) {
+        if (string != null && string.contains("TRUE")) {
             if (message.length() > 0)
                 message.append(", ");
             message.append(map.get(DomainObject.SELECT_NAME));
@@ -375,7 +378,7 @@ public class IMS_QP_mxJPO extends DomainObject {
             if (messageDel.length() > 0)
                 messageDel.append(", ");
             messageDel.append(map.get(DomainObject.SELECT_NAME));
-            delObjs.add((String) map.get(DomainObject.SELECT_ID));
+            deletedObjects.add((String) map.get(DomainObject.SELECT_ID));
         }
     }
 
@@ -531,6 +534,7 @@ public class IMS_QP_mxJPO extends DomainObject {
                 clonedExpectedResult.connect(context, new RelationshipType(relationshipType), /*from clone*/ !from, targetObject);
             } else {
                 //another connections
+                if ("IMS_QP_QPTask2Fact".equals(relationshipType)) continue;
                 DomainObject anotherObject = new DomainObject(relSelect.getSelectData("from.id"));
                 DomainRelationship.connect(context, anotherObject, new RelationshipType(relationshipType), targetObject);
             }

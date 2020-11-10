@@ -1,22 +1,18 @@
 ################################################################################
-# TYPE_IMS_ExternalDocumentSet.mxu
+# TYPE_IMS_QP_CheckList.mxu
 #
 #            This file describes the target of a Configuration Item.
 ################################################################################
 
 mxUpdate type "${NAME}" {
-    symbolicname "type_IMS_ExternalDocumentSet"
+    symbolicname "type_IMS_QP_CheckList"
     description ""
+    derived "DOCUMENTS"
     !hidden
-    attribute "IMS_BBSMajor"
-    attribute "IMS_Frozen"
-    attribute "IMS_ProjDocStatus"
-    attribute "IMS_SPFDocVersion"
-    attribute "IMS_SPFMajorRevision"
+    attribute "IMS_QP_Comment"
     ################################################## Info Start
-    property "author" value "The MxUpdate Team"
-    property "original name" value "IMS_ExternalDocumentSet"
-    property "application" value "IMS_QP"
+    property "original name" value "IMS_QP_CheckList"
+    property "application" value "MxUpdate"
     property "version" value "1"
     ################################################## Info End
 }
