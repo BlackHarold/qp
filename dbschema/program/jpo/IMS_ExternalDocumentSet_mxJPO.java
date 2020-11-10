@@ -9,11 +9,13 @@ import matrix.db.Context;
 import matrix.db.JPO;
 import matrix.util.MatrixException;
 import org.apache.commons.net.util.Base64;
+import org.apache.log4j.Logger;
 
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 public class IMS_ExternalDocumentSet_mxJPO implements IMS_ExternalSystem_mxJPO.ExternalSystemJPO {
@@ -96,26 +98,36 @@ public class IMS_ExternalDocumentSet_mxJPO implements IMS_ExternalSystem_mxJPO.E
 
         return String.format(
                 "{" +
-                "   \"type\": \"%s\"," +
-                "   \"where\": \"%s\"," +
-                "   \"select\": [%s]" +
-                "}",
+                        "   \"type\": \"%s\"," +
+                        "   \"where\": \"%s\"," +
+                        "   \"select\": [%s]" +
+                        "}",
                 URLEncoder.encode(type, "UTF-8"),
                 where,
                 selectBuilder);
     }
 
     private static String findExternalObjects(String url, String user, String password, String where) throws IOException {
+//        Create a URL Object
         URL searchUrl = new URL(url + "/remote/businessobject/search");
+//        Open a Connection
         HttpURLConnection connection = (HttpURLConnection) searchUrl.openConnection();
+//        Set the Request Method
         connection.setRequestMethod("POST");
+//        Set the Request Content-Type Header Parameter
         connection.setRequestProperty("Content-Type", "application/json");
+
+//        Encode the Authorization Basic Parameters
         connection.setRequestProperty("Authorization", "Basic " + new String(Base64.encodeBase64(String.format("%s:%s", user, password).getBytes())));
 
-        connection.setDoOutput(true);
-        DataOutputStream out = new DataOutputStream(connection.getOutputStream());
+//        Set Response Format Type
+        connection.setRequestProperty("Accept", "application/json");
 
-        String body = buildRequestBody(
+//        Ensure the Connection Will Be Used to Send Content
+        connection.setDoOutput(true);
+
+//        Create the Request Body
+        String jsonInputString = buildRequestBody(
                 TYPE_IMS_DocumentSet,
                 where,
                 Arrays.asList(
@@ -131,22 +143,29 @@ public class IMS_ExternalDocumentSet_mxJPO implements IMS_ExternalSystem_mxJPO.E
                         DomainObject.getAttributeSelect(ATTRIBUTE_IMS_ProjDocStatus),
                         DomainObject.getAttributeSelect(ATTRIBUTE_IMS_Frozen)
                 ));
+//        write it
+        OutputStream os = connection.getOutputStream();
+        byte[] input = jsonInputString.getBytes("utf-8");
+        os.write(input, 0, input.length);
+        os.close();
 
-        out.writeBytes(body);
-        out.flush();
-        out.close();
-
+//        Read the Response from Input Stream
         connection.getResponseCode();
-        BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-        String inputLine;
-        StringBuilder contentStringBuilder = new StringBuilder();
-        while ((inputLine = in.readLine()) != null) {
-            contentStringBuilder.append(inputLine);
-        }
-        in.close();
 
-        String content = contentStringBuilder.toString();
+        BufferedReader br = new BufferedReader(
+                new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8));
+
+        StringBuilder response = new StringBuilder();
+        String responseLine;
+        while ((responseLine = br.readLine()) != null) {
+            response.append(responseLine.trim());
+        }
+
+        br.close();
+
+        String content = response.toString();
         connection.disconnect();
+
         return content;
     }
 

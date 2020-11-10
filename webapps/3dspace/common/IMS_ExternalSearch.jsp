@@ -48,14 +48,12 @@
                     const message = data.trim();
                     if (message !== "") {
                         alert(data);
-                    }
-                    else {
+                    } else {
                         window.opener.location.reload(true);
                         window.close();
                     }
                 });
-        }
-        else {
+        } else {
             alert("Please select an object.");
         }
     }
@@ -76,8 +74,11 @@
 </style>
 
 <div style="width: 100%; display: inline-flex">
-    <input id="queryInput" type="text" onkeypress="return search(event)" class="sn-search-field" autocomplete="off" placeholder="<%=HtmlEscapers.htmlEscaper().escape(StringUtils.isNotBlank(request.getParameter("IMS_SearchHint")) ? request.getParameter("IMS_SearchHint") : "Search")%>">
-    <button class="btn-default" style="width: 75px; height: 50px; margin-left: 2px; margin-top: 2px;" onclick="search()">Search</button>
+    <input id="queryInput" type="text" onkeypress="return search(event)" class="sn-search-field" autocomplete="off"
+           placeholder="<%=HtmlEscapers.htmlEscaper().escape(StringUtils.isNotBlank(request.getParameter("IMS_SearchHint")) ? request.getParameter("IMS_SearchHint") : "Search")%>">
+    <button class="btn-default" style="width: 75px; height: 50px; margin-left: 2px; margin-top: 2px;"
+            onclick="search()">Search
+    </button>
 </div>
 <div style="width: 100%; text-align: right">
 
@@ -85,11 +86,12 @@
 
 <iframe
         id="resultsFrame"
-        src="emxTable.jsp?program=IMS_ExternalSystem%3AfindObjects&selection=single&headerRepeat=0&pagination=0&disableSorting=true&table=<%=URLEncoder.encode(request.getParameter("table"), "UTF-8")%>&IMS_ExternalSystemName=<%=URLEncoder.encode(request.getParameter("IMS_ExternalSystemName"), "UTF-8")%>" width="100%" frameborder="0" style="height: calc(100% - 103px)">
+        src="emxTable.jsp?program=IMS_ExternalSystem%3AfindObjects&selection=single&headerRepeat=0&pagination=0&disableSorting=true&table=<%=URLEncoder.encode(request.getParameter("table"), "UTF-8")%>&IMS_ExternalSystemName=<%=URLEncoder.encode(request.getParameter("IMS_ExternalSystemName"), "UTF-8")%>"
+        width="100%" frameborder="0" style="height: calc(100% - 103px)">
 </iframe>
 
-<br />
-<br />
+<br/>
+<br/>
 <div style="width: 100%; text-align: right">
     <button class="btn-primary" style="width: 75px;" onclick="select()">Select</button>
     <button class="btn-default" style="width: 75px;" onclick="window.close()">Cancel</button>

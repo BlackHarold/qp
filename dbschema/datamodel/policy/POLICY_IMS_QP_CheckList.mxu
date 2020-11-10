@@ -1,0 +1,44 @@
+################################################################################
+# POLICY_IMS_QP_CheckList.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate policy "${NAME}" {
+    symbolicname "policy_IMS_QP_CheckList"
+    description ""
+    !hidden
+    type "IMS_QP_CheckList"
+    format "generic"
+    defaultformat "generic"
+    sequence ""
+    store "STORE"
+    state "New" {
+        !enforcereserveaccess
+        majorrevision
+        !minorrevision
+        version
+        !promote
+        !checkouthistory
+        !published
+        owner {all}
+        public {all}
+        trigger promote action "emxTriggerManager" input "promoteCheckListtoApproved"
+    }
+    state "Approved" {
+        !enforcereserveaccess
+        majorrevision
+        !minorrevision
+        version
+        !promote
+        !checkouthistory
+        !published
+        owner {checkout demote read show}
+        trigger demote action "emxTriggerManager" input "demoteCheckListtoNew"
+    }
+    ################################################## Info Start
+    property "original name" value "IMS_QP_CheckList"
+    property "application" value "mxUpdate11"
+    property "version" value "1"
+    ################################################## Info End
+}

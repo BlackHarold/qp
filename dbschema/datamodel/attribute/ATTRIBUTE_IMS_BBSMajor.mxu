@@ -1,21 +1,21 @@
 ################################################################################
-# TYPE_IMS_ExternalDocumentSet.mxu
+# ATTRIBUTE_IMS_BBSMajor.mxu
 #
 #            This file describes the target of a Configuration Item.
 ################################################################################
 
-mxUpdate type "${NAME}" {
-    symbolicname "type_IMS_ExternalDocumentSet"
-    description ""
+mxUpdate attribute "${NAME}" {
+    kind string
+    symbolicname "attribute_IMS_BBSMajor"
+    description "Baseline level for External Document Set"
     !hidden
-    attribute "IMS_BBSMajor"
-    attribute "IMS_Frozen"
-    attribute "IMS_ProjDocStatus"
-    attribute "IMS_SPFDocVersion"
-    attribute "IMS_SPFMajorRevision"
+    !multivalue
+    !resetonclone
+    !resetonrevision
+    default ""
     ################################################## Info Start
     property "author" value "The MxUpdate Team"
-    property "original name" value "IMS_ExternalDocumentSet"
+    property "original name" value "IMS_BBSMajor"
     property "application" value "IMS_QP"
     property "version" value "1"
     ################################################## Info End
