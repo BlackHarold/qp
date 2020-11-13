@@ -156,16 +156,14 @@ public class IMS_QP_Task_mxJPO {
                         }
                     }
 
-                    /*rotate all related tasks and generating links*/
-                    if (stringBuilder.length() > 0) {
-                        stringBuilder.append("<br/>");
-                    }
+                    String state = UIUtil.isNotNullAndNotEmpty(taskStates.get(mainTaskID)) ? taskStates.get(mainTaskID) : "";
+                    String hidden = state.equals("Rejected") ? " hidden=\"\"" : "";
+                    stringBuilder.append("<div" + hidden + ">");
 
                     name = (String) relatedMap.get(isRuLocale ? "attribute[IMS_NameRu]" : "attribute[IMS_Name]");
                     name = UIUtil.isNotNullAndNotEmpty(name) ? name : "error";
 
-                    String state = UIUtil.isNotNullAndNotEmpty(taskStates.get(mainTaskID)) ? taskStates.get(mainTaskID) : "";
-                    if (!state.equals("Rejected") && getTypeFromMap(relatedMap).equals(IMS_QP_Constants_mxJPO.TYPE_IMS_QP_DEPTask))
+                    if (getTypeFromMap(relatedMap).equals(IMS_QP_Constants_mxJPO.TYPE_IMS_QP_DEPTask))
                         rawLink = getLinkHTML(relatedMap, IMS_QP_Constants_mxJPO.SOURCE_DEPTask, getIconUrl(IMS_QP_Constants_mxJPO.TYPE_IMS_QP_DEPTask), name, state);
                     else if (getTypeFromMap(relatedMap).equals(IMS_QP_Constants_mxJPO.TYPE_IMS_QP_DEP))
                         rawLink = getLinkHTML(relatedMap, IMS_QP_Constants_mxJPO.SOURCE_DEP, getIconUrl(IMS_QP_Constants_mxJPO.TYPE_IMS_QP_DEP), name, state);
@@ -204,6 +202,7 @@ public class IMS_QP_Task_mxJPO {
                             stringBuilder.append(" " + getCheckLinkHTML("IMS_QP_Task", "rejectConnection", /*main task*/mainTaskID, id, virtualRelationship, "Reject", mainLevel));
                         }
                     }
+                    stringBuilder.append("</div>");
                 }
                 String element = FrameworkUtil.findAndReplace(stringBuilder.toString(), "&", "&amp;");
                 result.addElement(element);
@@ -263,7 +262,7 @@ public class IMS_QP_Task_mxJPO {
         String textDecoration = !state.equals("Rejected") ? "none" : "line-through";
         String color = state.equals("Approved") ? "darkgreen" : "";
         color = state.equals("Rejected") ? "grey" : color;
-        String style = fontSize != null ? String.format(" style=\"font-size: %s; text-decoration: %s; color: %s\"", fontSize, textDecoration, color) : "";
+        String style = String.format(" style=\"font-size: %s; text-decoration: %s; color: %s;\"", fontSize, textDecoration, color);
 
         String titleHTML = title != null ? String.format(" title=\"%s\"", HtmlEscapers.htmlEscaper().escape(title.replace("&#10;", "|")).replace("|", "&#10;")) : "";
 
@@ -640,16 +639,13 @@ public class IMS_QP_Task_mxJPO {
                         }
                     }
 
-                    /*rotate all related tasks and generating links*/
-                    if (stringBuilder.length() > 0) {
-                        stringBuilder.append("<br/>");
-                    }
+                    String state = UIUtil.isNotNullAndNotEmpty(taskStates.get(mainTaskID)) ? taskStates.get(mainTaskID) : "";
+                    String hidden = state.equals("Rejected") ? " hidden=\"\"" : "";
+                    stringBuilder.append("<div" + hidden + ">");
 
                     name = "";
 
-                    String state = UIUtil.isNotNullAndNotEmpty(taskStates.get(mainTaskID)) ? taskStates.get(mainTaskID) : "";
-
-                    if (!state.equals("Rejected") && getTypeFromMap(relatedMap).equals(IMS_QP_Constants_mxJPO.type_IMS_QP_QPTask)) {
+                    if (getTypeFromMap(relatedMap).equals(IMS_QP_Constants_mxJPO.type_IMS_QP_QPTask)) {
                         rawLink = getLinkHTML(relatedMap, IMS_QP_Constants_mxJPO.SOURCE_DEPTask, getIconUrl(IMS_QP_Constants_mxJPO.type_IMS_QP_QPTask), name, state);
                     } else if (getTypeFromMap(relatedMap).equals(IMS_QP_Constants_mxJPO.TYPE_IMS_QP_DEP)) {
                         rawLink = getLinkHTML(relatedMap, IMS_QP_Constants_mxJPO.SOURCE_DEP, getIconUrl(IMS_QP_Constants_mxJPO.TYPE_IMS_QP_DEP), name, state);
@@ -666,6 +662,7 @@ public class IMS_QP_Task_mxJPO {
                                     /*main task*/mainTaskID, id, virtualRelationship, "Reject", mainLevel));
                         }
                     }
+                    stringBuilder.append("</div>");
                 }
 
                 result.addElement(FrameworkUtil.findAndReplace(stringBuilder.toString(), "&", "&amp;"));
