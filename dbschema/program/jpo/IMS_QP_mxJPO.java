@@ -1,10 +1,8 @@
 import com.matrixone.apps.domain.DomainConstants;
 import com.matrixone.apps.domain.DomainObject;
 import com.matrixone.apps.domain.DomainRelationship;
-import com.matrixone.apps.domain.util.ContextUtil;
-import com.matrixone.apps.domain.util.EnoviaResourceBundle;
-import com.matrixone.apps.domain.util.FrameworkException;
-import com.matrixone.apps.domain.util.MapList;
+import com.matrixone.apps.domain.util.*;
+import com.matrixone.apps.framework.ui.UIUtil;
 import matrix.db.*;
 import matrix.util.MatrixException;
 import matrix.util.StringList;
@@ -17,11 +15,12 @@ public class IMS_QP_mxJPO extends DomainObject {
 
     private static final Logger LOG = Logger.getLogger("IMS_QP_DEP");
 
-    public static MapList getStructureList(Context context, String[] args) throws FrameworkException {
+    public MapList getStructureList(Context context, String[] args) throws FrameworkException {
+
         MapList componentsList;
         try {
-            HashMap programMap = JPO.unpackArgs(args);
-            HashMap paramMap = (HashMap) programMap.get("paramMap");
+            Map programMap = JPO.unpackArgs(args);
+            Map paramMap = (Map) programMap.get("paramMap");
             String objectId = (String) paramMap.get("objectId");
 
             StringBuffer sbType = new StringBuffer().
@@ -63,8 +62,7 @@ public class IMS_QP_mxJPO extends DomainObject {
             StringList relSelects = new StringList(
                     DomainConstants.SELECT_RELATIONSHIP_ID);
 
-            componentsList = domObj.getRelatedObjects(context, // matrix
-                    // context
+            componentsList = domObj.getRelatedObjects(context, // matrix context
                     sbRel.toString(), // all relationships to expand
                     sbType.toString(), // all types required from the expand
                     objectSelects,// object selects
@@ -73,12 +71,43 @@ public class IMS_QP_mxJPO extends DomainObject {
                     true, // from direction
                     (short) 1, // recursion level
                     "", // object where clause
-                    "", 0); // relationship where clause
+                    "", // relationship where clause
+                    0);
+
+            String objectType = new DomainObject(objectId).getType(context);
+            String objectName = new DomainObject(objectId).getName(context);
+            if ("IMS_QP".equals(objectType) && "SQP".equals(objectName)) {
+                componentsList = getFilteredMapListByOwner(context, componentsList);
+            }
 
         } catch (Exception ex) {
             throw new FrameworkException(ex.toString());
         }
         return componentsList;
+    }
+
+    private MapList getFilteredMapListByOwner(Context context, MapList mapList) {
+
+        boolean isSuperUser = false, isAdmin = false;
+        try {
+            isSuperUser = IMS_QP_Security_mxJPO.currentUserIsQPSuperUser(context);
+            isAdmin = IMS_QP_Security_mxJPO.isUserAdmin(context);
+        } catch (MatrixException matrixException) {
+            matrixException.printStackTrace();
+        }
+        if (isSuperUser || isAdmin) return mapList;
+
+        MapList filteredByOwnerSQPs = new MapList();
+        for (Object o : mapList) {
+            Map map = (Map) o;
+            boolean isOwner = IMS_QP_Security_mxJPO.isOwnerQPlan(context, (String) map.get("id"));
+            if (isOwner) {
+                filteredByOwnerSQPs.add(map);
+            }
+        }
+
+        //get all QP plans filtered by owner
+        return filteredByOwnerSQPs;
     }
 
     /**
@@ -261,6 +290,109 @@ public class IMS_QP_mxJPO extends DomainObject {
         return result;
     }
 
+    public Vector getPBS(Context context, String... args) {
+
+        Vector result = new Vector();
+        StringBuilder stringBuilder = new StringBuilder();
+
+        try {
+            Map argsMap = JPO.unpackArgs(args);
+            MapList objectList = (MapList) argsMap.get("objectList");
+
+            /*getting all systems*/
+            List<Map> items = new ArrayList<>();
+            for (Object o : objectList) {
+                items.add((Map) o);
+            }
+
+            /*top level Codes by items*/
+            for (Map map : items) {
+                stringBuilder.setLength(0);
+
+                String pbsID = (String) map.get("id");
+                DomainObject systemObject = new DomainObject(pbsID);
+                String systemType = systemObject.getType(context);
+
+                if (pbsID != null) {
+                    //get pbs from system
+                    String parentPBS = systemObject.getInfo(context, "to[IMS_PBSFunctionalArea2" + systemType + "].from.name");
+                    stringBuilder.append(UIUtil.isNotNullAndNotEmpty(parentPBS) ? parentPBS : "No group");
+                }
+
+                result.addElement(stringBuilder.toString());
+            }
+        } catch (Exception e) {
+            try {
+                LOG.error("error getting url string: " + e.getMessage());
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+        return result;
+    }
+
+    public Vector getQP(Context context, String... args) {
+        Vector result = new Vector();
+        StringBuilder stringBuilder = new StringBuilder();
+
+        try {
+            Map argsMap = JPO.unpackArgs(args);
+            MapList objectList = (MapList) argsMap.get("objectList");
+
+            /*getting all systems*/
+            List<Map> items = new ArrayList<>();
+            for (Object o : objectList) {
+                items.add((Map) o);
+            }
+
+            /*top level Codes by items*/
+            for (Map map : items) {
+                stringBuilder.setLength(0);
+
+                String pbsID = (String) map.get("id");
+                DomainObject systemObject = new DomainObject(pbsID);
+
+                if (pbsID != null) {
+                    String hasQPlan = systemObject.getInfo(context, "to[" + IMS_QP_Constants_mxJPO.relationship_IMS_QP_QPlan2Object + "]");
+                    if ("TRUE".equals(hasQPlan)) {
+                        String relatedType = systemObject.getInfo(context, "to[" + IMS_QP_Constants_mxJPO.relationship_IMS_QP_QPlan2Object + "].from.type");
+
+                        String relatedQPState = "";
+                        switch (relatedType) {
+                            case "IMS_QP_QPlan":
+                                relatedQPState = systemObject.getInfo(context, "to[" + IMS_QP_Constants_mxJPO.relationship_IMS_QP_QPlan2Object + "].from.current");
+                                break;
+                            case "IMS_QP_QPTask":
+                                String isNotInterdisciplinaryTask = systemObject.getInfo(context,
+                                        "to[" + IMS_QP_Constants_mxJPO.relationship_IMS_QP_QPlan2Object
+                                                + "].from.to[" + IMS_QP_Constants_mxJPO.relationship_IMS_QP_QPlan2QPTask
+                                                + "].from.from[" + IMS_QP_Constants_mxJPO.relationship_IMS_QP_QPlan2Object + "]");
+
+                                if ("TRUE".equals(isNotInterdisciplinaryTask)) {
+                                    relatedQPState = systemObject.getInfo(context,
+                                            "to[" + IMS_QP_Constants_mxJPO.relationship_IMS_QP_QPlan2Object
+                                                    + "].from.to[" + IMS_QP_Constants_mxJPO.relationship_IMS_QP_QPlan2QPTask + "].from.current");
+                                } else stringBuilder.append("No plan");
+                                break;
+                        }
+                        stringBuilder.append(relatedQPState);
+                    } else {
+                        stringBuilder.append("No plan");
+                    }
+                }
+
+                result.addElement(stringBuilder.toString());
+            }
+        } catch (Exception e) {
+            try {
+                LOG.error("error getting url string: " + e.getMessage());
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+        return result;
+    }
+
 
     /**
      * Method to show the table of related with DEP-object IMS_QP_DEPTask elements
@@ -302,8 +434,8 @@ public class IMS_QP_mxJPO extends DomainObject {
         selects.add("id");
 
         DomainObject parent = new DomainObject(objectId);
-        //get all substages
-        return parent.getRelatedObjects(context,
+
+        MapList listSQPs = parent.getRelatedObjects(context,
                 /*relationship*/null,
                 /*type*/"IMS_QP_QPlan",
                 /*object attributes*/ selects,
@@ -313,6 +445,11 @@ public class IMS_QP_mxJPO extends DomainObject {
                 /*object where*/ null,
                 /*relationship where*/ null,
                 /*limit*/ 0);
+
+        //get all QP plans filtered by owner
+        listSQPs = getFilteredMapListByOwner(context, listSQPs);
+
+        return listSQPs;
     }
 
     /**

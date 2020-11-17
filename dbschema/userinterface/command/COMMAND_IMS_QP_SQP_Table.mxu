@@ -8,7 +8,7 @@ mxUpdate command "${NAME}" {
     symbolicname "command_IMS_QP_SQP_Table"
     description "SQPs"
     label "SQPs"
-    href "${COMMON_DIR}/emxIndentedTable.jsp?program=IMS_QP:getAllSQP&table=IMS_QP_SQP&toolbar=IMS_QP_SQP_Toolbar&sortColumnName=Name&selection=multiple&formHeader=SubStages"
+    href "${COMMON_DIR}/emxIndentedTable.jsp?program=IMS_QP:getAllSQP&table=IMS_QP_SQP&toolbar=IMS_QP_SQP_Toolbar&sortColumnName=Name&selection=multiple"
     alt ""
     setting "Access Expression" "name!='DEP'"
     setting "Registered Suite" "Framework"

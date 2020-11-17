@@ -292,9 +292,7 @@ public class IMS_QP_DEPTask_mxJPO {
             Map programMap = JPO.unpackArgs(args);
             String objectId = (String) programMap.get("objectId");
             DomainObject qPlan = new DomainObject(objectId);
-
             MapList task = getRelatedMapList(context, qPlan, RELATIONSHIP_IMS_QPlan2QPTask, TYPE_IMS_QP_QPTASK, true, true, (short) 1, "", "", 0);
-
             return task;
         } catch (Exception ex) {
             throw ex;

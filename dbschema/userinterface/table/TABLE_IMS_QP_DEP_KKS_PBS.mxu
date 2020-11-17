@@ -12,28 +12,57 @@ mxUpdate table "${NAME}" {
         label "Code"
         businessobject "name"
         user "all"
+        setting "Sortable" "false"
         setting "Registered Suite" "Framework"
+    }
+    column {
+        name "pbs"
+        label "PBS"
+        user "all"
+        setting "Column Type" "programHTMLOutput"
+        setting "Editable" "false"
+        setting "Registered Suite" "Framework"
+        setting "Width" "100"
+        setting "function" "getPBS"
+        setting "program" "IMS_QP"
     }
     column {
         name "revision"
         label "Revision"
         businessobject "revision"
         user "all"
+        setting "Sortable" "false"
         setting "Registered Suite" "Framework"
+        setting "Width" "100"
     }
     column {
         name "type"
         label "Type"
         businessobject "type"
+        setting "Sortable" "false"
         user "all"
         setting "Registered Suite" "Framework"
+        setting "Width" "200"
+    }
+    column {
+        name "qplan"
+        label "QP"
+        user "all"
+        setting "Column Type" "programHTMLOutput"
+        setting "Editable" "false"
+        setting "Registered Suite" "Framework"
+        setting "Width" "100"
+        setting "function" "getQP"
+        setting "program" "IMS_QP"
     }
     column {
         name "dep"
         label "DEP"
         businessobject "from[IMS_PBS2DEP].to.name"
+        setting "Sortable" "false"
         user "all"
         setting "Registered Suite" "Framework"
+        setting "Width" "200"
     }
     column {
         name "owner"
