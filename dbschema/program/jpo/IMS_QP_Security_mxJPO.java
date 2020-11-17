@@ -776,6 +776,27 @@ public class IMS_QP_Security_mxJPO {
         return isOwner(context, args) && isOwnerQPlan || isUserAdmin(context);
     }
 
+    /**
+     * @param context
+     * @param id      of IMS_QP_QPlan type object
+     * @return boolean
+     */
+    public static boolean isOwnerQPlan(Context context, String id) {
+        boolean isOwnerQPlan = false;
+
+        try {
+            Map argsMap = new HashMap();
+            argsMap.put("parentOID", id);
+            String[] args = JPO.packArgs(argsMap);
+            isOwnerQPlan = isOwnerQPlan(context, args);
+
+        } catch (Exception e) {
+            LOG.error("error in method isOwnerQPlan: " + e.getMessage());
+        }
+
+        return isOwnerQPlan || isUserAdmin(context);
+    }
+
     public static boolean isOwnerQPlanFromTask(Context context, String... args) {
 
         Map argsMap;

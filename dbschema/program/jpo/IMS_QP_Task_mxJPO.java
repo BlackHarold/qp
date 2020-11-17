@@ -856,8 +856,8 @@ public class IMS_QP_Task_mxJPO {
         String functionalAreaID = "";
         DomainObject functionalAreaObject = null;
         try {
-            DomainObject qpTask = new DomainObject(parentID);
-            functionalAreaID = qpTask.getInfo(context, "to[IMS_QP_QPlan2QPTask].from.from[IMS_QP_QPlan2Object].to.id");
+            DomainObject qpPlan = new DomainObject(parentID);
+            functionalAreaID = qpPlan.getInfo(context, "from[IMS_QP_QPlan2Object].to.id");
             functionalAreaObject = new DomainObject(functionalAreaID);
         } catch (Exception e) {
             LOG.error("error getting info from qpTask " + parentID + ": " + e.getMessage());

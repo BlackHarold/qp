@@ -10,6 +10,8 @@ mxUpdate command "${NAME}" {
     label "Copy"
     href "${COMMON_DIR}/IMS_QP_QPTask_copy.jsp"
     alt ""
+    user "all"
+    setting "Access Expression" "current==Draft"
     setting "Image" "${COMMON_DIR}/images/copy_task.png"
     setting "Registered Suite" "Framework"
     setting "Row Select" "multi"

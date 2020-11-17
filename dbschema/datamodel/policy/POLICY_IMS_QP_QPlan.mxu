@@ -12,7 +12,26 @@ mxUpdate policy "${NAME}" {
     defaultformat ""
     sequence ""
     store ""
-    state "Exist" {
+    allstate {
+        user "IMS_Admin" {all}
+        user "IMS_QP_QPOwner" {changename checkin checkout create delete fromconnect fromdisconnect modify read show toconnect todisconnect viewform}
+        user "IMS_QP_SuperUser" {checkin checkout read show viewform}
+    }
+    state "Draft" {
+        registeredname "state_Draft"
+        !enforcereserveaccess
+        majorrevision
+        minorrevision
+        version
+        promote
+        checkouthistory
+        !published
+        owner {all}
+        public {read}
+        trigger promote check "emxTriggerManager" input "IMS_QP_QPlan_policyDraftPromoteCheck"
+    }
+    state "Done" {
+        registeredname "state_Done"
         !enforcereserveaccess
         majorrevision
         minorrevision
@@ -23,4 +42,9 @@ mxUpdate policy "${NAME}" {
         owner {all}
         public {all}
     }
+    ################################################## Info Start
+    property "original name" value "IMS_QP_QPlan"
+    property "application" value "IMS_QP"
+    property "version" value "1"
+    ################################################## Info End
 }

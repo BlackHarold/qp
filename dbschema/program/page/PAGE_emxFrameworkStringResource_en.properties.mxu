@@ -44,6 +44,8 @@ emxFramework.State.IMS_QP_DEPProjectStage.Created=Created
 emxFramework.State.IMS_QP_Directory.Created=Created
 emxFramework.State.IMS_QP_ResultType.Created=Created
 emxFramework.State.IMS_ProjectStage.Created=Created
+emxFramework.State.IMS_QP_QPlan.Draft=Draft
+emxFramework.State.IMS_QP_QPlan.Done=Done
 
 emxFramework.Attribute.QP_IMS_Name = Name
 emxFramework.Attribute.QP_IMS_NameRu = Name Ru

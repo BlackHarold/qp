@@ -9,13 +9,13 @@
    static const char RCSID[] = $Id: emxForm.jsp.rca 1.28 Wed Oct 22 15:48:22 2008 przemek Experimental przemek $
 --%>
 
-<%@include file = "emxNavigatorInclude.inc"%>
+<%@include file="emxNavigatorInclude.inc" %>
 
 <html>
 <head>
-    <%@include file = "emxNavigatorTopErrorInclude.inc"%>
-    <%@include file = "emxFormConstantsInclude.inc"%>
-    <%@include file = "emxUIConstantsInclude.inc"%>
+    <%@include file="emxNavigatorTopErrorInclude.inc" %>
+    <%@include file="emxFormConstantsInclude.inc" %>
+    <%@include file="emxUIConstantsInclude.inc" %>
     <%@page import="com.matrixone.apps.framework.ui.UIUtil,com.matrixone.apps.framework.ui.UIComponent" %>
 
     <link href="styles/emxUIExtendedHeader.css" rel="stylesheet"></link>
@@ -25,16 +25,17 @@
         String objectId = (String) requestMap.get("objectId");
         String accessResult = null;
         boolean hasReadAccess = true;
-        if(UIComponent.isShowAccessEnabled(context) && UIUtil.isNotNullAndNotEmpty(objectId)){
+        if (UIComponent.isShowAccessEnabled(context) && UIUtil.isNotNullAndNotEmpty(objectId)) {
             hasReadAccess = UIComponent.hasReadAccess(context, objectId);
         }
-        if(!hasReadAccess){
+        if (!hasReadAccess) {
     %>
     <!-- //XSSOK -->
-    <jsp:forward page="emxTreeNoDisplay.jsp" > <jsp:param name ="objectId" value  ="<%=objectId%>" />
+    <jsp:forward page="emxTreeNoDisplay.jsp">
+        <jsp:param name="objectId" value="<%=objectId%>"/>
     </jsp:forward>
     <%
-    }else{
+    } else {
 
         String HelpMarker = emxGetParameter(request, "HelpMarker");
         String actionBar = emxGetParameter(request, "actionBarName");
@@ -42,21 +43,21 @@
         StringBuffer appendParams = new StringBuffer(100);
 
         String appendURL = (String) requestMap.get("appendURL");
-        if(appendURL != null && !"".equalsIgnoreCase(appendURL)) {
-            HashMap requestMapNew = UINavigatorUtil.appendURLParams(context, (HashMap)requestMap.clone(), "Form");
+        if (appendURL != null && !"".equalsIgnoreCase(appendURL)) {
+            HashMap requestMapNew = UINavigatorUtil.appendURLParams(context, (HashMap) requestMap.clone(), "Form");
             StringBuffer paramlist = new StringBuffer();
             Iterator itr = requestMapNew.keySet().iterator();
             int i = 0;
-            while(itr.hasNext()){
-                String key = (String)itr.next();
-                if(!requestMap.containsKey(key)) {
-                    if(i > 0) {
+            while (itr.hasNext()) {
+                String key = (String) itr.next();
+                if (!requestMap.containsKey(key)) {
+                    if (i > 0) {
                         paramlist.append("&");
                     }
                     try {
-                        paramlist.append(key).append("=").append(XSSUtil.encodeForURL(context, (String)requestMapNew.get(key)));
+                        paramlist.append(key).append("=").append(XSSUtil.encodeForURL(context, (String) requestMapNew.get(key)));
                         i++;
-                    }catch(Exception e){
+                    } catch (Exception e) {
 
                     }
                 }
@@ -71,8 +72,8 @@
         String showTabHeader = emxGetParameter(request, "showTabHeader");
         String form = (String) requestMap.get("form");
         String accessUsers = MqlUtil.mqlCommand(context, "print form $1 select $2 dump", form, "property[AccessUsers].value");
-        if(UIUtil.isNotNullAndNotEmpty(accessUsers)) {
-            if(!PersonUtil.hasAnyAssignment(context, accessUsers)) {
+        if (UIUtil.isNotNullAndNotEmpty(accessUsers)) {
+            if (!PersonUtil.hasAnyAssignment(context, accessUsers)) {
                 return;
             }
         }
@@ -82,20 +83,18 @@
         String relId = (String) requestMap.get("relId");//emxGetParameter(request, "relId");
         String header = (String) requestMap.get("formHeader");//emxGetParameter(request, "formHeader");
         String subHeader = (String) requestMap.get("subHeader");//emxGetParameter(request, "formHeader");
-        String originalHeader=(String) requestMap.get("formHeader");//emxGetParameter(request, "formHeader");
+        String originalHeader = (String) requestMap.get("formHeader");//emxGetParameter(request, "formHeader");
 
         // iNoOfToolbars is used to decide the  frame size for the Header
-        String strTitle="";
-        String toolbar = (String) (String)emxGetParameter(request,"toolbar");
+        String strTitle = "";
+        String toolbar = (String) (String) emxGetParameter(request, "toolbar");
         int iNoOfToolbars = 1;
-        if ( (toolbar != null) || (!"null".equalsIgnoreCase(toolbar)))
-        {
-            matrix.util.StringList strList = com.matrixone.apps.domain.util.FrameworkUtil.split(toolbar,",");
+        if ((toolbar != null) || (!"null".equalsIgnoreCase(toolbar))) {
+            matrix.util.StringList strList = com.matrixone.apps.domain.util.FrameworkUtil.split(toolbar, ",");
 
             iNoOfToolbars = strList.size();
 
-            if(iNoOfToolbars == 0)
-            {
+            if (iNoOfToolbars == 0) {
                 iNoOfToolbars = 1;
             }
         }
@@ -116,8 +115,7 @@
         //String tableRowId = "";
         String parsedHeader = "";
 
-        if (timeStamp == null || timeStamp.trim().length() == 0)
-        {
+        if (timeStamp == null || timeStamp.trim().length() == 0) {
             timeStamp = UIComponent.getTimeStamp();
         }
 
@@ -131,72 +129,63 @@
             // If the From is invoked from the emxTable page, then
             // the object id will be in the format of - "relId|busId,relId2|busId2.."
             // Get the first parameter and then parse it to get objectId
-            if (tableRowIdList != null && tableRowIdList.length > 0)
-            {
-                for (int ii = 0; ii < tableRowIdList.length; ii++)
-                {
+            if (tableRowIdList != null && tableRowIdList.length > 0) {
+                for (int ii = 0; ii < tableRowIdList.length; ii++) {
                     String[] tokens = tableRowIdList[ii].trim().split("[|]");
 
-                    if (ii == 0)
-                    {
-                        if (tokens.length > 1)
-                        {
+                    if (ii == 0) {
+                        if (tokens.length > 1) {
                             relId = tokens[0];
                             objectId = tokens[1];
 
-                            appendParams.insert(0, "relId=" + XSSUtil.encodeForURL(context,relId) + "&");
-                        }
-                        else if (tokens.length == 1)
-                        {
+                            appendParams.insert(0, "relId=" + XSSUtil.encodeForURL(context, relId) + "&");
+                        } else if (tokens.length == 1) {
                             objectId = tokens[0];
                         }
                         // Prepend the objectId parameter to the request params:
-                        appendParams.insert(0, "objectId=" + XSSUtil.encodeForURL(context,objectId) + "&");
+                        appendParams.insert(0, "objectId=" + XSSUtil.encodeForURL(context, objectId) + "&");
 
                         // Start appending the rowIds as a comma-separated string:
                         appendParams.append("&rowIds=");
-                        appendParams.append(XSSUtil.encodeForURL(context,objectId));
-                    }
-                    else
-                    {
+                        appendParams.append(XSSUtil.encodeForURL(context, objectId));
+                    } else {
                         appendParams.append(",");
-                        appendParams.append(XSSUtil.encodeForURL(context,tokens[tokens.length > 1 ? 1 : 0]));
+                        appendParams.append(XSSUtil.encodeForURL(context, tokens[tokens.length > 1 ? 1 : 0]));
                     }
                 }
             }
 
-            if ( (form == null) || (form.equals("")))
+            if ((form == null) || (form.equals("")))
                 emxNavErrorObject.addMessage(MSG_INVALID_FORM_NAME);
 
 
             parsedHeader = UIForm.getFormHeaderString(context, pageContext, header, objectId, suiteKey, frmLanguage);
-            if( UIUtil.isNotNullAndNotEmpty(mode) && mode.compareToIgnoreCase("edit")==0){
-                strTitle = UIUtil.getWindowTitleName(context, null,objectId, EnoviaResourceBundle.getFrameworkStringResourceProperty(context, "emxFramework.WindowTitle.Edit",context.getLocale()), true);
+            if (UIUtil.isNotNullAndNotEmpty(mode) && mode.compareToIgnoreCase("edit") == 0) {
+                strTitle = UIUtil.getWindowTitleName(context, null, objectId, EnoviaResourceBundle.getFrameworkStringResourceProperty(context, "emxFramework.WindowTitle.Edit", context.getLocale()), true);
+            } else {
+                strTitle = UIUtil.getWindowTitleName(context, null, objectId, null, true);
             }
-            else{
-                strTitle = UIUtil.getWindowTitleName(context, null,objectId, null, true);
-            }
-            if ( altCSS != null && !"".equals(altCSS) && !"null".equals(altCSS)){
+            if (altCSS != null && !"".equals(altCSS) && !"null".equals(altCSS)) {
                 appendParams.append("&altCSS=");
                 appendParams.append(XSSUtil.encodeForURL(context, altCSS));
             }
-            String addCustAttributes= emxGetParameter(request, "addCustAttributes");
-            if (UIUtil.isNotNullAndNotEmpty(addCustAttributes)){
+            String addCustAttributes = emxGetParameter(request, "addCustAttributes");
+            if (UIUtil.isNotNullAndNotEmpty(addCustAttributes)) {
                 appendParams.append("&addCustAttributes=");
-                appendParams.append(XSSUtil.encodeForURL(context,addCustAttributes));
+                appendParams.append(XSSUtil.encodeForURL(context, addCustAttributes));
             }
             appendParams.append("&originalHeader=");
             appendParams.append(XSSUtil.encodeForURL(context, originalHeader));
             appendParams.append("&parsedHeader=");
             appendParams.append(XSSUtil.encodeForURL(context, parsedHeader));
             appendParams.append("&timeStamp=");
-            appendParams.append(XSSUtil.encodeForURL(context,timeStamp));
+            appendParams.append(XSSUtil.encodeForURL(context, timeStamp));
             appendParams.append("&findMxLink=");
             appendParams.append(XSSUtil.encodeForURL(context, findMxLink));
             appendParams.append("&objectName=");
             appendParams.append(XSSUtil.encodeForURL(context, objectName));
 
-            if(!"edit".equalsIgnoreCase(mode)){
+            if (!"edit".equalsIgnoreCase(mode)) {
                 appendParams.append("&submitMethod=");
                 appendParams.append(XSSUtil.encodeForURL(context, request.getMethod()));
             }
@@ -211,14 +200,14 @@
         }
 
         boolean showPortal = false;
-        if(portalMode != null && "true".equals(portalMode)) {
+        if (portalMode != null && "true".equals(portalMode)) {
             showPortal = true;
         }
         boolean showHeader = true;
-        if((showTabHeader == null ||!"true".equalsIgnoreCase(showTabHeader)) && showPortal ){
-            showHeader= false;
+        if ((showTabHeader == null || !"true".equalsIgnoreCase(showTabHeader)) && showPortal) {
+            showHeader = false;
         }
-        String editDisplayURL = "emxFormEditDisplay.jsp?" + appendParams.toString() + "&portalMode=" + XSSUtil.encodeForURL(context, portalMode)+ "&fromForm=true";
+        String editDisplayURL = "emxFormEditDisplay.jsp?" + appendParams.toString() + "&portalMode=" + XSSUtil.encodeForURL(context, portalMode) + "&fromForm=true";
         String viewDisplayURL = "emxFormViewDisplay.jsp?" + appendParams.toString();
 
         String editFooterURL = "emxFormEditFooter.jsp?" + appendParams.toString();
@@ -228,16 +217,16 @@
 
         String bodyUrl = "";
         String footerURL = "";
-        if("slidein".equals(targetLocation) && !"edit".equalsIgnoreCase(mode)){
+        if ("slidein".equals(targetLocation) && !"edit".equalsIgnoreCase(mode)) {
             footerURL = slideinviewFooterURL;
-        }else{
+        } else {
             footerURL = editFooterURL;
         }
-        footerURL = FrameworkUtil.findAndReplace(footerURL,"'","\\'");
+        footerURL = FrameworkUtil.findAndReplace(footerURL, "'", "\\'");
 
         String bodyframe = "";
         String hiddenFramename = "";
-        if ( (mode != null) && mode.equalsIgnoreCase("edit")) {
+        if ((mode != null) && mode.equalsIgnoreCase("edit")) {
             bodyUrl = editDisplayURL;
             //bodyframe = "formEditDisplay";
             hiddenFramename = "formEditHidden";
@@ -247,21 +236,22 @@
             hiddenFramename = "formViewHidden";
         }
         header = UIForm.getFormHeaderString(context, pageContext, originalHeader, objectId, suiteKey, frmLanguage);
-        if ( (subHeader != null) && (subHeader.trim().length() > 0) ) {
+        if ((subHeader != null) && (subHeader.trim().length() > 0)) {
             subHeader = UINavigatorUtil.parseHeader(context, pageContext, subHeader, objectId, suiteKey, frmLanguage);
         }
 
         String printerFriendly = emxGetParameter(request, "PrinterFriendly");
         String export = emxGetParameter(request, "Export");
         String editLink = emxGetParameter(request, "editLink");
-        if ( (mode != null) && mode.equalsIgnoreCase("edit")) {
+        if ((mode != null) && mode.equalsIgnoreCase("edit")) {
             editLink = "false";
             printerFriendly = "false";
             export = "false";
         }
 
     %>
-    <title><xss:encodeForHTML><%=strTitle%></xss:encodeForHTML></title>
+    <title><xss:encodeForHTML><%=strTitle%>
+    </xss:encodeForHTML></title>
     <script type="text/javascript">
         var numtoolbars = <%=iNoOfToolbars%>;
     </script>
@@ -307,7 +297,8 @@
     <script language="javascript" src="../common/scripts/emxUIObjMgr.js"></script>
     <script language="JavaScript" src="../common/scripts/jquery-latest.js" type="text/javascript"></script>
     <script language="JavaScript" src="../common/scripts/jshashtable/jshashtable.js" type="text/javascript"></script>
-    <script language="JavaScript" src="../common/scripts/jquery-numberformatter/jquery-numberformatter.js" type="text/javascript"></script>
+    <script language="JavaScript" src="../common/scripts/jquery-numberformatter/jquery-numberformatter.js"
+            type="text/javascript"></script>
     <script language="JavaScript" src="../common/scripts/emxUITableUtil.js" type="text/javascript"></script>
     <script language="javascript" src="../common/scripts/emxUIFormUtil.js" type="text/javascript"></script>
     <script language="JavaScript" src="../common/scripts/emxUIPopups.js" type="text/javascript"></script>
@@ -322,9 +313,9 @@
     <link rel="stylesheet" href="../common/styles/emxUIImageManagerInPlace.css"/>
 
     <%
-        if ( altCSS != null && !"".equals(altCSS)){
+        if (altCSS != null && !"".equals(altCSS)) {
             if (altCSS.indexOf(".css") > -1)
-                altCSS = altCSS.substring(0,altCSS.indexOf(".css"));
+                altCSS = altCSS.substring(0, altCSS.indexOf(".css"));
     %>
     <script type="text/javascript">
         addStyleSheet("<%= XSSUtil.encodeForURL(context, altCSS) %>");
@@ -333,7 +324,7 @@
         }
 
         if (mode != null && mode.equalsIgnoreCase("edit")) {
-            String preProcessJavaScript = emxGetParameter(request,"preProcessJavaScript");
+            String preProcessJavaScript = emxGetParameter(request, "preProcessJavaScript");
     %>
     <script>
         //To reposition the dynamic textarea div when window is resized .
@@ -344,18 +335,14 @@
 
     <%
         String typeAheadEnabled = "true";
-        try
-        {
+        try {
             typeAheadEnabled = EnoviaResourceBundle.getProperty(context, "emxFramework.TypeAhead");
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
         }
 
 
         // add the type ahead javascript and style sheet if the feature is enabled
-        if ("true".equalsIgnoreCase(typeAheadEnabled))
-        {
+        if ("true".equalsIgnoreCase(typeAheadEnabled)) {
     %>
     <script language="javascript" src="scripts/emxTypeAhead.js"></script>
     <%
@@ -363,15 +350,14 @@
 
         StringList incFileList = UIForm.getJSValidationFileList(context, suiteKey);
         String fileTok = "";
-        for(StringItr keyItr = new StringItr(incFileList); keyItr.next();)
-        {
+        for (StringItr keyItr = new StringItr(incFileList); keyItr.next(); ) {
             fileTok = keyItr.obj();
-            if(fileTok.endsWith(".jsp")) {
+            if (fileTok.endsWith(".jsp")) {
     %>
     <!-- XSSOK -->
-    <jsp:include page = "<%=fileTok%>" flush="true" />
+    <jsp:include page="<%=fileTok%>" flush="true"/>
     <%
-    } else if(fileTok.endsWith(".js")) {
+    } else if (fileTok.endsWith(".js")) {
     %>
     <script language="javascript" src="<%=fileTok%>"></script><!-- XSSOK -->
     <%
@@ -380,7 +366,7 @@
     %>
     <script type="text/javascript" src="scripts/emxUIFormHandler.js"></script>
 
-    <%@include file = "emxRTE.inc"%>
+    <%@include file="emxRTE.inc" %>
 
     <%
         }
@@ -388,44 +374,46 @@
 
     <script language="javascript">
         var popup = 'true';
-        function submitPage(targetLocation)
-        {
+
+        function submitPage(targetLocation) {
             var submitMultipleTimes = "false";
             var editFrom = this.document.forms["editDataForm"];
-            if(editFrom != null && editFrom != undefined) {
+            if (editFrom != null && editFrom != undefined) {
                 var submitMultipleTimesEle = this.document.forms["editDataForm"].submitMultipleTimes;
-                if(submitMultipleTimesEle != null && submitMultipleTimesEle != undefined) {
+                if (submitMultipleTimesEle != null && submitMultipleTimesEle != undefined) {
                     submitMultipleTimes = submitMultipleTimesEle.value;
                 }
             }
 
-            if(submitMultipleTimes == "true") {
+            if (submitMultipleTimes == "true") {
                 setFormSubmitAction(true);
             }
 
-            if(targetLocation != "slidein"){
+            if (targetLocation != "slidein") {
                 //parent.formEditDisplay.document.forms["editDataForm"].isPopup.value = popup;
                 this.document.forms["editDataForm"].isPopup.value = popup;
             }
             saveChanges(targetLocation);
         }
 
-        function loadpage()
-        {
+        function loadpage() {
             var toppage = getTopWindow().document.location.href;
-            if(toppage.indexOf("emxForm.jsp") < 0)
-            {
+            if (toppage.indexOf("emxForm.jsp") < 0) {
                 popup = 'false';
                 //parent.formEditDisplay.document.forms[0].isPopup.value = 'false';
                 //parent.frames[1].document.forms[0].isPopup.value = 'false';
                 var cnlImg = document.getElementById('cancelImage');
                 var cnlTxt = document.getElementById('cancelText');
-                if(cnlTxt && cnlImg){
+                if (cnlTxt && cnlImg) {
                     cnlTxt.innerHTML = "";
                     cnlImg.innerHTML = "";
                 }
 
             }
+        }
+
+        function doCancel() {
+            window.close();
         }
 
         <%
@@ -436,13 +424,13 @@
             }
             else{ //listen to object change event
         %>
-        require(["UWA/Utils/InterCom"], function(InterCom){
+        require(["UWA/Utils/InterCom"], function (InterCom) {
             "use strict";
             var formSocket = new InterCom.Socket();
             formSocket.subscribeServer('enovia.bus.server', getTopWindow());
             formSocket.addListener('objectChanged', function (data) {
                 var oid = data.oid;
-                if(!oid || oid != "<%=objectId%>"){
+                if (!oid || oid != "<%=objectId%>") {
                     return;
                 }
                 window.location.href = window.location.href;
@@ -451,37 +439,39 @@
         <%
             }
         %>
-        function setWindowTitle(){
-            if(getTopWindow().document.location.href.indexOf("emxNavigatorDialog.jsp") >= 0){
+
+        function setWindowTitle() {
+            if (getTopWindow().document.location.href.indexOf("emxNavigatorDialog.jsp") >= 0) {
                 var strTitle = "<xss:encodeForJavaScript><%=strTitle%></xss:encodeForJavaScript>";
-                if(strTitle.indexOf("$<APPNAME>") != -1){
+                if (strTitle.indexOf("$<APPNAME>") != -1) {
                     getTopWindow().document.title = strTitle.replace("$<APPNAME>", getContentWindow().applicationProductInfo.appName);
                 } else {
                     getTopWindow().document.title = strTitle;
                 }
             }
         }
-        if(getTopWindow().isMobile || getTopWindow().isPCTouch){
+
+        if (getTopWindow().isMobile || getTopWindow().isPCTouch) {
             addStyleSheet("emxUIMobile", '../common/mobile/styles/');
         }
     </script>
-    <%@include file = "emxNavigatorBottomErrorInclude.inc"%>
+    <%@include file="emxNavigatorBottomErrorInclude.inc" %>
 
 </head>
 <%
     String bdcls = "";
     String stronload = "";
 
-    if ( (mode != null) && mode.equalsIgnoreCase("edit")) {
+    if ((mode != null) && mode.equalsIgnoreCase("edit")) {
         stronload = "JavaScript:loadFramesNew('" + bodyUrl;
 
         String searchMode = emxGetParameter(request, "searchmode");
-        String preProcessJavaScript = emxGetParameter(request,"preProcessJavaScript");
-        if(preProcessJavaScript == null || "".equals(preProcessJavaScript)){
+        String preProcessJavaScript = emxGetParameter(request, "preProcessJavaScript");
+        if (preProcessJavaScript == null || "".equals(preProcessJavaScript)) {
             preProcessJavaScript = "";
         }
 
-        stronload += "', '" + XSSUtil.encodeForJavaScript(context,preProcessJavaScript);
+        stronload += "', '" + XSSUtil.encodeForJavaScript(context, preProcessJavaScript);
         if (searchMode != null && searchMode.equals("globalsearch")) {
             stronload += "', true);";
         } else {
@@ -489,46 +479,49 @@
         }
 
         bdcls = "editable ";
-        if("slidein".equals(targetLocation)){
-            if("wider".equals(slideinType)){
+        if ("slidein".equals(targetLocation)) {
+            if ("wider".equals(slideinType)) {
                 bdcls += "dialog";
             } else {
                 bdcls += "slide-in-panel";
             }
-        }else{
+        } else {
             bdcls += " dialog";
         }
-    }else{
+    } else {
         bdcls = "properties ";
-        if("slidein".equals(targetLocation)){
+        if ("slidein".equals(targetLocation)) {
             stronload = "JavaScript:loadFramesNew('" + bodyUrl + "');";
-            if("wider".equals(slideinType)){
+            if ("wider".equals(slideinType)) {
                 bdcls += "dialog";
             } else {
                 bdcls += " slide-in-panel";
             }
-        }else{
+        } else {
             stronload = "JavaScript:loadFramesNew('" + bodyUrl + "');addOrHideHeaderItems();";
             bdcls += " no-footer";
         }
     }
-    stronload += " closeAutoFilterSlideIn('"+XSSUtil.encodeForJavaScript(context,targetLocation)+"');";
+    stronload += " closeAutoFilterSlideIn('" + XSSUtil.encodeForJavaScript(context, targetLocation) + "');";
 %>
 <!-- //XSSOK -->
-<body class="<%=bdcls%>" onload="setWindowTitle();<%=stronload%>" onunload="JavaScript:purgeViewFormData('<%= XSSUtil.encodeForURL(context,timeStamp) %>')">
+<body class="<%=bdcls%>" onload="setWindowTitle();<%=stronload%>"
+      onunload="JavaScript:purgeViewFormData('<%= XSSUtil.encodeForURL(context,timeStamp) %>')">
 <div id="pageHeadDiv">
-    <%if((portalMode == "false") || (showHeader)){%>
+    <%if ((portalMode == "false") || (showHeader)) {%>
     <table id="contentHeader">
         <tr>
             <%
-                if(showHeader || "slidein".equals(targetLocation)) {
+                if (showHeader || "slidein".equals(targetLocation)) {
             %>
             <td class="page-title">
-                <h2><xss:encodeForHTML><%=header%></xss:encodeForHTML></h2>
+                <h2><xss:encodeForHTML><%=header%>
+                </xss:encodeForHTML></h2>
                 <%
-                    if(subHeader != null && !"".equals(subHeader)) {
+                    if (subHeader != null && !"".equals(subHeader)) {
                 %>
-                <h3><xss:encodeForHTML><%=subHeader%></xss:encodeForHTML></h3>
+                <h3><xss:encodeForHTML><%=subHeader%>
+                </xss:encodeForHTML></h3>
                 <%
                     }
                 %>
@@ -539,9 +532,14 @@
                 String processingText = UINavigatorUtil.getProcessingText(context, frmLanguage);
             %>
             <td class="functions">
-                <table><tr>
-                    <td class="progress-indicator"><div id="imgProgressDiv"><%=processingText%></div></td>
-                </tr></table>
+                <table>
+                    <tr>
+                        <td class="progress-indicator">
+                            <div id="imgProgressDiv"><%=processingText%>
+                            </div>
+                        </td>
+                    </tr>
+                </table>
             </td>
         </tr>
     </table>
@@ -549,23 +547,42 @@
         }
     %>
     <!-- XSSOK -->
-    <jsp:include page = "emxToolbar.jsp" flush="true"> <jsp:param name="toolbar" value="<%=toolbar%>"/> <jsp:param name="objectId" value="<%=objectId%>"/> <jsp:param name="relId" value="<%=relId%>"/> <jsp:param name="parentOID" value="<%=objectId%>"/> <jsp:param name="timeStamp" value="<%=timeStamp%>"/> <jsp:param name="header" value="<%=header%>"/> <jsp:param name="uiType" value="form"/> <jsp:param name="form" value="<%=form%>"/> <jsp:param name="helpMarker" value="<%=HelpMarker%>"/> <jsp:param name="suiteKey" value="<%=registeredSuite%>"/> <jsp:param name="findMxLink" value="<%=findMxLink%>"/> <jsp:param name="topActionbar" value="<%=actionBar%>"/> <jsp:param name="tipPage" value="<%=tipPage%>"/> <jsp:param name="editLink" value="<%=editLink%>"/> <jsp:param name="PrinterFriendly" value="<%=printerFriendly%>"/> <jsp:param name="export" value="<%=export%>"/> <jsp:param name="mode" value="<%=mode%>"/> <jsp:param name="submitMethod" value="<%=request.getMethod()%>"/>    <jsp:param name="targetLocation" value="<%=targetLocation%>"/>
+    <jsp:include page="emxToolbar.jsp" flush="true">
+        <jsp:param name="toolbar" value="<%=toolbar%>"/>
+        <jsp:param name="objectId" value="<%=objectId%>"/>
+        <jsp:param name="relId" value="<%=relId%>"/>
+        <jsp:param name="parentOID" value="<%=objectId%>"/>
+        <jsp:param name="timeStamp" value="<%=timeStamp%>"/>
+        <jsp:param name="header" value="<%=header%>"/>
+        <jsp:param name="uiType" value="form"/>
+        <jsp:param name="form" value="<%=form%>"/>
+        <jsp:param name="helpMarker" value="<%=HelpMarker%>"/>
+        <jsp:param name="suiteKey" value="<%=registeredSuite%>"/>
+        <jsp:param name="findMxLink" value="<%=findMxLink%>"/>
+        <jsp:param name="topActionbar" value="<%=actionBar%>"/>
+        <jsp:param name="tipPage" value="<%=tipPage%>"/>
+        <jsp:param name="editLink" value="<%=editLink%>"/>
+        <jsp:param name="PrinterFriendly" value="<%=printerFriendly%>"/>
+        <jsp:param name="export" value="<%=export%>"/>
+        <jsp:param name="mode" value="<%=mode%>"/>
+        <jsp:param name="submitMethod" value="<%=request.getMethod()%>"/>
+        <jsp:param name="targetLocation" value="<%=targetLocation%>"/>
     </jsp:include>
 </div>
 <div id="divPageBody">
-    <jsp:include page = "<%=bodyUrl%>" flush="true"/>
+    <jsp:include page="<%=bodyUrl%>" flush="true"/>
 </div>
 <%
-    if ( (mode != null) && mode.equalsIgnoreCase("edit") || "slidein".equals(targetLocation)) {
+    if ((mode != null) && mode.equalsIgnoreCase("edit") || "slidein".equals(targetLocation)) {
 %>
 <div id="divPageFoot">
-    <jsp:include page="<%=footerURL%>" flush="true" />
+    <jsp:include page="<%=footerURL%>" flush="true"/>
 </div>
 <%
     }
 %>
 <script>
-    window.opener.location.reload();
+    window.opener.opener.location.reload();
     window.close();
 </script>
 </body>
