@@ -1,14 +1,13 @@
 function IMS_KDD_connect(connectProgram, connectFunction, fromId, toId, relationship, linkId, spinnerId, onConnected) {
     $("#" + linkId).css("display", "none");
     $("#" + spinnerId).css("display", "");
-    $.get("IMS_KDD_Connect.jsp?program=" + connectProgram + "&function=" + connectFunction + "&fromId=" + fromId + "&toId=" + toId + "&relationship=" + relationship, function(data, status) {
+    $.get("IMS_KDD_Connect.jsp?program=" + connectProgram + "&function=" + connectFunction + "&fromId=" + fromId + "&toId=" + toId + "&relationship=" + relationship, function (data, status) {
         $("#" + spinnerId).css("display", "none");
         $("#" + linkId).css("display", "");
         var message = data.trim();
         if (message !== "") {
             alert(data);
-        }
-        else if (onConnected) {
+        } else if (onConnected) {
             onConnected();
         }
     });
@@ -16,15 +15,30 @@ function IMS_KDD_connect(connectProgram, connectFunction, fromId, toId, relation
 
 function IMS_KDD_disconnect(disconnectProgram, disconnectFunction, fromId, toId, relationship, linkId, spinnerId, onDisconnected) {
     $("#" + linkId).css("display", "none");
-    $("#" + spinnerId).css("display", "");    
-    $.get("IMS_KDD_Disconnect.jsp?program=" + disconnectProgram + "&function=" + disconnectFunction + "&fromId=" + fromId + "&toId=" + toId + "&relationship=" + relationship, function(data, status) {
+    $("#" + spinnerId).css("display", "");
+    $.get("IMS_KDD_Disconnect.jsp?program=" + disconnectProgram + "&function=" + disconnectFunction + "&fromId=" + fromId + "&toId=" + toId + "&relationship=" + relationship, function (data, status) {
         $("#" + spinnerId).css("display", "none");
         $("#" + linkId).css("display", "");
         var message = data.trim();
         if (message !== "") {
             alert(data);
+        } else if (onDisconnected) {
+            onDisconnected();
         }
-        else if (onDisconnected) {
+    });
+}
+
+function disconnect(disconnectProgram, disconnectFunction, fromId, toId, relationship, linkId, spinnerId, onDisconnected) {
+    console.log("disconnect js");
+    $("#" + linkId).css("display", "none");
+    $("#" + spinnerId).css("display", "");
+    $.get("IMS_QP_Disconnect.jsp?program=" + disconnectProgram + "&function=" + disconnectFunction + "&fromId=" + fromId + "&toId=" + toId + "&relationship=" + relationship, function (data, status) {
+        $("#" + spinnerId).css("display", "none");
+        $("#" + linkId).css("display", "");
+        var message = data.trim();
+        if (message !== "") {
+            alert(data);
+        } else if (onDisconnected) {
             onDisconnected();
         }
     });
@@ -122,7 +136,7 @@ function IMS_KDD_editSave(editId, objectId, attributeName, rowId, setAttributePr
                 alert(data);
             }
             emxEditableTable.refreshRowByRowId(rowId);
-    });
+        });
 }
 
 function IMS_KDD_editCancel(editId, objectId, attributeName, rowId, setAttributeProgram, setAttributeFunction, editImageUrl) {
@@ -171,7 +185,7 @@ function IMS_KDD_getSearchScript(connectProgram, connectFunction, types, table, 
             "&relationship=" + connectionRelationship +
             "&connectId=" + connectId +
             "&rowIdToRefresh=" + rowIdToRefresh);
-            
+
     if (includeOIDProgram) {
         url = url + "&includeOIDprogram=" + includeOIDProgram;
     }
@@ -235,8 +249,7 @@ function IMS_KDD_handleCheckboxClick(cb) {
         if (IMS_KDD_checkedElementIds.indexOf(cb.id) === -1) {
             IMS_KDD_checkedElementIds.push(cb.id);
         }
-    }
-    else {
+    } else {
         var index = IMS_KDD_checkedElementIds.indexOf(cb.id);
         if (index > -1) {
             IMS_KDD_checkedElementIds.splice(index, 1);
@@ -295,8 +308,7 @@ function IMS_KDD_removeCheckedElementIds(column, rowId) {
             var parts = IMS_KDD_checkedElementIds[i].split("-");
             if (parts.length >= 4 && parts[1] == column && parts[2] == rowId) {
                 IMS_KDD_checkedElementIds.splice(i, 1);
-            }
-            else {
+            } else {
                 i++;
             }
         }
@@ -313,7 +325,7 @@ function IMS_KDD_handleMutationList(mutationsList, observer) {
         if (mutation.type == 'childList') {
             for (var i = 0; i < mutation.addedNodes.length; i++) {
                 var node = mutation.addedNodes[i];
-                if (typeof(node.querySelectorAll) !== "undefined") {
+                if (typeof (node.querySelectorAll) !== "undefined") {
                     var inputs = node.querySelectorAll(".IMS_KDD_CB");
                     for (var j = 0; j < inputs.length; j++) {
                         if (inputs[j].id.startsWith("checkbox-")) {

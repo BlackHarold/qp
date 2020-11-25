@@ -1,0 +1,18 @@
+################################################################################
+# TYPE_IMS_QP_CheckList.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate type "${NAME}" {
+    symbolicname "type_IMS_QP_CheckList"
+    description ""
+    derived "DOCUMENTS"
+    !hidden
+    attribute "IMS_QP_Comment"
+    ################################################## Info Start
+    property "original name" value "IMS_QP_CheckList"
+    property "application" value "MxUpdate"
+    property "version" value "1"
+    ################################################## Info End
+}

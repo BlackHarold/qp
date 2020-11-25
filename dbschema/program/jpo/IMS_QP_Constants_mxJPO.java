@@ -5,6 +5,7 @@ public class IMS_QP_Constants_mxJPO {
     private IMS_QP_Constants_mxJPO() {
     }
 
+    public static final String ESERVICE_PRODUCTION = "eService Production";
     public static final String ATTRIBUTE_IMS_QP_INTERDISCIPLINARY_DEP = "attribute[IMS_QP_InterdisciplinaryDEP]";
 
     private static final String TO_IMS_QP_DEPSUB_STAGE_2_DEPTASK_FROM_TO_IMS_QP_DEPPROJECT_STAGE_2_DEPSUB_STAGE_FROM_TO_IMS_QP_DEP_2_DEPPROJECT_STAGE_FROM_ID = "to[IMS_QP_DEPSubStage2DEPTask].from.to[IMS_QP_DEPProjectStage2DEPSubStage].from.to[IMS_QP_DEP2DEPProjectStage].from.id";
@@ -123,4 +124,25 @@ public class IMS_QP_Constants_mxJPO {
     public static final String relationship_IMS_QP_DEPTaskStatus = "IMS_QP_DEPTaskStatus";
     public static final String relationship_IMS_QP_DEPTask2DEPTask = "IMS_QP_DEPTask2DEPTask";
     public static final String relationship_IMS_QP_QPTask2QPTask = "IMS_QP_QPTask2QPTask";
+
+    //    feature 43176 'Actual search plan'
+    public static final String ACTUAL_PLAN_TYPES = "Типы ВТЗ, Другое";
+    public static final String FAMILY_CL = "Чек-листы";
+    public static final String RESULT_TYPE_TO_EXPECTED_RESULT = "to[IMS_QP_ResultType2ExpectedResult].from.to[IMS_QP_ResultType2Family].from.name";
+    public static final String FAMILY_TO_EXPECTED_RESULT = "to[IMS_QP_ResultType2ExpectedResult].from.name";
+    public static final String TYPE_DOCUMENT_SET = "IMS_DocumentSet";
+    public static final String BASELINE_TO_QPTASK = "to[IMS_QP_DEPTask2QPTask].from.to[IMS_QP_DEPSubStage2DEPTask].from.to[IMS_QP_BaseLine2DEPSubStage].from.name";
+    public static final String PBS_TO_QPTASK = "to[IMS_QP_QPlan2QPTask].from.from[IMS_QP_QPlan2Object].to.name";
+    public static final String PBS_TYPE_TO_QPTASK = "to[IMS_QP_QPlan2QPTask].from.from[IMS_QP_QPlan2Object].to.type";
+    public static final String FROM_IMS_QP_QPTASK_2_FACT = "from[IMS_QP_QPTask2Fact]";
+    public static final String TO_IMS_BBS_2_CI_FROM = "to[IMS_BBS2CI].from";
+    public static final String TO_IMS_PBS_2_DOC_SET_FROM = "to[IMS_PBS2DocSet].from";
+    public static final String TO_IMS_REF_CI_2_DOC_FROM = "to[IMS_RefCI2Doc].from";
+    public static final String ATTRIBUTE_IMS_EXTERNAL_SYSTEM_URL = "attribute[IMS_ExternalSystemUrl]";
+    public static final String ATTRIBUTE_IMS_EXTERNAL_SYSTEM_USER = "attribute[IMS_ExternalSystemUser]";
+    public static final String ATTRIBUTE_IMS_EXTERNAL_SYSTEM_PASSWORD = "attribute[IMS_ExternalSystemPassword]";
+    public static final String ATTRIBUTE_IMS_IS_LAST_VERSION = "attribute[IMS_IsLastVersion]";
+
+    public static final String EXTERNAL_DOCUMENT = "IMS_ExternalDocumentSet";
+    public static final String HNH_PRODUCTION_SRV = "97";
 }

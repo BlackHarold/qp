@@ -10,6 +10,7 @@ mxUpdate command "${NAME}" {
     href "javascript:editMode()"
     alt ""
     user "all"
+    setting "Access Expression" "current==Draft"
     setting "Image" "${COMMON_DIR}/images/iconActionEdit.gif"
     setting "Registered Suite" "Framework"
     ################################################## Info Start

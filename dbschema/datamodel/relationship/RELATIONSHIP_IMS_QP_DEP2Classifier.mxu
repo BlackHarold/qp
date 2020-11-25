@@ -1,0 +1,36 @@
+################################################################################
+# RELATIONSHIP_IMS_QP_DEP2Classifier.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate relationship "${NAME}" {
+    symbolicname "relationship_IMS_QP_DEP2Classifier"
+    description "relation between  IMS_QP_DEP and any IMS_QP_Classifier"
+    !hidden
+    !preventduplicates
+    from {
+        meaning ""
+        cardinality one
+        revision none
+        clone none
+        !propagatemodify
+        !propagateconnection
+        type "IMS_QP_DEP"
+    }
+    to {
+        meaning ""
+        cardinality many
+        revision none
+        clone none
+        !propagatemodify
+        !propagateconnection
+        type "IMS_QP_Classifier"
+    }
+    ################################################## Info Start
+    property "author" value "IMS_Team"
+    property "original name" value "IMS_QP_DEP2Classifier"
+    property "application" value "IMS_QP"
+    property "version" value "1"
+    ################################################## Info End
+}

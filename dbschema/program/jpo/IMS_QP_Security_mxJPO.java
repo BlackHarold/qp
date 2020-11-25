@@ -1,7 +1,10 @@
 import com.matrixone.apps.domain.DomainConstants;
 import com.matrixone.apps.domain.DomainObject;
 import com.matrixone.apps.domain.DomainRelationship;
-import com.matrixone.apps.domain.util.*;
+import com.matrixone.apps.domain.util.ContextUtil;
+import com.matrixone.apps.domain.util.FrameworkException;
+import com.matrixone.apps.domain.util.MapList;
+import com.matrixone.apps.domain.util.MqlUtil;
 import com.matrixone.apps.framework.ui.UIUtil;
 import matrix.db.*;
 import matrix.util.MatrixException;
@@ -9,7 +12,6 @@ import matrix.util.StringList;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
-import javax.management.relation.RelationType;
 import java.util.*;
 
 public class IMS_QP_Security_mxJPO {
@@ -639,7 +641,7 @@ public class IMS_QP_Security_mxJPO {
 
                     //if the user connecting to the system is not assigned to IMS_QP_QPOwner
                     if (!person.isAssigned(context, "IMS_QP_QPOwner"))
-                        MqlUtil.mqlCommand(context, "mod person $1 assign role $2;", person.getName(), "IMS_QP_QPOwner");
+                        MqlUtil.mqlCommand(context, "mod person $1 assign role $2", person.getName(), "IMS_QP_QPOwner");
 
                     LOG.info(String.format("connect %s relationship %s to %s", from, RELATIONSHIP_IMS_PBS2Owner, to));
 
@@ -668,9 +670,19 @@ public class IMS_QP_Security_mxJPO {
             public String disconnect(Context context, String from, String to, String relationship) {
 
                 try {
+                    DomainObject owner = new DomainObject(to);
+                    Person person = new Person(owner.getName(context));
                     new DomainObject(from).disconnect(context, new RelationshipType(RELATIONSHIP_IMS_PBS2Owner),
-                            true, new DomainObject(to));
+                            true, owner);
+
+                    String hasPBS = owner.getInfo(context, "to[IMS_PBS2Owner]");
+                    if (hasPBS.equals("FALSE")) {
+                        MqlUtil.mqlCommand(context, "mod person $1 remove assign role $2", person.getName(), "IMS_QP_QPOwner");
+                    }
                 } catch (Exception e) {
+                    for (StackTraceElement er : e.getStackTrace()) {
+                        LOG.error(er.toString());
+                    }
                     LOG.error("error disconnecting: " + to + " from " + from);
                 }
                 return "";
@@ -718,6 +730,18 @@ public class IMS_QP_Security_mxJPO {
         return isOwner;
     }
 
+    private static boolean isOwnerInterdisciplinaryQPlan(Context context, String id) {
+        boolean isOwnerInterdisciplinaryQPlan = false;
+        try {
+            String personNames = MqlUtil.mqlCommand(context, String.format("print bus %s select from[IMS_QP_QPlan2Owner].to.name dump |", id));
+            if (personNames.contains(context.getUser())) isOwnerInterdisciplinaryQPlan = true;
+
+        } catch (Exception e) {
+            LOG.error("error getting owners from QPLan: " + e.getMessage());
+        }
+        return isOwnerInterdisciplinaryQPlan;
+    }
+
     /**
      * @param context
      * @param args
@@ -734,17 +758,43 @@ public class IMS_QP_Security_mxJPO {
             String id = (String) argsMap.get("parentOID");
             DomainObject object = new DomainObject(id);
 
-            String personNames = MqlUtil.mqlCommand(context, String.format("print bus %s select from[IMS_QP_QPlan2Object].to.from[IMS_PBS2Owner].to.name dump |", id));
-            LOG.info(id + "|" + object.getName(context) + "\nowner names: " + personNames);
-            personNames = UIUtil.isNotNullAndNotEmpty(personNames) ? personNames : "";
-            isOwnerQPlan = personNames.contains(context.getUser());
+            if (object.getType(context).equals("IMS_QP_QPlan") && object.getInfo(context, "from[IMS_QP_QPlan2Object]").equals("FALSE")) {
+                isOwnerQPlan = isOwnerInterdisciplinaryQPlan(context, id);
+            } else {
+                String personNames = MqlUtil.mqlCommand(context, String.format("print bus %s select from[IMS_QP_QPlan2Object].to.from[IMS_PBS2Owner].to.name dump |", id));
+                if (object.getType(context).equals("IMS_QP_QPlan")) {
+                    personNames += MqlUtil.mqlCommand(context, String.format("print bus %s select from[IMS_QP_QPlan2Object].to.from[IMS_PBS2Owner].to.name dump |", id));
+                }
+                personNames = UIUtil.isNotNullAndNotEmpty(personNames) ? personNames : "";
+                isOwnerQPlan = personNames.contains(context.getUser());
+            }
 
         } catch (Exception e) {
             LOG.error("error in method isOwnerQPlan: " + e.getMessage());
         }
 
-        LOG.info("isOwner: " + (isOwner(context, args) && isOwnerQPlan || isUserAdmin(context)));
         return isOwner(context, args) && isOwnerQPlan || isUserAdmin(context);
+    }
+
+    /**
+     * @param context
+     * @param id      of IMS_QP_QPlan type object
+     * @return boolean
+     */
+    public static boolean isOwnerQPlan(Context context, String id) {
+        boolean isOwnerQPlan = false;
+
+        try {
+            Map argsMap = new HashMap();
+            argsMap.put("parentOID", id);
+            String[] args = JPO.packArgs(argsMap);
+            isOwnerQPlan = isOwnerQPlan(context, args);
+
+        } catch (Exception e) {
+            LOG.error("error in method isOwnerQPlan: " + e.getMessage());
+        }
+
+        return isOwnerQPlan || isUserAdmin(context);
     }
 
     public static boolean isOwnerQPlanFromTask(Context context, String... args) {

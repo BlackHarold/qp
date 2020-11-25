@@ -14,6 +14,7 @@ mxUpdate menu "${NAME}" {
     command "IMS_QP_Create_QPTask"
     command "IMS_QP_Create_QPTask_Multi"
     command "IMS_QP_Delete_QPTask"
+    command "IMS_QP_QPTask_copy"
     command "IMS_QP_Create_Rel_OUT_IN"
     command "IMS_QP_EditTableQPTask"
 }

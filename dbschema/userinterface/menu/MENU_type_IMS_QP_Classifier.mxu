@@ -1,0 +1,20 @@
+################################################################################
+# MENU_type_IMS_QP_Classifier.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate menu "${NAME}" {
+    symbolicname "menu_type_IMS_QP_Classifier"
+    description ""
+    label ""
+    href ""
+    alt ""
+    setting "Access Expression" "context.user.isassigned[IMS_Admin]==True || context.user.isassigned[IMS_QP_SuperUser]==True"
+    command "IMS_QP_Classifier_edit"
+    ################################################## Info Start
+    property "original name" value "type_IMS_QP_Classifier"
+    property "application" value "IMS_QP"
+    property "version" value "1"
+    ################################################## Info End
+}

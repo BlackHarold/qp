@@ -29,7 +29,7 @@ mxUpdate policy "${NAME}" {
     ################################################## Info Start
     property "author" value "The MxUpdate Team"
     property "original name" value "IMS_ExternalObject"
-    property "application" value "Unknown"
-    property "version"
+    property "application" value "IMS_QP"
+    property "version" value "1"
     ################################################## Info End
 }

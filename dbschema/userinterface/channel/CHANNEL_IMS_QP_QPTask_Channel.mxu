@@ -10,6 +10,6 @@ mxUpdate channel "${NAME}" {
     href ""
     alt ""
     height 260
-    command "IMS_QP_QPlan_form"
-    command "IMS_QP_RelatedQPTask"
+    command "IMS_QP_QPTask_Form"
+    command "IMS_QP_RelatedExpectedResultQP"
 }

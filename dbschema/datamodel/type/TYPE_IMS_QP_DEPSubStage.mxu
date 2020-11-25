@@ -8,11 +8,16 @@ mxUpdate type "${NAME}" {
     symbolicname "type_IMS_QP_DEPSubStage"
     description ""
     !hidden
+    trigger create action "emxTriggerManager" input "IMS_TypeDEPSubStageCreateAction"
     attribute "Baseline Text"
     attribute "IMS_DescriptionEn"
     attribute "IMS_DescriptionRu"
     attribute "IMS_Name"
     attribute "IMS_NameRu"
+    #attribute "IMS_QP_FactExp"
+    #attribute "IMS_QP_FactGot"
+    attribute "IMS_SortOrder"
+    attribute "IMS_QP_Stage"
     ################################################## Info Start
     property "author" value "The IMS Team"
     property "original name" value "IMS_QP_DEPSubStage"

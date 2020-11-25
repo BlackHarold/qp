@@ -1,0 +1,23 @@
+################################################################################
+# ATTRIBUTE_IMS_SortOrder.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate attribute "${NAME}" {
+    kind integer
+    symbolicname "attribute_IMS_SortOrder"
+    description ""
+    !hidden
+    !multivalue
+    !resetonclone
+    !resetonrevision
+    !rangevalue
+    default ""
+    ################################################## Info Start
+    property "author" value "The MxUpdate Team"
+    property "original name" value "IMS_SortOrder"
+    property "application" value "Unknown"
+    property "version"
+    ################################################## Info End
+}

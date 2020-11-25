@@ -1,0 +1,31 @@
+################################################################################
+# TABLE_IMS_QP_QPTasksStates.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate table "${NAME}" {
+    symbolicname "table_IMS_QP_QPTasksStates"
+    description ""
+    column {
+        name "code"
+        label "Code"
+        businessobject "name"
+        user "all"
+        setting "Column Type" "programHTMLOutput"
+        setting "Registered Suite" "Framework"
+        setting "Sortable" "false"
+        setting "function" "getInfoNameTask"
+        setting "program" "IMS_QP_ActualPlanSearch"
+    }
+    column {
+        name "state"
+        label "State"
+        user "all"
+        setting "Column Type" "programHTMLOutput"
+        setting "Registered Suite" "Framework"
+        setting "Sortable" "false"
+        setting "function" "getInfoStateTask"
+        setting "program" "IMS_QP_ActualPlanSearch"
+    }
+}

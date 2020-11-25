@@ -17,6 +17,7 @@ mxUpdate relationship "${NAME}" {
         !propagatemodify
         propagateconnection
         type "IMS_QP_QPlan"
+        type "IMS_QP_QPTask"
     }
     to {
         meaning ""

@@ -5,7 +5,7 @@
 ################################################################################
 
 mxUpdate form "${NAME}" {
-    symbolicname "form_IMS_QP_Qplan_edit"
+    symbolicname "FORM_IMS_QP_Qplan_edit"
     description ""
     field {
         name "description"
@@ -13,6 +13,14 @@ mxUpdate form "${NAME}" {
         businessobject "description"
         setting "Editable" "true"
         setting "Input Type" "textarea"
+        setting "Registered Suite" "Components"
+    }
+    field {
+        name "group"
+        label "Group SQP/BQP"
+        businessobject "$<from[IMS_QP_Classifier2QPlan].to.name>"
+        range "${COMMON_DIR}/emxIndentedTable.jsp?program=IMS_QP_Classifier:findAllFiltered&table=IMS_QP_Classifier_table&selection=single&targetLocation=popup&mode=chooser&cancelButton=true&cancelLabel=Cancel&submitLabel=Select&submitURL=../common/AEFSearchUtil.jsp"
+        setting "Input Type" "textbox"
         setting "Registered Suite" "Components"
     }
     ################################################## Info Start

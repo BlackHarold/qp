@@ -8,6 +8,7 @@ mxUpdate type "${NAME}" {
     symbolicname "type_IMS_ExternalDocumentSet"
     description ""
     !hidden
+    attribute "IMS_BBSMajor"
     attribute "IMS_Frozen"
     attribute "IMS_ProjDocStatus"
     attribute "IMS_SPFDocVersion"
@@ -15,7 +16,7 @@ mxUpdate type "${NAME}" {
     ################################################## Info Start
     property "author" value "The MxUpdate Team"
     property "original name" value "IMS_ExternalDocumentSet"
-    property "application" value "Unknown"
-    property "version"
+    property "application" value "IMS_QP"
+    property "version" value "1"
     ################################################## Info End
 }

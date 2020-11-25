@@ -4,9 +4,7 @@ import com.matrixone.apps.domain.DomainObject;
 import com.matrixone.apps.domain.DomainRelationship;
 import com.matrixone.apps.domain.util.*;
 import com.matrixone.apps.framework.ui.UIUtil;
-import matrix.db.Context;
-import matrix.db.JPO;
-import matrix.db.MQLCommand;
+import matrix.db.*;
 import matrix.util.MatrixException;
 import matrix.util.StringList;
 import org.apache.commons.lang3.StringEscapeUtils;
@@ -158,16 +156,14 @@ public class IMS_QP_Task_mxJPO {
                         }
                     }
 
-                    /*rotate all related tasks and generating links*/
-                    if (stringBuilder.length() > 0) {
-                        stringBuilder.append("<br/>");
-                    }
+                    String state = UIUtil.isNotNullAndNotEmpty(taskStates.get(mainTaskID)) ? taskStates.get(mainTaskID) : "";
+                    String hidden = state.equals("Rejected") ? " hidden=\"\"" : "";
+                    stringBuilder.append("<div" + hidden + ">");
 
                     name = (String) relatedMap.get(isRuLocale ? "attribute[IMS_NameRu]" : "attribute[IMS_Name]");
                     name = UIUtil.isNotNullAndNotEmpty(name) ? name : "error";
 
-                    String state = UIUtil.isNotNullAndNotEmpty(taskStates.get(mainTaskID)) ? taskStates.get(mainTaskID) : "";
-                    if (!state.equals("Rejected") && getTypeFromMap(relatedMap).equals(IMS_QP_Constants_mxJPO.TYPE_IMS_QP_DEPTask))
+                    if (getTypeFromMap(relatedMap).equals(IMS_QP_Constants_mxJPO.TYPE_IMS_QP_DEPTask))
                         rawLink = getLinkHTML(relatedMap, IMS_QP_Constants_mxJPO.SOURCE_DEPTask, getIconUrl(IMS_QP_Constants_mxJPO.TYPE_IMS_QP_DEPTask), name, state);
                     else if (getTypeFromMap(relatedMap).equals(IMS_QP_Constants_mxJPO.TYPE_IMS_QP_DEP))
                         rawLink = getLinkHTML(relatedMap, IMS_QP_Constants_mxJPO.SOURCE_DEP, getIconUrl(IMS_QP_Constants_mxJPO.TYPE_IMS_QP_DEP), name, state);
@@ -206,6 +202,7 @@ public class IMS_QP_Task_mxJPO {
                             stringBuilder.append(" " + getCheckLinkHTML("IMS_QP_Task", "rejectConnection", /*main task*/mainTaskID, id, virtualRelationship, "Reject", mainLevel));
                         }
                     }
+                    stringBuilder.append("</div>");
                 }
                 String element = FrameworkUtil.findAndReplace(stringBuilder.toString(), "&", "&amp;");
                 result.addElement(element);
@@ -265,7 +262,7 @@ public class IMS_QP_Task_mxJPO {
         String textDecoration = !state.equals("Rejected") ? "none" : "line-through";
         String color = state.equals("Approved") ? "darkgreen" : "";
         color = state.equals("Rejected") ? "grey" : color;
-        String style = fontSize != null ? String.format(" style=\"font-size: %s; text-decoration: %s; color: %s\"", fontSize, textDecoration, color) : "";
+        String style = String.format(" style=\"font-size: %s; text-decoration: %s; color: %s;\"", fontSize, textDecoration, color);
 
         String titleHTML = title != null ? String.format(" title=\"%s\"", HtmlEscapers.htmlEscaper().escape(title.replace("&#10;", "|")).replace("|", "&#10;")) : "";
 
@@ -642,16 +639,13 @@ public class IMS_QP_Task_mxJPO {
                         }
                     }
 
-                    /*rotate all related tasks and generating links*/
-                    if (stringBuilder.length() > 0) {
-                        stringBuilder.append("<br/>");
-                    }
+                    String state = UIUtil.isNotNullAndNotEmpty(taskStates.get(mainTaskID)) ? taskStates.get(mainTaskID) : "";
+                    String hidden = state.equals("Rejected") ? " hidden=\"\"" : "";
+                    stringBuilder.append("<div" + hidden + ">");
 
                     name = "";
 
-                    String state = UIUtil.isNotNullAndNotEmpty(taskStates.get(mainTaskID)) ? taskStates.get(mainTaskID) : "";
-
-                    if (!state.equals("Rejected") && getTypeFromMap(relatedMap).equals(IMS_QP_Constants_mxJPO.type_IMS_QP_QPTask)) {
+                    if (getTypeFromMap(relatedMap).equals(IMS_QP_Constants_mxJPO.type_IMS_QP_QPTask)) {
                         rawLink = getLinkHTML(relatedMap, IMS_QP_Constants_mxJPO.SOURCE_DEPTask, getIconUrl(IMS_QP_Constants_mxJPO.type_IMS_QP_QPTask), name, state);
                     } else if (getTypeFromMap(relatedMap).equals(IMS_QP_Constants_mxJPO.TYPE_IMS_QP_DEP)) {
                         rawLink = getLinkHTML(relatedMap, IMS_QP_Constants_mxJPO.SOURCE_DEP, getIconUrl(IMS_QP_Constants_mxJPO.TYPE_IMS_QP_DEP), name, state);
@@ -668,6 +662,7 @@ public class IMS_QP_Task_mxJPO {
                                     /*main task*/mainTaskID, id, virtualRelationship, "Reject", mainLevel));
                         }
                     }
+                    stringBuilder.append("</div>");
                 }
 
                 result.addElement(FrameworkUtil.findAndReplace(stringBuilder.toString(), "&", "&amp;"));
@@ -772,5 +767,139 @@ public class IMS_QP_Task_mxJPO {
             LOG.error("error DomainObject initialisation: " + e.getMessage());
             e.printStackTrace();
         }
+    }
+
+    public void editPostProcess(Context context, String... args) {
+
+        String objectID = "", systemID = "";
+        try {
+            Map programMap = JPO.unpackArgs(args);
+            Map paramMap = (Map) programMap.get("paramMap");
+
+            objectID = (String) paramMap.get("objectId");
+            systemID = (String) paramMap.get("systemOID");
+        } catch (Exception e) {
+            LOG.error("error unpacking arguments: " + e);
+        }
+
+        //initialize qptask object
+        DomainObject object = null;
+        try {
+            object = new DomainObject(objectID);
+        } catch (Exception e) {
+            LOG.error("error when initializing object: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        DomainObject system = null;
+        if (UIUtil.isNotNullAndNotEmpty(systemID)) {
+
+            //disconnect qPlan from all systems
+            try {
+                MapList systemsRelated = object.getRelatedObjects(context,
+                        /*relationship*/"IMS_QP_QPlan2Object",
+                        /*type*/IMS_QP_Constants_mxJPO.SYSTEM_TYPES,
+                        /*object attributes*/ new StringList("id"),
+                        /*relationship selects*/ null,
+                        /*getTo*/ false, /*getFrom*/ true,
+                        /*recurse to level*/ (short) 1,
+                        /*object where*/null,
+                        /*relationship where*/ null,
+                        /*limit*/ 0);
+
+                for (Object o : systemsRelated) {
+                    Map map = (Map) o;
+                    DomainObject disconnectingSystemObject = new DomainObject((String) map.get("id"));
+                    object.disconnect(context, new RelationshipType("IMS_QP_QPlan2Object"), true, disconnectingSystemObject);
+                    LOG.info("system " + disconnectingSystemObject.getName(context) + " disconnected");
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            //connect to new one system and change name
+            try {
+
+                system = new DomainObject(systemID);
+                object.connect(context, new RelationshipType("IMS_QP_QPlan2Object"),/*from*/true, new DomainObject(systemID));
+
+                String prefix = system.getName(context) + "_", objectName = object.getName(context);
+                LOG.info("qptask name " + objectName + " has changed to: " + prefix + objectName);
+                object.setName(context, prefix + objectName);
+
+            } catch (Exception e) {
+                try {
+                    LOG.error("error when connecting " + system.getType(context) + " " + system.getName(context));
+                } catch (FrameworkException frameworkException) {
+                    LOG.error("error getting type&name of the system id: " + systemID);
+                    frameworkException.printStackTrace();
+                }
+                e.printStackTrace();
+            }
+        }
+    }
+
+    /**
+     * It's retrieve all Systems&Buildings from current Functional Area
+     */
+    public Object getSystems(Context context, String... args) {
+
+        String parentID = "";
+        try {
+            Map programMap = JPO.unpackArgs(args);
+            Map requestMap = (Map) programMap.get("requestMap");
+            parentID = (String) requestMap.get("parentOID");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        String functionalAreaID = "";
+        DomainObject functionalAreaObject = null;
+        try {
+            DomainObject qpPlan = new DomainObject(parentID);
+            functionalAreaID = qpPlan.getInfo(context, "from[IMS_QP_QPlan2Object].to.id");
+            functionalAreaObject = new DomainObject(functionalAreaID);
+        } catch (Exception e) {
+            LOG.error("error getting info from qpTask " + parentID + ": " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        StringList objectSelects = new StringList();
+        objectSelects.add("id");
+        objectSelects.add("name");
+
+        MapList rawData = null;
+        if (functionalAreaObject != null) {
+            try {
+                rawData = functionalAreaObject.getRelatedObjects(context,
+                        /*relationship*/ null,
+                        /*type*/ "IMS_PBSSystem,IMS_GBSBuilding",
+                        /*object attributes*/ objectSelects,
+                        /*relationship selects*/ null,
+                        /*getTo*/false,/*getFrom*/ true,
+                        /*recurse level*/(short) 1,
+                        /*object where*/ null,
+                        /*relationship where*/ null,
+                        /*limit*/0);
+            } catch (FrameworkException frameworkException) {
+                LOG.error("Framework exception: " + frameworkException.getMessage());
+                frameworkException.printStackTrace();
+            }
+        }
+
+        StringList fieldRangeValues = new StringList();
+        StringList fieldDisplayRangeValues = new StringList();
+        if (rawData != null)
+            for (Object o : rawData) {
+                Map<String, String> map = (Map<String, String>) o;
+                fieldRangeValues.add(map.get("id"));
+                fieldDisplayRangeValues.add(map.get("name"));
+            }
+
+        Map result = new HashMap();
+        result.put("field_choices", fieldRangeValues);
+        result.put("field_display_choices", fieldDisplayRangeValues);
+
+        return result;
     }
 }

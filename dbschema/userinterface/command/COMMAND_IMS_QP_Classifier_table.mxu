@@ -1,0 +1,21 @@
+################################################################################
+# COMMAND_IMS_QP_Classifier_table.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate command "${NAME}" {
+    symbolicname "command_IMS_QP_Classifier_table"
+    description "showing table of grouping SQPs by classifier"
+    label "Group SQP/BQP"
+    href "${COMMON_DIR}/emxIndentedTable.jsp?program=IMS_QP_Classifier:findAll&table=IMS_QP_Classifier_table&toolbar=IMS_QP_Classifier_for_table&selection=multiple"
+    alt ""
+    setting "Access Expression" "name!='DEP'"
+    setting "Registered Suite" "Framework"
+    ################################################## Info Start
+    property "author" value "IMS Team"
+    property "original name" value "IMS_QP_Classifier_table"
+    property "application" value "IMS_QP"
+    property "version" value "1"
+    ################################################## Info End
+}

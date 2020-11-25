@@ -20,17 +20,23 @@
 <jsp:useBean id="createBean" class="com.matrixone.apps.framework.ui.UIForm" scope="session"/>
 
 <script>
-    console.log("log!");
+    function doCancel() {
+        window.close();
+    }
 
-    function onchangeComboboxDep() {
+    function onChangeComboboxDep() {
         // var dep = document.getElementsByName("dep");
         var depId = document.getElementById("depId");
         var depIndex = depId.selectedIndex;
+    }
 
-        //console.log(depId[selectedIndex]); <-full option
-        var value = depId[depIndex].value;
+    function onChangeComboboxDep() {
+        let depId = document.getElementById("depId");
+        let depIndex = depId.selectedIndex;
+        let value = depId[depIndex].value;
+        let systemInput = document.querySelector("#calc_system > td.createInputField > input[type=\"text\"]:nth-child(1)");
+        console.log(systemInput);
 
-        console.log("onchangeComboboxDep" + depIndex + "|" + value + "|" + value.endsWith("_TRUE"));
         //check attribute
         if (value.endsWith("_TRUE")) {
             document.getElementById("calc_system").style.display = 'none';
@@ -39,15 +45,26 @@
             document.getElementById("calc_system").style.display = 'table-row';
         }
 
-        console.log("system input value " + systemInput.value);
+        let dep = document.querySelector("#calc_group > td.createInputField.disabled > input[type=\"text\"]:nth-child(1)");
+        dep.id = value.substring(0, value.indexOf('_'));
+
+        //change script to the group button
+        let groupButton = document.querySelector("#calc_group > td.createInputField.disabled > input[type=\"button\"]:nth-child(4)");
+
+        groupButton.setAttribute("onClick",
+            "javascript:showChooser('../common/emxIndentedTable.jsp?program=IMS_QP_Classifier:findAll&" +
+            "depId=" + dep.id +
+            "&table=IMS_QP_Classifier_table&selection=single&targetLocation=popup&mode=chooser&cancelButton=true&cancelLabel=Cancel" +
+            "&submitLabel=Select&submitURL=../common/AEFSearchUtil.jsp&fieldNameActual=group&fieldNameDisplay=groupDisplay" +
+            "&fieldNameOID=groupOID&suiteKey=Framework','600','600','true','','group')")
     }
 
-    function onchangeTextboxPBS() {
+    function onChangeTextboxPBS() {
 
         console.log("onchangeTextboxPBS");
         //dep field
         var dep_field = document.querySelector("#depId");
-        
+
         console.log("before selected: " + dep_field.selectedIndex);
         // var depId = document.getElementById("depId");
         // var depIndex = depId.selectedIndex;
@@ -67,7 +84,7 @@
             }
         }
 
-        dep_field.selectedIndex=0;
+        dep_field.selectedIndex = 0;
         console.log("after selected: " + dep_field.selectedIndex);
     }
 </script>

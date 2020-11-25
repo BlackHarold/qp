@@ -3,7 +3,11 @@ import com.matrixone.apps.domain.DomainConstants;
 import com.matrixone.apps.domain.DomainObject;
 import com.matrixone.apps.domain.util.FrameworkUtil;
 import com.matrixone.apps.domain.util.MapList;
-import matrix.db.*;
+import com.matrixone.apps.framework.ui.UIUtil;
+import matrix.db.BusinessObject;
+import matrix.db.Context;
+import matrix.db.JPO;
+import matrix.db.RelationshipType;
 import matrix.util.StringList;
 
 import java.util.HashMap;
@@ -12,6 +16,8 @@ import java.util.Vector;
 
 public class IMS_ExternalSystem_mxJPO {
 
+
+    //TODO rewrite to the ExternalConstants
     public static final String ATTRIBUTE_IMS_ExternalSystemName = "IMS_ExternalSystemName";
     private static final String ATTRIBUTE_IMS_ExternalSystemUrl = "IMS_ExternalSystemUrl";
     private static final String ATTRIBUTE_IMS_ExternalSystemServiceUrl = "IMS_ExternalSystemServiceUrl";
@@ -50,6 +56,14 @@ public class IMS_ExternalSystem_mxJPO {
         public BuildLinkResult(String url, String name) {
             this.url = url;
             this.name = name;
+        }
+
+        @Override
+        public String toString() {
+            return "BuildLinkResult{" +
+                    "url='" + url + '\'' +
+                    ", name='" + name + '\'' +
+                    '}';
         }
     }
 
@@ -127,22 +141,15 @@ public class IMS_ExternalSystem_mxJPO {
     public static MapList findObjects(Context context, String externalSystemName, String query) throws Exception {
         ExternalSystem externalSystem = new ExternalSystem(context, externalSystemName);
 
-        return JPO.invoke(
-                context,
-                externalSystem.getProgram(),
-                null,
-                METHOD_findExternalObjects,
-                new String[]{ externalSystem.getServiceUrl(), externalSystem.getUser(), externalSystem.getPassword(), query },
+        return JPO.invoke(context, externalSystem.getProgram(), null, METHOD_findExternalObjects,
+                new String[]{externalSystem.getServiceUrl(), externalSystem.getUser(), externalSystem.getPassword(), query},
                 MapList.class);
     }
 
     public static MapList findObjects(Context context, String[] args) throws Exception {
         Map programMap = IMS_KDD_mxJPO.getProgramMap(args);
 
-        return findObjects(
-                context,
-                (String) programMap.get(ATTRIBUTE_IMS_ExternalSystemName),
-                (String) programMap.get("IMS_ExternalSystemQuery"));
+        return findObjects(context, (String) programMap.get(ATTRIBUTE_IMS_ExternalSystemName), (String) programMap.get("IMS_ExternalSystemQuery"));
     }
 
     private BuildLinkResult getBuildLinkResult(Context context, ExternalSystem externalSystem, Map objectMap) throws Exception {
@@ -181,15 +188,14 @@ public class IMS_ExternalSystem_mxJPO {
     public String getExternalObjectLinkFormHTML(Context context, String[] args) throws Exception {
         String formObjectId = IMS_KDD_mxJPO.getObjectIdFromParamMap(args);
         String externalSystemName = (String) IMS_KDD_mxJPO.getRequestMap(args).get(ATTRIBUTE_IMS_ExternalSystemName);
+        if (UIUtil.isNullOrEmpty(externalSystemName)) externalSystemName = IMS_QP_Constants_mxJPO.HNH_PRODUCTION_SRV;
         ExternalSystem externalSystem = new ExternalSystem(context, externalSystemName);
 
-        BuildLinkResult buildLinkResult = JPO.invoke(
-                context,
+        BuildLinkResult buildLinkResult = JPO.invoke(context,
                 externalSystem.getProgram(),
                 null,
                 METHOD_buildExternalObjectLinkForProxyObject,
-                new String[]{ externalSystem.getUrl(), formObjectId },
-                BuildLinkResult.class);
+                new String[]{externalSystem.getUrl(), formObjectId}, BuildLinkResult.class);
 
         return buildLinkResult != null ?
                 String.format(
@@ -211,15 +217,11 @@ public class IMS_ExternalSystem_mxJPO {
     }
 
     public static String encrypt(Context context, String[] args) throws Exception {
-        String result = FrameworkUtil.encrypt(args[0]);
-        System.out.println(result);
-        return result;
+        return FrameworkUtil.encrypt(args[0]);
     }
 
     public static String decrypt(Context context, String[] args) throws Exception {
-        String result = FrameworkUtil.decrypt(args[0]);
-        System.out.println(result);
-        return result;
+        return FrameworkUtil.decrypt(args[0]);
     }
 
     public static String connectExternalObject(
@@ -232,12 +234,9 @@ public class IMS_ExternalSystem_mxJPO {
         final ExternalSystem externalSystem = new ExternalSystem(context, externalSystemName);
         final DomainObject object = new DomainObject(objectId);
 
-        final Map externalObjectMap = JPO.invoke(
-                context,
-                externalSystem.getProgram(),
-                null,
+        final Map externalObjectMap = JPO.invoke(context, externalSystem.getProgram(), null,
                 METHOD_findExternalObjectMap,
-                new String[]{ externalSystem.getServiceUrl(), externalSystem.getUser(), externalSystem.getPassword(), externalObjectId },
+                new String[]{externalSystem.getServiceUrl(), externalSystem.getUser(), externalSystem.getPassword(), externalObjectId},
                 Map.class);
 
         if (externalObjectMap != null) {
@@ -250,7 +249,7 @@ public class IMS_ExternalSystem_mxJPO {
                         Map connectedMap = object.getRelatedObject(
                                 context,
                                 relationship, from,
-                                new StringList(new String[]{ DomainConstants.SELECT_ID }),
+                                new StringList(new String[]{DomainConstants.SELECT_ID}),
                                 null);
 
                         if (connectedMap != null) {

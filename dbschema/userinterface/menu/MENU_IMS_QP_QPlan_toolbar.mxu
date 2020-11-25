@@ -11,6 +11,7 @@ mxUpdate menu "${NAME}" {
     label ""
     href ""
     alt ""
+    setting "Access Expression" "current==Draft"
     command "IMS_QP_QPlan_edit"
     ################################################## Info Start
     property "original name" value "IMS_QP_QPlan_toolbar"

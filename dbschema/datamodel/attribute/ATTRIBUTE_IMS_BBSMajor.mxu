@@ -1,0 +1,22 @@
+################################################################################
+# ATTRIBUTE_IMS_BBSMajor.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate attribute "${NAME}" {
+    kind string
+    symbolicname "attribute_IMS_BBSMajor"
+    description "Baseline level for External Document Set"
+    !hidden
+    !multivalue
+    !resetonclone
+    !resetonrevision
+    default ""
+    ################################################## Info Start
+    property "author" value "The MxUpdate Team"
+    property "original name" value "IMS_BBSMajor"
+    property "application" value "IMS_QP"
+    property "version" value "1"
+    ################################################## Info End
+}

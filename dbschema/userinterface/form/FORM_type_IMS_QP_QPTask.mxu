@@ -68,18 +68,31 @@ mxUpdate form "${NAME}" {
         setting "Registered Suite" "Framework"
     }
     field {
-        name "description"
+        name "IMS_DescriptionEn"
         label "emxComponents.Common.Description"
-        businessobject "description"
+        businessobject "$<attribute[attribute_IMS_DescriptionEn]"
         setting "Registered Suite" "Components"
     }
     field {
         name "ExternalDocumentSet"
         label "Document Set"
+        setting "Access Function" "accessDocument"
+        setting "Access Program" "IMS_QP_DEPTask"
         setting "Editable" "false"
         setting "Field Type" "programHTMLOutput"
         setting "Registered Suite" "Framework"
         setting "function" "getConnectedExternalDocumentSetHTML"
         setting "program" "IMS_QP_DEPSubStageDEPTasks"
+    }
+    field {
+        name "CheckList"
+        label "CheckList"
+        setting "Access Function" "accessCheckList"
+        setting "Access Program" "IMS_QP_DEPTask"
+        setting "Editable" "false"
+        setting "Field Type" "programHTMLOutput"
+        setting "Registered Suite" "Framework"
+        setting "function" "getConnectedQPCheckListHTML"
+        setting "program" "IMS_QP_DEPTask"
     }
 }

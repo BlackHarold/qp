@@ -12,9 +12,10 @@ mxUpdate table "${NAME}" {
         label "Code"
         businessobject "name"
         href "${COMMON_DIR}/emxTree.jsp"
-        user "all"
         setting "Registered Suite" "Framework"
         setting "Show Type Icon" "true"
+        setting "Style Function" "getFactColumnStyle"
+        setting "Style Program" "IMS_QP_DEPTask"
         setting "Target Location" "popup"
     }
     column {
@@ -24,17 +25,20 @@ mxUpdate table "${NAME}" {
         setting "Registered Suite" "Components"
     }
     column {
+        name "group_info"
+        label "Group SQP/BQP"
+        businessobject "to[IMS_QP_Classifier2QPlan].from.name"
+    }
+    column {
         name "Originator"
         label "emxFramework.Basic.Originator"
         businessobject "owner"
-        user "all"
         setting "Registered Suite" "Framework"
     }
     column {
         name "Originated"
         label "Originated"
         businessobject "originated"
-        user "all"
         setting "Access Expression" "true"
         setting "format" "date"
     }
