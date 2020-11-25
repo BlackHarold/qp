@@ -7,88 +7,28 @@
 
    static const char RCSID[] = $Id: emxCreate.jsp.rca 1.13.1.2.1.4 Wed Oct 22 15:48:40 2008 przemek Experimental przemek $
 --%>
-<%@ page import="com.matrixone.apps.framework.ui.UINavigatorUtil,
-                 com.matrixone.apps.framework.ui.UIUtil,
-                 com.matrixone.jdom.*,
-                 com.matrixone.jdom.output.*,
-                 com.matrixone.jdom.transform.*,
-                 java.util.*" %>
-<%@ page import="org.apache.log4j.Logger" %>
-<%@include file="emxNavigatorInclude.inc" %>
-
-<%@include file="emxNavigatorTopErrorInclude.inc" %>
-<jsp:useBean id="createBean" class="com.matrixone.apps.framework.ui.UIForm" scope="session"/>
-
 <script>
     function doCancel() {
         window.close();
     }
-
-    function onChangeComboboxDep() {
-        // var dep = document.getElementsByName("dep");
-        var depId = document.getElementById("depId");
-        var depIndex = depId.selectedIndex;
-    }
-
-    function onChangeComboboxDep() {
-        let depId = document.getElementById("depId");
-        let depIndex = depId.selectedIndex;
-        let value = depId[depIndex].value;
-        let systemInput = document.querySelector("#calc_system > td.createInputField > input[type=\"text\"]:nth-child(1)");
-        console.log(systemInput);
-
-        //check attribute
-        if (value.endsWith("_TRUE")) {
-            document.getElementById("calc_system").style.display = 'none';
-            systemInput.value = "empty";
-        } else {
-            document.getElementById("calc_system").style.display = 'table-row';
-        }
-
-        let dep = document.querySelector("#calc_group > td.createInputField.disabled > input[type=\"text\"]:nth-child(1)");
-        dep.id = value.substring(0, value.indexOf('_'));
-
-        //change script to the group button
-        let groupButton = document.querySelector("#calc_group > td.createInputField.disabled > input[type=\"button\"]:nth-child(4)");
-
-        groupButton.setAttribute("onClick",
-            "javascript:showChooser('../common/emxIndentedTable.jsp?program=IMS_QP_Classifier:findAll&" +
-            "depId=" + dep.id +
-            "&table=IMS_QP_Classifier_table&selection=single&targetLocation=popup&mode=chooser&cancelButton=true&cancelLabel=Cancel" +
-            "&submitLabel=Select&submitURL=../common/AEFSearchUtil.jsp&fieldNameActual=group&fieldNameDisplay=groupDisplay" +
-            "&fieldNameOID=groupOID&suiteKey=Framework','600','600','true','','group')")
-    }
-
-    function onChangeTextboxPBS() {
-
-        console.log("onchangeTextboxPBS");
-        //dep field
-        var dep_field = document.querySelector("#depId");
-
-        console.log("before selected: " + dep_field.selectedIndex);
-        // var depId = document.getElementById("depId");
-        // var depIndex = depId.selectedIndex;
-        // var value = depId[depIndex].value;
-
-        var systemOIDs = document.querySelector("#calc_system > td.createInputField > input[type=\"hidden\"]:nth-child(3)");
-
-        for (var i = 1; i < dep_field.length; i++) {
-            console.log("includes: " + dep_field[i].value + " == " + systemOIDs.value + ": " + dep_field[i].value.includes(systemOIDs.value));
-            // console.log("index of: " + dep_field[i].value + " == " + systemOIDs.value + ": " + dep_field[i].value.indexOf(systemOIDs.value));
-
-            if (dep_field[i].value.includes(systemOIDs.value)) {
-                console.log(i + ": " + dep_field[i].value);
-                dep_field[i].style.display = 'block';
-            } else {
-                dep_field[i].style.display = 'none';
-            }
-        }
-
-        dep_field.selectedIndex = 0;
-        console.log("after selected: " + dep_field.selectedIndex);
-    }
 </script>
 
+
+<%@ page import="java.util.*,
+                 java.io.*,
+                 com.matrixone.jdom.*,
+                 com.matrixone.jdom.output.*,
+                 com.matrixone.jdom.transform.*,
+                 com.matrixone.apps.framework.ui.UINavigatorUtil" %>
+<%@include file="emxNavigatorInclude.inc" %>
+
+<%@include file="emxNavigatorTopErrorInclude.inc" %>
+<%@ page import="com.matrixone.util.*,
+                 java.util.*,
+                 com.matrixone.jdom.*,
+                 com.matrixone.jdom.output.*" %>
+<%@page import="com.matrixone.apps.framework.ui.UIUtil" %>
+<jsp:useBean id="createBean" class="com.matrixone.apps.framework.ui.UIForm" scope="session"/>
 <%
     String form = emxGetParameter(request, "form");
     if (UIUtil.isNotNullAndNotEmpty(form)) {
@@ -137,6 +77,7 @@
             seperator = ":";
         }
     }
+
 
     String xsltFile = "emxCreatePage.xsl";
     String ua = request.getHeader("user-agent");
@@ -187,6 +128,7 @@
     String typeStr = (String) requestMap.get("type");
     String strtypeChooser = (String) requestMap.get("typeChooser");
 
+
     if (
             (typeStr == null || "null".equals(typeStr) || "".equals(typeStr)) && (strtypeChooser == null || "null".equals(strtypeChooser) || "".equals(strtypeChooser) || "false".equalsIgnoreCase(strtypeChooser))) {
         if (form != null && form.length() > 0) {
@@ -203,7 +145,6 @@
     } else {
         flag = true;
     }
-
     if (flag) {
         try {
             createBean.setCreateFormData(context, timeStamp, requestMap, userRoleList);
@@ -314,6 +255,7 @@
                             suiteKey,
                             languageStr);
                 }
+
 
             } catch (Exception e) {
                 i18strClear = "Clear";
@@ -456,6 +398,7 @@
             ContextUtil.abortTransaction(context);
             if (ex.toString() != null && (ex.toString().trim()).length() > 0) {
                 emxNavErrorObject.addMessage(ex.toString().trim());
+                System.out.println(ex.toString().trim());
 %>
 <%@include file="emxNavigatorBottomErrorInclude.inc" %>
 <script>

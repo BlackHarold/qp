@@ -5,16 +5,20 @@
 ################################################################################
 
 mxUpdate menu "${NAME}" {
+    symbolicname "menu_IMS_QP_DEP_Toolbar"
     description ""
     treemenu
     label ""
     href ""
     alt ""
+    setting "Access Function" "currentUserIsDEPOwner"
+    setting "Access Program" "IMS_QP_Security"
     command "IMS_QP_DEPSubStage_create"
-	command "IMS_QP_DEP_edit"
+    command "IMS_QP_DEP_edit"
     ################################################## Info Start
-    property "original name" value "type_IMS_QP_DEPSubStage"
-    property "application" value "IMS_HNH19"
+    property "author" value "The IMS Team"
+    property "original name" value "IMS_QP_DEP_Toolbar"
+    property "application" value "IMS_QP"
     property "version" value "1"
     ################################################## Info End
 }

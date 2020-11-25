@@ -1,24 +1,20 @@
 ################################################################################
-# CHANNEL_IMS_QP_Channel.mxu
+# COMMAND_IMS_QP_Classifier_table.mxu
 #
 #            This file describes the target of a Configuration Item.
 ################################################################################
 
-mxUpdate channel "${NAME}" {
-    symbolicname "channel_IMS_QP_Channel"
-    description ""
-    label ""
-    href ""
+mxUpdate command "${NAME}" {
+    symbolicname "command_IMS_QP_Classifier_table"
+    description "showing table of grouping SQPs by classifier"
+    label "Group SQP/BQP"
+    href "${COMMON_DIR}/emxIndentedTable.jsp?program=IMS_QP_Classifier:findAll&table=IMS_QP_Classifier_table&toolbar=IMS_QP_Classifier_for_table&selection=multiple"
     alt ""
-    height 50
+    setting "Access Expression" "name!='DEP'"
     setting "Registered Suite" "Framework"
-    command "IMS_QP_Table"
-    command "IMS_QP_SQP_Table"
-    command "IMS_QP_Classifier_table"
-    command "IMS_QP_DEP_KKS_Table"
     ################################################## Info Start
     property "author" value "IMS Team"
-    property "original name" value "IMS_QP_Channel"
+    property "original name" value "IMS_QP_Classifier_table"
     property "application" value "IMS_QP"
     property "version" value "1"
     ################################################## Info End

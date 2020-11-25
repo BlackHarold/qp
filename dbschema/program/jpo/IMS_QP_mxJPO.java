@@ -76,7 +76,7 @@ public class IMS_QP_mxJPO extends DomainObject {
 
             String objectType = new DomainObject(objectId).getType(context);
             String objectName = new DomainObject(objectId).getName(context);
-            if ("IMS_QP".equals(objectType) && "SQP".equals(objectName)) {
+            if ("IMS_QP".equals(objectType) && "SQP/BQP".contains(objectName)) {
                 componentsList = getFilteredMapListByOwner(context, componentsList);
             }
 
@@ -255,25 +255,19 @@ public class IMS_QP_mxJPO extends DomainObject {
      */
     public MapList getAllDEP(Context context, String[] args) throws Exception {
 
-        Map argsMap = JPO.unpackArgs(args);
+        MapList allDEPs = new MapList();
+        try {
+            allDEPs = DomainObject.findObjects(context,
+                    /*type*/ IMS_QP_Constants_mxJPO.TYPE_IMS_QP_DEP,
+                    /*vault*/IMS_QP_Constants_mxJPO.ESERVICE_PRODUCTION,
+                    /*where*/null,
+                    /*selects*/ new StringList(DomainConstants.SELECT_ID));
+        } catch (FrameworkException fe) {
+            LOG.error("error getting tasks: " + fe.getMessage());
+            fe.printStackTrace();
+        }
 
-        //get objectID
-        String objectId = (String) argsMap.get("objectId");
-        StringList selects = new StringList();
-        selects.add("id");
-
-        DomainObject parent = new DomainObject(objectId);
-        //get all substages
-        return parent.getRelatedObjects(context,
-                /*relationship*/null,
-                /*type*/"IMS_QP_DEP",
-                /*object attributes*/ selects,
-                /*relationship selects*/ null,
-                /*getTo*/ false, /*getFrom*/ true,
-                /*recurse to level*/ (short) 1,
-                /*object where*/ null,
-                /*relationship where*/ null,
-                /*limit*/ 0);
+        return allDEPs;
     }
 
     /**

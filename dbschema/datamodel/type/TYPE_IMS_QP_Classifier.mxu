@@ -1,17 +1,21 @@
 ################################################################################
-# COMMAND_IMS_QP_DEP_Form.mxu
+# TYPE_IMS_QP_Classifier.mxu
 #
 #            This file describes the target of a Configuration Item.
 ################################################################################
 
-mxUpdate command "${NAME}" {
-    description "Quality DEP Form"
-    label "Quality DEP Form"
-    href "${COMMON_DIR}/emxForm.jsp?form=type_IMS_QP_DEP&toolbar=IMS_QP_DEP_Toolbar&submitAction=refreshCaller"
-    alt ""
+mxUpdate type "${NAME}" {
+    symbolicname "type_IMS_QP_Classifier"
+    description ""
+    !hidden
+    attribute "IMS_DescriptionEn"
+    attribute "IMS_DescriptionRu"
+    attribute "IMS_Name"
+    attribute "IMS_NameRu"
     ################################################## Info Start
-    property "original name" value "IMS_QP_DEP_Form"
-    property "application" value "IMS_HNH19"
+    property "author" value "The IMS Team"
+    property "original name" value "IMS_QP_Classifier"
+    property "application" value "IMS_QP"
     property "version" value "1"
     ################################################## Info End
 }

@@ -3,12 +3,12 @@ import com.matrixone.apps.domain.DomainConstants;
 import com.matrixone.apps.domain.DomainObject;
 import com.matrixone.apps.domain.util.FrameworkUtil;
 import com.matrixone.apps.domain.util.MapList;
+import com.matrixone.apps.framework.ui.UIUtil;
 import matrix.db.BusinessObject;
 import matrix.db.Context;
 import matrix.db.JPO;
 import matrix.db.RelationshipType;
 import matrix.util.StringList;
-import org.apache.log4j.Logger;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -188,15 +188,14 @@ public class IMS_ExternalSystem_mxJPO {
     public String getExternalObjectLinkFormHTML(Context context, String[] args) throws Exception {
         String formObjectId = IMS_KDD_mxJPO.getObjectIdFromParamMap(args);
         String externalSystemName = (String) IMS_KDD_mxJPO.getRequestMap(args).get(ATTRIBUTE_IMS_ExternalSystemName);
+        if (UIUtil.isNullOrEmpty(externalSystemName)) externalSystemName = IMS_QP_Constants_mxJPO.HNH_PRODUCTION_SRV;
         ExternalSystem externalSystem = new ExternalSystem(context, externalSystemName);
 
-        BuildLinkResult buildLinkResult = JPO.invoke(
-                context,
+        BuildLinkResult buildLinkResult = JPO.invoke(context,
                 externalSystem.getProgram(),
                 null,
                 METHOD_buildExternalObjectLinkForProxyObject,
-                new String[]{externalSystem.getUrl(), formObjectId},
-                BuildLinkResult.class);
+                new String[]{externalSystem.getUrl(), formObjectId}, BuildLinkResult.class);
 
         return buildLinkResult != null ?
                 String.format(

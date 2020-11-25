@@ -1,0 +1,45 @@
+################################################################################
+# TABLE_IMS_QP_Classifier_table.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate table "${NAME}" {
+    symbolicname "table_IMS_QP_Classifier_table"
+    description ""
+    column {
+        name "abbreviation"
+        label "Abbreviation"
+        businessobject "name"
+        href "${COMMON_DIR}/emxForm.jsp?form=type_IMS_QP_Classifier&toolbar=type_IMS_QP_Classifier"
+        setting "Registered Suite" "Framework"
+    }
+    column {
+        name "doc_name"
+        label "Doc name"
+        href "${COMMON_DIR}/emxTree.jsp"
+        businessobject "$<from[IMS_QP_Classifier2Doc].to.name>"
+        setting "Alternate OID expression" "$<from[IMS_QP_Classifier2Doc].to.id>"
+        setting "Alternate Type expression" "$<from[IMS_QP_Classifier2Doc].to.type>"
+    }
+    column {
+        name "description_en"
+        label "Description"
+        businessobject "$<from[IMS_QP_Classifier2Doc].to.description>"
+        setting "Field Type" "basic"
+    }
+    column {
+        name "dep_doc_code"
+        label "DEP Document code"
+        href "${COMMON_DIR}/emxTree.jsp"
+        businessobject "$<to[IMS_QP_DEP2Classifier].from.from[IMS_QP_DEP2Doc].to.name>"
+        setting "Alternate OID expression" "$<to[IMS_QP_DEP2Classifier].from.from[IMS_QP_DEP2Doc].to.id>"
+        setting "Alternate Type expression" "$<to[IMS_QP_DEP2Classifier].from.from[IMS_QP_DEP2Doc].to.type>"
+    }
+    ################################################## Info Start
+    property "author" value "IMS Team"
+    property "original name" value "IMS_QP_Classifier_table"
+    property "application" value "IMS_QP"
+    property "version" value "1"
+    ################################################## Info End
+}

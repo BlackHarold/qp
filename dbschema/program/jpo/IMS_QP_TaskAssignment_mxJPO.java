@@ -380,7 +380,7 @@ public class IMS_QP_TaskAssignment_mxJPO {
                 //start transactional
                 ContextUtil.startTransaction(context, true);
                 DomainObject planObj = new DomainObject();
-                String newObjName = "QP_" + systemName;
+                String newObjName = "QP-" + systemName;
                 //create object
                 planObj.createObject(context, TYPE_IMS_QP_QPlan, newObjName, "", TYPE_IMS_QP_QPlan, context.getVault().getName());
                 if (UIUtil.isNotNullAndNotEmpty(description)) {

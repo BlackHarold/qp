@@ -38,6 +38,14 @@ mxUpdate form "${NAME}" {
         setting "Registered Suite" "Components"
     }
     field {
+        name "group"
+        label "Group SQP/BQP"
+        businessobject "$<to[IMS_QP_Classifier2QPlan].from.name>"
+        setting "Editable" "false"
+        setting "Field Type" "basic"
+        setting "Registered Suite" "Components"
+    }
+    field {
         name "originator"
         label "Originator"
         businessobject "owner"

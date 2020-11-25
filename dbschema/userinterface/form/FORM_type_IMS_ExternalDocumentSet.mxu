@@ -5,30 +5,31 @@
 ################################################################################
 
 mxUpdate form "${NAME}" {
+    symbolicname "form_type_IMS_ExternalDocumentSet"
     description ""
     field {
-        name "Name"
+        name "name"
         label "emxFramework.Basic.Name"
         businessobject "name"
         setting "Field Type" "basic"
         setting "Registered Suite" "Framework"
     }
     field {
-        name "Name"
+        name "description"
         label "emxFramework.Basic.Description"
         businessobject "description"
         setting "Field Type" "basic"
         setting "Registered Suite" "Framework"
     }
     field {
-        name "Revision"
+        name "revision"
         label "emxFramework.Basic.Revision"
         businessobject "revision"
         setting "Field Type" "basic"
         setting "Registered Suite" "Framework"
     }
     field {
-        name "Policy"
+        name "policy"
         label "emxFramework.Basic.Policy"
         businessobject "attribute[IMS_ExternalObjectPolicy]"
         setting "Editable" "false"
@@ -36,7 +37,7 @@ mxUpdate form "${NAME}" {
         setting "Registered Suite" "Framework"
     }
     field {
-        name "Current"
+        name "current"
         label "emxFramework.Basic.Current"
         businessobject "attribute[IMS_ExternalObjectState]"
         setting "Field Type" "attribute"
@@ -79,4 +80,10 @@ mxUpdate form "${NAME}" {
         setting "function" "getExternalObjectLinkFormHTML"
         setting "program" "IMS_ExternalSystem"
     }
+    ################################################## Info Start
+    property "author" value "The IMS Team"
+    property "original name" value "type_IMS_ExternalDocumentSet"
+    property "application" value "IMS_QP"
+    property "version" value "1"
+    ################################################## Info End
 }

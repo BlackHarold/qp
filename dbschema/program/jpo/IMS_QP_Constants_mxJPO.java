@@ -142,4 +142,7 @@ public class IMS_QP_Constants_mxJPO {
     public static final String ATTRIBUTE_IMS_EXTERNAL_SYSTEM_USER = "attribute[IMS_ExternalSystemUser]";
     public static final String ATTRIBUTE_IMS_EXTERNAL_SYSTEM_PASSWORD = "attribute[IMS_ExternalSystemPassword]";
     public static final String ATTRIBUTE_IMS_IS_LAST_VERSION = "attribute[IMS_IsLastVersion]";
+
+    public static final String EXTERNAL_DOCUMENT = "IMS_ExternalDocumentSet";
+    public static final String HNH_PRODUCTION_SRV = "97";
 }
