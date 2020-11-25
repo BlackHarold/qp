@@ -1,0 +1,21 @@
+################################################################################
+# COMMAND_IMS_QP_Classifier_create.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate command "${NAME}" {
+    symbolicname "command_IMS_QP_Classifier_create"
+    description ""
+    label "New classifier"
+    href "${COMMON_DIR}/IMS_QP_Classifier_create.jsp?type=IMS_QP_Classifier&policy=IMS_QP_Classifier&typeChooser=false&form=IMS_QP_Classifier_create&postProcessJPO=IMS_QP_Classifier:createPostProcess&submitAction=refreshCaller"
+    alt ""
+    setting "Image" "${COMMON_DIR}/images/iconActionAdd.png"
+    setting "Target Location" "popup"
+    ################################################## Info Start
+    property "author" value "The IMS Team"
+    property "original name" value "IMS_QP_Classifier_create"
+    property "application" value "IMS_QP"
+    property "version" value "1"
+    ################################################## Info End
+}

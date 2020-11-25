@@ -25,6 +25,7 @@ emxFramework.Type.IMS_PBSSystem=System
 emxFramework.Type.IMS_GBSBuilding=Building
 emxFramework.Type.IMS_PBSFunctionalArea=FunctionalArea
 emxFramework.Type.IMS_QP_DEPProjectStage=ProjectStage
+emxFramework.Type.IMS_QP_Classifier=IMS_QP_Classifier
 
 emxFramework.State.IMS_PBSSystem.Exist=Exist
 emxFramework.State.IMS_GBSBuilding.Exist=Exist

@@ -11,9 +11,15 @@ mxUpdate table "${NAME}" {
         name "code"
         label "Code"
         businessobject "name"
-        user "all"
-        setting "Sortable" "false"
         setting "Registered Suite" "Framework"
+        setting "Sortable" "false"
+    }
+    column {
+        name "group_info"
+        label "Group SQP/BQP"
+        businessobject "from[IMS_PBS2DEP].to.from[IMS_QP_DEP2Classifier].to.name"
+        setting "Registered Suite" "Framework"
+        setting "Width" "100"
     }
     column {
         name "pbs"
@@ -30,24 +36,21 @@ mxUpdate table "${NAME}" {
         name "revision"
         label "Revision"
         businessobject "revision"
-        user "all"
-        setting "Sortable" "false"
         setting "Registered Suite" "Framework"
+        setting "Sortable" "false"
         setting "Width" "100"
     }
     column {
         name "type"
         label "Type"
         businessobject "type"
-        setting "Sortable" "false"
-        user "all"
         setting "Registered Suite" "Framework"
+        setting "Sortable" "false"
         setting "Width" "200"
     }
     column {
         name "qplan"
         label "QP"
-        user "all"
         setting "Column Type" "programHTMLOutput"
         setting "Editable" "false"
         setting "Registered Suite" "Framework"
@@ -59,22 +62,20 @@ mxUpdate table "${NAME}" {
         name "dep"
         label "DEP"
         businessobject "from[IMS_PBS2DEP].to.name"
-        setting "Sortable" "false"
-        user "all"
         setting "Registered Suite" "Framework"
+        setting "Sortable" "false"
         setting "Width" "200"
     }
     column {
         name "owner"
         label "SQPOwner"
-        user "all"
         setting "Column Type" "programHTMLOutput"
         setting "Editable" "false"
         setting "Registered Suite" "Framework"
         setting "Sortable" "false"
         setting "Style Function" "getDEPTaskInputCellStyle"
         setting "Style Program" "IMS_QP_DEPSubStageDEPTasks"
-        setting "Width" "300"
+        setting "Width" "200"
         setting "function" "getQPOwnersHTML"
         setting "program" "IMS_QP_Security"
     }

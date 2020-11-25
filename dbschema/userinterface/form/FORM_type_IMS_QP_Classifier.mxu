@@ -1,0 +1,68 @@
+################################################################################
+# FORM_type_IMS_QP_Classifier.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate form "${NAME}" {
+    symbolicname "form_type_IMS_QP_Classifier"
+    description ""
+    field {
+        name "name"
+        label "Abbreviation"
+        businessobject "name"
+        setting "Editable" "true"
+        setting "Field Type" "basic"
+        setting "Required" "true"
+    }
+    field {
+        name "name_en"
+        label "Name (EN)"
+        businessobject "attribute[IMS_Name]"
+        setting "Editable" "true"
+        setting "Field Type" "attribute"
+    }
+    field {
+        name "name_ru"
+        label "Name (RU)"
+        businessobject "attribute[IMS_NameRu]"
+        setting "Editable" "true"
+        setting "Field Type" "attribute"
+    }
+    field {
+        name "description_en"
+        label "Description (EN)"
+        businessobject "attribute[IMS_DescriptionEn]"
+        setting "Editable" "true"
+        setting "Field Type" "attribute"
+    }
+    field {
+        name "description_ru"
+        label "Description (RU)"
+        businessobject "attribute[IMS_DescriptionRu]"
+        setting "Editable" "true"
+        setting "Field Type" "attribute"
+    }
+    field {
+        name "ExternalDocumentSet"
+        label "Document Set"
+        setting "Editable" "false"
+        setting "Field Type" "programHTMLOutput"
+        setting "Registered Suite" "Framework"
+        setting "function" "getConnectedExternalDocumentSetHTML"
+        setting "program" "IMS_QP_Classifier"
+    }
+    field {
+        name "dep"
+        label "DEP"
+        businessobject "$<to[relationship_IMS_QP_DEP2Classifier].from.name>"
+        setting "Editable" "false"
+        setting "Registered Suite" "Framework"
+    }
+    ################################################## Info Start
+    property "author" value "The IMS Team"
+    property "original name" value "type_IMS_QP_Classifier"
+    property "application" value "IMS_QP"
+    property "version" value "1"
+    ################################################## Info End
+}

@@ -1,0 +1,35 @@
+################################################################################
+# POLICY_IMS_QP_Classifier.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate policy "${NAME}" {
+    symbolicname "policy_IMS_QP_Classifier"
+    description ""
+    !hidden
+    type "IMS_QP_Classifier"
+    defaultformat ""
+    sequence ""
+    store ""
+    allstate {
+        owner {all}
+        public {all}
+    }
+    state "Exists" {
+        registeredname "state_Exists"
+        !enforcereserveaccess
+        !majorrevision
+        !minorrevision
+        !version
+        !promote
+        !checkouthistory
+        !published
+    }
+    ################################################## Info Start
+    property "author" value "The IMS Team"
+    property "original name" value "IMS_QP_Classifier"
+    property "application" value "IMS_QP"
+    property "version" value "1"
+    ################################################## Info End
+}

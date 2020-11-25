@@ -18,10 +18,10 @@ mxUpdate form "${NAME}" {
     field {
         name "system"
         label "System / Building"
-        range "${COMMON_DIR}/emxFullSearch.jsp?field=TYPES=IMS_PBSSystem,IMS_GBSBuilding,IMS_PBSFunctionalArea&table=AEFGeneralSearchResults&selection=single&mode=chooser&showInitialResults=true&HelpMarker=emxhelpfullsearch&submitLabel=emxFramework.GlobalSearch.Done&CancelButton=true"
+        range "${COMMON_DIR}/emxFullSearch.jsp?field=TYPES=IMS_PBSSystem,IMS_GBSBuilding,IMS_PBSFunctionalArea:LASTREVISION=TRUE&table=AEFGeneralSearchResults&selection=single&mode=chooser&showInitialResults=true&HelpMarker=emxhelpfullsearch&submitLabel=emxFramework.GlobalSearch.Done&CancelButton=true"
         setting "Editable" "true"
         setting "Input Type" "textbox"
-        setting "OnChange Handler" "onchangeTextboxPBS"
+        setting "OnChange Handler" "onChangeTextboxPBS"
         setting "Registered Suite" "Framework"
         setting "Required" "false"
     }
@@ -30,16 +30,24 @@ mxUpdate form "${NAME}" {
         label "DEP"
         setting "Field Type" "attribute"
         setting "Input Type" "combobox"
-        setting "OnChange Handler" "onchangeComboboxDep"
+        setting "OnChange Handler" "onChangeComboboxDep"
         setting "Range Function" "getQPDEPNames"
         setting "Range Program" "IMS_QualityPlanBase"
-        setting "Registered Suite" "Components"
+        setting "Registered Suite" "Framework"
         setting "Required" "true"
     }
+    field {
+        name "group"
+        label "Group SQP/BQP"
+        businessobject "from[IMS_QP_Classifier2QPlan].to.name"
+        range "${COMMON_DIR}/emxIndentedTable.jsp?program=IMS_QP_Classifier:findAll&table=IMS_QP_Classifier_table&selection=single&targetLocation=popup&mode=chooser&cancelButton=true&cancelLabel=Cancel&submitLabel=Select&submitURL=../common/AEFSearchUtil.jsp"
+        setting "Input Type" "textbox"
+        setting "Registered Suite" "Framework"
+    }
     ################################################## Info Start
-    property "author" value "The MxUpdate Team"
+    property "author" value "The IMS Team"
     property "original name" value "IMS_QP_SQP_create"
-    property "application" value "IMS"
+    property "application" value "IMS_QP"
     property "version" value "1"
     ################################################## Info End
 }

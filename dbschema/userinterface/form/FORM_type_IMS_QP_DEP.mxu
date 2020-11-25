@@ -26,6 +26,7 @@ mxUpdate form "${NAME}" {
         label "emxComponents.Common.Description"
         businessobject "description"
         setting "Editable" "true"
+        setting "Field Type" "basic"
         setting "Input Type" "textarea"
         setting "Registered Suite" "Components"
     }
@@ -52,14 +53,12 @@ mxUpdate form "${NAME}" {
         name "DisciplineCode"
         label "Discipline code"
         businessobject "$<to[IMS_QP_Discipline2DEP].from.name>"
-        setting "Access Expression" "true"
         setting "Editable" "false"
     }
     field {
         name "DocCode"
         label "Document Code"
         businessobject "$<attribute[attribute_IMS_DocCode]>"
-        setting "Access Expression" "true"
         setting "Editable" "true"
         setting "Field Type" "attribute"
         setting "Registered Suite" "Framework"
@@ -80,6 +79,15 @@ mxUpdate form "${NAME}" {
         setting "Field Type" "programHTMLOutput"
         setting "Registered Suite" "Framework"
         setting "function" "getInterdisciplinaryCheck"
+        setting "program" "IMS_QP_DEP"
+    }
+    field {
+        name "external_doc"
+        label "Document Set"
+        setting "Editable" "false"
+        setting "Field Type" "programHTMLOutput"
+        setting "Registered Suite" "Framework"
+        setting "function" "getConnectedExternalDocumentSetHTML"
         setting "program" "IMS_QP_DEP"
     }
 }

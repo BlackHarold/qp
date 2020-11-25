@@ -1,24 +1,21 @@
 ################################################################################
-# CHANNEL_IMS_QP_Channel.mxu
+# MENU_IMS_QP_Classifier_for_table.mxu
 #
 #            This file describes the target of a Configuration Item.
 ################################################################################
 
-mxUpdate channel "${NAME}" {
-    symbolicname "channel_IMS_QP_Channel"
+mxUpdate menu "${NAME}" {
+    symbolicname "menu_IMS_QP_Classifier_for_table"
     description ""
     label ""
     href ""
     alt ""
-    height 50
-    setting "Registered Suite" "Framework"
-    command "IMS_QP_Table"
-    command "IMS_QP_SQP_Table"
-    command "IMS_QP_Classifier_table"
-    command "IMS_QP_DEP_KKS_Table"
+    setting "Access Expression" "context.user.isassigned[IMS_Admin]==True || context.user.isassigned[IMS_QP_SuperUser]==True"
+    command "IMS_QP_Classifier_create"
+    command "IMS_QP_Classifier_delete"
     ################################################## Info Start
-    property "author" value "IMS Team"
-    property "original name" value "IMS_QP_Channel"
+    property "author" value "The IMS Team"
+    property "original name" value "IMS_QP_Classifier_for_table"
     property "application" value "IMS_QP"
     property "version" value "1"
     ################################################## Info End
