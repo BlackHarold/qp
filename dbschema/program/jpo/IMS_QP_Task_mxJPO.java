@@ -556,13 +556,15 @@ public class IMS_QP_Task_mxJPO {
         return getQPTaskRelatedObjects(context, args, false);
     }
 
+
+    private int counterGeneralIn = 0, counterGeneralOut = 0;
+    private int counterDraftIn = 0, counterDraftOut = 0;
+    private int counterApprovedIn = 0, counterApprovedOut = 0;
+    private int counterRejectedIn = 0, counterRejectedOut = 0;
     public Vector getQPTaskRelatedObjects(Context context, String[] args, boolean in) {
 
         Vector result = new Vector();
         try {
-            String virtualRelationship = in ? "in" : "out";
-            boolean getTo = in;
-            boolean isRuLocale = IMS_KDD_mxJPO.isRuLocale(args);
 
             Map argsMap = JPO.unpackArgs(args);
             MapList argsList = (MapList) argsMap.get("objectList");
@@ -575,10 +577,17 @@ public class IMS_QP_Task_mxJPO {
             /*top level Codes by items*/
             StringBuilder stringBuilder = new StringBuilder();
             for (Map map : items) {
+                counterGeneralIn = 0;
+                counterGeneralOut = 0;
+                counterDraftIn = 0;
+                counterDraftOut = 0;
+                counterApprovedIn = 0;
+                counterApprovedOut = 0;
+                counterRejectedIn = 0;
+                counterRejectedOut = 0;
                 stringBuilder.setLength(0);
 
                 String mainTaskID = (String) map.get("id");
-                String mainLevel = (String) map.get("id[level]");
                 DomainObject objectMainTask = new DomainObject(mainTaskID);
 
                 boolean currentUserIsQPlanOwner = IMS_QP_Security_mxJPO.isOwnerQPlanFromTaskID(context, mainTaskID);
@@ -607,7 +616,7 @@ public class IMS_QP_Task_mxJPO {
                         /*type*/types,
                         /*object attributes*/ selects,
                         /*relationship selects*/ null,
-                        /*getTo*/ getTo, /*getFrom*/ !getTo,
+                        /*getTo*/ in, /*getFrom*/ !in,
                         /*recurse to level*/ (short) 1,
                         /*object where*/ null,
                         /*relationship where*/ null,
@@ -617,13 +626,14 @@ public class IMS_QP_Task_mxJPO {
 
                 /*get all states for related tasks*/
                 Map<String, String> taskStates = new HashMap<>();
+
                 for (Object object : relatedTasks) {
                     Map relatedMap = (Map) object;
                     id = (String) relatedMap.get("id");
 
                     /*getting list of all related tasks with states*/
                     List<String> toId, toState, fromId, fromState;
-                    if (!getTo) {
+                    if (!in) {
                         toId = getStringList(relatedMap.get("to[" + IMS_QP_Constants_mxJPO.relationship_IMS_QP_QPTask2QPTask + "].from.id"));
                         toState = getStringList(relatedMap.get("to[" + IMS_QP_Constants_mxJPO.relationship_IMS_QP_QPTask2QPTask + "].attribute[IMS_QP_DEPTaskStatus]"));
                         for (int i = 0; i < toId.size(); i++) {
@@ -631,7 +641,7 @@ public class IMS_QP_Task_mxJPO {
                         }
                     }
 
-                    if (getTo) {
+                    if (in) {
                         fromId = getStringList(relatedMap.get("from[" + IMS_QP_Constants_mxJPO.relationship_IMS_QP_QPTask2QPTask + "].to.id"));
                         fromState = getStringList(relatedMap.get("from[" + IMS_QP_Constants_mxJPO.relationship_IMS_QP_QPTask2QPTask + "].attribute[IMS_QP_DEPTaskStatus]"));
                         for (int i = 0; i < fromId.size(); i++) {
@@ -640,30 +650,24 @@ public class IMS_QP_Task_mxJPO {
                     }
 
                     String state = UIUtil.isNotNullAndNotEmpty(taskStates.get(mainTaskID)) ? taskStates.get(mainTaskID) : "";
-                    String hidden = state.equals("Rejected") ? " hidden=\"\"" : "";
-                    stringBuilder.append("<div" + hidden + ">");
 
                     name = "";
 
                     if (getTypeFromMap(relatedMap).equals(IMS_QP_Constants_mxJPO.type_IMS_QP_QPTask)) {
-                        rawLink = getLinkHTML(relatedMap, IMS_QP_Constants_mxJPO.SOURCE_DEPTask, getIconUrl(IMS_QP_Constants_mxJPO.type_IMS_QP_QPTask), name, state);
+                        incrementCounter(state, in);
                     } else if (getTypeFromMap(relatedMap).equals(IMS_QP_Constants_mxJPO.TYPE_IMS_QP_DEP)) {
                         rawLink = getLinkHTML(relatedMap, IMS_QP_Constants_mxJPO.SOURCE_DEP, getIconUrl(IMS_QP_Constants_mxJPO.TYPE_IMS_QP_DEP), name, state);
                     }
 
                     stringBuilder.append(rawLink);
-
-                    if (currentUserIsQPlanOwner) {
-                        //TODO brush the links red&green colors by states
-                        if ((state.equals("Draft") || state.equals("")) && in) {
-                            stringBuilder.append(" " + getCheckLinkHTML("IMS_QP_Task", "approveConnectionQP",
-                                    /*main task*/mainTaskID, id, virtualRelationship, "Accept", mainLevel));
-                            stringBuilder.append(" " + getCheckLinkHTML("IMS_QP_Task", "rejectConnectionQP",
-                                    /*main task*/mainTaskID, id, virtualRelationship, "Reject", mainLevel));
-                        }
-                    }
-                    stringBuilder.append("</div>");
                 }
+
+                stringBuilder.append("<div align=\"right\" style=\"color: grey; font-size: .8em;\">" + (in ? counterGeneralIn : counterGeneralOut) + "</div>");
+                stringBuilder.append("<div align=\"center\">");
+                stringBuilder.append("<span style=\"color: green\">" + (in ? counterApprovedIn : counterApprovedOut) + "</span>");
+                stringBuilder.append("<span style=\"color: #3264C8; padding: 0 .5em 0 .5em; font-size: 1.5em\"> " + (in ? counterDraftIn : counterDraftOut) + " </span>");
+                stringBuilder.append("<span style=\"color: red;\">" + (in ? counterRejectedIn : counterRejectedOut) + "</span>");
+                stringBuilder.append("</div>");
 
                 result.addElement(FrameworkUtil.findAndReplace(stringBuilder.toString(), "&", "&amp;"));
             }
@@ -678,6 +682,38 @@ public class IMS_QP_Task_mxJPO {
             }
         }
         return result;
+    }
+
+    private void incrementCounter(String state, boolean in) {
+        if (in) {
+            switch (state) {
+                case "Draft":
+                    counterDraftIn++;
+                    break;
+                case "Approved":
+                    counterApprovedIn++;
+                    break;
+                case "Rejected":
+                    counterRejectedIn++;
+                    break;
+            }
+            counterGeneralIn++;
+        }
+
+        if (!in) {
+            switch (state) {
+                case "Draft":
+                    counterDraftOut++;
+                    break;
+                case "Approved":
+                    counterApprovedOut++;
+                    break;
+                case "Rejected":
+                    counterRejectedOut++;
+                    break;
+            }
+            counterGeneralOut++;
+        }
     }
 
     public String approveConnectionQP(Context context, String[] args) {

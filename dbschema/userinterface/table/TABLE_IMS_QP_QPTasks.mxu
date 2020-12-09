@@ -1,11 +1,11 @@
 ################################################################################
-# TABLE_IMS_QP_QPTask.mxu
+# TABLE_IMS_QP_QPTasks.mxu
 #
 #            This file describes the target of a Configuration Item.
 ################################################################################
 
 mxUpdate table "${NAME}" {
-    symbolicname "table_IMS_QP_QPTask"
+    symbolicname "table_IMS_QP_QPTasks"
     description ""
     column {
         name "Code"
@@ -17,32 +17,6 @@ mxUpdate table "${NAME}" {
         setting "Style Function" "getFactColumnStyle"
         setting "Style Program" "IMS_QP_DEPTask"
     }
-    column {
-        name "qp_task_input"
-        label "Input"
-        setting "Column Type" "programHTMLOutput"
-        setting "Editable" "false"
-        setting "Registered Suite" "Framework"
-        setting "Sortable" "false"
-        setting "Style Function" "getDEPTaskInputCellStyle"
-        setting "Style Program" "IMS_QP_DEPSubStageDEPTasks"
-        setting "Width" "150"
-        setting "function" "getQPTaskInput"
-        setting "program" "IMS_QP_Task"
-    }
-    #column {
-    #    name "qp_task_output"
-    #    label "Output"
-    #    setting "Column Type" "programHTMLOutput"
-    #    setting "Editable" "false"
-    #    setting "Registered Suite" "Framework"
-    #    setting "Sortable" "false"
-    #    setting "Style Function" "getDEPTaskOutputCellStyle"
-    #    setting "Style Program" "IMS_QP_DEPSubStageDEPTasks"
-    #    setting "Width" "150"
-    #    setting "function" "getQPTaskOutput"
-    #    setting "program" "IMS_QP_Task"
-    #}
     column {
         name "name_en"
         label "Name (EN)"
@@ -84,7 +58,7 @@ mxUpdate table "${NAME}" {
     }
     ################################################## Info Start
     property "author" value "The IMS Team"
-    property "original name" value "IMS_QP_QPTask"
+    property "original name" value "IMS_QP_QPTasks"
     property "application" value "IMS_QP"
     property "version" value "1"
     ################################################## Info End

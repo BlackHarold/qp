@@ -1,21 +1,19 @@
 ################################################################################
-# CHANNEL_IMS_QP_QPlanRightChannel.mxu
+# COMMAND_IMS_QP_QPTasksFromPlan.mxu
 #
 #            This file describes the target of a Configuration Item.
 ################################################################################
 
-mxUpdate channel "${NAME}" {
-    symbolicname "channel_IMS_QP_QPlanRightChannel"
+mxUpdate command "${NAME}" {
+    symbolicname "command_IMS_QP_QPTasksFromPlan"
     description ""
-    label ""
-    href ""
+    label "Related tasks"
+    href "${COMMON_DIR}/emxIndentedTable.jsp?program=IMS_QP_DEPTask:getRelatedQPTask&table=IMS_QP_QPTasks&selection=multiple&pageSize=50&editLink=false&toolbar=IMS_QP_QPTask"
     alt ""
-    height 0
-    command "IMS_QP_QPTask_Input"
-    command "IMS_QP_QPTask_Output"
+    user "all"
     ################################################## Info Start
-    property "author" value "The IMS Team"
-    property "original name" value "IMS_QP_QPlanRightChannel"
+    property "author" value "IMS Team"
+    property "original name" value "IMS_QP_QPTasksFromPlan"
     property "application" value "IMS_QP"
     property "version" value "1"
     ################################################## Info End
