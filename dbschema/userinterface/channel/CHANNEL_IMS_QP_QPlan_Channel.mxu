@@ -5,11 +5,19 @@
 ################################################################################
 
 mxUpdate channel "${NAME}" {
+    symbolicname "channel_IMS_QP_QPlan_Channel"
     description ""
     label ""
     href ""
     alt ""
     height 260
     command "IMS_QP_QPlan_form"
+    command "IMS_QP_QPTasksFromPlan"
     command "IMS_QP_RelatedQPTask"
+    ################################################## Info Start
+    property "author" value "IMS Team"
+    property "original name" value "IMS_QP_QPlan_Channel"
+    property "application" value "IMS_QP"
+    property "version" value "1"
+    ################################################## Info End
 }
