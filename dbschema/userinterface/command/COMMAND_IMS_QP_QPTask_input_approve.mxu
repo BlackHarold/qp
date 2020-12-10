@@ -1,20 +1,22 @@
 ################################################################################
-# COMMAND_IMS_QP_DEP_KKS_Table.mxu
+# COMMAND_IMS_QP_QPTask_input_approve.mxu
 #
 #            This file describes the target of a Configuration Item.
 ################################################################################
 
 mxUpdate command "${NAME}" {
-    symbolicname "command_IMS_QP_DEP_KKS_Table"
-    description "DEP KKS PBS"
-    label "DEP KKS PBS"
-    href "${COMMON_DIR}/IMS_QP_QPlan.jsp"
+    symbolicname "command_IMS_QP_QPTask_input_approve"
+    description ""
+    label "Approve"
+    href "${COMMON_DIR}/IMS_QPTask_Input_Approve.jsp"
     alt ""
-    setting "Access Expression" "name=='DEP'&&(context.user.isassigned[IMS_Admin]==True||context.user.isassigned[IMS_QP_QPOwner]==True)"
+    setting "Image" "${COMMON_DIR}/images/I_ActionApprove32.png"
     setting "Registered Suite" "Framework"
+    setting "Row Select" "multi"
+    setting "Submit" "true"
     ################################################## Info Start
     property "author" value "IMS Team"
-    property "original name" value "IMS_QP_DEP_KKS_Table"
+    property "original name" value "IMS_QP_QPTask_input_approve"
     property "application" value "IMS_QP"
     property "version" value "1"
     ################################################## Info End

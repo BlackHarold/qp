@@ -1,13 +1,16 @@
 ################################################################################
-# COMMAND_IMS_RelatedDEPTask.mxu
+# COMMAND_IMS_QP_EditTable.mxu
 #
 #            This file describes the target of a Configuration Item.
 ################################################################################
 
 mxUpdate command "${NAME}" {
     description ""
-    label "Related DEP tasks"
-    href "${COMMON_DIR}/IMS_QP_DEPSubStageDEPTasks.jsp"
+    label "Edit"
+    href "javascript:editMode()"
     alt ""
     user "all"
+    setting "Access Function" "currentUserIsDEPOwner"
+    setting "Access Program" "IMS_QP_Security"
+    setting "Image" "${COMMON_DIR}/images/iconActionEdit.gif"
 }

@@ -36,8 +36,8 @@
         //TODO JPO.invoke no need to do a loop: one turn with args containing all IDs
         Map mapCurrObject;
         for (String id : selectedRows) {
-            Iterator itrObjectList = objectList.iterator();
 
+            Iterator itrObjectList = objectList.iterator();
             while (itrObjectList.hasNext()) {
                 mapCurrObject = (Map) itrObjectList.next();
                 String rowId = (String) mapCurrObject.get(DomainConstants.SELECT_ID);
@@ -61,7 +61,7 @@
 <script src="../common/scripts/emxUICore.js"></script>
 <script language="javascript" type="text/javascript">
     console.log("start " + "<%=UIUtil.isNotNullAndNotEmpty(strAlertMessage)%>");
-    if ("<%=UIUtil.isNotNullAndNotEmpty(strAlertMessage)%>" == "true") {
+    if ("<%=UIUtil.isNotNullAndNotEmpty(strAlertMessage)%>" === "true") {
         alert("<%=XSSUtil.encodeForJavaScript(context, strAlertMessage)%>");
     } else {
         getTopWindow().opener.location.href = getTopWindow().opener.location.href;

@@ -454,11 +454,7 @@
         let taskId = rawId.substring(0, rawId.lastIndexOf("|"));
 
         let rightFrame = parent.document.getElementById('rightFrame');
-        let srcFrame = rightFrame.src;
-        srcFrame = '${COMMON_DIR}/3dspace/common/emxPortalDisplay.jsp?portal=IMS_QP_QPlanRightPortal&objectId=' + taskId;
-        console.log(srcFrame);
-
-        rightFrame.src = srcFrame;
+        rightFrame.src = '${COMMON_DIR}/3dspace/common/emxPortalDisplay.jsp?portal=IMS_QP_QPlanRightPortal&objectId=' + taskId;
     }
 </script>
 <!-- IMS end -->

@@ -6,12 +6,12 @@
 
 mxUpdate command "${NAME}" {
     description "Quality DEPTask Form"
-    label "Quality DEPTask Form"
-    href "${COMMON_DIR}/emxForm.jsp?form=type_IMS_QP_DEPTask&formHeader='Quality DEPTask'"
+    label "DEP Task"
+    href "${COMMON_DIR}/emxForm.jsp?form=type_IMS_QP_DEPTask&formHeader='DEP Task'"
     alt ""
     ################################################## Info Start
     property "original name" value "IMS_QP_DEPTask_Form"
-    property "application" value "IMS_HNH19"
+    property "application" value "IMS_QP"
     property "version" value "1"
     ################################################## Info End
 }

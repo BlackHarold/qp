@@ -60,7 +60,7 @@ mxUpdate form "${NAME}" {
     }
     field {
         name "IMS_DescriptionRu"
-        label "emxFramework.Attribute.QP_IMS_DescriptionRu"
+        label "DescriptionRu"
         businessobject "$<attribute[attribute_IMS_DescriptionRu]>"
         setting "Access Expression" "true"
         setting "Editable" "false"
@@ -68,9 +68,11 @@ mxUpdate form "${NAME}" {
         setting "Registered Suite" "Framework"
     }
     field {
-        name "description"
-        label "emxComponents.Common.Description"
-        businessobject "description"
+        name "IMS_DescriptionEn"
+        label "DescriptionEn"
+        businessobject "$<attribute[attribute_IMS_DescriptionEn]"
+        setting "Editable" "false"
+        setting "Field Type" "attribute"
         setting "Registered Suite" "Components"
     }
 }

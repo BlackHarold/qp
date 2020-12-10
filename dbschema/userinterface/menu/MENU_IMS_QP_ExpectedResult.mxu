@@ -11,4 +11,5 @@ mxUpdate menu "${NAME}" {
     alt ""
     command "IMS_QP_Create_ExpectedResult"
     command "IMS_QP_Delete_ExpectedResult"
+    command "IMS_QP_EditTable"
 }
