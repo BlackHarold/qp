@@ -8,7 +8,7 @@ mxUpdate command "${NAME}" {
     symbolicname "command_IMS_QP_QPTask_Output"
     description ""
     label "Output"
-    href "${COMMON_DIR}/emxIndentedTable.jsp?table=IMS_QPTaskRelatedTasksOutput_table&program=IMS_QP_QPTaskRelatedTasks:getRelatedTaskOutput&rowGroupingColumnNames=dep&selection=multiple&parallelLoading=true&pageSize=50&showPageURLIcon=false&showClipboard=false"
+    href "${COMMON_DIR}/IMS_QP_Redirect.jsp"
     alt ""
     setting "Registered Suite" "Framework"
     ################################################## Info Start

@@ -18,7 +18,8 @@ var TREE_FIRST_COL_WIDTH = 200;
 var COLORIZATION_COL_WIDTH = 30;
 var cellWrapVal;
 // Event related variables
-var EVENT_OBJECT, EVENT_TARGET, EVENT_CUR_TARGET, EVENT_TYPE, EVENT_EXEC_STOPBUBBLE, EVENT_EXEC_CANCEL, EVENT_LEFT_BUTTON;
+var EVENT_OBJECT, EVENT_TARGET, EVENT_CUR_TARGET, EVENT_TYPE, EVENT_EXEC_STOPBUBBLE, EVENT_EXEC_CANCEL,
+    EVENT_LEFT_BUTTON;
 // attach and detach event handler functions
 var attachEventHandler, detachEventHandler;
 // IE or Mozilla
@@ -3351,7 +3352,7 @@ function toggle2(rowId) {
     }
 
     // Get the row being expanded or collapsed and toggle it's status
-    display = (!display || display == "none") ? "block" : "none";
+    display = (!display || display == "none") ? "none" : "block";
     nRow.setAttribute("display", display);
 
     // Check if row has already been expanded
@@ -25444,6 +25445,7 @@ function logSBPerformance(entry, startTime, timeStamp) {
         localStorage.setItem("sb-" + timeStamp, string1 + (entry + time));
     }
 }
+
 
 function launchPerformanceLog(timeStamp) {
     var logURL = "../common/emxUIViewPeformanceLog.jsp?timeStamp=" + timeStamp;

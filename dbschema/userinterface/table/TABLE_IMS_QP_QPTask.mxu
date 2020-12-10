@@ -30,19 +30,19 @@ mxUpdate table "${NAME}" {
         setting "function" "getQPTaskInput"
         setting "program" "IMS_QP_Task"
     }
-    #column {
-    #    name "qp_task_output"
-    #    label "Output"
-    #    setting "Column Type" "programHTMLOutput"
-    #    setting "Editable" "false"
-    #    setting "Registered Suite" "Framework"
-    #    setting "Sortable" "false"
-    #    setting "Style Function" "getDEPTaskOutputCellStyle"
-    #    setting "Style Program" "IMS_QP_DEPSubStageDEPTasks"
-    #    setting "Width" "150"
-    #    setting "function" "getQPTaskOutput"
-    #    setting "program" "IMS_QP_Task"
-    #}
+    column {
+        name "qp_task_output"
+        label "Output"
+        setting "Column Type" "programHTMLOutput"
+        setting "Editable" "false"
+        setting "Registered Suite" "Framework"
+        setting "Sortable" "false"
+        setting "Style Function" "getDEPTaskOutputCellStyle"
+        setting "Style Program" "IMS_QP_DEPSubStageDEPTasks"
+        setting "Width" "150"
+        setting "function" "getQPTaskOutput"
+        setting "program" "IMS_QP_Task"
+    }
     column {
         name "name_en"
         label "Name (EN)"

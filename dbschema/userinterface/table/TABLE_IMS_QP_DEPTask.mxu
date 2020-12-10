@@ -10,7 +10,7 @@ mxUpdate table "${NAME}" {
         name "Code"
         label "emxFramework.Label.QP_Code"
         businessobject "name"
-        href "${COMMON_DIR}/emxPortal.jsp?portal=IMS_QP_QPTask_Portal"
+        href "${COMMON_DIR}/emxPortal.jsp?portal=IMS_QP_DEPTask_Portal"
         user "all"
         setting "Editable" "false"
         setting "Registered Suite" "Framework"
@@ -33,6 +33,23 @@ mxUpdate table "${NAME}" {
         setting "Admin Type" "attribute_IMS_NameRu"
         setting "Editable" "true"
         setting "Field Type" "attribute"
+    }
+    column {
+        name "IMS_DescriptionEn"
+        label "DescriptionEn"
+        businessobject "$<attribute[attribute_IMS_DescriptionEn]"
+        setting "Editable" "true"
+        setting "Field Type" "attribute"
+        setting "Registered Suite" "Components"
+    }
+    column {
+        name "IMS_DescriptionRu"
+        label "DescriptionRu"
+        businessobject "$<attribute[attribute_IMS_DescriptionRu]>"
+        setting "Access Expression" "true"
+        setting "Editable" "true"
+        setting "Field Type" "attribute"
+        setting "Registered Suite" "Components"
     }
     column {
         name "DEPTaskInput"

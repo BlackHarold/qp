@@ -1,20 +1,22 @@
 ################################################################################
-# CHANNEL_IMS_QP_QPTask_Channel.mxu
+# ATTRIBUTE_IMS_QP_FactGot.mxu
 #
 #            This file describes the target of a Configuration Item.
 ################################################################################
 
-mxUpdate channel "${NAME}" {
-    description ""
-    label ""
-    href ""
-    alt ""
-    height 260
-    command "IMS_QP_QPTask_Form"
-    command "IMS_QP_RelatedExpectedResultQP"
+mxUpdate attribute "${NAME}" {
+    kind integer
+    symbolicname "attribute_IMS_QP_FactGot"
+    description "IMS_QP_FactGot"
+    !hidden
+    !multivalue
+    !resetonclone
+    !resetonrevision
+    !rangevalue
+    default "0"
     ################################################## Info Start
-    property "author" value "The MxUpdate Team"
-    property "original name" value "IMS_QP_QPTask_Channel"
+    property "author" value "The IMS Team"
+    property "original name" value "IMS_QP_FactGot"
     property "application" value "IMS_QP"
     property "version" value "1"
     ################################################## Info End

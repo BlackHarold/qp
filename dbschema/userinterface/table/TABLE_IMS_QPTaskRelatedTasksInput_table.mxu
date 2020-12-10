@@ -11,6 +11,7 @@ mxUpdate table "${NAME}" {
         name "Code"
         label "emxFramework.Label.QP_Code"
         businessobject "name"
+        href "${COMMON_DIR}/emxPortal.jsp?portal=IMS_QP_QPTask_Portal"
         setting "Editable" "false"
         setting "Registered Suite" "Framework"
     }
@@ -38,9 +39,66 @@ mxUpdate table "${NAME}" {
         setting "Registered Suite" "Framework"
     }
     column {
-        name "er"
-        label "Expected result"
-        businessobject "$<from[IMS_QP_ExpectedResult2QPTask].to.name>"
+        name "er_doc"
+        label "ER Document"
+        businessobject "$<from[IMS_QP_ExpectedResult2QPTask].to.attribute[IMS_QP_DocumentCode]>"
+        hidden
+        setting "Editable" "false"
+        setting "Registered Suite" "Framework"
+    }
+    column {
+        name "er_family"
+        label "ER type"
+        businessobject "$<from[IMS_QP_ExpectedResult2QPTask].to.to[IMS_QP_ResultType2ExpectedResult].from.name>"
+        hidden
+        setting "Editable" "false"
+        setting "Registered Suite" "Framework"
+    }
+    column {
+        name "er_name_en"
+        label "ER Name"
+        businessobject "$<from[IMS_QP_ExpectedResult2QPTask].to.attribute[IMS_Name]>"
+        hidden
+        setting "Editable" "false"
+        setting "Registered Suite" "Framework"
+    }
+    column {
+        name "er_name_ru"
+        label "ER Name (RU)"
+        businessobject "$<from[IMS_QP_ExpectedResult2QPTask].to.attribute[IMS_NameRu]>"
+        hidden
+        setting "Editable" "false"
+        setting "Registered Suite" "Framework"
+    }
+    column {
+        name "er_desc_en"
+        label "ER Description (EN)"
+        businessobject "$<from[IMS_QP_ExpectedResult2QPTask].to.attribute[IMS_DescriptionEn]>"
+        hidden
+        setting "Editable" "false"
+        setting "Registered Suite" "Framework"
+    }
+    column {
+        name "er_desc_ru"
+        label "ER Description (RU)"
+        businessobject "$<from[IMS_QP_ExpectedResult2QPTask].to.attribute[IMS_DescriptionRu]>"
+        hidden
+        setting "Editable" "false"
+        setting "Registered Suite" "Framework"
+    }
+    column {
+        name "factexp"
+        label "Fact Exp"
+        businessobject "$<attribute[IMS_QP_FactExp]>"
+        hidden
+        setting "Editable" "false"
+        setting "Registered Suite" "Framework"
+    }
+    column {
+        name "factgot"
+        label "Fact Got"
+        businessobject "$<attribute[IMS_QP_FactGot]>"
+        hidden
         setting "Editable" "false"
         setting "Registered Suite" "Framework"
     }

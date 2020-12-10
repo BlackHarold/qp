@@ -66,9 +66,10 @@
 
     HashMap args = new HashMap();
     args.put("emxTableRowId", tableIDs);
+    args.put("road", "output");
 
     try {
-        Map map = JPO.invoke(context, "IMS_QP_QPTaskRelatedTasks", new String[]{}, "reject", JPO.packArgs(args), HashMap.class);
+        Map map = JPO.invoke(context, "IMS_QP_QPTaskRelatedTasks", new String[]{}, "approve", JPO.packArgs(args), HashMap.class);
         map.remove("message");
         if (!map.isEmpty()) {
             out.print("<center>");

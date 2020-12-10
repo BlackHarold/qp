@@ -5,7 +5,7 @@
 ################################################################################
 
 mxUpdate form "${NAME}" {
-    description "Quality Plan Form"
+    description "DEP Task"
     field {
         name "info"
         label "Main Information"
@@ -60,17 +60,19 @@ mxUpdate form "${NAME}" {
     }
     field {
         name "IMS_DescriptionRu"
-        label "emxFramework.Attribute.QP_IMS_DescriptionRu"
+        label "DescriptionRu"
         businessobject "$<attribute[attribute_IMS_DescriptionRu]>"
         setting "Access Expression" "true"
         setting "Editable" "false"
         setting "Field Type" "attribute"
-        setting "Registered Suite" "Framework"
+        setting "Registered Suite" "Components"
     }
     field {
         name "IMS_DescriptionEn"
-        label "emxComponents.Common.Description"
+        label "DescriptionEn"
         businessobject "$<attribute[attribute_IMS_DescriptionEn]"
+        setting "Editable" "false"
+        setting "Field Type" "attribute"
         setting "Registered Suite" "Components"
     }
     field {

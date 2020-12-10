@@ -880,11 +880,12 @@ public class IMS_QP_Task_mxJPO {
      */
     public Object getSystems(Context context, String... args) {
 
-        String parentID = "";
+        String parentID = "", objectID = "";
         try {
             Map programMap = JPO.unpackArgs(args);
             Map requestMap = (Map) programMap.get("requestMap");
             parentID = (String) requestMap.get("parentOID");
+            objectID = (String) requestMap.get("objectId");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -896,7 +897,7 @@ public class IMS_QP_Task_mxJPO {
             functionalAreaID = qpPlan.getInfo(context, "from[IMS_QP_QPlan2Object].to.id");
             functionalAreaObject = new DomainObject(functionalAreaID);
         } catch (Exception e) {
-            LOG.error("error getting info from qpTask " + parentID + ": " + e.getMessage());
+            LOG.error("error getting info from qpTask id " + objectID + " parentOID: " + parentID + " with message: " + e.getMessage());
             e.printStackTrace();
         }
 

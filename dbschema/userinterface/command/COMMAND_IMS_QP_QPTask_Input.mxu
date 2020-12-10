@@ -8,7 +8,7 @@ mxUpdate command "${NAME}" {
     symbolicname "command_IMS_QP_QPTask_Input"
     description ""
     label "Input"
-    href "${COMMON_DIR}/emxIndentedTable.jsp?table=IMS_QPTaskRelatedTasksInput_table&toolbar=IMS_QP_QPTask_approve_menu&program=IMS_QP_QPTaskRelatedTasks:getRelatedTaskInput&rowGroupingColumnNames=dep&selection=multiple&parallelLoading=true&pageSize=50&showPageURLIcon=false&showClipboard=false"
+    href "${COMMON_DIR}/emxIndentedTable.jsp?table=IMS_QPTaskRelatedTasksInput_table&toolbar=IMS_QP_QPTask_input_approve_menu&program=IMS_QP_QPTaskRelatedTasks:getRelatedTaskInput&rowGroupingColumnNames=dep&selection=multiple&parallelLoading=true&pageSize=50&showPageURLIcon=false&showClipboard=false"
     alt ""
     setting "Registered Suite" "Framework"
     ################################################## Info Start

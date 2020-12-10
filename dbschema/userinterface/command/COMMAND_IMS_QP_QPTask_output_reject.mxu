@@ -1,20 +1,22 @@
 ################################################################################
-# CHANNEL_IMS_QP_QPTask_Channel.mxu
+# COMMAND_IMS_QP_QPTask_output_reject.mxu
 #
 #            This file describes the target of a Configuration Item.
 ################################################################################
 
-mxUpdate channel "${NAME}" {
+mxUpdate command "${NAME}" {
+    symbolicname "command_IMS_QP_QPTask_output_reject"
     description ""
-    label ""
-    href ""
+    label "Reject"
+    href "${COMMON_DIR}/IMS_QPTask_Output_Reject.jsp"
     alt ""
-    height 260
-    command "IMS_QP_QPTask_Form"
-    command "IMS_QP_RelatedExpectedResultQP"
+    setting "Image" "${COMMON_DIR}/images/iconActionReject.png"
+    setting "Registered Suite" "Framework"
+    setting "Row Select" "multi"
+    setting "Submit" "true"
     ################################################## Info Start
-    property "author" value "The MxUpdate Team"
-    property "original name" value "IMS_QP_QPTask_Channel"
+    property "author" value "IMS Team"
+    property "original name" value "IMS_QP_QPTask_output_reject"
     property "application" value "IMS_QP"
     property "version" value "1"
     ################################################## Info End

@@ -1,22 +1,24 @@
 ################################################################################
-# COMMAND_IMS_QP_QPTask_reject.mxu
+# ATTRIBUTE_IMS_QP_CloseStatus.mxu
 #
 #            This file describes the target of a Configuration Item.
 ################################################################################
 
-mxUpdate command "${NAME}" {
-    symbolicname "command_IMS_QP_QPTask_reject"
+mxUpdate attribute "${NAME}" {
+    kind string
+    symbolicname "attribute_IMS_QP_CloseStatus"
     description ""
-    label "Reject"
-    href "${COMMON_DIR}/IMS_QPTask_Reject.jsp"
-    alt ""
-    setting "Image" "${COMMON_DIR}/images/iconActionReject.png"
-    setting "Registered Suite" "Framework"
-    setting "Row Select" "multi"
-    setting "Submit" "true"
+    !hidden
+    !multivalue
+    !resetonclone
+    !resetonrevision
+    !multiline
+    maxlength 0
+    default "No"
+    trigger modify check "emxTriggerManager" input "modifyAttributeIMS_ClosedStatus"
     ################################################## Info Start
-    property "author" value "IMS Team"
-    property "original name" value "IMS_QP_QPTask_reject"
+    property "author" value "The IMS Team"
+    property "original name" value "IMS_QP_CloseStatus"
     property "application" value "IMS_QP"
     property "version" value "1"
     ################################################## Info End

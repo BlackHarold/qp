@@ -1,17 +1,18 @@
-﻿<%@ page import="java.util.Map" %>
-<%@ page import="java.util.HashMap" %>
-<%@ page import="matrix.db.Context" %>
+﻿<%@ page import="matrix.db.Context" %>
 <%@ page import="matrix.db.JPO" %>
 <%@ page import="com.matrixone.apps.domain.util.ContextUtil" %>
 <%@ page import="com.matrixone.apps.framework.ui.UIUtil" %>
 <%@ page import="static com.matrixone.apps.common.util.JSPUtil.emxGetParameterValues" %>
 <%@ page import="org.apache.log4j.Logger" %>
-<%@ page import="java.util.Arrays" %>
-<%@ page import="java.util.List" %>
+<%@ page import="static com.matrixone.apps.common.util.JSPUtil.emxGetParameterNames" %>
+<%@ page import="java.util.*" %>
 <%@include file="../common/emxNavigatorInclude.inc" %>
 <%@include file="../common/emxNavigatorTopErrorInclude.inc" %>
 
+<!DOCTYPE>
 <html>
+<title>Confirmation process...</title>
+<header></header>
 <body>
 <style>
 
@@ -55,36 +56,38 @@
         margin-top: 60px;
         font-size: 16px;
     }
+
+    div {
+    }
 </style>
 
 <%
-
     String[] tableIDs = emxGetParameterValues(request, "emxTableRowId");
-    Map objectMap = UIUtil.parseRelAndObjectIds(context, tableIDs, false);
-    tableIDs = (String[]) objectMap.get("objectIds");
 
     HashMap args = new HashMap();
     args.put("emxTableRowId", tableIDs);
+    args.put("road", "input");
 
     try {
-        Map map = JPO.invoke(context, "IMS_QP_DEPTask", new String[]{}, "deleteTasks", JPO.packArgs(args), HashMap.class);
+        Map map = JPO.invoke(context, "IMS_QP_QPTaskRelatedTasks", new String[]{}, "approve", JPO.packArgs(args), HashMap.class);
         map.remove("message");
         if (!map.isEmpty()) {
             out.print("<center>");
-            List<String> list = (List) map.get("array");
-            out.print("<span class=\"header\">An error, check states and try again<br><br></span></header>");
+            out.print("<div><span class=\"header\">An error, check states and try again<br><br></span></div>");
+            out.print("</center>");
             out.print("Details: <br>");
-            for (String name : list) {
-                out.print("<br>" + name + " has an \'Approved\' task  or relationship with QPTasks");
+            for (Object o : map.entrySet()) {
+                Map.Entry entry = (Map.Entry) o;
+                out.print("<br>" + entry.getKey() + " has a wrong state: " + entry.getValue());
             }
+            out.print("<center>");
             out.print("<p><a class=\"button\" onclick=\"window.close();\">It's my fault</a><p>");
             out.print("</center>");
         } else {
 %>
-<script language="javascript">
+<script>
     window.opener.location.reload();
     window.close();
-
 </script>
 <%
         }

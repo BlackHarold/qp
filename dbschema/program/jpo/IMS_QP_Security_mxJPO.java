@@ -1,10 +1,7 @@
 import com.matrixone.apps.domain.DomainConstants;
 import com.matrixone.apps.domain.DomainObject;
 import com.matrixone.apps.domain.DomainRelationship;
-import com.matrixone.apps.domain.util.ContextUtil;
-import com.matrixone.apps.domain.util.FrameworkException;
-import com.matrixone.apps.domain.util.MapList;
-import com.matrixone.apps.domain.util.MqlUtil;
+import com.matrixone.apps.domain.util.*;
 import com.matrixone.apps.framework.ui.UIUtil;
 import matrix.db.*;
 import matrix.util.MatrixException;
@@ -107,7 +104,46 @@ public class IMS_QP_Security_mxJPO {
      * @throws Exception When something goes wrong
      */
     public static boolean currentUserIsDEPOwner(Context context, String[] args) throws Exception {
-        return isDEPOwner(context, getPersonObject(context, context.getUser()), new DomainObject(IMS_KDD_mxJPO.getObjectFromProgramMap(context, args)));
+        boolean isDEPOwner = isDEPOwner(context, getPersonObject(context, context.getUser()), new DomainObject(IMS_KDD_mxJPO.getObjectFromProgramMap(context, args)));
+        return isDEPOwner;
+    }
+
+    /**
+     * @param context usual parameter
+     * @param args    usual parameter
+     * @return boolean `isDEPOwner` from QPTask
+     * @throws Exception
+     */
+    public static boolean isOwnerDepFromQPTask(Context context, String[] args) throws Exception {
+        Map map = JPO.unpackArgs(args);
+        String objectId = UIUtil.isNotNullAndNotEmpty((String) map.get("objectId")) ?
+                (String) map.get("objectId") : (String) map.get("parentOID");
+        return isOwnerDepFromQPTask(context, objectId) || isUserAdminOrSuper(context);
+    }
+
+    /**
+     * @param context
+     * @param objectId
+     * @return
+     * @throws Exception
+     */
+    public static boolean isOwnerDepFromQPTask(Context context, String objectId) throws Exception {
+        StringBuilder sb = new StringBuilder(String.format("print bus %s select ", objectId));
+        sb.append("to[IMS_QP_DEPTask2QPTask].from.");
+        sb.append("to[IMS_QP_DEPSubStage2DEPTask].from.");
+        sb.append("to[IMS_QP_DEPProjectStage2DEPSubStage].from.");
+        sb.append("to[IMS_QP_DEP2DEPProjectStage].from.");
+        sb.append("from[IMS_QP_DEP2Owner].to.name");
+        sb.append(" dump |");
+        String objectOwners;
+        try {
+            objectOwners = MqlUtil.mqlCommand(context, sb.toString());
+        } catch (FrameworkException frameworkException) {
+            LOG.error("mql command error: " + frameworkException.getMessage());
+            frameworkException.printStackTrace();
+            throw frameworkException;
+        }
+        return objectOwners.contains(context.getUser()) || isUserAdminOrSuper(context);
     }
 
     private static void checkAccess(Context context, DomainObject depObject) throws Exception {
@@ -700,7 +736,7 @@ public class IMS_QP_Security_mxJPO {
         return false;
     }
 
-    private boolean isUserAdminOrSuper(Context context) {
+    private static boolean isUserAdminOrSuper(Context context) {
         Person person = new Person(context.getUser());
         try {
             return person.isAssigned(context, ROLE_IMS_Admin) || person.isAssigned(context, ROLE_IMS_QP_SuperUser);
