@@ -6,7 +6,7 @@
 
 mxUpdate command "${NAME}" {
     description ""
-    label "Related DEP Task"
+    label "Related DEP tasks"
     href "${COMMON_DIR}/IMS_QP_DEPSubStageDEPTasks.jsp"
     alt ""
     user "all"

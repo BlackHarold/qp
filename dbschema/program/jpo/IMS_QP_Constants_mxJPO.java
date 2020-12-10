@@ -29,6 +29,7 @@ public class IMS_QP_Constants_mxJPO {
     public static final String TO_IMS_QP_DEPTASK_2_DEPTASK_ATTRIBUTE_IMS_QP_DEPTASK_STATUS = "to[IMS_QP_DEPTask2DEPTask].attribute[IMS_QP_DEPTaskStatus]";
     public static final String FROM_IMS_QP_DEPTASK_2_DEPTASK_TO_ID = "from[IMS_QP_DEPTask2DEPTask].to.id";
     public static final String FROM_IMS_QP_DEPTASK_2_DEPTASK_ATTRIBUTE_IMS_QP_DEPTASK_STATUS = "from[IMS_QP_DEPTask2DEPTask].attribute[IMS_QP_DEPTaskStatus]";
+    public static final String ATTRIBUTE_IMS_QP_DEPTASK_STATUS = "attribute[IMS_QP_DEPTaskStatus]";
 
     public static final String type_IMS_QP = "IMS_QP";
     public static final String type_IMS_QP_Directory = "IMS_QP_Directory";

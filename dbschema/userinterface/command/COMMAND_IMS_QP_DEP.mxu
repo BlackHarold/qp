@@ -7,10 +7,9 @@
 mxUpdate command "${NAME}" {
     description "Quality DEP"
     label "Quality DEP"
-    href "${COMMON_DIR}/IMS_QP_DEPTasks.jsp"
+    href "${COMMON_DIR}/IMS_QP_DEP.jsp"
     alt ""
     ################################################## Info Start
-    property "author" value "IMS Team"
     property "original name" value "IMS_QP_DEP"
     property "application" value "IMS_QP"
     property "version" value "1"

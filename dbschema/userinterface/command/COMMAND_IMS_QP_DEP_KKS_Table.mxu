@@ -10,7 +10,7 @@ mxUpdate command "${NAME}" {
     label "DEP KKS PBS"
     href "${COMMON_DIR}/IMS_QP_QPlan.jsp"
     alt ""
-    setting "Access Expression" "context.user.isassigned[IMS_Admin]==True || context.user.isassigned[IMS_QP_QPOwner]==True"
+    setting "Access Expression" "name=='DEP'&&(context.user.isassigned[IMS_Admin]==True||context.user.isassigned[IMS_QP_QPOwner]==True)"
     setting "Registered Suite" "Framework"
     ################################################## Info Start
     property "author" value "IMS Team"

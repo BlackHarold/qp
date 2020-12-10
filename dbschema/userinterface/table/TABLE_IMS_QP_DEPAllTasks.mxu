@@ -11,7 +11,7 @@ mxUpdate table "${NAME}" {
         name "Code"
         label "emxFramework.Label.QP_Code"
         businessobject "name"
-        href "${COMMON_DIR}/emxPortal.jsp?portal=IMS_QP_QPTask_Portal"
+        href "${COMMON_DIR}/emxPortal.jsp?portal=IMS_QP_DEPTask_Portal"
         user "all"
         setting "Editable" "false"
         setting "Registered Suite" "Framework"

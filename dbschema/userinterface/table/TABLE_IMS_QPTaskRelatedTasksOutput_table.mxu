@@ -1,0 +1,111 @@
+################################################################################
+# TABLE_IMS_QPTaskRelatedTasksOutput_table.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate table "${NAME}" {
+    symbolicname "table_IMS_QPTaskRelatedTasksOutput_table"
+    description "Output related tasks for Task portal"
+    column {
+        name "Code"
+        label "emxFramework.Label.QP_Code"
+        businessobject "name"
+        href "${COMMON_DIR}/emxPortal.jsp?portal=IMS_QP_QPTask_Portal"
+        setting "Editable" "false"
+        setting "Registered Suite" "Framework"
+    }
+    column {
+        name "output_state"
+        label "State"
+        setting "Column Type" "programHTMLOutput"
+        setting "Editable" "false"
+        setting "Registered Suite" "Framework"
+        setting "function" "getTaskOutput"
+        setting "program" "IMS_QP_QPTaskRelatedTasks"
+    }
+    column {
+        name "dep"
+        label "DEP Task"
+        businessobject "$<to[IMS_QP_DEPTask2QPTask].from.name>"
+        setting "Editable" "false"
+        setting "Registered Suite" "Framework"
+    }
+    column {
+        name "plan"
+        label "Plan"
+        businessobject "$<to[IMS_QP_QPlan2QPTask].from.name>"
+        setting "Editable" "false"
+        setting "Registered Suite" "Framework"
+    }
+    column {
+        name "er_doc"
+        label "ER Document"
+        businessobject "$<from[IMS_QP_ExpectedResult2QPTask].to.attribute[IMS_QP_DocumentCode]>"
+        hidden
+        setting "Editable" "false"
+        setting "Registered Suite" "Framework"
+    }
+    column {
+        name "er_family"
+        label "ER type"
+        businessobject "$<from[IMS_QP_ExpectedResult2QPTask].to.to[IMS_QP_ResultType2ExpectedResult].from.name>"
+        hidden
+        setting "Editable" "false"
+        setting "Registered Suite" "Framework"
+    }
+    column {
+        name "er_name_en"
+        label "ER Name"
+        businessobject "$<from[IMS_QP_ExpectedResult2QPTask].to.attribute[IMS_Name]>"
+        hidden
+        setting "Editable" "false"
+        setting "Registered Suite" "Framework"
+    }
+    column {
+        name "er_name_ru"
+        label "ER Name (RU)"
+        businessobject "$<from[IMS_QP_ExpectedResult2QPTask].to.attribute[IMS_NameRu]>"
+        hidden
+        setting "Editable" "false"
+        setting "Registered Suite" "Framework"
+    }
+    column {
+        name "er_desc_en"
+        label "ER Description (EN)"
+        businessobject "$<from[IMS_QP_ExpectedResult2QPTask].to.attribute[IMS_DescriptionEn]>"
+        hidden
+        setting "Editable" "false"
+        setting "Registered Suite" "Framework"
+    }
+    column {
+        name "er_desc_ru"
+        label "ER Description (RU)"
+        businessobject "$<from[IMS_QP_ExpectedResult2QPTask].to.attribute[IMS_DescriptionRu]>"
+        hidden
+        setting "Editable" "false"
+        setting "Registered Suite" "Framework"
+    }
+    column {
+        name "factexp"
+        label "Fact Exp"
+        businessobject "$<attribute[IMS_QP_FactExp]>"
+        hidden
+        setting "Editable" "false"
+        setting "Registered Suite" "Framework"
+    }
+    column {
+        name "factgot"
+        label "Fact Got"
+        businessobject "$<attribute[IMS_QP_FactGot]>"
+        hidden
+        setting "Editable" "false"
+        setting "Registered Suite" "Framework"
+    }
+    ################################################## Info Start
+    property "author" value "The IMS Team"
+    property "original name" value "IMS_QPTaskRelatedTasksOutput_table"
+    property "application" value "IMS_QP"
+    property "version" value "1"
+    ################################################## Info End
+}

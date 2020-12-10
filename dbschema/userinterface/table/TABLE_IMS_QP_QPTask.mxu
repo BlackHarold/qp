@@ -5,61 +5,21 @@
 ################################################################################
 
 mxUpdate table "${NAME}" {
+    symbolicname "table_IMS_QP_QPTask"
     description ""
     column {
         name "Code"
         label "emxFramework.Label.QP_Code"
         businessobject "name"
         href "${COMMON_DIR}/emxPortal.jsp?portal=IMS_QP_QPTask_Portal"
-        user "all"
         setting "Editable" "false"
         setting "Registered Suite" "Framework"
         setting "Style Function" "getFactColumnStyle"
         setting "Style Program" "IMS_QP_DEPTask"
     }
     column {
-        name "Name"
-        label "emxFramework.Attribute.QP_IMS_Name"
-        businessobject "attribute[IMS_Name]"
-        user "all"
-        setting "Admin Type" "attribute_IMS_Name"
-        setting "Editable" "false"
-        setting "Field Type" "attribute"
-        setting "Registered Suite" "Framework"
-    }
-    column {
-        name "NameRu"
-        label "emxFramework.Attribute.QP_IMS_NameRu"
-        businessobject "attribute[IMS_NameRu]"
-        user "all"
-        setting "Admin Type" "attribute_IMS_NameRu"
-        setting "Editable" "false"
-        setting "Field Type" "attribute"
-    }
-    column {
-        name "DescriptionEn"
-        label "emxFramework.attribute.QP_IMS_DescriptionEn"
-        businessobject "attribute[IMS_DescriptionEn]"
-        user "all"
-        setting "Admin Type" "attribute_IMS_DescriptionEn"
-        setting "Editable" "true"
-        setting "Field Type" "attribute"
-        setting "Registered Suite" "Framework"
-    }
-    column {
-        name "DescriptionRu"
-        label "emxFramework.Attribute.QP_IMS_DescriptionRu"
-        businessobject "attribute[IMS_DescriptionRu]"
-        user "all"
-        setting "Admin Type" "attribute_IMS_DescriptionRu"
-        setting "Editable" "true"
-        setting "Field Type" "attribute"
-        setting "Registered Suite" "Framework"
-    }
-    column {
-        name "QPTaskInput"
+        name "qp_task_input"
         label "Input"
-        user "all"
         setting "Column Type" "programHTMLOutput"
         setting "Editable" "false"
         setting "Registered Suite" "Framework"
@@ -71,17 +31,61 @@ mxUpdate table "${NAME}" {
         setting "program" "IMS_QP_Task"
     }
     column {
-        name "QPTaskOutput"
+        name "qp_task_output"
         label "Output"
-        user "all"
         setting "Column Type" "programHTMLOutput"
         setting "Editable" "false"
         setting "Registered Suite" "Framework"
         setting "Sortable" "false"
         setting "Style Function" "getDEPTaskOutputCellStyle"
         setting "Style Program" "IMS_QP_DEPSubStageDEPTasks"
-        setting "Width" "300"
+        setting "Width" "150"
         setting "function" "getQPTaskOutput"
         setting "program" "IMS_QP_Task"
     }
+    column {
+        name "name_en"
+        label "Name (EN)"
+        businessobject "attribute[IMS_Name]"
+        setting "Admin Type" "attribute_IMS_Name"
+        setting "Editable" "false"
+        setting "Field Type" "attribute"
+        setting "Registered Suite" "Framework"
+        setting "Width" "150"
+    }
+    column {
+        name "name_ru"
+        label "Name (RU)"
+        businessobject "attribute[IMS_NameRu]"
+        setting "Admin Type" "attribute_IMS_NameRu"
+        setting "Editable" "false"
+        setting "Field Type" "attribute"
+        setting "Width" "150"
+    }
+    column {
+        name "desc_en"
+        label "Description (EN)"
+        businessobject "attribute[IMS_DescriptionEn]"
+        setting "Admin Type" "attribute_IMS_DescriptionEn"
+        setting "Editable" "true"
+        setting "Field Type" "attribute"
+        setting "Registered Suite" "Framework"
+        setting "Width" "200"
+    }
+    column {
+        name "desc_ru"
+        label "Description (RU)"
+        businessobject "attribute[IMS_DescriptionRu]"
+        setting "Admin Type" "attribute_IMS_DescriptionRu"
+        setting "Editable" "true"
+        setting "Field Type" "attribute"
+        setting "Registered Suite" "Framework"
+        setting "Width" "200"
+    }
+    ################################################## Info Start
+    property "author" value "The IMS Team"
+    property "original name" value "IMS_QP_QPTask"
+    property "application" value "IMS_QP"
+    property "version" value "1"
+    ################################################## Info End
 }

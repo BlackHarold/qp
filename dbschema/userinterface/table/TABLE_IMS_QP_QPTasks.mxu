@@ -1,0 +1,65 @@
+################################################################################
+# TABLE_IMS_QP_QPTasks.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate table "${NAME}" {
+    symbolicname "table_IMS_QP_QPTasks"
+    description ""
+    column {
+        name "Code"
+        label "emxFramework.Label.QP_Code"
+        businessobject "name"
+        href "${COMMON_DIR}/emxPortal.jsp?portal=IMS_QP_QPTask_Portal"
+        setting "Editable" "false"
+        setting "Registered Suite" "Framework"
+        setting "Style Function" "getFactColumnStyle"
+        setting "Style Program" "IMS_QP_DEPTask"
+    }
+    column {
+        name "name_en"
+        label "Name (EN)"
+        businessobject "attribute[IMS_Name]"
+        setting "Admin Type" "attribute_IMS_Name"
+        setting "Editable" "false"
+        setting "Field Type" "attribute"
+        setting "Registered Suite" "Framework"
+        setting "Width" "150"
+    }
+    column {
+        name "name_ru"
+        label "Name (RU)"
+        businessobject "attribute[IMS_NameRu]"
+        setting "Admin Type" "attribute_IMS_NameRu"
+        setting "Editable" "false"
+        setting "Field Type" "attribute"
+        setting "Width" "150"
+    }
+    column {
+        name "desc_en"
+        label "Description (EN)"
+        businessobject "attribute[IMS_DescriptionEn]"
+        setting "Admin Type" "attribute_IMS_DescriptionEn"
+        setting "Editable" "true"
+        setting "Field Type" "attribute"
+        setting "Registered Suite" "Framework"
+        setting "Width" "200"
+    }
+    column {
+        name "desc_ru"
+        label "Description (RU)"
+        businessobject "attribute[IMS_DescriptionRu]"
+        setting "Admin Type" "attribute_IMS_DescriptionRu"
+        setting "Editable" "true"
+        setting "Field Type" "attribute"
+        setting "Registered Suite" "Framework"
+        setting "Width" "200"
+    }
+    ################################################## Info Start
+    property "author" value "The IMS Team"
+    property "original name" value "IMS_QP_QPTasks"
+    property "application" value "IMS_QP"
+    property "version" value "1"
+    ################################################## Info End
+}

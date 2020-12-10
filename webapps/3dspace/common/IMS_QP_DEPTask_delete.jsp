@@ -75,7 +75,7 @@
             out.print("<span class=\"header\">An error, check states and try again<br><br></span></header>");
             out.print("Details: <br>");
             for (String name : list) {
-                out.print("<br>" + name + " has an \'Approved\' task");
+                out.print("<br>" + name + " has an \'Approved\' task  or relationship with QPTasks");
             }
             out.print("<p><a class=\"button\" onclick=\"window.close();\">It's my fault</a><p>");
             out.print("</center>");

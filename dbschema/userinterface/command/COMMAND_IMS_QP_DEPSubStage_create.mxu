@@ -17,7 +17,6 @@ mxUpdate command "${NAME}" {
     setting "Popup Modal" "true"
     setting "Popup Size" "MediumTall"
     setting "Registered Suite" "Framework"
-    setting "Target Location" "popup"
     ################################################## Info Start
     property "author" value "The MxUpdate Team"
     property "original name" value "IMS_DEPSubStage_create"

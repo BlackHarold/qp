@@ -466,9 +466,7 @@ public class IMS_QP_TaskAssignment_mxJPO {
 
                 //copy attributes
                 DomainObject expectedResult = new DomainObject((String) mapInfo.get(SELECT_RELATED_EXPECTED_RESULT));
-                LOG.info(expectedResult.getId(context) + "|" + expectedResult.getName(context));
                 copyAttributes(context, expectedResult, expObj);
-                LOG.info("2 attributes copied");
 
                 //connect expected result to task
                 DomainRelationship.connect(context, targetTask, REL_IMS_QP_ExpectedResult2QPTask, expObj);

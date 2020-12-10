@@ -1,0 +1,23 @@
+################################################################################
+# ATTRIBUTE_IMS_QP_FactGot.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate attribute "${NAME}" {
+    kind integer
+    symbolicname "attribute_IMS_QP_FactGot"
+    description "IMS_QP_FactGot"
+    !hidden
+    !multivalue
+    !resetonclone
+    !resetonrevision
+    !rangevalue
+    default "0"
+    ################################################## Info Start
+    property "author" value "The IMS Team"
+    property "original name" value "IMS_QP_FactGot"
+    property "application" value "IMS_QP"
+    property "version" value "1"
+    ################################################## Info End
+}

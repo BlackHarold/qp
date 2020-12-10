@@ -9,5 +9,5 @@ mxUpdate portal "${NAME}" {
     label ""
     href ""
     alt ""
-    channel "IMS_QP_QPlan_Channel"
+    channel "IMS_QP_QPTask_Channel"
 }

@@ -10,13 +10,13 @@ mxUpdate channel "${NAME}" {
     label ""
     href ""
     alt ""
-    height 50
-    command "IMS_QP_QPTree"
-    command "IMS_QP_QPlanQPTree"
+    height 0
+    command "IMS_QP_QPTask_Input"
+    command "IMS_QP_QPTask_Output"
     ################################################## Info Start
-    property "author" value "The MxUpdate Team"
+    property "author" value "The IMS Team"
     property "original name" value "IMS_QP_QPlanRightChannel"
-    property "application" value "Unknown"
-    property "version"
+    property "application" value "IMS_QP"
+    property "version" value "1"
     ################################################## Info End
 }

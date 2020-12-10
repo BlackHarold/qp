@@ -12,4 +12,10 @@ mxUpdate channel "${NAME}" {
     height 260
     command "IMS_QP_QPTask_Form"
     command "IMS_QP_RelatedExpectedResultQP"
+    ################################################## Info Start
+    property "author" value "The MxUpdate Team"
+    property "original name" value "IMS_QP_QPTask_Channel"
+    property "application" value "IMS_QP"
+    property "version" value "1"
+    ################################################## Info End
 }
