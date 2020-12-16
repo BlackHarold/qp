@@ -79,11 +79,12 @@
             out.print("Details: <br>");
             for (Object o : map.entrySet()) {
                 Map.Entry entry = (Map.Entry) o;
-                out.print("<br>" + entry.getKey() + " has a wrong state: " + entry.getValue());
+                out.print("<br>" + entry.getKey() + " got an error: " + entry.getValue());
             }
             out.print("<center>");
             out.print("<p><a class=\"button\" onclick=\"window.close();\">It's my fault</a><p>");
             out.print("</center>");
+            out.print("<script>window.opener.location.reload();</script>");
         } else {
 %>
 <script>
