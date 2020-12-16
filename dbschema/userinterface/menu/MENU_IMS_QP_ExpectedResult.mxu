@@ -5,11 +5,20 @@
 ################################################################################
 
 mxUpdate menu "${NAME}" {
+    symbolicname "menu_IMS_QP_ExpectedResult"
     description ""
     label ""
     href ""
     alt ""
+    setting "Access Function" "checkStateAndOwnerOfExpectedResult"
+    setting "Access Program" "IMS_QP_ExpectedResult"
     command "IMS_QP_Create_ExpectedResult"
     command "IMS_QP_Delete_ExpectedResult"
     command "IMS_QP_EditTable"
+    ################################################## Info Start
+    property "author" value "The IMS Team"
+    property "original name" value "IMS_QP_ExpectedResult"
+    property "application" value "IMS_QP"
+    property "version" value "1"
+    ################################################## Info End
 }
