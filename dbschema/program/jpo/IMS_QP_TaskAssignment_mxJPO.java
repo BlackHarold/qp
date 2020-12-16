@@ -555,4 +555,31 @@ public class IMS_QP_TaskAssignment_mxJPO {
         }
         return returnList;
     }
+
+    public boolean isQPlanDraft(Context context, String... args) {
+        Map argsMap = null;
+        String objectId = "";
+        try {
+            argsMap = JPO.unpackArgs(args);
+        } catch (Exception e) {
+            LOG.error("error getting args: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        objectId = (String) argsMap.get("objectId");
+        DomainObject object;
+        String qpState = "";
+        try {
+            object = new DomainObject(objectId);
+            String select = (object != null && object.getType(context).equals(IMS_QP_Constants_mxJPO.type_IMS_QP_QPlan)) ?
+                    DomainConstants.SELECT_CURRENT :
+                    String.format("to[%s].from.current", IMS_QP_Constants_mxJPO.relationship_IMS_QP_QPlan2QPTask);
+            qpState = object.getInfo(context, select);
+        } catch (Exception e) {
+            LOG.error("error getting info from object: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        return "Draft".equals(qpState);
+    }
 }
