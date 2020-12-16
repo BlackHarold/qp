@@ -25,7 +25,7 @@ public class IMS_QP_Triggers_mxJPO {
             taskStates = MqlUtil.mqlCommand(context, String.format("print bus %s select from[%s].to.relationship[%s].attribute[%s] dump |",
                     id, relationship_Plan2Task, relationship_Task2Task, state));
         } catch (FrameworkException fe) {
-            LOG.info("error get info form tasks: " + fe.getMessage());
+            LOG.error("error get info form tasks: " + fe.getMessage());
             return 1;
         }
 
@@ -37,11 +37,35 @@ public class IMS_QP_Triggers_mxJPO {
             try {
                 emxContextUtil_mxJPO.mqlWarning(context, message);
             } catch (Exception e) {
-                LOG.info("error showing warning: " + e.getMessage());
+                LOG.error("error showing warning: " + e.getMessage());
             }
             return 1;
         } else {
             return 0;
         }
+    }
+
+    public int checkDemoteDraft_IMS_QP_QPlan(Context context, String[] args) {
+        boolean isDEPOwner = false;
+        try {
+            String id = args[0];
+            isDEPOwner = IMS_QP_Security_mxJPO.isOwnerDepFromQPPlan(context, id);
+        } catch (Exception e) {
+            LOG.error("exception security check: " + e.getMessage());
+            return 1;
+        }
+
+        String message = "";
+        if (!isDEPOwner) {
+            try {
+                message = "You haven't rights for Demote process, check this";
+                emxContextUtil_mxJPO.mqlWarning(context, message);
+
+            } catch (Exception e) {
+                LOG.error("error showing warning: " + e.getMessage());
+            }
+        }
+
+        return isDEPOwner ? 0 : 1;
     }
 }
