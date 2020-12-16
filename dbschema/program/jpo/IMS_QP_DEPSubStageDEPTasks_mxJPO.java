@@ -433,9 +433,6 @@ public class IMS_QP_DEPSubStageDEPTasks_mxJPO {
                     DomainObject objectTask = new DomainObject((String) relatedMap.get("id"));
                     boolean isTaskOwner = IMS_QP_Security_mxJPO.currentUserIsDEPOwner(context, objectTask);
 
-                    LOG.info(context.getUser() + "|" + depTaskObject.getName(context) + "|owner:" + isDepTaskOwner + "| |" +
-                            context.getUser() + "|" + objectTask.getName(context) + "|owner:" + isTaskOwner);
-
                     String type = IMS_KDD_mxJPO.getTypeFromMap(relatedMap);
                     String state = getState(context, type, id, relatedMapID, virtualRelationship);
 

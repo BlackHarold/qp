@@ -10,7 +10,7 @@ import org.apache.log4j.Logger;
 import java.util.*;
 
 public class IMS_QP_ExpectedResult_mxJPO {
-    private static final Logger LOG = Logger.getLogger("blackLogger");
+    private static final Logger LOG = Logger.getLogger("IMS_QP_DEP");
 
     public HashMap deleteExpectedResults(Context ctx, String... args) {
         HashMap mapMessage = new HashMap();
@@ -34,9 +34,6 @@ public class IMS_QP_ExpectedResult_mxJPO {
 
         String[] rawString = rowIDs[0].split("\\|");
         String parentID = rawString[2];
-
-        LOG.info("parentID: " + parentID);
-        LOG.info("rawString: " + Arrays.deepToString(expectedResultIDs));
 
         try {
             DomainObject parent = new DomainObject(parentID);
@@ -68,12 +65,10 @@ public class IMS_QP_ExpectedResult_mxJPO {
             String message = "you can't delete expected result another owners.";
             for (int i = 0; i < expectedResultIDs.length; i++) {
                 if (relatedExpectedResultIDs.containsKey(expectedResultIDs[i])) {
-                    LOG.info("MqlUtil.mqlCommand(ctx, " + String.format("delete bus %s", expectedResultIDs[i]) + ");");
                     MqlUtil.mqlCommand(ctx, String.format("delete bus %s", expectedResultIDs[i]));
                 } else {
                     DomainObject expectedResultObject = new DomainObject(expectedResultIDs[i]);
-                    LOG.info("er id: " + expectedResultIDs[i]);
-                    mapMessage.put(expectedResultObject.getName(ctx),message);
+                    mapMessage.put(expectedResultObject.getName(ctx), message);
                 }
             }
 
@@ -85,7 +80,51 @@ public class IMS_QP_ExpectedResult_mxJPO {
             mapMessage.put("message", "status OK code 200");
         }
 
-        LOG.info("map message: " + mapMessage);
         return mapMessage;
+    }
+
+    public boolean checkStateAndOwnerOfExpectedResult(Context context, String... args) {
+        Map argsMap;
+
+        boolean result = false;
+        try {
+            argsMap = JPO.unpackArgs(args);
+            String id = (String) argsMap.get("objectId");
+            DomainObject object = new DomainObject(id);
+
+            String type = object.getType(context);
+            String state = "";
+
+//            IMS_QP_DEPTask
+            if ("IMS_QP_DEPTask".equals(type)) {
+                result = IMS_QP_Security_mxJPO.currentUserIsDEPOwner(context, object) ||
+                        IMS_QP_Security_mxJPO.currentUserIsQPSuperUser(context);
+
+                String statePath = String.format("to[%s].from.to[%s].from.to[%s].from.current",
+                        IMS_QP_Constants_mxJPO.RELATIONSHIP_IMS_QP_DEPSubStage2DEPTask,
+                        IMS_QP_Constants_mxJPO.RELATIONSHIP_IMS_QP_DEPProjectStage2DEPSubStage,
+                        IMS_QP_Constants_mxJPO.RELATIONSHIP_IMS_QP_DEP2DEPProjectStage);
+                state = object.getInfo(context, statePath);
+            }
+
+//            IMS_QP_QPTask
+            else if ("IMS_QP_QPTask".equals(type)) {
+                result = IMS_QP_Security_mxJPO.isOwnerQPlanFromTaskID(context, id) ||
+                        IMS_QP_Security_mxJPO.currentUserIsQPSuperUser(context);
+
+                String statePath = String.format("to[%s].from.current",
+                        IMS_QP_Constants_mxJPO.relationship_IMS_QP_QPlan2QPTask);
+                state = object.getInfo(context, statePath);
+            }
+
+            if (!"Draft".equals(state)) {
+                return false;
+            }
+
+        } catch (Exception e) {
+            LOG.error("security exception: " + e.getMessage());
+        }
+
+        return result;
     }
 }
