@@ -146,6 +146,29 @@ public class IMS_QP_Security_mxJPO {
         return objectOwners.contains(context.getUser()) || isUserAdminOrSuper(context);
     }
 
+    /**
+     * @param context  usual parameter
+     * @param objectId id of Quality plan
+     * @return boolean `isDEPOwner` from QPlan
+     * @throws Exception
+     */
+    public static boolean isOwnerDepFromQPPlan(Context context, String objectId) throws Exception {
+        StringBuilder sb = new StringBuilder(String.format("print bus %s select ", objectId));
+        sb
+                .append("to[IMS_QP_DEP2QPlan].from")
+                .append(".from[IMS_QP_DEP2Owner].to.name")
+                .append(" dump |");
+        String objectOwners;
+        try {
+            objectOwners = MqlUtil.mqlCommand(context, sb.toString());
+        } catch (FrameworkException frameworkException) {
+            LOG.error("mql command error: " + frameworkException.getMessage());
+            frameworkException.printStackTrace();
+            throw frameworkException;
+        }
+        return objectOwners.contains(context.getUser()) || isUserAdminOrSuper(context);
+    }
+
     private static void checkAccess(Context context, DomainObject depObject) throws Exception {
         if (currentUserIsAdmin(context)) {
             return;
