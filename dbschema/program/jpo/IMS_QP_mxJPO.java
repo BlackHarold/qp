@@ -89,18 +89,21 @@ public class IMS_QP_mxJPO extends DomainObject {
     private MapList getFilteredMapListByOwner(Context context, MapList mapList) {
 
         boolean isSuperUser = false, isAdmin = false;
-        try {
-            isSuperUser = IMS_QP_Security_mxJPO.currentUserIsQPSuperUser(context);
-            isAdmin = IMS_QP_Security_mxJPO.isUserAdmin(context);
-        } catch (MatrixException matrixException) {
-            matrixException.printStackTrace();
-        }
+        isSuperUser = IMS_QP_Security_mxJPO.currentUserIsQPSuperUser(context);
+        isAdmin = IMS_QP_Security_mxJPO.isUserAdmin(context);
+
         if (isSuperUser || isAdmin) return mapList;
 
         MapList filteredByOwnerSQPs = new MapList();
         for (Object o : mapList) {
             Map map = (Map) o;
-            boolean isOwner = IMS_QP_Security_mxJPO.isOwnerQPlan(context, (String) map.get("id"));
+            boolean isOwner = false;
+            try {
+                isOwner = IMS_QP_Security_mxJPO.isOwnerQPlan(context, (String) map.get("id")) ||
+                        IMS_QP_Security_mxJPO.isOwnerDepFromQPlan(context, (String) map.get("id"));
+            } catch (Exception e) {
+                LOG.error("an error: " + e.getMessage());
+            }
             if (isOwner) {
                 filteredByOwnerSQPs.add(map);
             }
@@ -479,7 +482,6 @@ public class IMS_QP_mxJPO extends DomainObject {
             String qPlan = (String) map.get("from[IMS_QP_DEP2QPlan]");
             String concatenated = subStage + qPlan;
             getMessage(message, messageDel, deletedObjects, map, concatenated);
-            LOG.info("message buffer: " + message.toString());
         }
 
         String[] deletion = new String[deletedObjects.size()];
@@ -571,7 +573,6 @@ public class IMS_QP_mxJPO extends DomainObject {
 
                     copyRelationshipsOfTask(context, id, targetTask, postfix);
                     ContextUtil.commitTransaction(context);
-                    LOG.info("copied to: " + targetTask.getId(context) + "|" + targetTask.getName(context) + "|transaction commited");
 
                 } catch (Exception e) {
                     stringBuilder.append("error when coping: " + e.getMessage());
@@ -594,7 +595,6 @@ public class IMS_QP_mxJPO extends DomainObject {
      * @throws Exception any errors thrown by the method
      */
     private void copyRelationshipsOfTask(Context context, String id, DomainObject targetObject, String postfix) throws Exception {
-        LOG.info("coping procedure: parent: " + id + "|" + new DomainObject(id).getName(context));
 
         // Instantiate the BusinessObject.
         StringList selectBusStmts = new StringList();
@@ -684,7 +684,6 @@ public class IMS_QP_mxJPO extends DomainObject {
 
         BusinessObjectAttributes businessObjectAttributes = object1.getAttributes(context);
         AttributeList attributes = businessObjectAttributes.getAttributes();
-        LOG.info("qp class copied attributes: " + attributes);
         object2.setAttributes(context, attributes);
         object2.update(context);
 

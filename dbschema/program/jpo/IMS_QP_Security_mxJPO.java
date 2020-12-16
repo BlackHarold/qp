@@ -51,8 +51,13 @@ public class IMS_QP_Security_mxJPO {
         return context.isAssigned(ROLE_IMS_Admin);
     }
 
-    public static boolean currentUserIsQPSuperUser(Context context) throws MatrixException {
-        return context.isAssigned(ROLE_IMS_QP_SuperUser);
+    public static boolean currentUserIsQPSuperUser(Context context) {
+        try {
+            return context.isAssigned(ROLE_IMS_QP_SuperUser);
+        } catch (MatrixException me) {
+            LOG.error("error check isAssigned: " + me.getMessage());
+            return false;
+        }
     }
 
     private static boolean hasDEPOwnerRole(Context context, String personName) throws MatrixException {
@@ -109,6 +114,29 @@ public class IMS_QP_Security_mxJPO {
     }
 
     /**
+     * @param context  usual parameter
+     * @param objectId DEP object id
+     * @return boolean `isDEPOwner` from QPTask
+     * @throws Exception
+     */
+    public static boolean isOwnerDepFromQPlan(Context context, String objectId) throws FrameworkException {
+        StringBuilder sb = new StringBuilder(String.format("print bus %s select ", objectId))
+                .append("to[IMS_QP_DEP2QPlan].from.")
+                .append("from[IMS_QP_DEP2Owner].to.name")
+                .append(" dump |");
+
+        String objectOwners;
+        try {
+            objectOwners = MqlUtil.mqlCommand(context, sb.toString());
+        } catch (FrameworkException frameworkException) {
+            LOG.error("mql command error: " + frameworkException.getMessage());
+            frameworkException.printStackTrace();
+            throw frameworkException;
+        }
+        return objectOwners.contains(context.getUser()) || isUserAdminOrSuper(context);
+    }
+
+    /**
      * @param context usual parameter
      * @param args    usual parameter
      * @return boolean `isDEPOwner` from QPTask
@@ -127,7 +155,7 @@ public class IMS_QP_Security_mxJPO {
      * @return
      * @throws Exception
      */
-    public static boolean isOwnerDepFromQPTask(Context context, String objectId) throws Exception {
+    public static boolean isOwnerDepFromQPTask(Context context, String objectId) {
         StringBuilder sb = new StringBuilder(String.format("print bus %s select ", objectId));
         sb.append("to[IMS_QP_DEPTask2QPTask].from.");
         sb.append("to[IMS_QP_DEPSubStage2DEPTask].from.");
@@ -135,6 +163,29 @@ public class IMS_QP_Security_mxJPO {
         sb.append("to[IMS_QP_DEP2DEPProjectStage].from.");
         sb.append("from[IMS_QP_DEP2Owner].to.name");
         sb.append(" dump |");
+        String objectOwners;
+        try {
+            objectOwners = MqlUtil.mqlCommand(context, sb.toString());
+        } catch (FrameworkException frameworkException) {
+            LOG.error("mql command error: " + frameworkException.getMessage());
+            frameworkException.printStackTrace();
+            return false;
+        }
+        return objectOwners.contains(context.getUser()) || isUserAdminOrSuper(context);
+    }
+
+    /**
+     * @param context  usual parameter
+     * @param objectId id of Quality plan
+     * @return boolean `isDEPOwner` from QPlan
+     * @throws Exception
+     */
+    public static boolean isOwnerDepFromQPPlan(Context context, String objectId) throws Exception {
+        StringBuilder sb = new StringBuilder(String.format("print bus %s select ", objectId));
+        sb
+                .append("to[IMS_QP_DEP2QPlan].from")
+                .append(".from[IMS_QP_DEP2Owner].to.name")
+                .append(" dump |");
         String objectOwners;
         try {
             objectOwners = MqlUtil.mqlCommand(context, sb.toString());
@@ -716,7 +767,7 @@ public class IMS_QP_Security_mxJPO {
                 try {
                     ContextUtil.popContext(context);
                 } catch (FrameworkException e) {
-                    LOG.info("pop context error: " + e.getMessage());
+                    LOG.error("pop context error: " + e.getMessage());
                 }
                 return "";
             }
@@ -759,7 +810,7 @@ public class IMS_QP_Security_mxJPO {
         return false;
     }
 
-    private static boolean isUserAdminOrSuper(Context context) {
+    public static boolean isUserAdminOrSuper(Context context) {
         Person person = new Person(context.getUser());
         try {
             return person.isAssigned(context, ROLE_IMS_Admin) || person.isAssigned(context, ROLE_IMS_QP_SuperUser);
