@@ -10,6 +10,8 @@ mxUpdate menu "${NAME}" {
     label ""
     href ""
     alt ""
+    setting "Access Function" "isQPlanDraft"
+    setting "Access Program" "IMS_QP_TaskAssignment"
     command "IMS_QP_QPTask_output_approve"
     command "IMS_QP_QPTask_output_reject"
     ################################################## Info Start
