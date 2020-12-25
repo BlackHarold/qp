@@ -256,7 +256,7 @@ public class IMS_QP_TaskAssignment_mxJPO {
             taskObj.create(context, POLICY_IMS_QP_QPTask);
 
         } else {
-            int counter = 0;
+            int counter;
             MapList tasksByName = DomainObject.findObjects(context,
                     /*types*/TYPE_IMS_QP_QPTask,
                     /*vault*/ IMS_QP_Constants_mxJPO.ESERVICE_PRODUCTION,
@@ -289,9 +289,34 @@ public class IMS_QP_TaskAssignment_mxJPO {
         taskObj.setAttributeValue(context, ATT_IMS_QP_FACT_EXP, "1");
 
         //create expected result
-        DomainObject expObj = new DomainObject();
+        DomainObject expObj = new DomainObject(new BusinessObject(TYPE_IMS_QP_EXPECTED_RESULT, name, "", context.getVault().getName()));
         if (UIUtil.isNotNullAndNotEmpty(name)) {
-            expObj.createObject(context, TYPE_IMS_QP_EXPECTED_RESULT, name, "", TYPE_IMS_QP_EXPECTED_RESULT, context.getVault().getName());
+
+            if (!expObj.exists(context)) {
+                expObj.create(context, TYPE_IMS_QP_EXPECTED_RESULT);
+            } else {
+                int counter;
+                MapList expectedResultsByName = DomainObject.findObjects(context,
+                        /*types*/TYPE_IMS_QP_EXPECTED_RESULT,
+                        /*vault*/ IMS_QP_Constants_mxJPO.ESERVICE_PRODUCTION,
+                        /*where*/"name smatch '" + expObj.getName() + "*'",
+                        /*selects*/new StringList("id"));
+                boolean isUniqueName = false;
+                counter = expectedResultsByName.size();
+
+                while (!isUniqueName) {
+                    counter++;
+                    name = new StringBuilder(name).append((counter < 10 ? "0" + counter : counter)).toString();
+
+                    DomainObject expectedResultObjectWithCounter = new DomainObject(new BusinessObject(TYPE_IMS_QP_EXPECTED_RESULT, name, "", context.getVault().getName()));
+                    if (!expectedResultObjectWithCounter.exists(context)) {
+                        expectedResultObjectWithCounter.create(context, TYPE_IMS_QP_EXPECTED_RESULT);
+                        isUniqueName = true;
+                        expObj = expectedResultObjectWithCounter;
+                    }
+                }
+            }
+
         } else {
             LOG.info("temp name: " + name);
             throw new MatrixException("error getting temp name for expected result: " + name);
@@ -310,7 +335,7 @@ public class IMS_QP_TaskAssignment_mxJPO {
         try {
             ContextUtil.commitTransaction(context);
         } catch (Exception e) {
-            LOG.info("exception: " + e.getMessage());
+            LOG.error("exception: " + e.getMessage());
         }
     }
 
