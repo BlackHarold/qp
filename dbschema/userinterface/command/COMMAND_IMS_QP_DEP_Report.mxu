@@ -1,0 +1,24 @@
+################################################################################
+# COMMAND_IMS_QP_DEP_Report.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate command "${NAME}" {
+    symbolicname "command_IMS_QP_DEP_Report"
+    description ""
+    label "Mold DEP report"
+    href "${COMMON_DIR}/IMS_QP_DEP_Report.jsp"
+    alt ""
+    user "all"
+    setting "Image" "${COMMON_DIR}/images/dep.png"
+    setting "Registered Suite" "Framework"
+    setting "Row Select" "multi"
+    setting "Submit" "true"
+    ################################################## Info Start
+    property "author" value "The IMS Team"
+    property "original name" value "IMS_QP_DEP_Report"
+    property "application" value "IMS_QP"
+    property "version" value "1"
+    ################################################## Info End
+}

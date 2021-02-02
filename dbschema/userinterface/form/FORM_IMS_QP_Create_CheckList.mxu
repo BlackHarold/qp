@@ -1,0 +1,28 @@
+################################################################################
+# FORM_IMS_QP_Create_CheckList.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate form "${NAME}" {
+    description ""
+    field {
+        name "Comment"
+        label "Comment"
+        businessobject "attribute[IMS_QP_Comment]"
+        setting "Admin Type" "attribute_IMS_QP_Comment"
+        setting "Field Type" "attribute"
+        setting "Registered Suite" "Framework"
+    }
+    field {
+        name "File"
+        label ""
+        setting "Access Expression" "true"
+        setting "Editable" "false"
+        setting "Field Type" "programHTMLOutput"
+        setting "Registered Suite" "Framework"
+        setting "function" "addExtensionScript"
+        setting "program" "IMS_QP_DEPTask"
+        setting "qpScript" "IMS_AddFileField.js"
+    }
+}

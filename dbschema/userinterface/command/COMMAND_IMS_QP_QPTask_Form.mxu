@@ -1,0 +1,18 @@
+################################################################################
+# COMMAND_IMS_QP_QPTask_Form.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate command "${NAME}" {
+    symbolicname "command_IMS_QP_QPTask_Form"
+    description "Quality QPTask Form"
+    label "QPTask Form"
+    href "${COMMON_DIR}/IMS_QP_JunctionForm.jsp?form=type_IMS_QP_QPTask&formHeader='Quality QPTask'&toolbar=IMS_QP_QPTaskFormToolbar"
+    alt ""
+    ################################################## Info Start
+    property "original name" value "IMS_QP_QPTask_Form"
+    property "application" value "IMS_QP"
+    property "version" value "1"
+    ################################################## Info End
+}

@@ -5,7 +5,8 @@
 ################################################################################
 
 mxUpdate form "${NAME}" {
-    description "DEP Task"
+    symbolicname "form_type_IMS_QP_QPTask"
+    description "QP Task"
     field {
         name "info"
         label "Main Information"
@@ -97,4 +98,20 @@ mxUpdate form "${NAME}" {
         setting "function" "getConnectedQPCheckListHTML"
         setting "program" "IMS_QP_DEPTask"
     }
+    field {
+        name "select_document"
+        label "Select document"
+        setting "Access Expression" "from[IMS_QP_QPTask2Fact]==false&&attribute[IMS_QP_SelectDocument]!=''"
+        setting "Editable" "false"
+        setting "Field Type" "programHTMLOutput"
+        setting "Registered Suite" "Framework"
+        setting "function" "getSelectable"
+        setting "program" "IMS_ExternalSystem"
+    }
+    ################################################## Info Start
+    property "author" value "The IMS Team"
+    property "original name" value "type_IMS_QP_QPTask"
+    property "application" value "IMS_QP"
+    property "version" value "1"
+    ################################################## Info End
 }

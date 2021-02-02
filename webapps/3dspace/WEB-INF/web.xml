@@ -1,0 +1,1208 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<web-app xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="WebApp_1" version="3.0" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd">
+    <!-- WebAppMerger FRAGMENT: PassportAuthentication.web.xml.part -->
+    <context-param id="ContextParam_login_1">
+        <param-name>ematrix.login.reject.internaluser</param-name>
+        <param-value>true</param-value>
+    </context-param>
+    <context-param id="ContextParam_logout">
+        <param-name>ematrix.sso.absolute.logout.url</param-name>
+        <param-value>https://nn-3dexpdemo.niaepnn.ru/3dpassport/logout?service=https://nn-3dexpdemo.niaepnn.ru/3dspace</param-value>
+    </context-param>
+    <!-- PATCH CACHE CONTENT 7 DAYS-->
+    <filter>
+        <filter-name>StaticContentCachingFilter2</filter-name>
+        <filter-class>com.matrixone.servlet.StaticContentCachingFilter</filter-class>
+        <init-param>
+            <param-name>ematrix.cache-control.ResourceLifetime</param-name>
+            <param-value>7d</param-value>
+        </init-param>
+    </filter>
+    <!--END PATCH CACHE CONTENT 7 DAYS-->
+    <filter>
+        <filter-name>CASLoginTicketProxyFilter</filter-name>
+        <filter-class>com.dassault_systemes.plmsecurity.ticket.servlet.LoginTicketProxyFilter</filter-class>
+    </filter>
+    <filter>
+        <filter-name>CASLoginTicketAuthFilter</filter-name>
+        <filter-class>com.dassault_systemes.plmsecurity.ticket.servlet.LoginTicketAuthenticationFilter</filter-class>
+    </filter>
+    <filter>
+        <filter-name>CASLoginTicketBatchFilter</filter-name>
+        <filter-class>com.dassault_systemes.plmsecurity.ticket.servlet.LoginTicketFilter</filter-class>
+    </filter>
+    <filter>
+        <filter-name>CAS Proxy Ticket Validation Filter</filter-name>
+        <filter-class>com.dassault_systemes.dspassport.cas.client.validation.CASProxyTicketValidationFilter</filter-class>
+        <init-param>
+            <param-name>casServerUrlPrefix</param-name>
+            <param-value>https://nn-3dexpdemo.niaepnn.ru/3dpassport</param-value>
+        </init-param>
+        <init-param>
+            <param-name>targetServiceId</param-name>
+            <param-value>V6</param-value>
+        </init-param>
+    </filter>
+    <filter>
+        <filter-name>CAS Authentication Filter</filter-name>
+        <filter-class>com.dassault_systemes.dspassport.cas.client.authentication.DynamicServiceUrlAuthenticationFilter</filter-class>
+        <init-param>
+            <param-name>casServerLoginUrl</param-name>
+            <param-value>https://nn-3dexpdemo.niaepnn.ru/3dpassport/login</param-value>
+        </init-param>
+        <init-param>
+            <param-name>serverName</param-name>
+            <param-value>https://nn-3dexpdemo.niaepnn.ru</param-value>
+        </init-param>
+        <init-param>
+            <param-name>renew</param-name>
+            <param-value>false</param-value>
+        </init-param>
+        <init-param>
+            <param-name>gateway</param-name>
+            <param-value>false</param-value>
+        </init-param>
+        <init-param>
+            <param-name>enableDynamicServiceURL</param-name>
+            <param-value>true</param-value>
+        </init-param>
+        <init-param>
+            <param-name>unauthorizedResponseEnabled</param-name>
+            <param-value>true</param-value>
+        </init-param>
+        <init-param>
+            <param-name>skipFilterUrlPatterns</param-name>
+            <param-value>/servlet/fcs/ping,/resources/AppsMngt/user/invitation/*,/resources/AppsMngt/infos/*,/resources/ENOCsm/usermgmt/*,/resources/ENOCsm/3ddriveusr/*,/resources/People/*,/resources/AppsMngt/environment/uploadfile/*,/resources/AppsMngt/massivesynchro/upload/*,/resources/AppsMngt/passport/*,/resources/AppsMngt/vm/delete*,/resources/AppsMngt/apps/public/*,/resources/mdpeople/people/synchro,/resources/mdpeople/people/ticket,/resources/mdshop/public/*,/resources/mdmaterial/public/*,/resources/mdprinter/public/*,/resources/mdcontract/public/*,/resources/AppsMngt/api/v1/public/*,/resources/mdordering/*,/resources/AppsMngt/probe/*,/resources/AppsMngt/platformQuotas,/resources/ordering,/resources/order/v1/*,/view/v1/oslc/*,/application/v1/oslc/*,/resources/v1/modeler/oslc/*,/resources/v1/bps/oslc/*,/resources/Config/users/manage/*,/resources/StudyDT/users/*</param-value>
+        </init-param>
+        <init-param>
+            <param-name>sessionTimeoutFallbackUrlPatterns</param-name>
+            <param-value>*emxFreezePaneCleanupSession.jsp*,*emxTableCleanupSession.jsp*,*emxFSTableCleanupSession.jsp*,*emxFormViewCloseProcess.jsp*,*emxMetricsReportCleanupSession.jsp*,*emxInfoNavigateCleanupSession.jsp*,*emxInfoCustomTableCleanupSession.jsp*,*emxInfoTableCleanupSession.jsp*</param-value>
+        </init-param>
+    </filter>
+    <filter>
+        <filter-name>CAS Validation Filter</filter-name>
+        <filter-class>com.dassault_systemes.dspassport.cas.client.validation.DynamicServiceUrlCas20ProxyReceivingTicketValidationFilter</filter-class>
+        <init-param>
+            <param-name>casServerUrlPrefix</param-name>
+            <param-value>https://nn-3dexpdemo.niaepnn.ru/3dpassport</param-value>
+        </init-param>
+        <init-param>
+            <param-name>serverName</param-name>
+            <param-value>https://nn-3dexpdemo.niaepnn.ru</param-value>
+        </init-param>
+        <init-param>
+            <param-name>redirectAfterValidation</param-name>
+            <param-value>false</param-value>
+        </init-param>
+        <init-param>
+            <param-name>enableDynamicServiceURL</param-name>
+            <param-value>true</param-value>
+        </init-param>
+        <init-param>
+            <param-name>encoding</param-name>
+            <param-value>UTF-8</param-value>
+        </init-param>
+        <init-param>
+            <param-name>acceptAnyProxy</param-name>
+            <param-value>true</param-value>
+        </init-param>
+        <init-param>
+            <param-name>proxyCallbackUrl</param-name>
+            <param-value>https://nn-3dexpdemo.niaepnn.ru/3dspace/proxyCallback</param-value>
+        </init-param>
+        <init-param>
+            <param-name>proxyReceptorUrl</param-name>
+            <param-value>/proxyCallback</param-value>
+        </init-param>
+        <init-param>
+            <param-name>skipFilterUrlPatterns</param-name>
+            <param-value>/servlet/fcs/ping,/resources/AppsMngt/user/invitation/*,/resources/AppsMngt/infos/*,/resources/ENOCsm/usermgmt/*,/resources/ENOCsm/3ddriveusr/*,/resources/People/*,/resources/AppsMngt/environment/uploadfile/*,/resources/AppsMngt/massivesynchro/upload/*,/resources/AppsMngt/passport/*,/resources/AppsMngt/vm/delete*,/resources/AppsMngt/apps/public/*,/resources/mdpeople/people/synchro,/resources/mdpeople/people/ticket,/resources/mdshop/public/*,/resources/mdmaterial/public/*,/resources/mdprinter/public/*,/resources/mdcontract/public/*,/resources/AppsMngt/api/v1/public/*,/resources/mdordering/*,/resources/AppsMngt/probe/*,/resources/AppsMngt/platformQuotas,/resources/ordering,/resources/order/v1/*,/view/v1/oslc/*,/application/v1/oslc/*,/resources/v1/modeler/oslc/*,/resources/v1/bps/oslc/*,/resources/Config/users/manage/*,/resources/StudyDT/users/*</param-value>
+        </init-param>
+    </filter>
+    <filter>
+        <filter-name>DSP Bubble Keep Alive</filter-name>
+        <filter-class>com.dassault_systemes.dspassport.cas.client.validation.BubbleKeepAliveFilter</filter-class>
+        <init-param>
+            <param-name>refreshPeriod</param-name>
+            <param-value>60</param-value>
+        </init-param>
+        <init-param>
+            <param-name>urlToPing</param-name>
+            <param-value>https://nn-3dexpdemo.niaepnn.ru/3dpassport/api/pub/bubble-keep-alive</param-value>
+        </init-param>
+    </filter>
+    <filter>
+        <filter-name>CAS HttpServletRequest Wrapper Filter</filter-name>
+        <filter-class>org.jasig.cas.client.util.HttpServletRequestWrapperFilter</filter-class>
+    </filter>
+    <filter>
+        <filter-name>CAS Assertion Thread Local Filter</filter-name>
+        <filter-class>org.jasig.cas.client.util.AssertionThreadLocalFilter</filter-class>
+    </filter>
+    <filter>
+        <filter-name>ByPassPatternFilter</filter-name>
+        <filter-class>com.dassault_systemes.enovia.platform.misc.BypassAuthFilter</filter-class>
+    </filter>
+    <!-- XSS Input Filter (FILTRE A LAISSER EN DERNIER) -->
+    <filter>
+        <filter-name>XSSInputFilter</filter-name>
+        <filter-class>com.matrixone.apps.domain.util.XSSInputFilter</filter-class>
+        <init-param>
+            <param-name>skipFilterUrlPatterns</param-name>
+            <param-value>/resources/AppsMngt/security/encrypt*,/resources/AppsMngt/security/decrypt*</param-value>
+        </init-param>
+    </filter>
+    <filter>
+        <filter-name>Set Character Encoding</filter-name>
+        <filter-class>com.matrixone.servlet.SetCharacterEncodingFilter</filter-class>
+        <init-param>
+            <param-name>encoding</param-name>
+            <param-value>UTF-8</param-value>
+        </init-param>
+    </filter>
+    <!-- Single Logout-->
+    <filter>
+        <filter-name>CAS Single Sign Out Filter</filter-name>
+        <filter-class>com.dassault_systemes.dspassport.cas.client.session.SingleSignOutFilter</filter-class>
+        <init-param>
+            <param-name>casServerUrlPrefix</param-name>
+            <param-value>https://nn-3dexpdemo.niaepnn.ru/3dpassport</param-value>
+        </init-param>
+    </filter>
+    <filter-mapping>
+        <filter-name>Set Character Encoding</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>CAS Single Sign Out Filter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>CASLoginTicketProxyFilter</filter-name>
+        <url-pattern>/resources/AppsMngt/licenses/whereused/*</url-pattern>
+    </filter-mapping>
+    <!-- PATCH CACHE CONTENT 7 DAYS-->
+    <filter-mapping>
+        <filter-name>StaticContentCachingFilter2</filter-name>
+        <url-pattern>*.html</url-pattern>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>StaticContentCachingFilter2</filter-name>
+        <url-pattern>*.js</url-pattern>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>StaticContentCachingFilter2</filter-name>
+        <url-pattern>*.css</url-pattern>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>StaticContentCachingFilter2</filter-name>
+        <url-pattern>*.xsl</url-pattern>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>StaticContentCachingFilter2</filter-name>
+        <url-pattern>*.gif</url-pattern>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>StaticContentCachingFilter2</filter-name>
+        <url-pattern>*.jpg</url-pattern>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>StaticContentCachingFilter2</filter-name>
+        <url-pattern>*.png</url-pattern>
+    </filter-mapping>
+    <!-- END PATCH CACHE CONTENT 7 DAYS-->
+    <filter-mapping>
+        <filter-name>ByPassPatternFilter</filter-name>
+        <url-pattern>/webapps/*</url-pattern>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>ByPassPatternFilter</filter-name>
+        <url-pattern>/widget/*</url-pattern>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>ByPassPatternFilter</filter-name>
+        <url-pattern>/common/styles/*</url-pattern>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>ByPassPatternFilter</filter-name>
+        <url-pattern>/common/scripts/*</url-pattern>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>ByPassPatternFilter</filter-name>
+        <url-pattern>/WebClient/*</url-pattern>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>ByPassPatternFilter</filter-name>
+        <url-pattern>/snresources/images/*</url-pattern>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>CASLoginTicketAuthFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>CASLoginTicketBatchFilter</filter-name>
+        <url-pattern>/ticket/*</url-pattern>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>CAS Proxy Ticket Validation Filter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>CAS Validation Filter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>CAS Authentication Filter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>DSP Bubble Keep Alive</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>CAS HttpServletRequest Wrapper Filter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+    <!-- XSS Input Filter (FILTRE A LAISSER EN DERNIER) -->
+    <filter-mapping>
+        <filter-name>XSSInputFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+    <listener>
+        <listener-class>org.jasig.cas.client.session.SingleSignOutHttpSessionListener</listener-class>
+    </listener>
+    <servlet>
+        <servlet-name>SessionInitServlet</servlet-name>
+        <servlet-class>com.dassault_systemes.plmsession.PLMSessionServlet</servlet-class>
+        <init-param>
+            <param-name>verbose</param-name>
+            <param-value>true</param-value>
+        </init-param>
+        <load-on-startup>10</load-on-startup>
+    </servlet>
+    <servlet>
+        <servlet-name>CLOUDLoginTicketServlet</servlet-name>
+        <servlet-class>com.dassault_systemes.plmsecurity.ticket.servlet.LoginTicketServlet</servlet-class>
+        <init-param>
+            <param-name>validationListener</param-name>
+            <param-value>com.dassault_systemes.plmsecurity.ticket.servlet.cas.CASLoginTicketValidationListener</param-value>
+        </init-param>
+        <load-on-startup>9</load-on-startup>
+    </servlet>
+    <error-page>
+        <error-code>403</error-code>
+        <location>/common/emxNavigator403ErrorPage.jsp</location>
+    </error-page>
+    <!-- WebAppMerger FRAGMENT: ENOLiveCollaborationServer.liveCollaborationServer.web.xml.part -->
+    <display-name>enovia</display-name>
+    <context-param id="ContextParam_1">
+        <param-name>properties</param-name>
+        <param-value>C:\R2019x\3DSpace/managed/properties/framework.properties</param-value>
+    </context-param>
+    <context-param id="ContextParam_2">
+        <param-name>ematrix.server.host</param-name>
+        <param-value/>
+    </context-param>
+    <context-param id="ContextParam_3">
+        <param-name>ematrix.login.page</param-name>
+        <param-value>/emxLogin.jsp</param-value>
+    </context-param>
+    <context-param id="ContextParam_4">
+        <param-name>ematrix.login.failure.page</param-name>
+        <param-value>/emxLogin.jsp</param-value>
+    </context-param>
+    <context-param id="ContextParam_5">
+        <param-name>ematrix.web.app</param-name>
+        <param-value>true</param-value>
+    </context-param>
+    <context-param id="ContextParam_6">
+        <param-name>emxLogin.FormAction</param-name>
+        <param-value>/3dspace/servlet/login</param-value>
+    </context-param>
+    <context-param id="ContextParam_7">
+        <param-name>emxLogin.FrameworkTarget</param-name>
+        <param-value>common/emxNavigator.jsp</param-value>
+    </context-param>
+    <context-param id="ContextParam_8">
+        <param-name>ematrix.page.path</param-name>
+        <param-value>/3dspace</param-value>
+    </context-param>
+    <context-param id="ContextParam_9">
+        <param-name>ematrix.home.page</param-name>
+        <param-value>/common/emxNavigator.jsp</param-value>
+    </context-param>
+    <context-param id="ContextParam_10">
+        <param-name>ematrix.load.program</param-name>
+        <param-value>eServiceListSchemaNames.tcl</param-value>
+    </context-param>
+    <context-param id="ContextParam_11">
+        <param-name>ematrix.encoding</param-name>
+        <param-value>UTF8</param-value>
+    </context-param>
+    <context-param id="ContextParam_12">
+        <param-name>ematrix.audit.log</param-name>
+        <param-value>true</param-value>
+    </context-param>
+    <!-- legacy servlet properties
+         <context-param id="ContextParam_13">
+           <param-name>ematrix.servlet.ui</param-name>
+           <param-value>true</param-value>
+         </context-param>
+         <context-param id="ContextParam_14">
+           <param-name>ematrix.timer.agent</param-name>
+           <param-value></param-value>
+         </context-param>
+         <context-param id="ContextParam_15">
+           <param-name>ematrix.timer.agent.key</param-name>
+           <param-value></param-value>
+         </context-param>
+         <context-param id="ContextParam_16">
+           <param-name>ematrix.timer.interval</param-name>
+           <param-value>21600</param-value>
+         </context-param>
+         <context-param id="ContextParam_17">
+           <param-name>ematrix.timer.command</param-name>
+           <param-value>execute program emxWorkspaceTimerJPO -method performTaskEscalation</param-value>
+         </context-param>
+    -->
+    <!-- static content filter -->
+    <filter>
+        <filter-name>StaticContentCachingFilter</filter-name>
+        <filter-class>com.matrixone.servlet.StaticContentCachingFilter</filter-class>
+        <init-param>
+            <param-name>ematrix.cache-control.ResourceLifetime</param-name>
+            <param-value>7d</param-value>
+        </init-param>
+    </filter>
+    <!--  Custom filter
+         <filter>
+           <filter-name>CustomFilter</filter-name>
+           <filter-class>com.matrixone.servlet.CustomFilter</filter-class>
+           <init-param>
+             <param-name>ematrix.customFilePrefix</param-name>
+             <param-value></param-value>
+           </init-param>
+         </filter>
+    -->
+    <!-- Do not remove the following TomCat section -->
+    <!--  TomCat UTF-8 setting -->
+    <!-- TomCat UTF-8 filter mapping -->
+    <!-- static content filter mappings -->
+    <filter-mapping>
+        <filter-name>StaticContentCachingFilter</filter-name>
+        <url-pattern>*.html</url-pattern>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>StaticContentCachingFilter</filter-name>
+        <url-pattern>*.js</url-pattern>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>StaticContentCachingFilter</filter-name>
+        <url-pattern>*.css</url-pattern>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>StaticContentCachingFilter</filter-name>
+        <url-pattern>*.xsl</url-pattern>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>StaticContentCachingFilter</filter-name>
+        <url-pattern>*.gif</url-pattern>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>StaticContentCachingFilter</filter-name>
+        <url-pattern>*.jpg</url-pattern>
+    </filter-mapping>
+    <!-- Timer Servlet - see mapping below
+         <servlet id="Servlet_19">
+           <servlet-name>TimerServlet</servlet-name>
+           <servlet-class>com.matrixone.servlet.TimerServlet</servlet-class>
+           <load-on-startup>2</load-on-startup>
+         </servlet>
+    -->
+    <!-- Start servlet definition for MatrixXMLServlet -->
+    <servlet>
+        <servlet-name>MatrixXMLServlet</servlet-name>
+        <servlet-class>com.matrixone.servlet.MatrixXMLServlet</servlet-class>
+    </servlet>
+    <!-- End servlet definition for MatrixXMLServlet -->
+    <!-- Start servlet mapping for MatrixXMLServlet -->
+    <!-- NOTE: To hide MatrixXMLServlet, comment out the following mapping -->
+    <servlet-mapping>
+        <servlet-name>MatrixXMLServlet</servlet-name>
+        <url-pattern>/servlet/MatrixXMLServlet</url-pattern>
+    </servlet-mapping>
+    <!-- End servlet mapping for MatrixXMLServlet -->
+    <!-- APP -->
+    <session-config id="SessionConfig_1">
+        <session-timeout>120</session-timeout>
+        <cookie-config>
+            <secure>true</secure>
+        </cookie-config>
+    </session-config>
+    <mime-mapping id="MimeMapping_1">
+        <extension>pdf</extension>
+        <mime-type>application/pdf</mime-type>
+    </mime-mapping>
+    <mime-mapping id="MimeMapping_2">
+        <extension>xls</extension>
+        <mime-type>application/vnd.ms-excel</mime-type>
+    </mime-mapping>
+    <mime-mapping id="MimeMapping_3">
+        <extension>exe</extension>
+        <mime-type>application/octet-stream</mime-type>
+    </mime-mapping>
+    <!-- ***Web Services*** -->
+    <mime-mapping>
+        <extension>wsdl</extension>
+        <mime-type>text/xml</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>xsd</extension>
+        <mime-type>text/xml</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>xsl</extension>
+        <mime-type>text/xml</mime-type>
+    </mime-mapping>
+    <!-- WebAppMerger FRAGMENT: ENOAdobeIntegration.web.xml.part -->
+    <!-- Start AdobeIllustratorIntegration servlet definition for ENOVIA Collaboration for Adobe Illustrator Server -->
+    <servlet id="AIServlet_1">
+        <servlet-name>AICommandsServlet</servlet-name>
+        <servlet-class>com.matrixone.AIIntegration.server.servlet.IEFCommandsServlet</servlet-class>
+    </servlet>
+    <servlet id="AIServlet_2">
+        <servlet-name>AISSOServlet</servlet-name>
+        <servlet-class>com.matrixone.AIIntegration.server.servlet.IEFSSOServlet</servlet-class>
+    </servlet>
+    <!-- End AdobeIllustratorIntegration servlet definition for ENOVIA Collaboration for Adobe Illustrator Server -->
+    <!-- Start AdobeIllustratorIntegration servlet mapping for ENOVIA Collaboration for Adobe Illustrator Server -->
+    <servlet-mapping id="AIServletMapping_1">
+        <servlet-name>AICommandsServlet</servlet-name>
+        <url-pattern>/servlet/AICommandsServlet/*</url-pattern>
+    </servlet-mapping>
+    <!-- Start AdobeIllustratorIntegration servlet mapping for ENOVIA Collaboration for Adobe Illustrator Server -->
+    <servlet-mapping id="AIServletMapping_2">
+        <servlet-name>AISSOServlet</servlet-name>
+        <url-pattern>/servlet/AISSOServlet/*</url-pattern>
+    </servlet-mapping>
+    <!-- End AdobeIllustratorIntegration servlet mapping for ENOVIA Collaboration for Adobe Illustrator Server -->
+    <!-- WebAppMerger FRAGMENT: ENODownloadPackage.DownloadPackage.web.xml.part -->
+    <!-- Download Package Servlet-->
+    <servlet id="DownloadServlet_1">
+        <servlet-name>downloadPackageServlet</servlet-name>
+        <servlet-class>com.dassault_systemes.enovia.downloadpackage.services.DownloadPackageServlet</servlet-class>
+    </servlet>
+    <servlet-mapping id="DownloadServletMapping_1">
+        <servlet-name>downloadPackageServlet</servlet-name>
+        <url-pattern>/myDownloadPackage</url-pattern>
+    </servlet-mapping>
+    <!-- WebAppMerger FRAGMENT: ENOFramework.StartupServlet.web.xml.part -->
+    <servlet id="Servlet_AEF">
+        <servlet-name>AefStartupServlet</servlet-name>
+        <servlet-class>com.matrixone.apps.framework.ui.AefStartupServlet</servlet-class>
+        <load-on-startup>3</load-on-startup>
+    </servlet>
+    <!-- WebAppMerger FRAGMENT: ENOFramework.web.xml.part -->
+    <!-- SessionTimeoutCookieFilter
+   <filter>
+			<filter-name>SessionTimeoutCookieFilter</filter-name>
+			<filter-class>com.matrixone.apps.domain.util.SessionTimeoutCookieFilter</filter-class>
+	</filter>
+	<filter-mapping>
+			<filter-name>SessionTimeoutCookieFilter</filter-name>
+			<url-pattern>/*</url-pattern>
+	</filter-mapping> -->
+    <!-- XSS Input Filter filter
+   	<filter>
+		<filter-name>XSSInputFilter</filter-name>
+		<filter-class>com.matrixone.apps.domain.util.XSSInputFilter</filter-class>
+		<init-param>
+			<param-name>skipFilterUrlPatterns</param-name>
+			<param-value>/resources/AppsMngt/security/encrypt*,/resources/AppsMngt/security/decrypt*</param-value>
+		</init-param>
+	</filter>
+-->
+    <!-- Session Timeout Filter
+	<filter>
+		<filter-name>SessionTimeoutFilter</filter-name>
+		<filter-class>com.matrixone.apps.domain.util.SessionTimeoutFilter</filter-class>
+	</filter>
+-->
+    <!--  X-Frame Filtering (Clickjacking) filter
+    <filter>
+        <filter-name>ClickjackFilterSameOrigin</filter-name>
+        <filter-class>com.matrixone.apps.domain.util.ClickjackFilter</filter-class>
+        <init-param>
+            <param-name>mode</param-name>
+            <param-value>SAMEORIGIN</param-value>
+        </init-param>
+    </filter> 
+-->
+    <filter>
+        <filter-name>IECompatabilityFilter</filter-name>
+        <filter-class>com.matrixone.apps.domain.util.IECompatabilityFilter</filter-class>
+        <init-param>
+            <param-name>http-equiv</param-name>
+            <param-value>X-UA-Compatible</param-value>
+        </init-param>
+        <init-param>
+            <param-name>content</param-name>
+            <!-- Possible values : IE=5, IE=7, IE=EmulateIE7, IE=8, IE=EmulateIE8, IE=9, IE=EmulateIE9, IE=edge -->
+            <param-value>IE=edge</param-value>
+        </init-param>
+    </filter>
+    <!-- XSS Input Filter mapping
+	<filter-mapping>
+		<filter-name>XSSInputFilter</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
+-->
+    <!-- Session Timeout Filter mapping
+	<filter-mapping>
+		<filter-name>SessionTimeoutFilter</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
+-->
+    <!-- X-Frame Filtering (Clickjacking) mapping
+    <filter-mapping> 
+            <filter-name>ClickjackFilterSameOrigin</filter-name>
+            <url-pattern>/*</url-pattern>
+    </filter-mapping>
+-->
+    <filter-mapping>
+        <filter-name>IECompatabilityFilter</filter-name>
+        <url-pattern>*.jsp</url-pattern>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>IECompatabilityFilter</filter-name>
+        <url-pattern>*.htm</url-pattern>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>IECompatabilityFilter</filter-name>
+        <url-pattern>*.html</url-pattern>
+    </filter-mapping>
+    <!-- Enable SOAP services on a CAS configuration
+  <filter-mapping>
+     <filter-name>ByPassPatternFilter</filter-name>
+     <url-pattern>/services/*</url-pattern>
+  </filter-mapping>
+-->
+    <!-- Path Traversal Error Servlet for preventing execution of Inc files and xml files -->
+    <servlet>
+        <servlet-name>PathtraversalErrorServlet</servlet-name>
+        <servlet-class>com.matrixone.apps.domain.util.PathtraversalErrorServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>PathtraversalErrorServlet</servlet-name>
+        <url-pattern>*.inc</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>PathtraversalErrorServlet</servlet-name>
+        <url-pattern>/web-inf/*</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>PathtraversalErrorServlet</servlet-name>
+        <url-pattern>/WEB-INF/*</url-pattern>
+    </servlet-mapping>
+    <mime-mapping>
+        <extension>ico</extension>
+        <mime-type>image/x-icon</mime-type>
+    </mime-mapping>
+    <!-- System Error Handling -->
+    <welcome-file-list>
+        <welcome-file>emxLogin.jsp</welcome-file>
+    </welcome-file-list>
+    <error-page>
+        <error-code>500</error-code>
+        <location>/common/emxNavigatorErrorPage.jsp?errorCode=500</location>
+    </error-page>
+    <error-page>
+        <error-code>401</error-code>
+        <location>/common/emxNavigatorErrorPage.jsp?errorCode=401</location>
+    </error-page>
+    <error-page>
+        <error-code>404</error-code>
+        <location>/common/emxNavigatorErrorPage.jsp?errorCode=404</location>
+    </error-page>
+    <error-page>
+        <exception-type>java.lang.Throwable</exception-type>
+        <location>/common/emxNavigatorErrorPage.jsp</location>
+    </error-page>
+    <!-- WebAppMerger FRAGMENT: ENOLSACommon.SummaryReportDownload.web.xml.part -->
+    <!-- Download Summary Report Servlet-->
+    <servlet id="DownloadLSASummaryReportServlet_2">
+        <servlet-name>downloadSummaryReport</servlet-name>
+        <servlet-class>com.dassault_systemes.enovia.lsa.services.SummaryReportServlet</servlet-class>
+    </servlet>
+    <servlet-mapping id="DownloadLSASummaryReportServletMapping_2">
+        <servlet-name>downloadSummaryReport</servlet-name>
+        <url-pattern>/SummaryReportServlet</url-pattern>
+    </servlet-mapping>
+    <!-- WebAppMerger FRAGMENT: ENOSummaryViewGen.Download.web.xml.part -->
+    <!-- Download Summary View  Servlet-->
+    <servlet id="DownloadSummaryViewServlet">
+        <servlet-name>downloadSummaryView</servlet-name>
+        <servlet-class>com.dassault_systemes.enovia.summaryview.services.SummaryViewServlet</servlet-class>
+    </servlet>
+    <servlet-mapping id="DownloadSummaryViewServletMapping">
+        <servlet-name>downloadSummaryView</servlet-name>
+        <url-pattern>/SummaryViewServlet</url-pattern>
+    </servlet-mapping>
+    <!-- WebAppMerger FRAGMENT: MarketRegistration.LRABase.web.xml.part -->
+    <!-- LRABase Timer Servlet Entries
+  Required Timer Servlet entries should be uncommented from following. Please ensure that 
+  1)ContextParam_ ,
+  2)ematrix.timer.command and 
+  3)ematrix.timer.interval 
+  parameters in below entries should be suffixed with appropriate next numbers in whole 
+  web.xml file for successful running. Please ensure no entry is duplicated.
+  -->
+    <!--
+  
+		<context-param id="ContextParam_">
+              <param-name>ematrix.timer.interval</param-name>
+              <param-value>86400</param-value>
+        </context-param>
+		
+		<context-param id="ContextParam_">
+              <param-name>ematrix.timer.command</param-name>
+              <param-value>execute program emxProjectSpace -method performTaskEscalation</param-value>
+        </context-param>
+       
+        <context-param id="ContextParam_">
+              <param-name>ematrix.timer.interval</param-name>
+              <param-value>86400</param-value>
+        </context-param>
+       
+        <context-param id="ContextParam_">
+              <param-name>ematrix.timer.command</param-name>
+              <param-value>execute program emxSpool -method processSpool Daily</param-value>
+        </context-param>
+ 
+        <context-param id="ContextParam_">
+              <param-name>ematrix.timer.interval</param-name>
+              <param-value>86400</param-value>
+        </context-param>
+       
+        <context-param id="ContextParam_">
+              <param-name>ematrix.timer.command</param-name>
+              <param-value>execute program emxProgramCentralNotificationUtil -method notifyTaskAssignees AssignedTask </param-value>
+        </context-param>
+  
+  	    <context-param id="ContextParam_">
+	         <param-name>ematrix.timer.interval</param-name>
+	         <param-value>86400</param-value>
+	    </context-param>
+  
+	   <context-param id="ContextParam_">
+	     <param-name>ematrix.timer.command</param-name>
+	            <param-value>execute program  com.dassault_systemes.enovia.lsa.lra.services.trigger.AdminAction -method obseleteMarketAuthorization </param-value>
+	    </context-param>
+	 
+	    <context-param id="ContextParam_">
+	         <param-name>ematrix.timer.interval</param-name>
+	         <param-value>86400</param-value>
+	    </context-param>
+	    
+	    <context-param id="ContextParam_">
+	            <param-name>ematrix.timer.command</param-name>
+	            <param-value>execute program com.dassault_systemes.enovia.lsa.lra.services.trigger.AdminAction -method closeMarketAuthorizationChangeOnEffectiveDate </param-value>
+	    </context-param>
+	    
+	    <context-param id="ContextParam_">
+	         <param-name>ematrix.timer.interval</param-name>
+	         <param-value>86400</param-value>
+	    </context-param>
+	    
+	    <context-param id="ContextParam_">
+	            <param-name>ematrix.timer.command</param-name>
+	            <param-value>execute program com.dassault_systemes.enovia.lsa.lra.services.ui.AdminAction -method sendNotifications</param-value>
+	    </context-param>
+	
+	    <context-param id="ContextParam_">
+	         <param-name>ematrix.timer.interval</param-name>
+	         <param-value>86400</param-value>
+	    </context-param>
+	    
+	    <context-param id="ContextParam_">
+	            <param-name>ematrix.timer.command</param-name>
+	            <param-value>execute program com.dassault_systemes.enovia.lsa.lra.services.ui.AdminAction -method notifyRegulatoryMilestoneAssignees</param-value>
+	    </context-param>
+	
+		<context-param id="ContextParam_">
+	         <param-name>ematrix.timer.interval</param-name>
+	         <param-value>86400</param-value>
+	    </context-param>
+	    
+	    <context-param id="ContextParam_">
+	            <param-name>ematrix.timer.command</param-name>
+	            <param-value>execute program com.dassault_systemes.enovia.lsa.lra.services.ui.AdminAction -method notifyInteractiveReviewAssignees</param-value>
+	    </context-param>
+	    
+	    <context-param id="ContextParam_">
+	         <param-name>ematrix.timer.interval</param-name>
+	         <param-value>86400</param-value>
+	    </context-param>
+	    
+	    <context-param id="ContextParam_">
+	            <param-name>ematrix.timer.command</param-name>
+	            <param-value>execute program com.dassault_systemes.enovia.lsa.lra.services.ui.AdminAction -method completeRegulatoryMilestoneOnEstimatedEndDate</param-value>
+	    </context-param>
+-->
+    <!-- WebAppMerger FRAGMENT: OSLCAuthentication.web.xml.part -->
+    <filter>
+        <filter-name>OSLCAuthenticationFilter</filter-name>
+        <filter-class>com.dassault_systemes.oslc.provider.authentication.LoginFilter</filter-class>
+        <init-param>
+            <param-name>skipFilterUrlPatterns</param-name>
+            <param-value>/application/v1/oslc/rm/catalog*,/application/v1/oslc/rm/rs_catalog/*,/application/v1/oslc/cm/catalog*</param-value>
+        </init-param>
+        <init-param>
+            <param-name>DUIUrlPatterns</param-name>
+            <param-value>/view/v1/oslc/*</param-value>
+        </init-param>
+    </filter>
+    <filter>
+        <filter-name>OSLCOAuthFilter</filter-name>
+        <filter-class>com.dassault_systemes.oslc.provider.authentication.OslcFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>OSLCAuthenticationFilter</filter-name>
+        <url-pattern>/view/v1/oslc/*</url-pattern>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>OSLCAuthenticationFilter</filter-name>
+        <url-pattern>/application/v1/oslc/*</url-pattern>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>OSLCAuthenticationFilter</filter-name>
+        <url-pattern>/resources/v1/modeler/oslc/*</url-pattern>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>OSLCAuthenticationFilter</filter-name>
+        <url-pattern>/resources/v1/bps/oslc/*</url-pattern>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>OSLCOAuthFilter</filter-name>
+        <url-pattern>/oslc/*</url-pattern>
+    </filter-mapping>
+    <!-- WebAppMerger FRAGMENT: AER.PMAFilterCustomFilter.web.xml.part -->
+    <filter>
+        <filter-name>PMACustomFilter</filter-name>
+        <filter-class>com.matrixone.servlet.CustomFilter</filter-class>
+        <init-param>
+            <param-name>ematrix.customDirName</param-name>
+            <param-value>/aerospace_pma</param-value>
+        </init-param>
+        <init-param>
+            <param-name>ematrix.customFilePrefix</param-name>
+            <param-value>AnD_</param-value>
+        </init-param>
+    </filter>
+    <filter-mapping>
+        <filter-name>PMACustomFilter</filter-name>
+        <url-pattern>/programcentral/*</url-pattern>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>PMACustomFilter</filter-name>
+        <url-pattern>/configuration/*</url-pattern>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>PMACustomFilter</filter-name>
+        <url-pattern>/productline/*</url-pattern>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>PMACustomFilter</filter-name>
+        <url-pattern>/engineeringcentral/*</url-pattern>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>PMACustomFilter</filter-name>
+        <url-pattern>/components/*</url-pattern>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>PMACustomFilter</filter-name>
+        <url-pattern>/teamcentral/*</url-pattern>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>PMACustomFilter</filter-name>
+        <url-pattern>/requirements/*</url-pattern>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>PMACustomFilter</filter-name>
+        <url-pattern>/businessmetrics/*</url-pattern>
+    </filter-mapping>
+    <!-- WebAppMerger FRAGMENT: ECL.EXCCustomFilter.web.xml.part -->
+    <filter>
+        <filter-name>EXCCustomFilter</filter-name>
+        <filter-class>com.matrixone.servlet.CustomFilter</filter-class>
+        <init-param>
+            <param-name>ematrix.customDirName</param-name>
+            <param-value>/exportcontrol</param-value>
+        </init-param>
+        <init-param>
+            <param-name>ematrix.customFilePrefix</param-name>
+            <param-value>EXC_</param-value>
+        </init-param>
+    </filter>
+    <filter-mapping>
+        <filter-name>EXCCustomFilter</filter-name>
+        <url-pattern>/documentcentral/*</url-pattern>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>EXCCustomFilter</filter-name>
+        <url-pattern>/configuration/*</url-pattern>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>EXCCustomFilter</filter-name>
+        <url-pattern>/productline/*</url-pattern>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>EXCCustomFilter</filter-name>
+        <url-pattern>/common/*</url-pattern>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>EXCCustomFilter</filter-name>
+        <url-pattern>/components/*</url-pattern>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>EXCCustomFilter</filter-name>
+        <url-pattern>/businessmetrics/*</url-pattern>
+    </filter-mapping>
+    <!-- WebAppMerger FRAGMENT: ECL.TimerServlet.web.xml.part -->
+    <!-- Start ECL Timer Servlet mapping for  -->
+    <context-param id="ContextParam_ECL_13">
+        <param-name>ematrix.timer.agent</param-name>
+        <param-value/>
+    </context-param>
+    <context-param id="ContextParam_ECL_14">
+        <param-name>ematrix.timer.agent.key</param-name>
+        <param-value/>
+    </context-param>
+    <context-param id="ContextParam_ECL_15">
+        <param-name>ematrix.timer.interval</param-name>
+        <param-value>86400</param-value>
+    </context-param>
+    <context-param id="ContextParam_ECL_16">
+        <param-name>ematrix.timer.command</param-name>
+        <param-value>execute program EXCExportControl -method autoPromoteIPEXCDocs</param-value>
+    </context-param>
+    <!-- End ECL Timer Servlet mapping for  -->
+    <!-- WebAppMerger FRAGMENT: LBC.StartupServlet.web.xml.part -->
+    <servlet id="Servlet_LBC">
+        <servlet-name>LBCStartupServlet</servlet-name>
+        <servlet-class>com.matrixone.apps.library.LBCStartupServlet</servlet-class>
+        <load-on-startup>3</load-on-startup>
+    </servlet>
+    <!-- WebAppMerger FRAGMENT: ENOCPDAccelerator.fragment1.web.xml.part -->
+    <filter>
+        <filter-name>CustomFilterCPD</filter-name>
+        <filter-class>com.matrixone.servlet.CustomFilter</filter-class>
+        <init-param>
+            <param-name>ematrix.customDirName</param-name>
+            <param-value/>
+        </init-param>
+        <init-param>
+            <param-name>ematrix.customFilePrefix</param-name>
+            <param-value>CPD_</param-value>
+        </init-param>
+    </filter>
+    <filter-mapping>
+        <filter-name>CustomFilterCPD</filter-name>
+        <url-pattern>/common/*</url-pattern>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>CustomFilterCPD</filter-name>
+        <url-pattern>/components/*</url-pattern>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>CustomFilterCPD</filter-name>
+        <url-pattern>/teamcentral/*</url-pattern>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>CustomFilterCPD</filter-name>
+        <url-pattern>/common/scripts/*</url-pattern>
+    </filter-mapping>
+    <jsp-config>
+        <taglib>
+            <taglib-uri>awl-taglib.tld</taglib-uri>
+            <taglib-location>/awl/awl-taglib.tld</taglib-location>
+        </taglib>
+    </jsp-config>
+    <!-- WebAppMerger FRAGMENT: ENOCPNAccelerator.fragment1.web.xml.part -->
+    <filter>
+        <filter-name>CustomFilterCPN</filter-name>
+        <filter-class>com.matrixone.servlet.CustomFilter</filter-class>
+        <init-param>
+            <param-name>ematrix.customDirName</param-name>
+            <param-value/>
+        </init-param>
+        <init-param>
+            <param-name>ematrix.customFilePrefix</param-name>
+            <param-value>CPN_</param-value>
+        </init-param>
+    </filter>
+    <filter-mapping>
+        <filter-name>CustomFilterCPN</filter-name>
+        <url-pattern>/common/*</url-pattern>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>CustomFilterCPN</filter-name>
+        <url-pattern>/components/*</url-pattern>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>CustomFilterCPN</filter-name>
+        <url-pattern>/productline/*</url-pattern>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>CustomFilterCPN</filter-name>
+        <url-pattern>/programcentral/*</url-pattern>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>CustomFilterCPN</filter-name>
+        <url-pattern>/suppliercentral/*</url-pattern>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>CustomFilterCPN</filter-name>
+        <url-pattern>/sourcing/*</url-pattern>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>CustomFilterCPN</filter-name>
+        <url-pattern>/acceleratortools/*</url-pattern>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>CustomFilterCPN</filter-name>
+        <url-pattern>/engineeringcentral/*</url-pattern>
+    </filter-mapping>
+    <!-- WebAppMerger FRAGMENT: ENOVIAV6SidlChunked.web.xml.part -->
+    <!--ENOVIA V6 FCS Servlet - web.xml fragment -->
+    <display-name>ENOVIA mcs</display-name>
+    <description>ENOVIA mcs</description>
+    <!--SERVLET-->
+    <servlet id="VPLMServlet_1">
+        <servlet-name>SidlChunkedServlet</servlet-name>
+        <servlet-class>com.dassault_systemes.m1sidlserver.m1sidlservlet.SidlChunkedServlet</servlet-class>
+    </servlet>
+    <!--URL MAPPING-->
+    <!--SERVLET MAPPING-->
+    <servlet-mapping id="VPLMServletMapping_1">
+        <servlet-name>SidlChunkedServlet</servlet-name>
+        <url-pattern>/SidlChunked/*</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping id="VPLMServletMapping_4">
+        <servlet-name>SidlChunkedServlet</servlet-name>
+        <url-pattern>/mcs/SidlChunked/*</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping id="VPLMServletMapping_5">
+        <servlet-name>SidlChunkedServlet</servlet-name>
+        <url-pattern>/index/SidlChunked/*</url-pattern>
+    </servlet-mapping>
+    <!-- WebAppMerger FRAGMENT: ENOSHOAcceleratorSrv.Shopper.web.xml.part -->
+    <filter>
+        <filter-name>CustomFilterSHO</filter-name>
+        <filter-class>com.matrixone.servlet.CustomFilter</filter-class>
+        <init-param>
+            <param-name>ematrix.customDirName</param-name>
+            <param-value/>
+        </init-param>
+        <init-param>
+            <param-name>ematrix.customFilePrefix</param-name>
+            <param-value>SHO</param-value>
+        </init-param>
+    </filter>
+    <filter-mapping>
+        <filter-name>CustomFilterSHO</filter-name>
+        <url-pattern>/common/*</url-pattern>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>CustomFilterSHO</filter-name>
+        <url-pattern>/components/*</url-pattern>
+    </filter-mapping>
+    <!-- WebAppMerger FRAGMENT: M1DeploymentUtilities.static_content.web.xml.part -->
+    <!-- WebAppMerger FRAGMENT: M1DeploymentUtilities.jsonfilter.web.xml.part -->
+    <!-- WebAppMerger FRAGMENT: ENODECIEFCommon.web.xml.part -->
+    <!--SERVLET for DEC, Created as Non-Kernel Servlet Declaration were removed from BPS web.xml-->
+    <!-- Start servlet definition for MCAD -->
+    <servlet id="MCADServlet_1">
+        <servlet-name>IEFCommandsServlet</servlet-name>
+        <servlet-class>com.matrixone.MCADIntegration.server.servlet.IEFCommandsServlet</servlet-class>
+    </servlet>
+    <servlet id="MCADServlet_2">
+        <servlet-name>MCADBrowserServlet</servlet-name>
+        <servlet-class>com.matrixone.MCADIntegration.server.servlet.MCADBrowserServlet</servlet-class>
+    </servlet>
+    <servlet id="MCADServlet_3">
+        <servlet-name>IEFRapidFileAccessServlet</servlet-name>
+        <servlet-class>com.matrixone.MCADIntegration.server.servlet.IEFRapidFileAccessServlet</servlet-class>
+    </servlet>
+    <!-- End servlet definition for MCAD -->
+    <!-- Start servlet mapping for MCAD -->
+    <servlet-mapping id="MCADServletMapping_1">
+        <servlet-name>IEFCommandsServlet</servlet-name>
+        <url-pattern>/servlet/IEFCommandsServlet/*</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping id="MCADServletMapping_2">
+        <servlet-name>MCADBrowserServlet</servlet-name>
+        <url-pattern>/servlet/MCADBrowserServlet/*</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping id="MCADServletMapping_3">
+        <servlet-name>IEFRapidFileAccessServlet</servlet-name>
+        <url-pattern>/servlet/IEFRapidFileAccessServlet/*</url-pattern>
+    </servlet-mapping>
+    <!-- End servlet mapping for MCAD -->
+    <!-- WebAppMerger FRAGMENT: ENOConflictMineralSupport.ExpirationTimerServlet.web.xml.part -->
+    <!-- <context-param id="ContextParam_MCM_CMS_13">
+       <param-name>ematrix.timer.agent</param-name>
+       <param-value>Test Everything</param-value>
+    </context-param>
+    <context-param id="ContextParam_MCM_CMS_14">
+       <param-name>ematrix.timer.agent.key</param-name>
+       <param-value></param-value>
+    </context-param>
+    <context-param id="ContextParam_MCM_CMS_15">
+       <param-name>ematrix.timer.interval</param-name>
+       <param-value>86400</param-value>
+    </context-param>
+    <context-param id="ContextParam_MCM_CMS_16">
+       <param-name>ematrix.timer.command</param-name>
+       <param-value>execute program jpo.materialscompliance.Smelter -method pollSmelterConflictFreeCertficationExpiration</param-value>
+    </context-param>   -->
+    <!-- WebAppMerger FRAGMENT: VPLMCoreServices.LoginTicketServlet.web.xml.part -->
+    <servlet>
+        <servlet-name>LoginTicketServlet</servlet-name>
+        <servlet-class>com.dassault_systemes.plmsecurity.ticket.servlet.LoginTicketServlet</servlet-class>
+        <load-on-startup>10</load-on-startup>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>LoginTicketServlet</servlet-name>
+        <url-pattern>/ticket/get/*</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>LoginTicketServlet</servlet-name>
+        <url-pattern>/ticket/login/*</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>LoginTicketServlet</servlet-name>
+        <url-pattern>/ticket/invalidate/*</url-pattern>
+    </servlet-mapping>
+    <!-- WebAppMerger FRAGMENT: ENOSHOAcceleratorSrv.Shopper.web.xml.post -->
+    <!-- Servlet d'init des clef d'admin - bug detecte par Fred et Pierre 
+	servlet id="Servlet_InitShopper"
+		servlet-name SoapServlet /servlet-name
+		servlet-class com.matrixone.jsystem.ws.impl.SoapServlet /servlet-class 
+		load-on-startup 500 /load-on-startup 
+	/servlet -->
+    <!-- Servlet de Romain (instruction de montage) -->
+    <servlet id="Servlet_MidShopperInput">
+        <servlet-name>SetInputDoc</servlet-name>
+        <servlet-class>com.dassault_systemes.shopper.MidServlet.SetInputDoc</servlet-class>
+    </servlet>
+    <servlet id="Servlet_MidShopperOutput">
+        <servlet-name>GetOutputDoc</servlet-name>
+        <servlet-class>com.dassault_systemes.shopper.MidServlet.GetOutputDoc</servlet-class>
+    </servlet>
+    <servlet id="Servlet_MidShopperTemplates">
+        <servlet-name>GetMountingInstructionsTemplates</servlet-name>
+        <servlet-class>com.dassault_systemes.shopper.MidServlet.GetMountingInstructionsTemplates</servlet-class>
+    </servlet>
+    <servlet-mapping id="ServletMapping_MidShopperInput">
+        <servlet-name>SetInputDoc</servlet-name>
+        <url-pattern>/SetInputDoc</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping id="ServletMapping_MidShopperOutput">
+        <servlet-name>GetOutputDoc</servlet-name>
+        <url-pattern>/GetOutputDoc</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping id="ServletMapping_MidShopperTemplates">
+        <servlet-name>GetMountingInstructionsTemplates</servlet-name>
+        <url-pattern>/GetMountingInstructionsTemplates</url-pattern>
+    </servlet-mapping>
+    <!-- Servlet de Rosalie (planogram conversion) -->
+    <servlet id="Servlet_StartExportInput">
+        <servlet-name>StartExport</servlet-name>
+        <servlet-class>com.dassault_systemes.shopper.ConverterServlet.StartExport</servlet-class>
+    </servlet>
+    <servlet-mapping id="ServletMapping__StartExportInput">
+        <servlet-name>StartExport</servlet-name>
+        <url-pattern>/StartExport</url-pattern>
+    </servlet-mapping>
+    <servlet id="Servlet_StartImportInput">
+        <servlet-name>StartImport</servlet-name>
+        <servlet-class>com.dassault_systemes.shopper.ConverterServlet.StartImport</servlet-class>
+    </servlet>
+    <servlet-mapping id="ServletMapping__StartImportInput">
+        <servlet-name>StartImport</servlet-name>
+        <url-pattern>/StartImport</url-pattern>
+    </servlet-mapping>
+    <!-- Store Export Servlet-->
+    <servlet id="Servlet_ENOSHOExportServlet">
+        <servlet-name>ENOSHOExportExcel</servlet-name>
+        <servlet-class>com.dassault_systemes.shopper.ExportServlet.ExportExcel</servlet-class>
+    </servlet>
+    <servlet-mapping id="ServletMapping_ENOSHOExportServlet">
+        <servlet-name>ENOSHOExportExcel</servlet-name>
+        <url-pattern>/ENOSHOExportExcel</url-pattern>
+    </servlet-mapping>
+    <!-- Store Custom Attribute Servlet-->
+    <servlet id="Servlet_ScasGetCustomAttributeList">
+        <servlet-name>GetCustomAttributeList</servlet-name>
+        <servlet-class>com.dassault_systemes.shopper.ScaServlet.GetCustomAttributeList</servlet-class>
+    </servlet>
+    <servlet-mapping id="ServletMapping_ScasGetCustomAttributeList">
+        <servlet-name>GetCustomAttributeList</servlet-name>
+        <url-pattern>/scas/GetCustomAttributeList</url-pattern>
+    </servlet-mapping>
+    <servlet id="Servlet_ScasGetCustomAttributeValues">
+        <servlet-name>GetCustomAttributeValues</servlet-name>
+        <servlet-class>com.dassault_systemes.shopper.ScaServlet.GetCustomAttributeValues</servlet-class>
+    </servlet>
+    <servlet-mapping id="ServletMapping_ScasGetCustomAttributeValues">
+        <servlet-name>GetCustomAttributeValues</servlet-name>
+        <url-pattern>/scas/GetCustomAttributeValues</url-pattern>
+    </servlet-mapping>
+    <!-- Store Report Servlet-->
+    <servlet id="Servlet_ENOSHOExportExcelReports">
+        <servlet-name>ENOSHOExportExcelReports</servlet-name>
+        <servlet-class>com.dassault_systemes.shopper.ExportServlet.ExportExcelReports</servlet-class>
+    </servlet>
+    <!-- Store Studio Excel Import Servlet for business data-->
+    <servlet-mapping id="ServletMapping_ENOSHOENOSHOExportExcelReports">
+        <servlet-name>ENOSHOExportExcelReports</servlet-name>
+        <url-pattern>/ENOSHOExportExcelReports</url-pattern>
+    </servlet-mapping>
+    <servlet id="Servlet_ENOSHOExcelBusinessDataImport">
+        <servlet-name>ENOSHOExcelBusinessDataImport</servlet-name>
+        <servlet-class>com.dassault_systemes.shopper.ExperienceImportServlet.ExcelBusinessDataImport</servlet-class>
+    </servlet>
+    <servlet-mapping id="ServletMapping_ENOSHOExcelBusinessDataImport">
+        <servlet-name>ENOSHOExcelBusinessDataImport</servlet-name>
+        <url-pattern>/ENOSHOExcelBusinessDataImport</url-pattern>
+    </servlet-mapping>
+    <servlet id="Servlet_ENOSHOExportExcelRuleReport">
+        <servlet-name>ENOSHOExportExcelRuleReport</servlet-name>
+        <servlet-class>com.dassault_systemes.shopper.ExportServlet.ExportExcelRuleReport</servlet-class>
+    </servlet>
+    <servlet-mapping id="ServletMapping_ENOSHOExportExcelRuleReport">
+        <servlet-name>ENOSHOExportExcelRuleReport</servlet-name>
+        <url-pattern>/ENOSHOExportExcelRuleReport</url-pattern>
+    </servlet-mapping>
+    <!-- Pour 3DMerch et permettre le download du MSI de la VM Studio  -->
+    <mime-mapping>
+        <extension>msi</extension>
+        <mime-type>application/x-msi</mime-type>
+    </mime-mapping>
+    <!-- WebAppMerger FRAGMENT: M1DeploymentUtilities.jaxws.web.xml.post -->
+    <!--
+    <listener>
+        <listener-class>com.sun.xml.ws.transport.http.servlet.WSServletContextListener</listener-class> 
+    </listener>
+    <servlet>
+        <servlet-name>jaxwsservlet</servlet-name> 
+        <servlet-class>com.sun.xml.ws.transport.http.servlet.WSServlet</servlet-class> 
+        <load-on-startup>1</load-on-startup> 
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>jaxwsservlet</servlet-name> 
+        <url-pattern>/jxws/*</url-pattern> 
+    </servlet-mapping>
+    -->
+</web-app>

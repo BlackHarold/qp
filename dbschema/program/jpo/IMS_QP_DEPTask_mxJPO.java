@@ -114,6 +114,7 @@ public class IMS_QP_DEPTask_mxJPO {
         return newObject;
     }
 
+    //TODO remove method if isn't need
     public Object getRelationColumn(Context context, String[] args) throws Exception {
 
         Map programMap = JPO.unpackArgs(args);
@@ -316,8 +317,8 @@ public class IMS_QP_DEPTask_mxJPO {
             Map programMap = JPO.unpackArgs(args);
             String objectId = (String) programMap.get("objectId");
             DomainObject qPlan = new DomainObject(objectId);
-            MapList task = getRelatedMapList(context, qPlan, RELATIONSHIP_IMS_QPlan2QPTask, TYPE_IMS_QP_QPTASK, true, true, (short) 1, "", "", 0);
-            return task;
+            return getRelatedMapList(context, qPlan, RELATIONSHIP_IMS_QPlan2QPTask, TYPE_IMS_QP_QPTASK,
+                    true, true, (short) 1, "", "", 0);
         } catch (Exception ex) {
             LOG.error(ex.getMessage());
             throw ex;
@@ -469,7 +470,6 @@ public class IMS_QP_DEPTask_mxJPO {
                     true, true, (short) 1, "", null, 0);
 
             depTaskQP.addAll(depTaskDEP);
-            LOG.info("MAPLIST EXPEXTED before: " + depTaskQP);
             DomainObject newObject = getNextName(context, objectId, parent, depTaskQP, "", 0, 0);
 
             if (DEPexpected != null && !DEPexpected.equals("")) {
@@ -860,22 +860,70 @@ public class IMS_QP_DEPTask_mxJPO {
             DomainObject object = new DomainObject(sID);
             int factExp = Integer.parseInt(object.getInfo(context, SELECT_ATTRIBUTE_IMS_QP_FACT_EXP));
             int factGot = Integer.parseInt(object.getInfo(context, SELECT_ATTRIBUTE_IMS_QP_FACT_GOT));
-            getColor(returnList, factExp, factGot);
+
+            String color = "";
+
+            //1 if attribute of task IMS_QP_SelectDocument has any values
+            if (UIUtil.isNotNullAndNotEmpty(object.getInfo(context, IMS_QP_Constants_mxJPO.attribute_IMS_QP_SelectDocument)))
+                color = "IMS_QP_Purple";
+
+            //2 if attribute of expected result IMS_QP_DocumentCode contains value 'Wrong'
+            String wrongCodeField = object.getInfo(context, String.format("from[%s].to.%s",
+                    IMS_QP_Constants_mxJPO.relationship_IMS_QP_ExpectedResult2QPTask, IMS_QP_Constants_mxJPO.attribute_IMS_QP_DocumentCode));
+            if (UIUtil.isNotNullAndNotEmpty(wrongCodeField) && wrongCodeField.contains("Wrong code"))
+                color = "IMS_QP_Orange";
+
+            //3 if the task has more than one expected result in direction 'Output'
+            String moreThanOneExpectedRelations = MqlUtil.mqlCommand(context, String.format("print bus %s select from[IMS_QP_ExpectedResult2QPTask].to.id dump |", object.getId(context)));
+            if (UIUtil.isNotNullAndNotEmpty(moreThanOneExpectedRelations) && moreThanOneExpectedRelations.contains("|"))
+                color = "IMS_QP_Yellow";
+
+            String checkNoFact = object.getInfo(context,
+                    String.format("from[%s]", IMS_QP_Constants_mxJPO.relationship_IMS_QP_QPTask2Fact));
+
+            //4 if the task is 'Another' type
+            String resultType = object.getInfo(context,
+                    "from[IMS_QP_ExpectedResult2QPTask].to.to[IMS_QP_ResultType2ExpectedResult].from.to[IMS_QP_ResultType2Family].from.name");
+            boolean anotherTypeAndNoFact = IMS_QP_Constants_mxJPO.ANOTHER_PLAN_TYPES.equals(resultType) && "FALSE".equals(checkNoFact);
+
+            //5 if the task is 'VTZ' type and attribute of expected result IMS_DocumentCode is empty value
+            boolean vtzTypeAndNoFact = IMS_QP_Constants_mxJPO.VTZ_PLAN_TYPES.equals(resultType) && "FALSE".equals(checkNoFact);
+
+            if (anotherTypeAndNoFact || vtzTypeAndNoFact) color = "IMS_QP_Blue";
+
+            LOG.info(object.getName(context) + " color: " + color);
+            getColor(returnList, factExp, factGot, color);
         }
         return returnList;
     }
 
-    static void getColor(StringList returnList, int factExp, int factGot) {
-        if (factExp > 0) {
-            if (factExp == factGot) {
-                returnList.add("IMS_QP_Green");
-            } else if (factExp > factGot) {
-                returnList.add("IMS_QP_Red");
-            } else {
-                returnList.add("");
-            }
-        } else {
-            returnList.add("");
+    static void getColor(StringList returnList, int factExp, int factGot, String color) {
+
+        switch (color) {
+            case "IMS_QP_Purple":
+                returnList.add("IMS_QP_Purple");
+                break;
+            case "IMS_QP_Yellow":
+                returnList.add("IMS_QP_Yellow");
+                break;
+            case "IMS_QP_Blue":
+                returnList.add("IMS_QP_Blue");
+                break;
+            case "IMS_QP_Orange":
+                returnList.add("IMS_QP_Orange");
+                break;
+            default:
+                if (factExp > 0) {
+                    if (factExp == factGot) {
+                        returnList.add("IMS_QP_Green");
+                    } else if (factExp > factGot) {
+                        returnList.add("IMS_QP_Red");
+                    } else {
+                        returnList.add("");
+                    }
+                } else {
+                    returnList.add("");
+                }
         }
     }
 
@@ -893,8 +941,8 @@ public class IMS_QP_DEPTask_mxJPO {
     }
 
     public void setTreeFactGot(Context context, String[] args) throws Exception {
-        try {
 
+        try {
             DomainObject qpTask = new DomainObject(args[0]);
             setFactGot(context, qpTask, 1);
 
@@ -946,9 +994,9 @@ public class IMS_QP_DEPTask_mxJPO {
                 setFactGot(context, qp, 1);
             }
 
-
         } catch (Exception ex) {
-            throw new FrameworkException(ex);
+            LOG.error("setTreeFactGot: " + ex.getMessage());
+            ex.printStackTrace();
         }
     }
 
@@ -1152,8 +1200,9 @@ public class IMS_QP_DEPTask_mxJPO {
             return expectedResult.size() != 0;
 
         } catch (Exception ex) {
-            LOG.info(ex.getMessage());
-            throw new FrameworkException(ex);
+            LOG.error("acessDocument error: " + ex.getMessage());
+            ex.printStackTrace();
+            return false;
         }
     }
 
@@ -1181,8 +1230,8 @@ public class IMS_QP_DEPTask_mxJPO {
             }
 
         } catch (Exception ex) {
-            LOG.info(ex.getMessage());
-            throw ex;
+            LOG.error("setAttributeClosedTask: " + ex.getMessage());
+            ex.printStackTrace();
         }
     }
 
@@ -1217,8 +1266,8 @@ public class IMS_QP_DEPTask_mxJPO {
             }
 
         } catch (Exception ex) {
-            LOG.info(ex.getMessage());
-            throw ex;
+            LOG.error("setAttributeClosedTaskTree: " + ex.getMessage());
+            ex.printStackTrace();
         }
     }
 
@@ -1232,8 +1281,9 @@ public class IMS_QP_DEPTask_mxJPO {
             return fact.size() > 0;
 
         } catch (Exception ex) {
-            LOG.info(ex.getMessage());
-            throw ex;
+            LOG.error("isFactFull: " + ex.getMessage());
+            ex.printStackTrace();
+            return false;
         }
     }
 
@@ -1242,8 +1292,11 @@ public class IMS_QP_DEPTask_mxJPO {
         try {
             String checklistID = args[0];
             DomainObject checkList = new DomainObject(checklistID);
-            String qpTaskID = checkList.getInfo(context, "to[IMS_QP_QPTask2Fact].from.id");
-            setAttributeClosedTask(context, new DomainObject(qpTaskID));
+            StringList qpTaskIDs = checkList.getInfoList(context, "to[IMS_QP_QPTask2Fact].from.id");
+            for (Object qpTaskID : qpTaskIDs) {
+                setAttributeClosedTask(context, new DomainObject((String) qpTaskID));
+
+            }
 
         } catch (Exception ex) {
             MQLCommand mc = new MQLCommand();
@@ -1454,5 +1507,4 @@ public class IMS_QP_DEPTask_mxJPO {
             throw ex;
         }
     }
-
 }

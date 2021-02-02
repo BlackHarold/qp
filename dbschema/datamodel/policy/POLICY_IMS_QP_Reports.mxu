@@ -1,0 +1,44 @@
+################################################################################
+# POLICY_IMS_QP_Reports.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate policy "${NAME}" {
+    symbolicname "policy_IMS_QP_Reports"
+    description ""
+    !hidden
+    type "IMS_QP_Reports"
+    format "generic"
+    defaultformat "generic"
+    sequence ""
+    store "STORE"
+    state "Active" {
+        !enforcereserveaccess
+        majorrevision
+        minorrevision
+        version
+        !promote
+        checkouthistory
+        !published
+        owner {all}
+        public {all}
+    }
+    state "Inactive" {
+        !enforcereserveaccess
+        majorrevision
+        minorrevision
+        version
+        !promote
+        checkouthistory
+        !published
+        owner {all}
+        public {all}
+    }
+    ################################################## Info Start
+    property "author" value "The IMS Team"
+    property "original name" value "IMS_QP_Reports"
+    property "application" value "IMS_QP"
+    property "version" value "1"
+    ################################################## Info End
+}

@@ -13,6 +13,9 @@ mxUpdate policy "${NAME}" {
     defaultformat "generic"
     sequence ""
     store "STORE"
+    allstate {
+        public {checkin checkout fromconnect fromdisconnect read show toconnect todisconnect viewform}
+    }
     state "New" {
         !enforcereserveaccess
         majorrevision
@@ -22,7 +25,6 @@ mxUpdate policy "${NAME}" {
         !checkouthistory
         !published
         owner {all}
-        public {all}
         trigger promote action "emxTriggerManager" input "promoteCheckListtoApproved"
     }
     state "Approved" {
@@ -33,7 +35,7 @@ mxUpdate policy "${NAME}" {
         !promote
         !checkouthistory
         !published
-        owner {checkout demote read show}
+        owner {demote}
         trigger demote action "emxTriggerManager" input "demoteCheckListtoNew"
     }
     ################################################## Info Start

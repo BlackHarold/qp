@@ -1,0 +1,17 @@
+################################################################################
+# TYPE_IMS_QP_Reports.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate type "${NAME}" {
+    symbolicname "type_IMS_QP_Reports"
+    description ""
+    !hidden
+    ################################################## Info Start
+    property "author" value "The IMS Team"
+    property "original name" value "IMS_QP_Reports"
+    property "application" value "IMS_QP"
+    property "version" value "1"
+    ################################################## Info End
+}

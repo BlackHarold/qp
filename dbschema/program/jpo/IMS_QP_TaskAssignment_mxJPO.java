@@ -576,7 +576,48 @@ public class IMS_QP_TaskAssignment_mxJPO {
             DomainObject object = new DomainObject(sID);
             int factExp = Integer.parseInt(object.getInfo(context, IMS_QP_DEPTask_mxJPO.SELECT_ATTRIBUTE_IMS_QP_FACT_EXP));
             int factGot = Integer.parseInt(object.getInfo(context, IMS_QP_DEPTask_mxJPO.SELECT_ATTRIBUTE_IMS_QP_FACT_GOT));
-            IMS_QP_DEPTask_mxJPO.getColor(returnList, factExp, factGot);
+
+//            boolean hasSelect = UIUtil.isNotNullAndNotEmpty(object.getInfo(context, "attribute[IMS_QP_SelectDocument]"));
+//            boolean wrongCode = object.getInfo(context, "from[IMS_QP_ExpectedResult2QPTask].to.attribute[IMS_QP_DocumentCode]")
+//                    .contains("Wrong");
+//            boolean moreThanOneExpected = object.getInfo(context, "from[IMS_QP_ExpectedResult2QPTask].to.id")
+//                    .contains(IMS_QP_Constants_mxJPO.BELL_DELIMITER);
+//            boolean isPurple = hasSelect || wrongCode || moreThanOneExpected;
+//            IMS_QP_DEPTask_mxJPO.getColor(returnList, factExp, factGot, isPurple);
+
+            String color = "";
+
+            //1 if attribute of task IMS_QP_SelectDocument has any values
+
+            if (UIUtil.isNotNullAndNotEmpty(object.getInfo(context, IMS_QP_Constants_mxJPO.attribute_IMS_QP_SelectDocument)))
+                color = "IMS_QP_Purple";
+
+            //2 if attribute of expected result IMS_QP_DocumentCode contains value 'Wrong'
+            String wrongCodeField = object.getInfo(context, String.format("from[%s].to.%s",
+                    IMS_QP_Constants_mxJPO.relationship_IMS_QP_ExpectedResult2QPTask, IMS_QP_Constants_mxJPO.attribute_IMS_QP_DocumentCode));
+            if (UIUtil.isNotNullAndNotEmpty(wrongCodeField) && wrongCodeField.contains("Wrong code"))
+                color = "IMS_QP_Orange";
+
+            //3 if the task has more than one expected result in direction 'Output'
+            String moreThanOneExpectedRelations = MqlUtil.mqlCommand(context, String.format("print bus %s select from[IMS_QP_ExpectedResult2QPTask].to.id dump |", object.getId(context)));
+            if (UIUtil.isNotNullAndNotEmpty(moreThanOneExpectedRelations) && moreThanOneExpectedRelations.contains("|"))
+                color = "IMS_QP_Yellow";
+
+            String checkNoFact = object.getInfo(context,
+                    String.format("from[%s]", IMS_QP_Constants_mxJPO.relationship_IMS_QP_QPTask2Fact));
+
+            //4 if the task is 'Another' type
+            String resultType = object.getInfo(context,
+                    "from[IMS_QP_ExpectedResult2QPTask].to.to[IMS_QP_ResultType2ExpectedResult].from.to[IMS_QP_ResultType2Family].from.name");
+            boolean anotherTypeAndNoFact = IMS_QP_Constants_mxJPO.ANOTHER_PLAN_TYPES.equals(resultType) && "FALSE".equals(checkNoFact);
+
+            //5 if the task is 'VTZ' type and attribute of expected result IMS_DocumentCode is empty value
+            boolean vtzTypeAndNoFact = IMS_QP_Constants_mxJPO.VTZ_PLAN_TYPES.equals(resultType) && "FALSE".equals(checkNoFact);
+
+            if (anotherTypeAndNoFact || vtzTypeAndNoFact) color = "IMS_QP_Blue";
+
+            LOG.info(object.getName(context) + " color: " + color);
+            IMS_QP_DEPTask_mxJPO.getColor(returnList, factExp, factGot, color);
         }
         return returnList;
     }

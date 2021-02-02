@@ -1,0 +1,21 @@
+################################################################################
+# COMMAND_IMS_QP_Classifier2QPlan_connect.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate command "${NAME}" {
+    symbolicname "command_IMS_QP_Classifier2QPlan_connect"
+    description "showing table of connected SQPs for classifier by current DEP"
+    label "Connect plans"
+    href "${COMMON_DIR}/emxIndentedTable.jsp?program=IMS_QP_Classifier:findAllFromDEP&table=IMS_QP_Classifier2QPlan_table&selection=multiple&submitURL=../common/IMS_QP_ConnectClassifier2QPlan.jsp&submitLabel=Connect&submitAction=refreshCaller"
+    alt ""
+    setting "Image" "${COMMON_DIR}/images/iconActionTraceabilityReport.png"
+    setting "Registered Suite" "Framework"
+    ################################################## Info Start
+    property "author" value "IMS Team"
+    property "original name" value "IMS_QP_Classifier2QPlan_connect"
+    property "application" value "IMS_QP"
+    property "version" value "1"
+    ################################################## Info End
+}
