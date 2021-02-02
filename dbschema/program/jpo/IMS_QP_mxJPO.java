@@ -1,7 +1,10 @@
 import com.matrixone.apps.domain.DomainConstants;
 import com.matrixone.apps.domain.DomainObject;
 import com.matrixone.apps.domain.DomainRelationship;
-import com.matrixone.apps.domain.util.*;
+import com.matrixone.apps.domain.util.ContextUtil;
+import com.matrixone.apps.domain.util.EnoviaResourceBundle;
+import com.matrixone.apps.domain.util.FrameworkException;
+import com.matrixone.apps.domain.util.MapList;
 import com.matrixone.apps.framework.ui.UIUtil;
 import matrix.db.*;
 import matrix.util.MatrixException;
@@ -35,7 +38,10 @@ public class IMS_QP_mxJPO extends DomainObject {
                     append(IMS_QP_Constants_mxJPO.type_IMS_DisciplineCode).append(",").
                     append(IMS_QP_Constants_mxJPO.type_IMS_QP_DEPProjectStage).append(",").
                     append(IMS_QP_Constants_mxJPO.type_IMS_QP_DEPSubStage).append(",").
-                    append(IMS_QP_Constants_mxJPO.type_IMS_QP_DEPTask);
+                    append(IMS_QP_Constants_mxJPO.type_IMS_QP_DEPTask).append(",")
+
+                    //by issue #51753
+                    .append(IMS_QP_Constants_mxJPO.type_IMS_QP_Reports).append(",");
 
             StringBuffer sbRel = new StringBuffer().
                     append(IMS_QP_Constants_mxJPO.relationship_IMS_QP_Project2QP).append(",").
@@ -50,7 +56,10 @@ public class IMS_QP_mxJPO extends DomainObject {
                     append(IMS_QP_Constants_mxJPO.relationship_IMS_QP_DEP2DEPProjectStage).append(",").
                     append(IMS_QP_Constants_mxJPO.relationship_IMS_QP_DEPProjectStage2DEPSubStage).append(",").
                     append(IMS_QP_Constants_mxJPO.relationship_IMS_QP_QP2QPlan).append(",").
-                    append(IMS_QP_Constants_mxJPO.relationship_IMS_QP_DEPSubStage2DEPTask);
+                    append(IMS_QP_Constants_mxJPO.relationship_IMS_QP_DEPSubStage2DEPTask).append(",")
+
+                    //by issue #51753
+                    .append(IMS_QP_Constants_mxJPO.relationship_IMS_QP_Project2Reports).append(",");
 
             DomainObject domObj = newInstance(context, objectId);
 
@@ -83,12 +92,40 @@ public class IMS_QP_mxJPO extends DomainObject {
         } catch (Exception ex) {
             throw new FrameworkException(ex.toString());
         }
+
+        for (Object o : componentsList) {
+            Map map = (Map) o;
+            String name = (String) map.get(DomainConstants.SELECT_NAME);
+            if (name.equals("Reports")) {
+                map.put(DomainConstants.SELECT_TYPE, "");
+            }
+
+        }
+//        Collections.sort(componentsList, new Comparator<Map>() {
+//            @Override
+//            public int compare(Map o1, Map o2) {
+//                String report = "Reports";
+//                String name1 = (String) o1.get(DomainConstants.SELECT_NAME);
+//                String name2 = (String) o2.get(DomainConstants.SELECT_NAME);
+//
+//                if (name1.equals(report)) {
+//                    o1.put(DomainConstants.SELECT_TYPE, "");
+//                    return 1;
+//                } else if (name2.equals(report)) {
+//                    o1.put(DomainConstants.SELECT_TYPE, "");
+//                    return -1;
+//                }
+//
+//                return name1.compareTo(name2);
+//            }
+//        });
+
         return componentsList;
     }
 
     private MapList getFilteredMapListByOwner(Context context, MapList mapList) {
 
-        boolean isSuperUser = false, isAdmin = false;
+        boolean isSuperUser, isAdmin;
         isSuperUser = IMS_QP_Security_mxJPO.currentUserIsQPSuperUser(context);
         isAdmin = IMS_QP_Security_mxJPO.isUserAdmin(context);
 
@@ -542,7 +579,7 @@ public class IMS_QP_mxJPO extends DomainObject {
             ids.add(rowID.substring(0, rowID.indexOf("|")));
         }
 
-        //copy all ids objects with new name and not include files
+        //copy all ids of objects with new names and not include files
         if (!ids.isEmpty()) {
             for (String id : ids) {
                 try {
@@ -594,7 +631,7 @@ public class IMS_QP_mxJPO extends DomainObject {
      * @param postfix      last piece of name for copying object name
      * @throws Exception any errors thrown by the method
      */
-    private void copyRelationshipsOfTask(Context context, String id, DomainObject targetObject, String postfix) throws Exception {
+    private void copyRelationshipsOfTask(Context context, String id, DomainObject targetObject, String postfix) {
 
         // Instantiate the BusinessObject.
         StringList selectBusStmts = new StringList();
@@ -608,12 +645,24 @@ public class IMS_QP_mxJPO extends DomainObject {
         selectRelStmts.addElement("from.id");
         short recurse = 1;
 
-        BusinessObject parentObject = new BusinessObject(id);
-        parentObject.open(context);
+        BusinessObject parentObject = null;
+        try {
+            parentObject = new BusinessObject(id);
+            parentObject.open(context);
+        } catch (MatrixException matrixException) {
+            LOG.error("error when opening Business Object: " + matrixException.getMessage());
+            matrixException.printStackTrace();
+        }
 
         // Getting the expansion
-        ExpansionWithSelect expansion = parentObject.expandSelect(context, "*", "*", selectBusStmts, selectRelStmts, true, true, recurse);
-        parentObject.close(context);
+        ExpansionWithSelect expansion = null;
+        try {
+            expansion = parentObject.expandSelect(context, "*", "*", selectBusStmts, selectRelStmts, true, true, recurse);
+            parentObject.close(context);
+        } catch (MatrixException matrixException) {
+            LOG.error("error getting expansion and closing Business Object: " + matrixException.getMessage());
+            matrixException.printStackTrace();
+        }
         //--------------------------------------------------------------
         //  _object.expandSelect(_context, - Java context object
         //  "*",                           - relationship Pattern
@@ -638,36 +687,79 @@ public class IMS_QP_mxJPO extends DomainObject {
             //if expected result type
             boolean from = relSelect.getSelectData("from.id").equals(id) ? true : false;
             if (relSelect.getSelectData("name").equals(IMS_QP_Constants_mxJPO.relationship_IMS_QP_ExpectedResult2QPTask)) {
-                DomainObject expectedResult = new DomainObject(relSelect.getSelectData((from ? "to" : "from") + ".id"));
-                String expectedResultRename = expectedResult.getName(context) + postfix;
+                DomainObject expectedResult = null, clonedExpectedResult = null;
 
-                //copied expected result
-                DomainObject clonedExpectedResult = new DomainObject();
-                clonedExpectedResult.createObject(context,
-                        /*type*/IMS_QP_Constants_mxJPO.type_IMS_QP_ExpectedResult,
-                        /*name*/expectedResultRename,
-                        /*revision*/"",
-                        /*policy*/"IMS_QP_ExpectedResult",
-                        /*vault*/ context.getVault().getName());
+                try {
+                    expectedResult = new DomainObject(relSelect.getSelectData((from ? "to" : "from") + ".id"));
+                    String expectedResultRename = expectedResult.getName(context) + postfix;
+
+                    //copied expected result
+                    clonedExpectedResult = new DomainObject();
+                    clonedExpectedResult.createObject(context,
+                            /*type*/IMS_QP_Constants_mxJPO.type_IMS_QP_ExpectedResult,
+                            /*name*/expectedResultRename,
+                            /*revision*/"",
+                            /*policy*/"IMS_QP_ExpectedResult",
+                            /*vault*/ context.getVault().getName());
+                } catch (Exception e) {
+                    LOG.error("error creating Domain Object: " + e.getMessage());
+                }
 
                 //coping all attributes
-                copyAttributes(context, expectedResult, clonedExpectedResult);
-
-                String resultTypeID = expectedResult.getInfo(context, "to[" + IMS_QP_Constants_mxJPO.relationship_IMS_QP_ResultType2ExpectedResult + "].from.id");
-                DomainObject resultType = new DomainObject(resultTypeID);
-                if (resultType.getType(context).equals("IMS_Family")) {
-                    clonedExpectedResult.connect(context, new RelationshipType(IMS_QP_Constants_mxJPO.relationship_IMS_QP_ResultType2ExpectedResult), /*from clone*/ false, resultType);
-                } else {
-                    emxContextUtil_mxJPO.mqlWarning(context, "Expected result " + expectedResult.getName(context) + " doesn't have connection from IMS_Family. Check this!");
-                    //throw new FrameworkException("Expected result doesn't have connection from IMS_Family. Check this!");
+                try {
+                    copyAttributes(context, expectedResult, clonedExpectedResult);
+                } catch (MatrixException matrixException) {
+                    LOG.error("error copying attributes: " + matrixException.getMessage());
                 }
+
+                String resultTypeID = null;
+                DomainObject resultType = null;
+                try {
+                    resultTypeID = expectedResult.getInfo(context, "to[" + IMS_QP_Constants_mxJPO.relationship_IMS_QP_ResultType2ExpectedResult + "].from.id");
+                    resultType = new DomainObject(resultTypeID);
+                    LOG.info("resultType: " + resultType.getType(context) + "|" + resultType.getName(context) + "|" + resultType.getId(context));
+                } catch (Exception e) {
+                    LOG.error("error getting Domain Object: " + resultTypeID + " message: " + e.getMessage());
+                }
+
+                try {
+                    if ("IMS_Family".equals(resultType.getType(context))) {
+                        LOG.info("try to connect from " + clonedExpectedResult.getId(context) + " to " + resultType.getId(context));
+                        clonedExpectedResult.connect(context, new RelationshipType(IMS_QP_Constants_mxJPO.relationship_IMS_QP_ResultType2ExpectedResult), /*from clone*/ false, resultType);
+                    } else {
+                        emxContextUtil_mxJPO.mqlWarning(context, "Expected result " + expectedResult.getName(context) + " doesn't have connection from IMS_Family. Check this!");
+                        throw new FrameworkException("Expected result doesn't have connection from IMS_Family. Check this!");
+                    }
+                } catch (FrameworkException frameworkException) {
+                    LOG.error("error getting attribute IMS_Family: " + resultTypeID + " message: " + frameworkException.getMessage());
+                } catch (MatrixException matrixException) {
+                    LOG.error("error connecting expected result to type: " + clonedExpectedResult + " to " + resultTypeID + " message: " + matrixException.getMessage());
+                } catch (Exception e) {
+                    LOG.error("other error: " + e.getMessage());
+                }
+
                 //connect copied Expected result from/to targetObject
-                clonedExpectedResult.connect(context, new RelationshipType(relationshipType), /*from clone*/ !from, targetObject);
+                try {
+                    clonedExpectedResult.connect(context, new RelationshipType(relationshipType), /*from clone*/ !from, targetObject);
+                } catch (MatrixException matrixException) {
+                    LOG.error("error connecting " + clonedExpectedResult + " !from: " + !from + " " + targetObject);
+                }
             } else {
                 //another connections
                 if ("IMS_QP_QPTask2Fact".equals(relationshipType)) continue;
-                DomainObject anotherObject = new DomainObject(relSelect.getSelectData("from.id"));
-                DomainRelationship.connect(context, anotherObject, new RelationshipType(relationshipType), targetObject);
+                String relationshipRoute = "from.id";
+                if ("IMS_QP_QPlan2Object".equals(relationshipType)) {
+                    relationshipRoute = "to.id";
+                }
+                try {
+                    DomainObject anotherObject = new DomainObject(relSelect.getSelectData(relationshipRoute));
+                    LOG.info(anotherObject.getType(context) + " connect " + relationshipType + " !from " + !from + " " + targetObject.getType(context));
+                    anotherObject.connect(context, new RelationshipType(relationshipType), !from, targetObject);
+                } catch (FrameworkException frameworkException) {
+                    LOG.error("error getting attribute IMS_Family: " + relSelect.getSelectData("from.id") + " to " + targetObject + "| message: " + frameworkException.getMessage());
+                } catch (Exception e) {
+                    LOG.error("other error: " + e.getMessage());
+                }
             }
         }
     }

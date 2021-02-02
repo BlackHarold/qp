@@ -99,22 +99,18 @@ public class IMS_QP_ExpectedResult_mxJPO {
             if ("IMS_QP_DEPTask".equals(type)) {
                 result = IMS_QP_Security_mxJPO.currentUserIsDEPOwner(context, object) ||
                         IMS_QP_Security_mxJPO.currentUserIsQPSuperUser(context);
-
-                String statePath = String.format("to[%s].from.to[%s].from.to[%s].from.current",
-                        IMS_QP_Constants_mxJPO.RELATIONSHIP_IMS_QP_DEPSubStage2DEPTask,
+                state = object.getInfo(context, String.format("to[%s].from.to[%s].from.to[%s].from.current",
+                        IMS_QP_Constants_mxJPO.relationship_IMS_QP_DEPSubStage2DEPTask,
                         IMS_QP_Constants_mxJPO.RELATIONSHIP_IMS_QP_DEPProjectStage2DEPSubStage,
-                        IMS_QP_Constants_mxJPO.RELATIONSHIP_IMS_QP_DEP2DEPProjectStage);
-                state = object.getInfo(context, statePath);
+                        IMS_QP_Constants_mxJPO.RELATIONSHIP_IMS_QP_DEP2DEPProjectStage));
             }
 
 //            IMS_QP_QPTask
             else if ("IMS_QP_QPTask".equals(type)) {
                 result = IMS_QP_Security_mxJPO.isOwnerQPlanFromTaskID(context, id) ||
                         IMS_QP_Security_mxJPO.currentUserIsQPSuperUser(context);
-
-                String statePath = String.format("to[%s].from.current",
-                        IMS_QP_Constants_mxJPO.relationship_IMS_QP_QPlan2QPTask);
-                state = object.getInfo(context, statePath);
+                state = object.getInfo(context, String.format("to[%s].from.current",
+                        IMS_QP_Constants_mxJPO.relationship_IMS_QP_QPlan2QPTask));
             }
 
             if (!"Draft".equals(state)) {

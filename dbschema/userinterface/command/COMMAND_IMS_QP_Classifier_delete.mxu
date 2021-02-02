@@ -10,6 +10,7 @@ mxUpdate command "${NAME}" {
     label "Delete"
     href "${COMMON_DIR}/IMS_QP_Classifier_delete.jsp"
     alt ""
+    setting "Access Expression" "context.user.isassigned[IMS_Admin]==True || context.user.isassigned[IMS_QP_SuperUser]==True"
     setting "Image" "${COMMON_DIR}/images/iconActionDelete.gif"
     setting "Registered Suite" "Framework"
     setting "Row Select" "multi"

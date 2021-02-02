@@ -13,10 +13,10 @@ mxUpdate menu "${NAME}" {
     alt ""
     command "IMS_QP_DEP_create"
     command "IMS_QP_DEP_Delete"
-    #command "IMS_QP_DEP_Validate"
+    command "IMS_QP_DEP_Report"
     ################################################## Info Start
     property "original name" value "IMS_QP_Toolbar"
-    property "application" value "IMS_HNH19"
+    property "application" value "IMS_QP"
     property "version" value "1"
     ################################################## Info End
 }

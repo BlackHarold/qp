@@ -10,6 +10,7 @@ mxUpdate command "${NAME}" {
     label "New classifier"
     href "${COMMON_DIR}/IMS_QP_Classifier_create.jsp?type=IMS_QP_Classifier&policy=IMS_QP_Classifier&typeChooser=false&form=IMS_QP_Classifier_create&postProcessJPO=IMS_QP_Classifier:createPostProcess&submitAction=refreshCaller"
     alt ""
+    setting "Access Expression" "context.user.isassigned[IMS_Admin]==True || context.user.isassigned[IMS_QP_SuperUser]==True"
     setting "Image" "${COMMON_DIR}/images/iconActionAdd.png"
     setting "Target Location" "popup"
     ################################################## Info Start

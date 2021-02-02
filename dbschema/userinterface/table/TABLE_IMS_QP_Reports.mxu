@@ -1,0 +1,41 @@
+################################################################################
+# TABLE_IMS_QP_Reports.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate table "${NAME}" {
+    symbolicname "table_IMS_QP_Reports"
+    description ""
+    column {
+        name "Name"
+        label "emxComponents.Common.Name"
+        businessobject "name"
+        setting "Access Expression" "true"
+        setting "Field Type" "basic"
+        setting "Registered Suite" "Components"
+    }
+    column {
+        name "Originator"
+        label "emxFramework.Basic.Originator"
+        businessobject "owner"
+        user "all"
+        setting "Registered Suite" "Components"
+    }
+    column {
+        name "Originated"
+        label "emxComponents.Common.Originated"
+        businessobject "originated"
+        setting "Access Expression" "true"
+        setting "Editable" "true"
+        setting "Field Type" "basic"
+        setting "Registered Suite" "Components"
+        setting "format" "date"
+    }
+    ################################################## Info Start
+    property "author" value "IMS Team"
+    property "original name" value "IMS_QP_Reports"
+    property "application" value "IMS QP"
+    property "version" value "1"
+    ################################################## Info End
+}

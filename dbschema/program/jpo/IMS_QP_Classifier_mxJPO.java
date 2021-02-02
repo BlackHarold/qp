@@ -7,6 +7,7 @@ import com.matrixone.apps.domain.util.MapList;
 import com.matrixone.apps.framework.ui.UIUtil;
 import matrix.db.Context;
 import matrix.db.JPO;
+import matrix.db.Relationship;
 import matrix.db.RelationshipType;
 import matrix.util.MatrixException;
 import matrix.util.StringList;
@@ -14,6 +15,7 @@ import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.log4j.Logger;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -221,6 +223,91 @@ public class IMS_QP_Classifier_mxJPO {
             LOG.error("matrix exception: " + me.getMessage());
             throw (me);
         }
+        return "{\"status code\": 200," +
+                "\"message\": \"success\"}";
+    }
+
+    public MapList findAllFromDEP(Context ctx, String... args) {
+
+        Map argsMap = null;
+        try {
+            argsMap = JPO.unpackArgs(args);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        String objectId = (String) argsMap.get("objectId");
+
+        String depId = "";
+        try {
+            depId = new DomainObject(objectId).getInfo(ctx,
+                    String.format("to[%s].from.id", IMS_QP_Constants_mxJPO.relationship_IMS_QP_DEP2Classifier));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        MapList allPlansFromDEP = new MapList();
+        try {
+            allPlansFromDEP = new DomainObject(depId).getRelatedObjects(ctx,
+                    /*relationship*/IMS_QP_Constants_mxJPO.relationship_IMS_QP_DEP2QPlan,
+                    /*type*/IMS_QP_Constants_mxJPO.type_IMS_QP_QPlan,
+                    /*object attributes*/ new StringList(DomainConstants.SELECT_ID),
+                    /*relationship selects*/ null,
+                    /*getTo*/ false, /*getFrom*/ true,
+                    /*recurse to level*/ (short) 1,
+                    /*object where*/ String.format("to[%s]==false",
+                            IMS_QP_Constants_mxJPO.relationship_IMS_QP_Classifier2QPlan),
+                    /*relationship where*/ null,
+                    /*limit*/ 0);
+        } catch (FrameworkException fe) {
+            LOG.error("framework exception: " + fe.getMessage());
+            fe.printStackTrace();
+        } catch (Exception e) {
+            LOG.error("domain object create error: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        return allPlansFromDEP;
+    }
+
+    public String connectPlans(Context ctx, String... args) {
+
+        Map argsMap = null;
+        try {
+            argsMap = JPO.unpackArgs(args);
+        } catch (Exception e) {
+            LOG.error("error getting arguments: " + e.getMessage());
+            return "error getting arguments: " + e.getMessage();
+        }
+        List<String> objectList = (List<String>) argsMap.get("objectList");
+        String objectId = (String) argsMap.get("objectId");
+
+        if (objectList != null) {
+            for (String planId : objectList) {
+
+                try {
+                    DomainObject classifierObject = new DomainObject(objectId);
+                    DomainObject planObject = new DomainObject(planId);
+                    LOG.info("connecting " + IMS_QP_Constants_mxJPO.relationship_IMS_QP_Classifier2QPlan
+                            + " from " + classifierObject.getName(ctx)
+                            + " to " + planObject.getName(ctx));
+                    Relationship relationship = DomainRelationship.connect(ctx,
+                            /*from*/classifierObject,
+                            /*relationship*/ IMS_QP_Constants_mxJPO.relationship_IMS_QP_Classifier2QPlan,
+                            /*to*/planObject);
+
+                    if (relationship == null) {
+                        LOG.error("relationship: " + IMS_QP_Constants_mxJPO.relationship_IMS_QP_Classifier2QPlan
+                                + " from " + classifierObject.getName(ctx)
+                                + " to " + planObject.getName(ctx));
+                    }
+                } catch (Exception e) {
+                    LOG.error("connecting error: " + e.getMessage());
+                    return "connecting error: " + e.getMessage();
+                }
+            }
+        }
+
         return "{\"status code\": 200," +
                 "\"message\": \"success\"}";
     }

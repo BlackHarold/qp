@@ -26,6 +26,8 @@ emxFramework.Type.IMS_GBSBuilding=Building
 emxFramework.Type.IMS_PBSFunctionalArea=FunctionalArea
 emxFramework.Type.IMS_QP_DEPProjectStage=ProjectStage
 emxFramework.Type.IMS_QP_Classifier=IMS_QP_Classifier
+emxFramework.Type.IMS_QP_Reports=IMS_QP_Reports
+emxFramework.Type.IMS_QP_ReportUnit=IMS_QP_ReportUnit
 
 emxFramework.State.IMS_PBSSystem.Exist=Exist
 emxFramework.State.IMS_GBSBuilding.Exist=Exist
@@ -47,6 +49,9 @@ emxFramework.State.IMS_QP_ResultType.Created=Created
 emxFramework.State.IMS_ProjectStage.Created=Created
 emxFramework.State.IMS_QP_QPlan.Draft=Draft
 emxFramework.State.IMS_QP_QPlan.Done=Done
+emxFramework.State.IMS_QP_Reports.Active=Active
+emxFramework.State.IMS_QP_Reports.Inactive=Inactive
+emxFramework.State.IMS_QP_ReportUnit.Exist=Exist
 
 emxFramework.Attribute.QP_IMS_Name = Name
 emxFramework.Attribute.QP_IMS_NameRu = Name Ru

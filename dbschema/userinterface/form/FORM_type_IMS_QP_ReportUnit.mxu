@@ -1,0 +1,30 @@
+################################################################################
+# FORM_type_IMS_QP_ReportUnit.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate form "${NAME}" {
+    symbolicname "form_type_IMS_QP_ReportUnit"
+    description ""
+    field {
+        name "info"
+        label "Main Information"
+        setting "Field Type" "Section Header"
+        setting "Section Level" "2"
+    }
+    field {
+        name "Name"
+        label "emxComponents.Common.Name"
+        businessobject "name"
+        setting "Access Expression" "true"
+        setting "Field Type" "basic"
+        setting "Registered Suite" "Components"
+    }
+    ################################################## Info Start
+    property "author" value "The IMS Team"
+    property "original name" value "type_IMS_QP_ReportUnit"
+    property "application" value "IMS_QP"
+    property "version" value "1"
+    ################################################## Info End
+}

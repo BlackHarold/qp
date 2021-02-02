@@ -1,0 +1,360 @@
+import com.matrixone.apps.domain.DomainConstants;
+import com.matrixone.apps.domain.DomainObject;
+import com.matrixone.apps.domain.util.FrameworkException;
+import com.matrixone.apps.domain.util.MapList;
+import com.matrixone.apps.framework.ui.UIUtil;
+import matrix.db.*;
+import matrix.util.MatrixException;
+import matrix.util.StringList;
+import org.apache.log4j.Logger;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+
+public class IMS_QP_SQP_Report_mxJPO {
+    private static final Logger LOG = Logger.getLogger("reportLogger");
+
+    public Map getReport(Context ctx, String... args) {
+        Map argsMap = null;
+        try {
+            argsMap = JPO.unpackArgs(args);
+        } catch (Exception e) {
+            LOG.error("error: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        String[] rowIDs = (String[]) argsMap.get("emxTableRowId");
+        if (rowIDs.length == 0) {
+            return null;
+        }
+
+        String[] cleanedIDs = new String[rowIDs.length];
+        for (int i = 0; i < rowIDs.length; i++) {
+            String[] rowIdArray = rowIDs[i].split("\\|");
+            cleanedIDs[i] = rowIdArray[1];
+        }
+
+        /**sqp report generator*/
+        BusinessObjectWithSelectList reportData =
+                new IMS_QP_ListObjectsReportGenerator_mxJPO().reportGeneration(ctx, "SQP", cleanedIDs);
+        createReportUnit(ctx, reportData, "SQP");
+
+        return new HashMap();
+    }
+
+    public void createReportUnit(Context ctx, BusinessObjectWithSelectList reportData, String reportType) {
+
+        String objectId = null;
+        String reportName = null;
+        String vault = ctx.getVault().getName();
+
+        DomainObject reportsContainerObject = null, reportObject = null;
+
+        try {
+            MapList reportsByType = DomainObject.findObjects(ctx,
+                    IMS_QP_Constants_mxJPO.type_IMS_QP_ReportUnit,
+                    IMS_QP_Constants_mxJPO.ESERVICE_PRODUCTION,
+                    "name smatch *SQP*",
+                    new StringList(DomainConstants.SELECT_ID));
+            int reportsCount = reportsByType.size();
+
+            BusinessObject boReportContainerObject = new BusinessObject(IMS_QP_Constants_mxJPO.type_IMS_QP_Reports, "Reports", "-", ctx.getVault().getName());
+            reportsContainerObject = new DomainObject(boReportContainerObject);
+
+            BusinessObject boReportUnit;
+            do {
+                reportName = "sqp_report_" + ++reportsCount;
+                boReportUnit = new BusinessObject(IMS_QP_Constants_mxJPO.type_IMS_QP_ReportUnit, reportName, "-", vault);
+            } while (boReportUnit.exists(ctx));
+
+            reportObject = DomainObject.newInstance(ctx);
+            reportObject.createObject(ctx,
+                    /*type*/IMS_QP_Constants_mxJPO.type_IMS_QP_ReportUnit,
+                    /*name*/reportName,
+                    /*revision*/"-",
+                    /*policy*/IMS_QP_Constants_mxJPO.policy_IMS_QP_ReportUnit,
+                    /*vault*/ vault);
+        } catch (FrameworkException frameworkException) {
+            LOG.error("Framework exception: " + frameworkException.getMessage());
+            frameworkException.printStackTrace();
+        } catch (MatrixException matrixException) {
+            LOG.error("Matrix exception: " + matrixException.getMessage());
+            matrixException.printStackTrace();
+        }
+
+        try {
+            if (reportsContainerObject != null && reportObject != null) {
+                IMS_KDD_mxJPO.connectIfNotConnected(ctx, IMS_QP_Constants_mxJPO.relationship_IMS_QP_Reports2ReportUnit, reportsContainerObject, reportObject);
+            }
+            objectId = reportObject.getId(ctx);
+
+        } catch (Exception e) {
+            LOG.error("error connecting: " + IMS_QP_Constants_mxJPO.relationship_IMS_QP_Reports2ReportUnit + "|" + e.getMessage());
+        }
+
+        //Get report
+        Workbook workbook = createReport(ctx, reportData, reportType);
+
+        //Write report to the file and upload file to the Business object
+        if (UIUtil.isNotNullAndNotEmpty(reportName) && UIUtil.isNotNullAndNotEmpty(objectId)) {
+            IMS_QP_CheckInOutFiles_mxJPO checkInOutFiles = new IMS_QP_CheckInOutFiles_mxJPO();
+            File file = checkInOutFiles.writeToFile(ctx, reportName, workbook);
+            boolean checkin = checkInOutFiles.checkIn(ctx, objectId, file);
+            LOG.info(objectId + "checkin result: " + checkin);
+        }
+    }
+
+    private String getWorkspacePath(Context ctx) {
+        String workspace = "";
+        try {
+            workspace = ctx.createWorkspace();
+        } catch (MatrixException matrixException) {
+            matrixException.printStackTrace();
+        }
+        return workspace;
+    }
+
+    private Workbook createReport(Context ctx, BusinessObjectWithSelectList reportData, String sheetName) {
+
+        Workbook wb = null;
+        try {
+            wb = new XSSFWorkbook(IMS_QP_Constants_mxJPO.SQP_REPORT_TEMPLATE_PATH);
+        } catch (IOException ioException) {
+            LOG.error("IO exception: " + ioException.getMessage());
+            ioException.printStackTrace();
+        }
+
+        Sheet sheet = wb.getSheet(sheetName);
+        int lastRowCount = sheet.getLastRowNum();
+        int pointCounter = 1;
+
+        for (Object o : reportData) {
+            BusinessObjectWithSelect businessObject = (BusinessObjectWithSelect) o;
+
+            try {
+                businessObject.open(ctx);
+            } catch (MatrixException e) {
+                LOG.error("error opening business object: " + e.getMessage());
+                e.printStackTrace();
+            }
+
+            Row row = sheet.createRow(lastRowCount);
+            row.createCell(0).setCellValue(pointCounter);
+            row.createCell(1).setCellValue(businessObject.getSelectData("name"));
+
+            /*SQP sheet specified zone*/
+            row.createCell(2).setCellValue(businessObject.getSelectData(
+                    String.format("to[%s].from.name",
+                            IMS_QP_Constants_mxJPO.relationship_IMS_QP_Classifier2QPlan)));
+            row.createCell(3).setCellValue(businessObject.getSelectData(
+                    String.format("to[%s].from.name",
+                            IMS_QP_Constants_mxJPO.relationship_IMS_QP_DEP2QPlan)));
+
+            RelationshipWithSelectItr relItr = getRelationshipsWithItr(ctx, businessObject);
+            Map<String, String> taskMap = getQPTaskList(
+                    businessObject.getSelectData(DomainObject.SELECT_ID), relItr);
+            pushCellsValuesSQP(wb, row, taskMap);
+
+            lastRowCount++;
+            pointCounter++;
+
+            try {
+                businessObject.close(ctx);
+            } catch (MatrixException e) {
+                LOG.error("error opening business object: " + e.getMessage());
+                e.printStackTrace();
+            }
+        }
+
+        return wb;
+    }
+
+    private void pushCellsValuesSQP(Workbook wb, Row row, Map<String, String> taskMap) {
+        Cell cell;
+        StringBuilder nameCellValueBuilder = new StringBuilder();
+        StringBuilder codeCellValueBuilder = new StringBuilder();
+        for (Object o : taskMap.entrySet()) {
+            Map.Entry<String, String> entry = (Map.Entry) o;
+            codeCellValueBuilder.append(entry.getKey()).append("\n");
+            nameCellValueBuilder.append(entry.getValue()).append("\n");
+        }
+
+        /*percentage counting cell*/
+        cell = row.createCell(4);
+        counter = counter > 0 ? counter : 1;
+        float mathResult = 100.0f * greenCounter / counter;
+        cell.setCellValue(String.format("%.1f", mathResult) + "%");
+
+        /*code task cell*/
+        cell = row.createCell(5);
+        cell.setCellStyle(getStyle(wb, "wrap10red"));
+        cell.setCellValue(codeCellValueBuilder.toString());
+        /*name task cell*/
+        cell = row.createCell(6);
+        cell.setCellStyle(getStyle(wb, "wrap10red"));
+        cell.setCellValue(nameCellValueBuilder.toString());
+    }
+
+    private CellStyle getStyle(Workbook wb, String styleParam) {
+        CellStyle cellStyle = wb.createCellStyle();
+        Font font;
+        switch (styleParam) {
+            case "wrap":
+                cellStyle.setWrapText(true);
+                break;
+            case "wrap10":
+                cellStyle.setWrapText(true);
+                font = wb.createFont();
+                font.setFontHeightInPoints((short) 8);
+                cellStyle.setFont(font);
+                break;
+            case "wrap10red":
+                cellStyle.setWrapText(true);
+                font = wb.createFont();
+                font.setFontHeightInPoints((short) 8);
+                font.setColor((short) 10);
+                cellStyle.setFont(font);
+                break;
+        }
+        return cellStyle;
+    }
+
+    private int counter;
+    private int greenCounter;
+
+    private Map<String, String> getQPTaskList(String taskId, RelationshipWithSelectItr relItr) {
+        Map<String, String> map = new HashMap<>();
+        counter = 0;
+        greenCounter = 0;
+
+        while (relItr.next()) {
+            RelationshipWithSelect relSelect = relItr.obj();
+
+            if (relSelect.getSelectData("name").equals(IMS_QP_Constants_mxJPO.relationship_IMS_QP_QPlan2QPTask)) {
+                //Increase counter
+                counter++;
+
+                boolean redFlag = true;
+
+                if ("Full".equals(relSelect.getSelectData("to.attribute[IMS_QP_CloseStatus]"))) {
+                    greenCounter++;
+                    redFlag = false;
+                }
+
+                if (redFlag) {
+                    map.put(relSelect.getSelectData("to.name"),
+                            UIUtil.isNotNullAndNotEmpty(relSelect.getSelectData("to.attribute[IMS_NameRu]")) ?
+                                    relSelect.getSelectData("to.attribute[IMS_NameRu]") :
+                                    "-");
+                }
+            }
+        }
+
+        LOG.info(map.size() + " at the map: " + map);
+        LOG.info("counter: " + counter + " greenCounter: " + greenCounter);
+        return map;
+    }
+
+    private RelationshipWithSelectItr getRelationshipsWithItr(Context ctx, BusinessObjectWithSelect businessObject) {
+
+        // Instantiating the BusinessObject
+        StringList selectBusStmts = new StringList();
+        selectBusStmts.addElement("id");
+        selectBusStmts.addElement("type");
+        selectBusStmts.addElement("name");
+
+        StringList selectRelStmts = new StringList();
+        selectRelStmts.addElement("name");
+        selectRelStmts.addElement("from.id");
+        selectRelStmts.addElement("from.name");
+        selectRelStmts.addElement("from.attribute[IMS_NameRu]");
+        selectRelStmts.addElement("to.id");
+        selectRelStmts.addElement("to.name");
+        selectRelStmts.addElement("to.attribute[IMS_NameRu]");
+        selectRelStmts.addElement("to.attribute[IMS_QP_CloseStatus]");
+        selectRelStmts.addElement("to.from[IMS_QP_QPTask2Fact].to.name");
+        selectRelStmts.addElement("to.from[IMS_QP_QPTask2Fact].to.current");
+        selectRelStmts.addElement("to.from[IMS_QP_QPTask2Fact].to.type"); //check CL & VTZ
+        selectRelStmts.addElement("to.from[IMS_QP_QPTask2Fact].to.attribute[IMS_ProjDocStatus]");
+
+        ExpansionWithSelect expansion = null;
+        try {
+            expansion = businessObject.expandSelect(ctx,
+                    "*", "*", selectBusStmts, selectRelStmts, true, true, (short) 1);
+            // Getting the expansion
+            //--------------------------------------------------------------
+            //  _object.expandSelect(_context, - Java context object
+            //  "*",                           - relationship Pattern
+            //  "*",                           - type Pattern
+            //  selectBusStmts,                - selects for Business Objects
+            //  selectRelStmts,                - selects for Relationships
+            //  true,                          - get To relationships
+            //  true,                          - get From relationships
+            //  recurse);                      - recursion level (0 = all)
+            //--------------------------------------------------------------
+
+        } catch (MatrixException e) {
+            LOG.info("matrix error: " + e.getMessage());
+            e.printStackTrace();
+        }
+        // Getting Relationships
+        RelationshipWithSelectList relationshipWithSelectList = expansion.getRelationships();
+        RelationshipWithSelectItr relItr = new RelationshipWithSelectItr(relationshipWithSelectList);
+        return relItr;
+    }
+
+    private RelationshipWithSelectItr getDEPRelationshipsWithIts(Context ctx, BusinessObjectWithSelect businessObject) {
+
+        // Instantiating the BusinessObject
+        StringList selectBusStmts = new StringList();
+        selectBusStmts.addElement("id");
+        selectBusStmts.addElement("type");
+        selectBusStmts.addElement("name");
+
+        StringList selectRelStmts = new StringList();
+        selectRelStmts.addElement("name");
+        selectRelStmts.addElement("from.id");
+        selectRelStmts.addElement("from.name");
+        selectRelStmts.addElement("from.attribute[IMS_NameRu]");
+        selectRelStmts.addElement("to.id");
+        selectRelStmts.addElement("to.name");
+        selectRelStmts.addElement("to.attribute[IMS_NameRu]");
+        selectRelStmts.addElement(
+                String.format("to.from[%s].to.from[%s].to.attribute[IMS_ProjDocStatus]",
+                        IMS_QP_Constants_mxJPO.relationship_IMS_QP_DEPTask2QPTask,
+                        IMS_QP_Constants_mxJPO.relationship_IMS_QP_QPTask2Fact));
+        short recurse = 3;
+
+        ExpansionWithSelect expansion = null;
+        try {
+            expansion = businessObject.expandSelect(ctx,
+                    IMS_QP_Constants_mxJPO.relationship_IMS_QP_DEP2DEPProjectStage + "," +
+                            IMS_QP_Constants_mxJPO.relationship_IMS_QP_DEPProjectStage2DEPSubStage + "," +
+                            IMS_QP_Constants_mxJPO.relationship_IMS_QP_DEPSubStage2DEPTask,
+                    "*", selectBusStmts, selectRelStmts, false, true, recurse);
+            // Getting the expansion
+            //--------------------------------------------------------------
+            //  _object.expandSelect(_context, - Java context object
+            //  "*",                           - relationship Pattern
+            //  "*",                           - type Pattern
+            //  selectBusStmts,                - selects for Business Objects
+            //  selectRelStmts,                - selects for Relationships
+            //  true,                          - get To relationships
+            //  true,                          - get From relationships
+            //  recurse);                      - recursion level (0 = all)
+            //--------------------------------------------------------------
+
+        } catch (MatrixException e) {
+            LOG.info("matrix error: " + e.getMessage());
+            e.printStackTrace();
+        }
+        // Getting Relationships
+        RelationshipWithSelectList relationshipWithSelectList = expansion.getRelationships();
+        RelationshipWithSelectItr relItr = new RelationshipWithSelectItr(relationshipWithSelectList);
+        return relItr;
+    }
+}

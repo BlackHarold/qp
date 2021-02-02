@@ -266,6 +266,12 @@ public class IMS_ExternalSystem_mxJPO {
 
                         object.connect(context, new RelationshipType(relationship), from, proxyObject);
 
+                        //Get IMS_QP_ExpectedResult2QPTask
+                        DomainObject expectedResult = new DomainObject(object.getInfo(context, "from[IMS_QP_ExpectedResult2QPTask].to.id"));
+                        //Write attribute document code into Expected Result object
+                        String docName = proxyObject.getName(context);
+                        expectedResult.setAttributeValue(context, "IMS_QP_DocumentCode", docName.substring(0, docName.lastIndexOf(".")));
+
                         IMS_KDD_mxJPO.connectIfNotConnected(context, RELATIONSHIP_IMS_Object2ExternalSystem, proxyObject, externalSystem.getObject());
                     }
                 });
@@ -284,5 +290,19 @@ public class IMS_ExternalSystem_mxJPO {
                 args[3],
                 args[4],
                 false);
+    }
+
+    public String getSelectable(Context context, String[] args) {
+
+        try {
+            Map argsMap = JPO.unpackArgs(args);
+            Map requestMap = (Map) argsMap.get("requestMap");
+            String objectId = (String) requestMap.get("objectId");
+            DomainObject objectTask = new DomainObject(objectId);
+            return objectTask.getAttributeValue(context, "IMS_QP_SelectDocument");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return "";
     }
 }

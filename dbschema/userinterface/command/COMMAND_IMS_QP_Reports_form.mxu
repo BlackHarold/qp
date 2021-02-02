@@ -1,0 +1,20 @@
+################################################################################
+# COMMAND_IMS_QP_Reports_form.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate command "${NAME}" {
+    symbolicname "command_IMS_QP_Reports_form"
+    description "Reports portal"
+    label "Daily report"
+    href "${COMMON_DIR}/emxForm.jsp?form=IMS_QP_Reports_form&toolbar=IMS_QP_Reports_toolbar"
+    alt ""
+    setting "Registered Suite" "Framework"
+    ################################################## Info Start
+    property "author" value "IMS Team"
+    property "original name" value "IMS_QP_Reports_form"
+    property "application" value "IMS_QP"
+    property "version" value "1"
+    ################################################## Info End
+}

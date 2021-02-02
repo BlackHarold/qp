@@ -10,9 +10,9 @@ mxUpdate menu "${NAME}" {
     label ""
     href ""
     alt ""
-    setting "Access Expression" "context.user.isassigned[IMS_Admin]==True || context.user.isassigned[IMS_QP_SuperUser]==True"
     command "IMS_QP_Classifier_create"
     command "IMS_QP_Classifier_delete"
+    command "IMS_QP_GRP_Report"
     ################################################## Info Start
     property "author" value "The IMS Team"
     property "original name" value "IMS_QP_Classifier_for_table"

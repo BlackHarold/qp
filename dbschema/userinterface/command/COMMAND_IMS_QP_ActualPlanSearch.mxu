@@ -5,13 +5,13 @@
 ################################################################################
 
 mxUpdate command "${NAME}" {
-    symbolicname "COMMAND_IMS_QP_ActualPlanSearch"
+    symbolicname "command_IMS_QP_ActualPlanSearch"
     description ""
-    label "Plan search"
+    label "Download report"
     href "${COMMON_DIR}/IMS_QP_ActualPlanSearch.jsp"
     alt ""
     user "all"
-    setting "Image" "${COMMON_DIR}/images/I_ENOAddAssessmentReport32.png"
+    setting "Image" "${COMMON_DIR}/images/iconActionDownload.png"
     ################################################## Info Start
     property "author" value "The MxUpdate Team"
     property "original name" value "IMS_QP_ActualPlanSearch"

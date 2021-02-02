@@ -25,6 +25,11 @@ mxUpdate table "${NAME}" {
         setting "Registered Suite" "Components"
     }
     column {
+        name "dep"
+        label "DEP"
+        businessobject "to[IMS_QP_DEP2QPlan].from.name"
+    }
+    column {
         name "group_info"
         label "Group SQP/BQP"
         businessobject "to[IMS_QP_Classifier2QPlan].from.name"
