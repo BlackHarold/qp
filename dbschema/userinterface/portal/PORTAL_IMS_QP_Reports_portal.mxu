@@ -1,0 +1,21 @@
+################################################################################
+# PORTAL_IMS_QP_Reports_portal.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate portal "${NAME}" {
+    symbolicname "portal_IMS_QP_Reports_portal"
+    description ""
+    label ""
+    href ""
+    alt ""
+    setting "Registered Suite" "Framework"
+    channel "IMS_QP_Reports_channel"
+    ################################################## Info Start
+    property "author" value "IMS Team"
+    property "original name" value "IMS_QP_Reports_portal"
+    property "application" value "IMS_QP"
+    property "version" value "1"
+    ################################################## Info End
+}

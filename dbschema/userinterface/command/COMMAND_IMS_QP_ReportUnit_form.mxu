@@ -1,0 +1,19 @@
+################################################################################
+# COMMAND_IMS_QP_ReportUnit_form.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate command "${NAME}" {
+    symbolicname "command_IMS_QP_ReportUnit_form"
+    description "Report unit form"
+    label "Report Unit"
+    href "${COMMON_DIR}/emxForm.jsp?form=type_IMS_QP_ReportUnit&formHeader='Report Unit'&toolbar=IMS_QP_ReportUnit_toolbar"
+    alt ""
+    ################################################## Info Start
+    property "author" value "The IMS Team"
+    property "original name" value "IMS_QP_ReportUnit_form"
+    property "application" value "IMS QP"
+    property "version" value "1"
+    ################################################## Info End
+}

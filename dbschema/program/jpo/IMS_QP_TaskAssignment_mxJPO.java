@@ -256,7 +256,7 @@ public class IMS_QP_TaskAssignment_mxJPO {
             taskObj.create(context, POLICY_IMS_QP_QPTask);
 
         } else {
-            int counter = 0;
+            int counter;
             MapList tasksByName = DomainObject.findObjects(context,
                     /*types*/TYPE_IMS_QP_QPTask,
                     /*vault*/ IMS_QP_Constants_mxJPO.ESERVICE_PRODUCTION,
@@ -289,9 +289,34 @@ public class IMS_QP_TaskAssignment_mxJPO {
         taskObj.setAttributeValue(context, ATT_IMS_QP_FACT_EXP, "1");
 
         //create expected result
-        DomainObject expObj = new DomainObject();
+        DomainObject expObj = new DomainObject(new BusinessObject(TYPE_IMS_QP_EXPECTED_RESULT, name, "", context.getVault().getName()));
         if (UIUtil.isNotNullAndNotEmpty(name)) {
-            expObj.createObject(context, TYPE_IMS_QP_EXPECTED_RESULT, name, "", TYPE_IMS_QP_EXPECTED_RESULT, context.getVault().getName());
+
+            if (!expObj.exists(context)) {
+                expObj.create(context, TYPE_IMS_QP_EXPECTED_RESULT);
+            } else {
+                int counter;
+                MapList expectedResultsByName = DomainObject.findObjects(context,
+                        /*types*/TYPE_IMS_QP_EXPECTED_RESULT,
+                        /*vault*/ IMS_QP_Constants_mxJPO.ESERVICE_PRODUCTION,
+                        /*where*/"name smatch '" + expObj.getName() + "*'",
+                        /*selects*/new StringList("id"));
+                boolean isUniqueName = false;
+                counter = expectedResultsByName.size();
+
+                while (!isUniqueName) {
+                    counter++;
+                    name = new StringBuilder(name).append((counter < 10 ? "0" + counter : counter)).toString();
+
+                    DomainObject expectedResultObjectWithCounter = new DomainObject(new BusinessObject(TYPE_IMS_QP_EXPECTED_RESULT, name, "", context.getVault().getName()));
+                    if (!expectedResultObjectWithCounter.exists(context)) {
+                        expectedResultObjectWithCounter.create(context, TYPE_IMS_QP_EXPECTED_RESULT);
+                        isUniqueName = true;
+                        expObj = expectedResultObjectWithCounter;
+                    }
+                }
+            }
+
         } else {
             LOG.info("temp name: " + name);
             throw new MatrixException("error getting temp name for expected result: " + name);
@@ -310,7 +335,7 @@ public class IMS_QP_TaskAssignment_mxJPO {
         try {
             ContextUtil.commitTransaction(context);
         } catch (Exception e) {
-            LOG.info("exception: " + e.getMessage());
+            LOG.error("exception: " + e.getMessage());
         }
     }
 
@@ -551,8 +576,76 @@ public class IMS_QP_TaskAssignment_mxJPO {
             DomainObject object = new DomainObject(sID);
             int factExp = Integer.parseInt(object.getInfo(context, IMS_QP_DEPTask_mxJPO.SELECT_ATTRIBUTE_IMS_QP_FACT_EXP));
             int factGot = Integer.parseInt(object.getInfo(context, IMS_QP_DEPTask_mxJPO.SELECT_ATTRIBUTE_IMS_QP_FACT_GOT));
-            IMS_QP_DEPTask_mxJPO.getColor(returnList, factExp, factGot);
+
+//            boolean hasSelect = UIUtil.isNotNullAndNotEmpty(object.getInfo(context, "attribute[IMS_QP_SelectDocument]"));
+//            boolean wrongCode = object.getInfo(context, "from[IMS_QP_ExpectedResult2QPTask].to.attribute[IMS_QP_DocumentCode]")
+//                    .contains("Wrong");
+//            boolean moreThanOneExpected = object.getInfo(context, "from[IMS_QP_ExpectedResult2QPTask].to.id")
+//                    .contains(IMS_QP_Constants_mxJPO.BELL_DELIMITER);
+//            boolean isPurple = hasSelect || wrongCode || moreThanOneExpected;
+//            IMS_QP_DEPTask_mxJPO.getColor(returnList, factExp, factGot, isPurple);
+
+            String color = "";
+
+            //1 if attribute of task IMS_QP_SelectDocument has any values
+
+            if (UIUtil.isNotNullAndNotEmpty(object.getInfo(context, IMS_QP_Constants_mxJPO.attribute_IMS_QP_SelectDocument)))
+                color = "IMS_QP_Purple";
+
+            //2 if attribute of expected result IMS_QP_DocumentCode contains value 'Wrong'
+            String wrongCodeField = object.getInfo(context, String.format("from[%s].to.%s",
+                    IMS_QP_Constants_mxJPO.relationship_IMS_QP_ExpectedResult2QPTask, IMS_QP_Constants_mxJPO.attribute_IMS_QP_DocumentCode));
+            if (UIUtil.isNotNullAndNotEmpty(wrongCodeField) && wrongCodeField.contains("Wrong code"))
+                color = "IMS_QP_Orange";
+
+            //3 if the task has more than one expected result in direction 'Output'
+            String moreThanOneExpectedRelations = MqlUtil.mqlCommand(context, String.format("print bus %s select from[IMS_QP_ExpectedResult2QPTask].to.id dump |", object.getId(context)));
+            if (UIUtil.isNotNullAndNotEmpty(moreThanOneExpectedRelations) && moreThanOneExpectedRelations.contains("|"))
+                color = "IMS_QP_Yellow";
+
+            String checkNoFact = object.getInfo(context,
+                    String.format("from[%s]", IMS_QP_Constants_mxJPO.relationship_IMS_QP_QPTask2Fact));
+
+            //4 if the task is 'Another' type
+            String resultType = object.getInfo(context,
+                    "from[IMS_QP_ExpectedResult2QPTask].to.to[IMS_QP_ResultType2ExpectedResult].from.to[IMS_QP_ResultType2Family].from.name");
+            boolean anotherTypeAndNoFact = IMS_QP_Constants_mxJPO.ANOTHER_PLAN_TYPES.equals(resultType) && "FALSE".equals(checkNoFact);
+
+            //5 if the task is 'VTZ' type and attribute of expected result IMS_DocumentCode is empty value
+            boolean vtzTypeAndNoFact = IMS_QP_Constants_mxJPO.VTZ_PLAN_TYPES.equals(resultType) && "FALSE".equals(checkNoFact);
+
+            if (anotherTypeAndNoFact || vtzTypeAndNoFact) color = "IMS_QP_Blue";
+
+            LOG.info(object.getName(context) + " color: " + color);
+            IMS_QP_DEPTask_mxJPO.getColor(returnList, factExp, factGot, color);
         }
         return returnList;
+    }
+
+    public boolean isQPlanDraft(Context context, String... args) {
+        Map argsMap = null;
+        String objectId = "";
+        try {
+            argsMap = JPO.unpackArgs(args);
+        } catch (Exception e) {
+            LOG.error("error getting args: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        objectId = (String) argsMap.get("objectId");
+        DomainObject object;
+        String qpState = "";
+        try {
+            object = new DomainObject(objectId);
+            String select = (object != null && object.getType(context).equals(IMS_QP_Constants_mxJPO.type_IMS_QP_QPlan)) ?
+                    DomainConstants.SELECT_CURRENT :
+                    String.format("to[%s].from.current", IMS_QP_Constants_mxJPO.relationship_IMS_QP_QPlan2QPTask);
+            qpState = object.getInfo(context, select);
+        } catch (Exception e) {
+            LOG.error("error getting info from object: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        return "Draft".equals(qpState);
     }
 }

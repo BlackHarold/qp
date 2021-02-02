@@ -1,14 +1,14 @@
+import com.matrixone.apps.domain.DomainConstants;
 import com.matrixone.apps.domain.DomainObject;
 import com.matrixone.apps.domain.DomainRelationship;
+import com.matrixone.apps.domain.util.FrameworkException;
 import com.matrixone.apps.domain.util.MapList;
 import matrix.db.Context;
 import matrix.db.JPO;
 import matrix.util.StringList;
 import org.apache.log4j.Logger;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Vector;
+import java.util.*;
 
 public class IMS_QP_QPTaskRelatedTasks_mxJPO {
     private static final Logger LOG = Logger.getLogger("IMS_QP_DEP");
@@ -21,14 +21,14 @@ public class IMS_QP_QPTaskRelatedTasks_mxJPO {
         MapList relatedTasks;
         String relationships = IMS_QP_Constants_mxJPO.relationship_IMS_QP_QPTask2QPTask;
         String types = IMS_QP_Constants_mxJPO.type_IMS_QP_QPTask;
-        StringList selects = new StringList("id");
+        StringList selects = new StringList(DomainConstants.SELECT_ID);
 
         StringBuilder whereBuilder = new StringBuilder(IMS_QP_Constants_mxJPO.ATTRIBUTE_IMS_QP_DEPTASK_STATUS).append("!='Rejected'");
         if (IMS_QP_Security_mxJPO.isOwnerDepFromQPTask(ctx, args)) {
             whereBuilder.setLength(0);
         }
 
-        if ("IMS_QP_QPTask".equals(object.getType(ctx))) {
+        if (IMS_QP_Constants_mxJPO.type_IMS_QP_QPTask.equals(object.getType(ctx))) {
             relatedTasks = object.getRelatedObjects(ctx,
                     /*relationship*/relationships,
                     /*type*/types,
@@ -70,17 +70,27 @@ public class IMS_QP_QPTaskRelatedTasks_mxJPO {
             String parentOID = (String) paramList.get("objectId");
             /*top level Codes by items*/
             DomainObject parent = new DomainObject(parentOID);
-            StringList selects = new StringList("id");
+            StringList selects = new StringList(DomainConstants.SELECT_ID);
             StringList relSelects = new StringList(IMS_QP_Constants_mxJPO.ATTRIBUTE_IMS_QP_DEPTASK_STATUS);
 
             //where with check from direction of relationship
             StringBuilder selectWhereBuilder = new StringBuilder("");
             if (in) {
-                selectWhereBuilder.append("from[").append(IMS_QP_Constants_mxJPO.relationship_IMS_QP_QPTask2QPTask).append("].to.id==")
-                        .append("'").append(parentOID).append("'");
+                selectWhereBuilder
+                        .append("from[")
+                        .append(IMS_QP_Constants_mxJPO.relationship_IMS_QP_QPTask2QPTask)
+                        .append("].to.id==")
+                        .append("'")
+                        .append(parentOID)
+                        .append("'");
             } else {
-                selectWhereBuilder.append("to[").append(IMS_QP_Constants_mxJPO.relationship_IMS_QP_QPTask2QPTask).append("].from.id==")
-                        .append("'").append(parentOID).append("'");
+                selectWhereBuilder
+                        .append("to[")
+                        .append(IMS_QP_Constants_mxJPO.relationship_IMS_QP_QPTask2QPTask)
+                        .append("].from.id==")
+                        .append("'")
+                        .append(parentOID)
+                        .append("'");
             }
 
             //drop 'Rejected' states if user hassn't admin or superuser roles
@@ -165,6 +175,14 @@ public class IMS_QP_QPTaskRelatedTasks_mxJPO {
         String road = (String) argsMap.get("road");
         boolean roadTo = road.equals("input");
 
+        String planIdFromTask = String.format("to[%s].from.%s",
+                IMS_QP_Constants_mxJPO.relationship_IMS_QP_QPlan2QPTask,
+                DomainConstants.SELECT_ID);
+        String depIdFromTask = String.format("to[%s].from.to[%s].from.%s",
+                IMS_QP_Constants_mxJPO.relationship_IMS_QP_QPlan2QPTask,
+                IMS_QP_Constants_mxJPO.relationship_IMS_QP_DEP2QPlan,
+                DomainConstants.SELECT_ID);
+
         String[] taskIDs = new String[rowIDs.length];
         for (int i = 0; i < rowIDs.length; i++) {
             rowIDs[i] = rowIDs[i].substring(rowIDs[i].indexOf("|"), rowIDs[i].lastIndexOf("|"));
@@ -174,29 +192,47 @@ public class IMS_QP_QPTaskRelatedTasks_mxJPO {
         String[] rawString = rowIDs[0].split("\\|");
         String parentID = rawString[2];
 
+        DomainObject parent = null;
         try {
-            DomainObject parent = new DomainObject(parentID);
+            parent = new DomainObject(parentID);
+        } catch (Exception e) {
+            LOG.error("error getting parent object: " + e.getMessage());
+        }
 
 //            task selects
-            StringList selects = new StringList("id");
-            selects.add("name");
+        StringList selects = new StringList("id");
+        selects.add("name");
+        selects.add(planIdFromTask);
+        selects.add(depIdFromTask);
 
-            String where = String.format("%s[%s].%s.id==%s", roadTo ? "from" : "to", IMS_QP_Constants_mxJPO.relationship_IMS_QP_QPTask2QPTask, roadTo ? "to" : "from", parentID);
-            MapList taskStates = parent.getRelatedObjects(ctx,
-                    /*relationship*/IMS_QP_Constants_mxJPO.relationship_IMS_QP_QPTask2QPTask,
-                    /*type*/IMS_QP_Constants_mxJPO.type_IMS_QP_QPTask,
-                    /*object attributes*/ selects,
-                    /*relationship selects*/ null,
-                    /*getTo*/ roadTo, /*getFrom*/ !roadTo,
-                    /*recurse to level*/ (short) 1,
-                    /*object where*/ where,
-                    /*relationship where*/ null,
-                    /*limit*/ 0);
+        String where = String.format("%s[%s].%s.id==%s",
+                roadTo ? "from" : "to", IMS_QP_Constants_mxJPO.relationship_IMS_QP_QPTask2QPTask,
+                roadTo ? "to" : "from", parentID);
+
+        MapList taskStates = null;
+        if (parent != null) {
+            try {
+                taskStates = parent.getRelatedObjects(ctx,
+                        /*relationship*/IMS_QP_Constants_mxJPO.relationship_IMS_QP_QPTask2QPTask,
+                        /*type*/IMS_QP_Constants_mxJPO.type_IMS_QP_QPTask,
+                        /*object attributes*/ selects,
+                        /*relationship selects*/ null,
+                        /*getTo*/ roadTo, /*getFrom*/ !roadTo,
+                        /*recurse to level*/ (short) 1,
+                        /*object where*/ where,
+                        /*relationship where*/ null,
+                        /*limit*/ 0);
+            } catch (FrameworkException fe) {
+                LOG.error("error getting related states: " + fe.getMessage());
+            }
+        }
 
 //            rel selects
-            StringList relSelects = new StringList(IMS_QP_Constants_mxJPO.ATTRIBUTE_IMS_QP_DEPTASK_STATUS);
-            relSelects.add("id");
-            MapList relIdStates = parent.getRelatedObjects(ctx,
+        StringList relSelects = new StringList(IMS_QP_Constants_mxJPO.ATTRIBUTE_IMS_QP_DEPTASK_STATUS);
+        relSelects.add("id");
+        MapList relIdStates = null;
+        try {
+            relIdStates = parent.getRelatedObjects(ctx,
                     /*relationship*/IMS_QP_Constants_mxJPO.relationship_IMS_QP_QPTask2QPTask,
                     /*type*/IMS_QP_Constants_mxJPO.type_IMS_QP_QPTask,
                     /*object attributes*/ null,
@@ -206,45 +242,117 @@ public class IMS_QP_QPTaskRelatedTasks_mxJPO {
                     /*object where*/ where,
                     /*relationship where*/ null,
                     /*limit*/ 0);
+        } catch (FrameworkException fe) {
+            LOG.error("error getting relation states: " + fe.getMessage());
+        }
 
-            Map<String, Map> processMap = new HashMap();
+        String parentQPlanId = "", parentDEPId = "";
+        try {
+            parentQPlanId = parent.getInfo(ctx, planIdFromTask);
+            parentDEPId = parent.getInfo(ctx, depIdFromTask);
+        } catch (FrameworkException fe) {
+            LOG.error("error getting parent info: " + fe.getMessage());
+        }
+
+        Map<String, Map> processMap = new HashMap();
+
+        Map<String, Map> innerQP_taskIDs = new HashMap<>();
+        Map<String, Map> brotherDEP_taskIDs = new HashMap<>();
+        Map<String, Map> differenceDEP_taskIDs = new HashMap<>();
+
+        if (taskStates != null && relIdStates != null)
             for (int i = 0; i < taskStates.size(); i++) {
                 Map taskMap = (Map) taskStates.get(i);
                 Map relMap = (Map) relIdStates.get(i);
                 relMap.put("name", taskMap.get("name"));
-                processMap.put((String) taskMap.get("id"), relMap);
+
+                //inner check plan
+                if (taskMap.get("to[IMS_QP_QPlan2QPTask].from.id").equals(parentQPlanId)) {
+                    innerQP_taskIDs.put((String) taskMap.get(DomainConstants.SELECT_ID), relMap);
+                }
+
+                //brother check DEP
+                else if (!taskMap.get(planIdFromTask).equals(parentQPlanId) && taskMap.get(depIdFromTask).equals(parentDEPId)) {
+                    brotherDEP_taskIDs.put((String) taskMap.get(DomainConstants.SELECT_ID), relMap);
+
+                    //different check DEP
+                } else if (!taskMap.get(depIdFromTask).equals(parentDEPId)) {
+                    differenceDEP_taskIDs.put((String) taskMap.get(DomainConstants.SELECT_ID), relMap);
+                }
+
+                processMap.put((String) taskMap.get(DomainConstants.SELECT_ID), relMap);
             }
 
 //            check table row ids
-            for (int i = 0; i < taskIDs.length; i++) {
-                if (processMap.containsKey(taskIDs[i])) {
-                    Map taskRelationship = processMap.get(taskIDs[i]);
-                    String taskState = (String) taskRelationship.get(IMS_QP_Constants_mxJPO.ATTRIBUTE_IMS_QP_DEPTASK_STATUS);
-                    String taskName = (String) taskRelationship.get("name");
-                    if (IMS_QP_Security_mxJPO.isOwnerDepFromQPTask(ctx, taskIDs[i]) ||
-                            "Draft".equals(taskState)) {
-                        if (IMS_QP_Security_mxJPO.isUserAdmin(ctx) ||
-                                IMS_QP_Security_mxJPO.currentUserIsQPSuperUser(ctx) ||
-                                roadTo || !roadTo && !"Draft".equals(taskState)) {
-                            String relId = (String) taskRelationship.get("id");
-                            DomainRelationship relationship = new DomainRelationship(relId);
-                            relationship.setAttributeValue(ctx, IMS_QP_Constants_mxJPO.relationship_IMS_QP_DEPTaskStatus, action);
-                        } else {
-                            mapMessage.put(taskName, taskState);
+        for (String taskID : taskIDs) {
+            if (processMap.containsKey(taskID)) {
+                Map taskRelationship = processMap.get(taskID);
+                String taskState = (String) taskRelationship.get(IMS_QP_Constants_mxJPO.ATTRIBUTE_IMS_QP_DEPTASK_STATUS);
+                String taskName = (String) taskRelationship.get(DomainConstants.SELECT_NAME);
+
+                if (innerQP_taskIDs.containsKey(taskID)) {
+                    //
+                    mapMessage.put(taskName, " can't change state of inner tasks");
+                    continue;
+                }
+
+                if (brotherDEP_taskIDs.containsKey(taskID) && !IMS_QP_Security_mxJPO.isUserAdmin(ctx) && !IMS_QP_Security_mxJPO.currentUserIsQPSuperUser(ctx)) {
+                    //
+                    if (IMS_QP_Security_mxJPO.isOwnerQPlanFromTaskID(ctx, parentID) && !IMS_QP_Security_mxJPO.isOwnerDepFromQPTask(ctx, parentID)) {
+                        if (roadTo && !"Draft".equals(taskState)) {
+                            mapMessage.put(taskName, String.format("for Quality plan owner has a wrong state: %s", taskState));
+                            continue;
                         }
-                    } else {
-                        mapMessage.put(taskName, taskState);
+                        if (!roadTo) {
+                            mapMessage.put(taskName, " Quality plan owners can't change output state brother tasks");
+                            continue;
+                        }
                     }
                 }
-            }
 
-        } catch (Exception e) {
-            LOG.error("error getting domain object: " + e.getMessage());
+                if (differenceDEP_taskIDs.containsKey(taskID) && !IMS_QP_Security_mxJPO.isUserAdmin(ctx) && !IMS_QP_Security_mxJPO.currentUserIsQPSuperUser(ctx)) {
+                    //
+                    if (IMS_QP_Security_mxJPO.isOwnerQPlanFromTaskID(ctx, parentID) && !IMS_QP_Security_mxJPO.isOwnerDepFromQPTask(ctx, parentID)) {
+                        if (!roadTo) {
+                            mapMessage.put(taskName, " Quality plan owners can't change output state different tasks");
+                            continue;
+                        }
+                        if (roadTo && !"Draft".equals(taskState)) {
+                            mapMessage.put(taskName, String.format(" has a wrong state: %s", taskState));
+                            continue;
+                        }
+                    }
+
+                    if (IMS_QP_Security_mxJPO.isOwnerDepFromQPTask(ctx, parentID)) {
+                        if (!roadTo) {
+                            mapMessage.put(taskName, " Quality plan owners can't change output state different tasks");
+                            continue;
+                        }
+                    }
+                }
+                String relId = (String) taskRelationship.get(DomainConstants.SELECT_ID);
+                boolean isStateChanged = changeState(ctx, relId, action);
+
+                if (!isStateChanged)
+                    mapMessage.put(taskName, String.format(" wrong result of changing state: %s", taskState));
+            }
         }
 
         if (mapMessage.isEmpty()) {
             mapMessage.put("message", "status OK code 200");
         }
         return mapMessage;
+    }
+
+
+    private boolean changeState(Context ctx, String relId, String action) {
+        DomainRelationship relationship = new DomainRelationship(relId);
+        try {
+            relationship.setAttributeValue(ctx, IMS_QP_Constants_mxJPO.relationship_IMS_QP_DEPTaskStatus, action);
+        } catch (FrameworkException frameworkException) {
+            frameworkException.printStackTrace();
+            return false;
+        }
+        return true;
     }
 }

@@ -7,7 +7,7 @@
 mxUpdate command "${NAME}" {
     description ""
     label "Expected results"
-    href "${COMMON_DIR}/emxIndentedTable.jsp?program=IMS_QP_DEPTask:getRelatedExpectedResult&table=IMS_QP_ExpectedResult&selection=multiple&editLink=true&toolbar=IMS_QP_ExpectedResult"
+    href "${COMMON_DIR}/emxIndentedTable.jsp?program=IMS_QP_DEPTask:getRelatedExpectedResult&table=IMS_QP_ExpectedResult&selection=multiple&toolbar=IMS_QP_ExpectedResult"
     alt ""
     user "all"
 }

@@ -18,6 +18,15 @@ mxUpdate table "${NAME}" {
         setting "Style Program" "IMS_QP_DEPTask"
     }
     column {
+        name "doc_code"
+        label "Doc code"
+        businessobject "$<from[IMS_QP_ExpectedResult2QPTask].to.attribute[IMS_QP_DocumentCode]>"
+        setting "Admin Type" "attribute_IMS_QP_DocumentCode"
+        setting "Editable" "true"
+        setting "Field Type" "attribute"
+        setting "Registered Suite" "Framework"
+    }
+    column {
         name "name_en"
         label "Name (EN)"
         businessobject "attribute[IMS_Name]"

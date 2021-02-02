@@ -12,6 +12,7 @@ mxUpdate menu "${NAME}" {
     alt ""
     setting "Access Expression" "context.user.isassigned[IMS_Admin]==True || context.user.isassigned[IMS_QP_SuperUser]==True"
     command "IMS_QP_Classifier_edit"
+    command "IMS_QP_Classifier2QPlan_connect"
     ################################################## Info Start
     property "original name" value "type_IMS_QP_Classifier"
     property "application" value "IMS_QP"

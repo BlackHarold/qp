@@ -242,8 +242,8 @@ if (!bpsTagNavSBInit) {
                                     topAccessWin.bpsTagNavConnector.rebuildViewNeeded = false;
                                     topAccessWin.bpsTagNavConnector.TagNavigator.get6WTagger(getTopWindow().taggerCtx).clearFilters(true);
                                 } else if (emxUIConstants.TOPFRAME_ENABLED) {
-                                    /** fix by task # 51293
-                                     commented out the next one line */
+                                    /** fix by issue #51293 par.1
+                                     * commented out the next one line */
                                     // getTopWindow().topFrameTagger.get6WTagger(getTopWindow().taggerCtx).clearFilters(true);
                                 }
                             };

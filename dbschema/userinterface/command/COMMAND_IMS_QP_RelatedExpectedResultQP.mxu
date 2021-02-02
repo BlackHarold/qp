@@ -1,0 +1,13 @@
+################################################################################
+# COMMAND_IMS_QP_RelatedExpectedResultQP.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate command "${NAME}" {
+    description ""
+    label "Expected results"
+    href "${COMMON_DIR}/emxIndentedTable.jsp?program=IMS_QP_DEPTask:getRelatedExpectedResult&table=IMS_QP_ExpectedResultQP&selection=multiple&toolbar=IMS_QP_ExpectedResultQP"
+    alt ""
+    user "all"
+}

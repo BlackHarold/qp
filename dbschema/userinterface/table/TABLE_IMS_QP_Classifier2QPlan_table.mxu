@@ -1,0 +1,31 @@
+################################################################################
+# TABLE_IMS_QP_Classifier2QPlan_table.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate table "${NAME}" {
+    symbolicname "table_IMS_QP_Classifier2QPlan_table"
+    description ""
+    column {
+        name "code"
+        label "Code"
+        businessobject "name"
+        setting "Registered Suite" "Framework"
+        setting "Sortable" "false"
+    }
+    column {
+        name "type"
+        label "Type"
+        businessobject "type"
+        setting "Registered Suite" "Framework"
+        setting "Sortable" "false"
+        setting "Width" "200"
+    }
+    ################################################## Info Start
+    property "author" value "IMS Team"
+    property "original name" value "IMS_QP_Classifier2QPlan_table"
+    property "application" value "IMS_QP"
+    property "version" value "1"
+    ################################################## Info End
+}

@@ -361,10 +361,17 @@ font-style: italic;
 /*DPM Project Phase Gate View: End*/
 
 
-/*IMS Begin*/
+#IMS Begin
 .IMS_VerticalAlignTop{vertical-align:top;}
 .IMS_QP_DEPTaskInput{vertical-align:top;background-color:aliceblue !important;}
 .IMS_QP_DEPTaskOutput{vertical-align:top;background-color:#ffecef !important;}
-/*IMS End*/
+
+.IMS_QP_Green{vertical-align:top;background-color:#e7ffde !important;}
+.IMS_QP_Red{vertical-align:top;background-color:#ffecef !important;}
+.IMS_QP_Purple{vertical-align:top;background-color:#d595ff !important;}
+.IMS_QP_Orange{vertical-align:top;background-color:#ffb973 !important;}
+.IMS_QP_Yellow{vertical-align:top;background-color:#ffffaa !important;}
+.IMS_QP_Blue{vertical-align:top;background-color:#95caff !important;}
+#IMS End
 "
 }

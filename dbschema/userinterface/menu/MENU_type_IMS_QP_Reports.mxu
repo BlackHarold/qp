@@ -1,0 +1,22 @@
+################################################################################
+# MENU_type_IMS_QP_Reports.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate menu "${NAME}" {
+    symbolicname "menu_type_IMS_QP_Reports"
+    description ""
+    treemenu
+    label ""
+    href ""
+    alt ""
+    setting "Default Category" "IMS_QP_Reports"
+    command "IMS_QP_Reports"
+    ################################################## Info Start
+    property "author" value "The IMS Team"
+    property "original name" value "type_IMS_QP_Reports"
+    property "application" value "IMS QP"
+    property "version" value "1"
+    ################################################## Info End
+}

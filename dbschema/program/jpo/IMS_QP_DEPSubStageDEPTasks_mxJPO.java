@@ -433,9 +433,6 @@ public class IMS_QP_DEPSubStageDEPTasks_mxJPO {
                     DomainObject objectTask = new DomainObject((String) relatedMap.get("id"));
                     boolean isTaskOwner = IMS_QP_Security_mxJPO.currentUserIsDEPOwner(context, objectTask);
 
-                    LOG.info(context.getUser() + "|" + depTaskObject.getName(context) + "|owner:" + isDepTaskOwner + "| |" +
-                            context.getUser() + "|" + objectTask.getName(context) + "|owner:" + isTaskOwner);
-
                     String type = IMS_KDD_mxJPO.getTypeFromMap(relatedMap);
                     String state = getState(context, type, id, relatedMapID, virtualRelationship);
 
@@ -523,8 +520,8 @@ public class IMS_QP_DEPSubStageDEPTasks_mxJPO {
             state = (String) rawMap.get(key);
 
         } catch (Exception e) {
-            LOG.info("error when getting state between: " + depTaskId + "|" + taskId + "|state is not defined: " + state);
-            LOG.info(e.getMessage());
+            LOG.error("error when getting state between: " + depTaskId + "|" + taskId + "|state is not defined: " + state);
+            LOG.error(e.getMessage());
         }
         return state;
     }
@@ -662,7 +659,6 @@ public class IMS_QP_DEPSubStageDEPTasks_mxJPO {
                 DomainObject fromObject = new DomainObject(from);
                 DomainObject toObject = new DomainObject(to);
 
-                LOG.info("connectDEPTask: " + fromObject.getName(context) + "|" + toObject.getName(context));
                 String relationshipType = toObject.getType(context).equals(TYPE_IMS_QP_DEPTask) ?
                         RELATIONSHIP_IMS_QP_DEPTask2DEPTask : RELATIONSHIP_IMS_QP_DEPTask2DEP;
 
@@ -671,8 +667,6 @@ public class IMS_QP_DEPSubStageDEPTasks_mxJPO {
                 boolean isSuperUser = IMS_QP_Security_mxJPO.currentUserIsQPSuperUser(context);
 
                 if (checkDraftOwnersDep(context, fromObject, toObject, relationshipType)) {
-                    LOG.info("check draft dep: " + checkDraftOwnersDep(context, fromObject, toObject, relationshipType));
-                    LOG.info(EnoviaResourceBundle.getProperty(context, "IMS_QP_FrameworkStringMessages", context.getLocale(), "IMS_QP_Framework.Message.hasDepDONE"));
                     return EnoviaResourceBundle.getProperty(context, "IMS_QP_FrameworkStringMessages", context.getLocale(), "IMS_QP_Framework.Message.hasDepDONE");
                 }
 
@@ -685,7 +679,6 @@ public class IMS_QP_DEPSubStageDEPTasks_mxJPO {
                         String depIdToObject = toObject.getInfo(context, IMS_QP_Constants_mxJPO.DEP_ID_FOR_TASK);
                         if (depIdFromObject.equals(depIdToObject) || (taskFromIdOwner && taskToIdOwner)) {
                             domainRelationship.setAttributeValue(context, "IMS_QP_DEPTaskStatus", "Approved");
-                            LOG.info("relation status was: " + oldStatus + " now: " + domainRelationship.getAttributeValue(context, "IMS_QP_DEPTaskStatus"));
                         } else if (oldStatus.equals("Rejected"))
                             domainRelationship.setAttributeValue(context, "IMS_QP_DEPTaskStatus", "Draft");
                         return "";
@@ -724,10 +717,7 @@ public class IMS_QP_DEPSubStageDEPTasks_mxJPO {
                 LOG.error("error when initializing Domain Object:\n" + e.getMessage());
             }
         }
-        LOG.info(depFromId + "|" + depFromState + ":" + depToId + "|" + depToState);
 
-        //if one of DEPs has Draft state reject connection
-        LOG.info(depFromState + ":" + depFromState.equalsIgnoreCase("Draft") + "|" + depToState + ":" + depToState.equalsIgnoreCase("Draft"));
         return depFromState.equals("Done") || depToState.equals("Done");
     }
 
