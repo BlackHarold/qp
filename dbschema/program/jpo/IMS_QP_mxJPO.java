@@ -99,37 +99,19 @@ public class IMS_QP_mxJPO extends DomainObject {
             if (name.equals("Reports")) {
                 map.put(DomainConstants.SELECT_TYPE, "");
             }
-
         }
-//        Collections.sort(componentsList, new Comparator<Map>() {
-//            @Override
-//            public int compare(Map o1, Map o2) {
-//                String report = "Reports";
-//                String name1 = (String) o1.get(DomainConstants.SELECT_NAME);
-//                String name2 = (String) o2.get(DomainConstants.SELECT_NAME);
-//
-//                if (name1.equals(report)) {
-//                    o1.put(DomainConstants.SELECT_TYPE, "");
-//                    return 1;
-//                } else if (name2.equals(report)) {
-//                    o1.put(DomainConstants.SELECT_TYPE, "");
-//                    return -1;
-//                }
-//
-//                return name1.compareTo(name2);
-//            }
-//        });
 
         return componentsList;
     }
 
     private MapList getFilteredMapListByOwner(Context context, MapList mapList) {
 
-        boolean isSuperUser, isAdmin;
+        boolean isSuperUser, isAdmin, isViewer;
         isSuperUser = IMS_QP_Security_mxJPO.currentUserIsQPSuperUser(context);
         isAdmin = IMS_QP_Security_mxJPO.isUserAdmin(context);
+        isViewer = IMS_QP_Security_mxJPO.isUserViewer(context);
 
-        if (isSuperUser || isAdmin) return mapList;
+        if (isSuperUser || isAdmin || isViewer) return mapList;
 
         MapList filteredByOwnerSQPs = new MapList();
         for (Object o : mapList) {
@@ -619,7 +601,7 @@ public class IMS_QP_mxJPO extends DomainObject {
             }
         }
 
-        if (stringBuilder.length() == 0) stringBuilder.append("object copied");
+        if (stringBuilder.length() == 0) stringBuilder.append("Object(s) copied");
         mapMessage.put("message", stringBuilder.toString());
         return mapMessage;
     }

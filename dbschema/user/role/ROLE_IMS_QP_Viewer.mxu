@@ -1,22 +1,16 @@
 ################################################################################
-# MENU_IMS_QP_SQP_Toolbar.mxu
+# ROLE_IMS_QP_Viewer.mxu
 #
 #            This file describes the target of a Configuration Item.
 ################################################################################
 
-mxUpdate menu "${NAME}" {
-    description ""
-    treemenu
-    label ""
-    href ""
-    alt ""
-    command "IMS_QP_QPlan_create"
-    command "IMS_QP_QPlan_copy_existed"
-    command "IMS_QP_QPlan_Delete"
-    command "AEFSeparator"
-    command "IMS_QP_SQP_Report"
+mxUpdate role "${NAME}" {
+    symbolicname "role_IMS_QP_Viewer"
+    description "Only view"
+    !hidden
     ################################################## Info Start
-    property "original name" value "IMS_QP_SQP_Toolbar"
+    property "author" value "The IMS Team"
+    property "original name" value "IMS_QP_Viewer"
     property "application" value "IMS_QP"
     property "version" value "1"
     ################################################## Info End
