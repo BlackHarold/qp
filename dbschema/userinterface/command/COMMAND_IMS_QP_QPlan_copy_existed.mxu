@@ -5,11 +5,12 @@
 ################################################################################
 
 mxUpdate command "${NAME}" {
+    symbolicname "command_IMS_QP_QPlan_create"
     description ""
     label "Copy"
     href "${COMMON_DIR}/emxForm.jsp?type=IMS_QP_QPlan&typeChooser=false&form=IMS_QP_SQP_create_from_existed&relationship=relationship_IMS_QP_QP2QPlan&direction=from&policy=IMS_QP_QPlan&header=IMS_QP_QPlan&postProcessJPO=IMS_QP_TaskAssignment:copyTasks&submitAction=refreshCaller&nameField=autoName&mode=edit"
     alt ""
-    user "all"
+    setting "Access Expression" "context.user.isassigned[IMS_QP_Viewer]==False"
     setting "Image" "${COMMON_DIR}/images/iconActionCopyTo.gif"
     setting "Popup Modal" "true"
     setting "Popup Size" "MediumTall"

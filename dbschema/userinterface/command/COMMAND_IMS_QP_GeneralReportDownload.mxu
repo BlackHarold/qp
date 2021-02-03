@@ -10,11 +10,11 @@ mxUpdate command "${NAME}" {
     label "Download report"
     href "${COMMON_DIR}/IMS_QP_ReportDownload.jsp"
     alt ""
-    setting "Access Expression" "context.user.isassigned[IMS_Admin]==True || context.user.isassigned[IMS_QP_SuperUser]==True"
+    setting "Access Expression" "context.user.isassigned[IMS_Admin]==True || context.user.isassigned[IMS_QP_SuperUser]==True ||  context.user.isassigned[IMS_QP_Viewer]==True"
     setting "Image" "${COMMON_DIR}/images/iconActionDownload.png"
     ################################################## Info Start
     property "author" value "The MxUpdate Team"
-    property "original name" value "IMS_QP_ReportDownload"
+    property "original name" value "IMS_QP_GeneralReportDownload"
     property "application" value "IMS_QP"
     property "version" value "1"
     ################################################## Info End

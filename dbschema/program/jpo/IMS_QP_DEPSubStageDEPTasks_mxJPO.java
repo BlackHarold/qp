@@ -480,19 +480,21 @@ public class IMS_QP_DEPSubStageDEPTasks_mxJPO {
                     sb.append(linkHTML);
                 }
 
-                sb.append(IMS_DragNDrop_mxJPO.getConnectDropAreaHTML(
-                        PROGRAM_IMS_QP_DEPSubStageDEPTasks, "connectDEPTask",
-                        virtualRelationship, !in,
-                        rowId, id,
-                        IMS_KDD_mxJPO.getRefreshAllRowsFunction(),
-                        in ?
-                                SOURCE_DEPTask :
-                                StringUtils.join(Arrays.asList(SOURCE_DEPTask, SOURCE_DEP), ','),
-                        String.format(
-                                "Drop %s %s here",
-                                in ? "input" : "output",
-                                in ? "DEP Task" : "DEP Task or DEP"),
-                        "26px", "10px"));
+                if (!IMS_QP_Security_mxJPO.isUserViewer(context)) {
+                    sb.append(IMS_DragNDrop_mxJPO.getConnectDropAreaHTML(
+                            PROGRAM_IMS_QP_DEPSubStageDEPTasks, "connectDEPTask",
+                            virtualRelationship, !in,
+                            rowId, id,
+                            IMS_KDD_mxJPO.getRefreshAllRowsFunction(),
+                            in ?
+                                    SOURCE_DEPTask :
+                                    StringUtils.join(Arrays.asList(SOURCE_DEPTask, SOURCE_DEP), ','),
+                            String.format(
+                                    "Drop %s %s here",
+                                    in ? "input" : "output",
+                                    in ? "DEP Task" : "DEP Task or DEP"),
+                            "26px", "10px"));
+                }
 
                 results.addElement(sb.toString());
             }
