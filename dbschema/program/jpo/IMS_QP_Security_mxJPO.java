@@ -1,7 +1,10 @@
 import com.matrixone.apps.domain.DomainConstants;
 import com.matrixone.apps.domain.DomainObject;
 import com.matrixone.apps.domain.DomainRelationship;
-import com.matrixone.apps.domain.util.*;
+import com.matrixone.apps.domain.util.ContextUtil;
+import com.matrixone.apps.domain.util.FrameworkException;
+import com.matrixone.apps.domain.util.MapList;
+import com.matrixone.apps.domain.util.MqlUtil;
 import com.matrixone.apps.framework.ui.UIUtil;
 import matrix.db.*;
 import matrix.util.MatrixException;
@@ -18,6 +21,8 @@ public class IMS_QP_Security_mxJPO {
     private static final String ROLE_IMS_QP_DEPOwner = "IMS_QP_DEPOwner";
     private static final String ROLE_IMS_Admin = "IMS_Admin";
     private static final String ROLE_IMS_QP_SuperUser = "IMS_QP_SuperUser";
+    //added by feature #54625
+    private static final String ROLE_IMS_QP_Viewer = "IMS_QP_Viewer";
 
     private static final String RELATIONSHIP_IMS_QP_DEP2Owner = "IMS_QP_DEP2Owner";
     private static final String RELATIONSHIP_IMS_PBS2Owner = "IMS_PBS2Owner";
@@ -485,6 +490,16 @@ public class IMS_QP_Security_mxJPO {
      */
     public static boolean currentUserIsDEPOwner(Context context, String objectId) throws Exception {
         return currentUserIsDEPOwner(context, new DomainObject(objectId));
+    }
+
+    public static boolean isUserViewer(Context context) {
+        Person person = new Person(context.getUser());
+        try {
+            return person.isAssigned(context, ROLE_IMS_QP_Viewer);
+        } catch (MatrixException e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 
     @SuppressWarnings("unused")

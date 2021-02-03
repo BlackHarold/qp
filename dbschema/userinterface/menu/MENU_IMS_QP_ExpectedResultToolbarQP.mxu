@@ -1,21 +1,21 @@
 ################################################################################
-# MENU_IMS_QP_QPlan_toolbar.mxu
+# MENU_IMS_QP_ExpectedResultToolbarQP.mxu
 #
 #            This file describes the target of a Configuration Item.
 ################################################################################
 
 mxUpdate menu "${NAME}" {
-    symbolicname "menu_IMS_QP_QPlan_toolbar"
+    symbolicname "menu_IMS_QP_ExpectedResultToolbarQP"
     description ""
-    treemenu
     label ""
     href ""
     alt ""
-    setting "Access Expression" "context.user.isassigned[IMS_QP_Viewer]==False&&current==Draft||context.user.isassigned[IMS_Admin]==True"
-    command "IMS_QP_QPlan_edit"
+    setting "Access Expression" "context.user.isassigned[IMS_QP_Viewer]==False"
+    command "IMS_QP_ExpectedResultEditQP"
     ################################################## Info Start
-    property "original name" value "IMS_QP_QPlan_toolbar"
-    property "application" value "IMS_HNH19"
+    property "author" value "The IMS Team"
+    property "original name" value "IMS_QP_ExpectedResultToolbarQP"
+    property "application" value "IMS_QP"
     property "version" value "1"
     ################################################## Info End
 }

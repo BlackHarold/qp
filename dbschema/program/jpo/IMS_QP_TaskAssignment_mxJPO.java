@@ -646,6 +646,6 @@ public class IMS_QP_TaskAssignment_mxJPO {
             e.printStackTrace();
         }
 
-        return "Draft".equals(qpState);
+        return "Draft".equals(qpState)&&!IMS_QP_Security_mxJPO.isUserViewer(context);
     }
 }

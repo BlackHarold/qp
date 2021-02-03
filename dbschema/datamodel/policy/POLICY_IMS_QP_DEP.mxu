@@ -13,9 +13,11 @@ mxUpdate policy "${NAME}" {
     sequence ""
     store ""
     allstate {
+        public {fromconnect fromdisconnect toconnect todisconnect}
         user "IMS_Admin" {all}
-        user "IMS_QP_DEPOwner" {checkin checkout create delete fromconnect fromdisconnect modify read show toconnect todisconnect viewform}
+        user "IMS_QP_DEPOwner" {checkin checkout create delete modify read show viewform}
         user "IMS_QP_SuperUser" {checkin checkout read show viewform}
+        user "IMS_QP_Viewer" {read show viewform}
     }
     state "Draft" {
         registeredname "state_Draft"
@@ -42,4 +44,10 @@ mxUpdate policy "${NAME}" {
         user "IMS_QP_SuperUser" {create delete demote fromconnect fromdisconnect modify toconnect todisconnect}
         trigger demote check "emxTriggerManager" input "IMS_QPDEPPolicyDoneDemoteCheck"
     }
+    ################################################## Info Start
+    property "author" value "The IMS Team"
+    property "original name" value "IMS_QP_DEP"
+    property "application" value "IMS_QP"
+    property "version" value "1"
+    ################################################## Info End
 }

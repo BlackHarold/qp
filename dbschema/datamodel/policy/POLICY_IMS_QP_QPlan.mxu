@@ -18,6 +18,7 @@ mxUpdate policy "${NAME}" {
         user "IMS_QP_DEPOwner" {checkin checkout read show viewform  demote promote}
         user "IMS_QP_QPOwner" {changename checkin checkout create delete modify read show viewform}
         user "IMS_QP_SuperUser" {checkin checkout read show viewform demote promote}
+        user "IMS_QP_Viewer" {read show viewform}
     }
     state "Draft" {
         registeredname "state_Draft"
