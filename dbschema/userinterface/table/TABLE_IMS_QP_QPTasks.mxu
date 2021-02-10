@@ -18,15 +18,6 @@ mxUpdate table "${NAME}" {
         setting "Style Program" "IMS_QP_DEPTask"
     }
     column {
-        name "doc_code"
-        label "Doc code"
-        businessobject "$<from[IMS_QP_ExpectedResult2QPTask].to.attribute[IMS_QP_DocumentCode]>"
-        setting "Admin Type" "attribute_IMS_QP_DocumentCode"
-        setting "Editable" "true"
-        setting "Field Type" "attribute"
-        setting "Registered Suite" "Framework"
-    }
-    column {
         name "name_en"
         label "Name (EN)"
         businessobject "attribute[IMS_Name]"
@@ -45,6 +36,36 @@ mxUpdate table "${NAME}" {
         setting "Field Type" "attribute"
         setting "Width" "150"
     }
+    column {
+        name "dep_task"
+        label "DEP task"
+        businessobject "$<to[IMS_QP_DEPTask2QPTask].from.name>"
+        setting "Editable" "false"
+        setting "Registered Suite" "Framework"
+        setting "Width" "150"
+    }
+    column {
+        name "project_stage"
+        label "Stage"
+        businessobject "$<to[IMS_QP_DEPTask2QPTask].from.to[IMS_QP_DEPSubStage2DEPTask].from.to[IMS_QP_BaseLine2DEPSubStage].from.to[IMS_ProjectStage2CB].from.name>"
+        setting "Editable" "false"
+        setting "Registered Suite" "Framework"
+    }
+   column {
+        name "stage_level"
+        label "Stage level"
+        businessobject "$<to[IMS_QP_DEPTask2QPTask].from.to[IMS_QP_DEPSubStage2DEPTask].from.attribute[IMS_QP_Stage]>"
+        setting "Editable" "false"
+        setting "Registered Suite" "Framework"
+   }
+    column {
+        name "baseline"
+        label "Baseline"
+        businessobject "$<to[IMS_QP_DEPTask2QPTask].from.to[IMS_QP_DEPSubStage2DEPTask].from.to[IMS_QP_BaseLine2DEPSubStage].from.name>"
+        setting "Editable" "false"
+        setting "Registered Suite" "Framework"
+    }
+
     column {
         name "desc_en"
         label "Description (EN)"
