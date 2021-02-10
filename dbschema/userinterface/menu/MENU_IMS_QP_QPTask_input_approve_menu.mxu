@@ -13,6 +13,7 @@ mxUpdate menu "${NAME}" {
     setting "Access Function" "isQPlanDraft"
     setting "Access Program" "IMS_QP_TaskAssignment"
     command "IMS_QP_QPTask_input_approve"
+    command "AEFSeparator1"
     command "IMS_QP_QPTask_input_reject"
     ################################################## Info Start
     property "author" value "The IMS Team"
