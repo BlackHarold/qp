@@ -1,12 +1,11 @@
-import com.matrixone.apps.common.Person;
 import com.matrixone.apps.domain.DomainConstants;
 import com.matrixone.apps.domain.DomainObject;
 import com.matrixone.apps.domain.util.FrameworkException;
 import com.matrixone.apps.domain.util.MapList;
-import com.matrixone.apps.domain.util.PersonUtil;
 import matrix.db.BusinessObjectWithSelectList;
 import matrix.db.Context;
 import matrix.db.Query;
+import matrix.db.QueryList;
 import matrix.util.MatrixException;
 import matrix.util.StringList;
 import org.apache.log4j.Logger;
@@ -50,9 +49,16 @@ public class IMS_QP_ListObjectsReportGenerator_mxJPO {
 
         //Do the query
         BusinessObjectWithSelectList businessObjectList = new BusinessObjectWithSelectList();
+        QueryList queryList = new QueryList();
         try {
-            Query query = getQueryByTypeAndIds(type, ids);
-            businessObjectList = query.selectTmp(ctx, getBusinessSelect());
+            for (String id : ids) {
+                Query query = getQueryByTypeAndIds(type, id);
+                queryList.add(query);
+            }
+
+            for (Query query : queryList) {
+                businessObjectList.addAll(query.selectTmp(ctx, getBusinessSelect()));
+            }
         } catch (MatrixException e) {
             LOG.error("matrix error: " + e.getMessage());
             e.printStackTrace();
@@ -64,31 +70,25 @@ public class IMS_QP_ListObjectsReportGenerator_mxJPO {
      * Method take type and set parameters for query
      *
      * @param type of object for searching
-     * @param ids  selected ids
+     * @param id   where selected id
      * @return matrix.db.Query
      */
-    private Query getQueryByTypeAndIds(String type, String... ids) {
+    private Query getQueryByTypeAndIds(String type, String id) {
 
         //Prepare temp query
         Query query = new Query();
         query.setBusinessObjectType(type);
         query.setOwnerPattern("*");
         query.setVaultPattern(IMS_QP_Constants_mxJPO.ESERVICE_PRODUCTION);
-        query.setWhereExpression(whereInitiate(ids));
+        query.setWhereExpression(whereInitiate(id));
 
         return query;
     }
 
-    private String whereInitiate(String... ids) {
+    private String whereInitiate(String id) {
 
         StringBuilder stringBuilder = new StringBuilder();
-
-        for (int i = 0; i < ids.length; i++) {
-            stringBuilder.append("id==" + ids[i]);
-            if ((ids.length - i) > 1) {
-                stringBuilder.append("||");
-            }
-        }
+        stringBuilder.append("id==" + id);
 
         return stringBuilder.toString();
     }
