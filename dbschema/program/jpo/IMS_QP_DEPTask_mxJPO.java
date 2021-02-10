@@ -878,20 +878,19 @@ public class IMS_QP_DEPTask_mxJPO {
             if (UIUtil.isNotNullAndNotEmpty(moreThanOneExpectedRelations) && moreThanOneExpectedRelations.contains("|"))
                 color = "IMS_QP_Yellow";
 
-            String checkNoFact = object.getInfo(context,
+            String checkIfHasFact = object.getInfo(context,
                     String.format("from[%s]", IMS_QP_Constants_mxJPO.relationship_IMS_QP_QPTask2Fact));
 
             //4 if the task is 'Another' type
             String resultType = object.getInfo(context,
                     "from[IMS_QP_ExpectedResult2QPTask].to.to[IMS_QP_ResultType2ExpectedResult].from.to[IMS_QP_ResultType2Family].from.name");
-            boolean anotherTypeAndNoFact = IMS_QP_Constants_mxJPO.ANOTHER_PLAN_TYPES.equals(resultType) && "FALSE".equals(checkNoFact);
+            boolean anotherTypeAndNoFact = IMS_QP_Constants_mxJPO.ANOTHER_PLAN_TYPES.equals(resultType) && "FALSE".equals(checkIfHasFact);
 
             //5 if the task is 'VTZ' type and attribute of expected result IMS_DocumentCode is empty value
-            boolean vtzTypeAndNoFact = IMS_QP_Constants_mxJPO.VTZ_PLAN_TYPES.equals(resultType) && "FALSE".equals(checkNoFact);
+            boolean vtzTypeAndNoFact = IMS_QP_Constants_mxJPO.VTZ_PLAN_TYPES.equals(resultType) && "FALSE".equals(checkIfHasFact);
 
             if (anotherTypeAndNoFact || vtzTypeAndNoFact) color = "IMS_QP_Blue";
 
-            LOG.info(object.getName(context) + " color: " + color);
             getColor(returnList, factExp, factGot, color);
         }
         return returnList;

@@ -601,7 +601,7 @@ public class IMS_QP_mxJPO extends DomainObject {
             }
         }
 
-        if (stringBuilder.length() == 0) stringBuilder.append("Object(s) copied");
+        if (stringBuilder.length() == 0) stringBuilder.append("object copied");
         mapMessage.put("message", stringBuilder.toString());
         return mapMessage;
     }

@@ -1,23 +1,19 @@
 ################################################################################
-# MENU_IMS_QP_QPTask_input_approve_menu.mxu
+# COMMAND_IMS_QP_Reports.mxu
 #
 #            This file describes the target of a Configuration Item.
 ################################################################################
 
-mxUpdate menu "${NAME}" {
-    symbolicname "menu_IMS_QP_QPTask_input_approve_menu"
+mxUpdate command "${NAME}" {
+    symbolicname "command_IMS_QP_Reports"
     description ""
     label ""
-    href ""
+    href "${COMMON_DIR}/emxPortal.jsp?portal=IMS_QP_Reports_portal"
     alt ""
-    setting "Access Function" "isQPlanDraft"
-    setting "Access Program" "IMS_QP_TaskAssignment"
-    command "IMS_QP_QPTask_input_approve"
-    command "AEFSeparator1"
-    command "IMS_QP_QPTask_input_reject"
+    user "all"
     ################################################## Info Start
     property "author" value "The IMS Team"
-    property "original name" value "IMS_QP_QPTask_input_approve_menu"
+    property "original name" value "IMS_QP_Reports"
     property "application" value "IMS_QP"
     property "version" value "1"
     ################################################## Info End

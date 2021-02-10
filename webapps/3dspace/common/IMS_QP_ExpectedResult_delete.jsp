@@ -77,7 +77,7 @@
             out.print("Details: <br>");
             for (Object o : map.entrySet()) {
                 Map.Entry entry = (Map.Entry) o;
-                out.print("<br>" + entry.getKey() + " has another parent: " + entry.getValue());
+                out.print("<br>" + entry.getKey() + " has an error:  " + entry.getValue());
             }
             out.print("<center>");
             out.print("<p><a class=\"button\" onclick=\"window.close();\">It's my fault</a><p>");

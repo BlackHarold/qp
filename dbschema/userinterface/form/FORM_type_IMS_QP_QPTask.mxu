@@ -61,20 +61,52 @@ mxUpdate form "${NAME}" {
     }
     field {
         name "IMS_DescriptionRu"
-        label "DescriptionRu"
+        label "emxFramework.Attribute.IMS_QP_DescriptionRu"
         businessobject "$<attribute[attribute_IMS_DescriptionRu]>"
-        setting "Access Expression" "true"
         setting "Editable" "false"
         setting "Field Type" "attribute"
-        setting "Registered Suite" "Components"
+        setting "Registered Suite" "Framework"
     }
     field {
         name "IMS_DescriptionEn"
-        label "DescriptionEn"
+        label "emxFramework.Attribute.IMS_QP_DescriptionRu"
         businessobject "$<attribute[attribute_IMS_DescriptionEn]"
         setting "Editable" "false"
         setting "Field Type" "attribute"
-        setting "Registered Suite" "Components"
+        setting "Registered Suite" "Framework"
+    }
+    field {
+        name "IMS_QP_DEPTask"
+        label "DEP task"
+        businessobject "$<to[IMS_QP_DEPTask2QPTask].from.name>"
+        setting "Editable" "false"
+        setting "Field Type" "attribute"
+        setting "Registered Suite" "Framework"
+    }
+    field {
+        name "IMS_ProjectStage"
+        label "Stage"
+        businessobject "$<to[IMS_QP_DEPTask2QPTask].from.to[IMS_QP_DEPSubStage2DEPTask].from.to[IMS_QP_BaseLine2DEPSubStage].from.to[IMS_ProjectStage2CB].from.name>"
+        setting "Editable" "false"
+        setting "Field Type" "attribute"
+        setting "Registered Suite" "Framework"
+    }
+    field {
+        name "IMS_QP_Stage"
+        label "Stage level"
+        businessobject "$<to[IMS_QP_DEPTask2QPTask].from.to[IMS_QP_DEPSubStage2DEPTask].from.attribute[IMS_QP_Stage]>"
+        setting "Access Expression" "to[IMS_QP_DEPTask2QPTask].from.to[IMS_QP_DEPSubStage2DEPTask].from.attribute[IMS_QP_Stage]!=''"
+        setting "Editable" "false"
+        setting "Field Type" "attribute"
+        setting "Registered Suite" "Framework"
+    }
+    field {
+        name "IMS_Baseline"
+        label "Baseline"
+        businessobject "$<to[IMS_QP_DEPTask2QPTask].from.to[IMS_QP_DEPSubStage2DEPTask].from.to[IMS_QP_BaseLine2DEPSubStage].from.name>"
+        setting "Editable" "false"
+        setting "Field Type" "attribute"
+        setting "Registered Suite" "Framework"
     }
     field {
         name "ExternalDocumentSet"

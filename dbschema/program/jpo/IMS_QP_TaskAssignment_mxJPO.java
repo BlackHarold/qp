@@ -577,18 +577,9 @@ public class IMS_QP_TaskAssignment_mxJPO {
             int factExp = Integer.parseInt(object.getInfo(context, IMS_QP_DEPTask_mxJPO.SELECT_ATTRIBUTE_IMS_QP_FACT_EXP));
             int factGot = Integer.parseInt(object.getInfo(context, IMS_QP_DEPTask_mxJPO.SELECT_ATTRIBUTE_IMS_QP_FACT_GOT));
 
-//            boolean hasSelect = UIUtil.isNotNullAndNotEmpty(object.getInfo(context, "attribute[IMS_QP_SelectDocument]"));
-//            boolean wrongCode = object.getInfo(context, "from[IMS_QP_ExpectedResult2QPTask].to.attribute[IMS_QP_DocumentCode]")
-//                    .contains("Wrong");
-//            boolean moreThanOneExpected = object.getInfo(context, "from[IMS_QP_ExpectedResult2QPTask].to.id")
-//                    .contains(IMS_QP_Constants_mxJPO.BELL_DELIMITER);
-//            boolean isPurple = hasSelect || wrongCode || moreThanOneExpected;
-//            IMS_QP_DEPTask_mxJPO.getColor(returnList, factExp, factGot, isPurple);
-
             String color = "";
 
             //1 if attribute of task IMS_QP_SelectDocument has any values
-
             if (UIUtil.isNotNullAndNotEmpty(object.getInfo(context, IMS_QP_Constants_mxJPO.attribute_IMS_QP_SelectDocument)))
                 color = "IMS_QP_Purple";
 

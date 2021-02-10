@@ -172,20 +172,21 @@ public class IMS_QP_DEP_Report_mxJPO {
 
             // Instantiate the BusinessObject.
             StringList selectBusStmts = new StringList(4);
-            selectBusStmts.addElement("name");
+            selectBusStmts.add("name");
 
             StringList selectRelStmts = new StringList(3);
-            selectRelStmts.addElement("name");
-            selectRelStmts.addElement("to");
-            selectRelStmts.addElement("to.id");
-            selectRelStmts.addElement("to.type");
-            selectRelStmts.addElement("to.type");
-            selectRelStmts.addElement("to.name");
-            selectRelStmts.addElement("to.attribute[IMS_QP_CloseStatus]");
-            selectRelStmts.addElement("to.from[IMS_QP_QPTask2Fact].to.name");
-            selectRelStmts.addElement("to.from[IMS_QP_QPTask2Fact].to.current");
-            selectRelStmts.addElement("to.from[IMS_QP_QPTask2Fact].to.type"); //check CL & VTZ
-            selectRelStmts.addElement("to.from[IMS_QP_QPTask2Fact].to.attribute[IMS_ProjDocStatus]");
+            selectRelStmts.add("name");
+            selectRelStmts.add("to");
+            selectRelStmts.add("to.id");
+            selectRelStmts.add("to.type");
+            selectRelStmts.add("to.type");
+            selectRelStmts.add("to.name");
+            selectRelStmts.add("to.attribute[IMS_NameRu]");
+            selectRelStmts.add("to.attribute[IMS_QP_CloseStatus]");
+            selectRelStmts.add("to.from[IMS_QP_QPTask2Fact].to.name");
+            selectRelStmts.add("to.from[IMS_QP_QPTask2Fact].to.current");
+            selectRelStmts.add("to.from[IMS_QP_QPTask2Fact].to.type"); //check CL & VTZ
+            selectRelStmts.add("to.from[IMS_QP_QPTask2Fact].to.attribute[IMS_ProjDocStatus]");
 
             BusinessObject taskObject = null;
             try {
