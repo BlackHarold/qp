@@ -252,6 +252,7 @@ public class IMS_QP_ActualPlanSearchReport_mxJPO {
             selectRelStmts.addElement("to.type");
             selectRelStmts.addElement("to.type");
             selectRelStmts.addElement("to.name");
+            selectRelStmts.addElement("to.attribute[IMS_NameRu]");
             selectRelStmts.addElement("to.attribute[IMS_QP_CloseStatus]");
             selectRelStmts.addElement("to.from[IMS_QP_QPTask2Fact].to.name");
             selectRelStmts.addElement("to.from[IMS_QP_QPTask2Fact].to.current");

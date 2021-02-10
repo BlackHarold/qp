@@ -156,7 +156,6 @@ public class IMS_QP_Classifier_mxJPO {
                 String emxTableLinkClick = String.format("emxTableColumnLinkClick('../common/emxForm.jsp?objectId=%s&form=type_IMS_ExternalDocumentSet')", docId);
                 sb.append(String.format("<a href=\"javascript:%s\"><img src=\"%s\" />%s</a>", emxTableLinkClick, "../common/images/fugue/16x16/document.png", HtmlEscapers.htmlEscaper().escape(docName)));
             }
-            LOG.info("has doc link: " + sb.toString());
 
         } else {
             String tableParameter = String.format("table=%s", externalDocumentSet);
@@ -171,7 +170,6 @@ public class IMS_QP_Classifier_mxJPO {
                 sb.append(String.format(
                         "<a href=\"javascript:%s\"><img src=\"%s\" title=\"%s\" /></a>", windowOpen, imageUrl, "Connect set of document"));
             }
-            LOG.info("hasn't doc link: " + sb.toString());
         }
 
         return sb.toString();
