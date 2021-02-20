@@ -15,6 +15,7 @@ mxUpdate command "${NAME}" {
     setting "Registered Suite" "Framework"
     setting "Row Select" "multi"
     setting "Submit" "true"
+    setting "Target Location" "hiddenFrame"
     ################################################## Info Start
     property "author" value "The IMS Team"
     property "original name" value "IMS_QP_DEP_Report"

@@ -8,6 +8,7 @@ mxUpdate relationship "${NAME}" {
     description ""
     !hidden
     preventduplicates
+    trigger delete check "emxTriggerManager" input "modifyFactDelTask"
     from {
         meaning ""
         cardinality many
@@ -24,10 +25,11 @@ mxUpdate relationship "${NAME}" {
         !propagatemodify
         propagateconnection
     }
+    attribute "IMS_QP_DEPTaskStatus"
     ################################################## Info Start
-    property "author" value "IMS_Team"
-    property "original name" value "IMS_QP_DEPTask2DEPTask"
-    property "application" value "IMS"
+    property "author" value "The IMS Team"
+    property "original name" value "IMS_QP_QPTask2QPTask"
+    property "application" value "IMS_QP"
     property "version" value "1"
     ################################################## Info End
 }

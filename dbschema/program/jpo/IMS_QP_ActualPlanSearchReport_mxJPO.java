@@ -13,10 +13,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class IMS_QP_ActualPlanSearchReport_mxJPO {
     private static final Logger LOG = Logger.getLogger("plan_search");
@@ -499,6 +496,7 @@ public class IMS_QP_ActualPlanSearchReport_mxJPO {
                     "generic", // format
                     fileName, //file
                     filePath); //path
+            bo.setAttributeValue(ctx, IMS_QP_Constants_mxJPO.IMS_QP_FILE_CHECKIN_STATUS, String.valueOf(new Date()));
             bo.close(ctx);
 
         } catch (MatrixException me) {

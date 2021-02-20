@@ -14,12 +14,20 @@ mxUpdate form "${NAME}" {
         setting "Section Level" "2"
     }
     field {
-        name "Name"
-        label "emxComponents.Common.Name"
-        businessobject "name"
-        setting "Access Expression" "true"
+        name "checkin_date"
+        label "File updated date"
+        businessobject "$<attribute[IMS_QP_FileCheckinStatus]>"
+        setting "Editable" "false"
+        setting "Field Type" "attribute"
+    }
+    field {
+        name "Modified"
+        label "Last modified"
+        businessobject "$<modified>"
+        setting "Display Time" "true"
+        setting "Editable" "false"
         setting "Field Type" "basic"
-        setting "Registered Suite" "Components"
+        setting "format" "date"
     }
     ################################################## Info Start
     property "author" value "The IMS Team"

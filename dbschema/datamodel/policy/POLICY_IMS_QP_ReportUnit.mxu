@@ -14,10 +14,9 @@ mxUpdate policy "${NAME}" {
     sequence ""
     store "STORE"
     allstate {
-        public {checkin checkout fromconnect fromdisconnect toconnect todisconnect}
+        public {read show viewform checkin checkout fromconnect fromdisconnect toconnect todisconnect}
         user "IMS_Admin" {all}
-        user "IMS_QP_SuperUser" {read show viewform}
-        user "IMS_QP_Viewer" {read show viewform}
+        owner {all}
     }
     state "Exist" {
         !enforcereserveaccess
@@ -27,7 +26,6 @@ mxUpdate policy "${NAME}" {
         !promote
         checkouthistory
         !published
-        owner {all}
     }
     ################################################## Info Start
     property "author" value "The IMS Team"

@@ -8,6 +8,7 @@ mxUpdate type "${NAME}" {
     symbolicname "type_IMS_QP_Reports"
     description ""
     !hidden
+    attribute "IMS_QP_FileCheckinStatus"
     ################################################## Info Start
     property "author" value "The IMS Team"
     property "original name" value "IMS_QP_Reports"
