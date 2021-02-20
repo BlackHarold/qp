@@ -62,7 +62,7 @@ public class IMS_QP_SQP_Report_mxJPO {
                     new StringList(DomainConstants.SELECT_ID));
             int reportsCount = reportsByType.size();
 
-            BusinessObject boReportContainerObject = new BusinessObject(IMS_QP_Constants_mxJPO.type_IMS_QP_Reports, "Reports", "-", ctx.getVault().getName());
+            BusinessObject boReportContainerObject = new BusinessObject(IMS_QP_Constants_mxJPO.type_IMS_QP_Reports, "Reports", "-", vault);
             reportsContainerObject = new DomainObject(boReportContainerObject);
 
             BusinessObject boReportUnit;
@@ -115,15 +115,8 @@ public class IMS_QP_SQP_Report_mxJPO {
         }
     }
 
-    private String getWorkspacePath(Context ctx) {
-        String workspace = "";
-        try {
-            workspace = ctx.createWorkspace();
-        } catch (MatrixException matrixException) {
-            matrixException.printStackTrace();
-        }
-        return workspace;
-    }
+    private int counter;
+    private int greenCounter;
 
     private Workbook createReport(Context ctx, BusinessObjectWithSelectList reportData, String sheetName) {
 
@@ -229,9 +222,6 @@ public class IMS_QP_SQP_Report_mxJPO {
         }
         return cellStyle;
     }
-
-    private int counter;
-    private int greenCounter;
 
     private Map<String, String> getQPTaskList(String taskId, RelationshipWithSelectItr relItr) {
         Map<String, String> map = new HashMap<>();

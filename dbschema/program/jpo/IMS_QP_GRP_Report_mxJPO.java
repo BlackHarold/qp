@@ -43,7 +43,6 @@ public class IMS_QP_GRP_Report_mxJPO {
         /**group report generator*/
         BusinessObjectWithSelectList reportData =
                 new IMS_QP_ListObjectsReportGenerator_mxJPO().reportGeneration(ctx, "GROUP", cleanedIDs);
-
         createReportUnit(ctx, reportData, "Group SQP,BQPS");
 
         return new HashMap();
@@ -51,11 +50,12 @@ public class IMS_QP_GRP_Report_mxJPO {
 
     public void createReportUnit(Context ctx, BusinessObjectWithSelectList reportData, String reportType) {
 
-        //Create object of ReportUnit type
         String objectId = null;
         String reportName = null;
         String vault = ctx.getVault().getName();
+
         DomainObject reportsContainerObject = null, reportObject = null;
+
         try {
             MapList reportsByType = DomainObject.findObjects(ctx,
                     IMS_QP_Constants_mxJPO.type_IMS_QP_ReportUnit,
@@ -87,6 +87,7 @@ public class IMS_QP_GRP_Report_mxJPO {
             LOG.error("Matrix exception: " + matrixException.getMessage());
             matrixException.printStackTrace();
         }
+
         try {
             if (reportsContainerObject != null && reportObject != null) {
                 reportObject.setAttributeValue(ctx, IMS_QP_Constants_mxJPO.IMS_QP_FILE_CHECKIN_STATUS, "Not ready yet");
@@ -95,7 +96,7 @@ public class IMS_QP_GRP_Report_mxJPO {
             objectId = reportObject.getId(ctx);
 
         } catch (Exception e) {
-            LOG.error("Domain relationship error connecting: " + IMS_QP_Constants_mxJPO.relationship_IMS_QP_Reports2ReportUnit + "|" + e.getMessage());
+            LOG.error("error connecting: " + IMS_QP_Constants_mxJPO.relationship_IMS_QP_Reports2ReportUnit + "|" + e.getMessage());
         }
 
         //Get report
@@ -120,6 +121,7 @@ public class IMS_QP_GRP_Report_mxJPO {
     private int greenCounter;
 
     private Workbook createReport(Context ctx, BusinessObjectWithSelectList reportData, String sheetName) {
+
         Workbook wb = null;
         try {
             wb = new XSSFWorkbook(IMS_QP_Constants_mxJPO.GRP_REPORT_TEMPLATE_PATH);
@@ -146,9 +148,10 @@ public class IMS_QP_GRP_Report_mxJPO {
             row.createCell(0).setCellValue(pointCounter);
             row.createCell(1).setCellValue(businessObject.getSelectData("name"));
 
-            //Specified GRP sheet forming area
-            String group = businessObject.getSelectData(String.format("to[%s].from.name",
-                    IMS_QP_Constants_mxJPO.relationship_IMS_QP_DEP2Classifier));
+            /*GRP sheet specified zone*/
+            String group = businessObject.getSelectData(
+                    String.format("to[%s].from.name",
+                            IMS_QP_Constants_mxJPO.relationship_IMS_QP_DEP2Classifier));
             row.createCell(2).setCellValue(UIUtil.isNotNullAndNotEmpty(group) ?
                     group : IMS_QP_Constants_mxJPO.OUT_OF_GROUP);
 
