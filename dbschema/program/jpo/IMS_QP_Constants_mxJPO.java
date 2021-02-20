@@ -187,4 +187,13 @@ public class IMS_QP_Constants_mxJPO {
     public static final String DEP_REPORT_TEMPLATE_PATH = "C:\\R2019X\\3DSpace\\workspace\\templates\\dep_report.xlsx";
     public static final String GRP_REPORT_TEMPLATE_PATH = "C:\\R2019X\\3DSpace\\workspace\\templates\\grp_report.xlsx";
     public static final String QP_TASK_REPORT_TEMPLATE_PATH = "C:\\R2019X\\3DSpace\\workspace\\templates\\qp_task_report.xlsx";
+    public static final String STATEMENT_REPORT_TEMPLATE_PATH = "C:\\R2019X\\3DSpace\\workspace\\templates\\stmt_report.xlsx";
+
+    // feature 49741 'Statement report'
+    public static String FROM_IMS_ListDocument2DocSet_TO_NAME = "from[IMS_ListDocument2DocSet].to.name";
+    public static String TO_IMS_ListDocument2DocSet_FROM_ID = "to[IMS_ListDocument2DocSet].from.id";
+    public static String TO_IMS_QP_ExpectedResult2QPTask_FROM = "to[IMS_QP_ExpectedResult2QPTask].from.";
+    public static String ATTRIBUTE_DOC_CODE_FROM_EXPECTED_RESULT = "to[IMS_QP_ExpectedResult2QPTask].from.attribute[IMS_QP_DocumentCode]";
+    public static String ATTRIBUTE_DOC_CODE_TO_EXPECTED_RESULT = "from[IMS_QP_ExpectedResult2QPTask].to.attribute[IMS_QP_DocumentCode]";
+    public static String NAME_DEP_TASK_FROM_QP_TASK = "to[IMS_QP_DEPTask2QPTask].from.name";
 }

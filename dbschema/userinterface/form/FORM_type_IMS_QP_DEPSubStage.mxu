@@ -5,6 +5,7 @@
 ################################################################################
 
 mxUpdate form "${NAME}" {
+    symbolicname "form_type_IMS_QP_DEPSubStage"
     description "Quality DEP SubStage Form"
     field {
         name "info"
@@ -43,6 +44,7 @@ mxUpdate form "${NAME}" {
         name "substage"
         label "Stage"
         businessobject "$<attribute[IMS_QP_Stage]>"
+        setting "Access Expression" "to[IMS_QP_DEPProjectStage2DEPSubStage].from.name==BD"
         setting "Editable" "false"
         setting "Field Type" "basic"
         setting "Registered Suite" "Components"
@@ -93,4 +95,10 @@ mxUpdate form "${NAME}" {
         setting "Input Type" "textarea"
         setting "Registered Suite" "Components"
     }
+    ################################################## Info Start
+    property "author" value "The IMS Team"
+    property "original name" value "type_IMS_QP_DEPSubStage"
+    property "application" value "IMS_QP"
+    property "version" value "1"
+    ################################################## Info End
 }

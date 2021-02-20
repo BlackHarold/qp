@@ -303,6 +303,7 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
             }
 
             substage.setName(context, uniqueNameSubStage);
+            substage.setAttributeValue(context,"IMS_QP_Stage", stage);
 
             ContextUtil.commitTransaction(context);
         } catch (Exception e) {
