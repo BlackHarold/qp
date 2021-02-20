@@ -7,6 +7,8 @@ public class IMS_QP_Constants_mxJPO {
 
     public static final String ESERVICE_PRODUCTION = "eService Production";
     public static final String ATTRIBUTE_IMS_QP_INTERDISCIPLINARY_DEP = "attribute[IMS_QP_InterdisciplinaryDEP]";
+    public static final String ATTRIBUTE_IMS_QP_FILE_CHECKIN_STATUS = "attribute[IMS_QP_FileCheckinStatus]";
+    public static final String IMS_QP_FILE_CHECKIN_STATUS = "IMS_QP_FileCheckinStatus";
 
     private static final String TO_IMS_QP_DEPSUB_STAGE_2_DEPTASK_FROM_TO_IMS_QP_DEPPROJECT_STAGE_2_DEPSUB_STAGE_FROM_TO_IMS_QP_DEP_2_DEPPROJECT_STAGE_FROM_ID = "to[IMS_QP_DEPSubStage2DEPTask].from.to[IMS_QP_DEPProjectStage2DEPSubStage].from.to[IMS_QP_DEP2DEPProjectStage].from.id";
     public static final String DEP_ID_FOR_TASK = TO_IMS_QP_DEPSUB_STAGE_2_DEPTASK_FROM_TO_IMS_QP_DEPPROJECT_STAGE_2_DEPSUB_STAGE_FROM_TO_IMS_QP_DEP_2_DEPPROJECT_STAGE_FROM_ID;
@@ -25,6 +27,7 @@ public class IMS_QP_Constants_mxJPO {
     public static final String TO_IMS_QP_DEPSUB_STAGE_2_DEPTASK_FROM_ID = "to[IMS_QP_DEPSubStage2DEPTask].from.id";
     public static final String ATTRIBUTE_IMS_NAME_RU = "attribute[IMS_NameRu]";
     public static final String ATTRIBUTE_IMS_NAME = "attribute[IMS_Name]";
+    public static final String ATTRIBUTE_IMS_SPF_MASTER_ID = "attribute[IMS_SPFMasterID]";
     public static final String TO_IMS_QP_DEPTASK_2_DEPTASK_FROM_ID = "to[IMS_QP_DEPTask2DEPTask].from.id";
     public static final String TO_IMS_QP_DEPTASK_2_DEPTASK_ATTRIBUTE_IMS_QP_DEPTASK_STATUS = "to[IMS_QP_DEPTask2DEPTask].attribute[IMS_QP_DEPTaskStatus]";
     public static final String FROM_IMS_QP_DEPTASK_2_DEPTASK_TO_ID = "from[IMS_QP_DEPTask2DEPTask].to.id";
@@ -183,4 +186,14 @@ public class IMS_QP_Constants_mxJPO {
     public static final String SQP_REPORT_TEMPLATE_PATH = "C:\\R2019X\\3DSpace\\workspace\\templates\\sqp_report.xlsx";
     public static final String DEP_REPORT_TEMPLATE_PATH = "C:\\R2019X\\3DSpace\\workspace\\templates\\dep_report.xlsx";
     public static final String GRP_REPORT_TEMPLATE_PATH = "C:\\R2019X\\3DSpace\\workspace\\templates\\grp_report.xlsx";
+    public static final String QP_TASK_REPORT_TEMPLATE_PATH = "C:\\R2019X\\3DSpace\\workspace\\templates\\qp_task_report.xlsx";
+    public static final String STATEMENT_REPORT_TEMPLATE_PATH = "C:\\R2019X\\3DSpace\\workspace\\templates\\stmt_report.xlsx";
+
+    // feature 49741 'Statement report'
+    public static String FROM_IMS_ListDocument2DocSet_TO_NAME = "from[IMS_ListDocument2DocSet].to.name";
+    public static String TO_IMS_ListDocument2DocSet_FROM_ID = "to[IMS_ListDocument2DocSet].from.id";
+    public static String TO_IMS_QP_ExpectedResult2QPTask_FROM = "to[IMS_QP_ExpectedResult2QPTask].from.";
+    public static String ATTRIBUTE_DOC_CODE_FROM_EXPECTED_RESULT = "to[IMS_QP_ExpectedResult2QPTask].from.attribute[IMS_QP_DocumentCode]";
+    public static String ATTRIBUTE_DOC_CODE_TO_EXPECTED_RESULT = "from[IMS_QP_ExpectedResult2QPTask].to.attribute[IMS_QP_DocumentCode]";
+    public static String NAME_DEP_TASK_FROM_QP_TASK = "to[IMS_QP_DEPTask2QPTask].from.name";
 }

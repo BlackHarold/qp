@@ -88,6 +88,7 @@ public class IMS_QP_SQP_Report_mxJPO {
 
         try {
             if (reportsContainerObject != null && reportObject != null) {
+                reportObject.setAttributeValue(ctx, IMS_QP_Constants_mxJPO.IMS_QP_FILE_CHECKIN_STATUS, "Not ready yet");
                 IMS_KDD_mxJPO.connectIfNotConnected(ctx, IMS_QP_Constants_mxJPO.relationship_IMS_QP_Reports2ReportUnit, reportsContainerObject, reportObject);
             }
             objectId = reportObject.getId(ctx);
@@ -104,7 +105,13 @@ public class IMS_QP_SQP_Report_mxJPO {
             IMS_QP_CheckInOutFiles_mxJPO checkInOutFiles = new IMS_QP_CheckInOutFiles_mxJPO();
             File file = checkInOutFiles.writeToFile(ctx, reportName, workbook);
             boolean checkin = checkInOutFiles.checkIn(ctx, objectId, file);
-            LOG.info(objectId + "checkin result: " + checkin);
+
+            try {
+                reportObject.setAttributeValue(ctx, IMS_QP_Constants_mxJPO.IMS_QP_FILE_CHECKIN_STATUS, "Ready");
+            } catch (FrameworkException e) {
+                LOG.error("error: " + e.getMessage());
+                e.printStackTrace();
+            }
         }
     }
 
@@ -254,8 +261,6 @@ public class IMS_QP_SQP_Report_mxJPO {
             }
         }
 
-        LOG.info(map.size() + " at the map: " + map);
-        LOG.info("counter: " + counter + " greenCounter: " + greenCounter);
         return map;
     }
 
@@ -298,7 +303,7 @@ public class IMS_QP_SQP_Report_mxJPO {
             //--------------------------------------------------------------
 
         } catch (MatrixException e) {
-            LOG.info("matrix error: " + e.getMessage());
+            LOG.error("matrix error: " + e.getMessage());
             e.printStackTrace();
         }
         // Getting Relationships
@@ -349,7 +354,7 @@ public class IMS_QP_SQP_Report_mxJPO {
             //--------------------------------------------------------------
 
         } catch (MatrixException e) {
-            LOG.info("matrix error: " + e.getMessage());
+            LOG.error("matrix error: " + e.getMessage());
             e.printStackTrace();
         }
         // Getting Relationships

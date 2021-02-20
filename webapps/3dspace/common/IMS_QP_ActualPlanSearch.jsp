@@ -6,8 +6,6 @@
 <%@include file="../common/emxNavigatorInclude.inc" %>
 <%@include file="../common/emxNavigatorTopErrorInclude.inc" %>
 <%
-    final Logger LOG = Logger.getLogger("reportLogger");
-
     String objectId = request.getParameter("objectId");
     Map args = new HashMap();
     args.put("objectId", objectId);
