@@ -19,9 +19,10 @@ mxUpdate form "${NAME}" {
         name "stage"
         label "Stage"
         businessobject "$<attribute[IMS_QP_Stage]>"
+        setting "Access Expression" "to[IMS_QP_DEPProjectStage2DEPSubStage].from.name==BD"
+        setting "Editable" "true"
         setting "Field Type" "attribute"
         setting "Input Type" "combobox"
-        setting "Editable" "true"
         setting "Range Function" "getStages"
         setting "Range Program" "IMS_QualityPlanBase"
         setting "Registered Suite" "Components"
@@ -78,7 +79,7 @@ mxUpdate form "${NAME}" {
     ################################################## Info Start
     property "author" value "The IMS Team"
     property "original name" value "IMS_QP_DEPSubStage_edit"
-    property "application" value "IMS"
+    property "application" value "IMS_QP"
     property "version" value "1"
     ################################################## Info End
 }

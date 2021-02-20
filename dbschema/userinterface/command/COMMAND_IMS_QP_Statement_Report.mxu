@@ -1,0 +1,24 @@
+################################################################################
+# COMMAND_IMS_QP_Statement_Report.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate command "${NAME}" {
+    symbolicname "command_IMS_QP_Statement_Report"
+    description ""
+    label "Mold statement report"
+    href "${COMMON_DIR}/IMS_QP_Statement_Report.jsp"
+    alt ""
+    setting "Access Expression" "context.user.isassigned[IMS_Admin]==True || context.user.isassigned[IMS_QP_SuperUser]==True"
+    setting "Image" "${COMMON_DIR}/images/statement.png"
+    setting "Registered Suite" "Framework"
+    setting "Submit" "true"
+    setting "Target Location" "hiddenFrame"
+    ################################################## Info Start
+    property "author" value "The IMS Team"
+    property "original name" value "IMS_QP_Statement_Report"
+    property "application" value "IMS_QP"
+    property "version" value "1"
+    ################################################## Info End
+}
