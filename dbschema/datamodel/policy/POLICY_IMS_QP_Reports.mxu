@@ -13,6 +13,9 @@ mxUpdate policy "${NAME}" {
     defaultformat "generic"
     sequence ""
     store "STORE"
+    allstate {
+        public {all}
+    }
     state "Active" {
         !enforcereserveaccess
         majorrevision
@@ -21,8 +24,6 @@ mxUpdate policy "${NAME}" {
         !promote
         checkouthistory
         !published
-        owner {all}
-        public {all}
     }
     state "Inactive" {
         !enforcereserveaccess
@@ -32,8 +33,6 @@ mxUpdate policy "${NAME}" {
         !promote
         checkouthistory
         !published
-        owner {all}
-        public {all}
     }
     ################################################## Info Start
     property "author" value "The IMS Team"

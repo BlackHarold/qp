@@ -1,24 +1,23 @@
 ################################################################################
-# COMMAND_IMS_QP_SQP_Report.mxu
+# COMMAND_IMS_QP_QPTask_Report.mxu
 #
 #            This file describes the target of a Configuration Item.
 ################################################################################
 
 mxUpdate command "${NAME}" {
-    symbolicname "command_IMS_QP_SQP_Report"
+    symbolicname "command_IMS_QP_QPTask_Report"
     description ""
-    label "Mold SQP report"
-    href "${COMMON_DIR}/IMS_QP_SQP_Report.jsp"
+    label "Mold QPTask report"
+    href "${COMMON_DIR}/IMS_QP_QPTask_Report.jsp"
     alt ""
-    user "all"
-    setting "Image" "${COMMON_DIR}/images/sqp.png"
+    setting "Access Expression" "context.user.isassigned[IMS_Admin]==True || context.user.isassigned[IMS_QP_SuperUser]==True"
+    setting "Image" "${COMMON_DIR}/images/relationship.png"
     setting "Registered Suite" "Framework"
-    setting "Row Select" "multi"
     setting "Submit" "true"
     setting "Target Location" "hiddenFrame"
     ################################################## Info Start
     property "author" value "The IMS Team"
-    property "original name" value "IMS_QP_SQP_Report"
+    property "original name" value "IMS_QP_QPTask_Report"
     property "application" value "IMS_QP"
     property "version" value "1"
     ################################################## Info End

@@ -9,13 +9,13 @@ import matrix.db.Context;
 import matrix.db.JPO;
 import matrix.db.RelationshipType;
 import matrix.util.StringList;
+import org.apache.log4j.Logger;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
 
 public class IMS_ExternalSystem_mxJPO {
-
 
     //TODO rewrite to the ExternalConstants
     public static final String ATTRIBUTE_IMS_ExternalSystemName = "IMS_ExternalSystemName";
@@ -266,11 +266,14 @@ public class IMS_ExternalSystem_mxJPO {
 
                         object.connect(context, new RelationshipType(relationship), from, proxyObject);
 
-                        //Get IMS_QP_ExpectedResult2QPTask
-                        DomainObject expectedResult = new DomainObject(object.getInfo(context, "from[IMS_QP_ExpectedResult2QPTask].to.id"));
-                        //Write attribute document code into Expected Result object
-                        String docName = proxyObject.getName(context);
-                        expectedResult.setAttributeValue(context, "IMS_QP_DocumentCode", docName.substring(0, docName.lastIndexOf(".")));
+                        String objectType = object.getType(context);
+                        if ("IMS_QP_QPTask".equals(objectType)) {
+                            //Get IMS_QP_ExpectedResult2QPTask
+                            DomainObject expectedResult = new DomainObject(object.getInfo(context, "from[IMS_QP_ExpectedResult2QPTask].to.id"));
+                            //Write attribute document code into Expected Result object
+                            String docName = proxyObject.getName(context);
+                            expectedResult.setAttributeValue(context, "IMS_QP_DocumentCode", docName.substring(0, docName.lastIndexOf(".")));
+                        }
 
                         IMS_KDD_mxJPO.connectIfNotConnected(context, RELATIONSHIP_IMS_Object2ExternalSystem, proxyObject, externalSystem.getObject());
                     }

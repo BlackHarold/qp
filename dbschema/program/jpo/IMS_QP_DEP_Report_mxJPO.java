@@ -70,7 +70,6 @@ public class IMS_QP_DEP_Report_mxJPO {
             BusinessObject boReportUnit;
             do {
                 reportName = "dep_report_" + ++reportsCount;
-                LOG.info("check if name exists: " + reportName);
                 boReportUnit = new BusinessObject(IMS_QP_Constants_mxJPO.type_IMS_QP_ReportUnit, reportName, "-", vault);
             } while (boReportUnit.exists(ctx));
 
@@ -90,6 +89,7 @@ public class IMS_QP_DEP_Report_mxJPO {
         }
         try {
             if (reportsContainerObject != null && reportObject != null) {
+                reportObject.setAttributeValue(ctx, IMS_QP_Constants_mxJPO.IMS_QP_FILE_CHECKIN_STATUS, "Not ready yet");
                 IMS_KDD_mxJPO.connectIfNotConnected(ctx, IMS_QP_Constants_mxJPO.relationship_IMS_QP_Reports2ReportUnit, reportsContainerObject, reportObject);
             }
             objectId = reportObject.getId(ctx);
@@ -106,7 +106,13 @@ public class IMS_QP_DEP_Report_mxJPO {
             IMS_QP_CheckInOutFiles_mxJPO checkInOutFiles = new IMS_QP_CheckInOutFiles_mxJPO();
             File file = checkInOutFiles.writeToFile(ctx, reportName, workbook);
             boolean checkin = checkInOutFiles.checkIn(ctx, objectId, file);
-            LOG.info(objectId + "checkin result: " + checkin);
+
+            try {
+                reportObject.setAttributeValue(ctx, IMS_QP_Constants_mxJPO.IMS_QP_FILE_CHECKIN_STATUS, "Ready");
+            } catch (FrameworkException e) {
+                LOG.error("error: " + e.getMessage());
+                e.printStackTrace();
+            }
         }
     }
 
@@ -213,11 +219,8 @@ public class IMS_QP_DEP_Report_mxJPO {
 
             while (relItr.next()) {
                 RelationshipWithSelect relSelect = relItr.obj();
-                LOG.info("task name: " + relSelect.getSelectData("name"));
+
                 if (relSelect.getSelectData("name").equals(IMS_QP_Constants_mxJPO.relationship_IMS_QP_QPlan2QPTask)) {
-                    LOG.info("rel from task to fact: " + relSelect.getSelectData("to.from[IMS_QP_QPTask2Fact].to.type")
-                            + " state: " + relSelect.getSelectData("to.from[IMS_QP_QPTask2Fact].to.attribute[IMS_ProjDocStatus]")
-                            + " state: " + relSelect.getSelectData("to.from[IMS_QP_QPTask2Fact].to.current"));
 
                     //Increase task counter
                     counter++;
@@ -235,8 +238,7 @@ public class IMS_QP_DEP_Report_mxJPO {
                 }
             }
         }
-        LOG.info(taskCodes.size() + " codes: " + taskCodes + " and " + taskNames.size() + " names: " + taskNames);
-        LOG.info("counter: " + counter + " greenCounter: " + greenCounter);
+
         tasksInfoMap.put(taskCodes, taskNames);
 
         return tasksInfoMap;
@@ -314,7 +316,6 @@ public class IMS_QP_DEP_Report_mxJPO {
 
             boolean from = relationshipFromId.equals(taskId);
             if (relationshipType.equals(IMS_QP_Constants_mxJPO.relationship_IMS_QP_DEP2QPlan) && from) {
-                LOG.info("add to related tasks : " + relationshipToId + "|" + relationshipToName);
                 relatedTasks.add(relationshipToId);
             }
         }
