@@ -1,0 +1,24 @@
+################################################################################
+# ATTRIBUTE_IMS_QP_AdditionalInfo.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate attribute "${NAME}" {
+    kind string
+    symbolicname "attribute_IMS_QP_AdditionalInfo"
+    description "Additional information about object"
+    !hidden
+    !multivalue
+    !resetonclone
+    !resetonrevision
+    !multiline
+    maxlength 0
+    default ""
+    ################################################## Info Start
+    property "author" value "The IMS Team"
+    property "original name" value "IMS_QP_AdditionalInfo"
+    property "application" value "IMS_QP"
+    property "version" value "1"
+    ################################################## Info End
+}
