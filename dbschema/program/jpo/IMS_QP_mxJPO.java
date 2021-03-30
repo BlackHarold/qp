@@ -12,6 +12,7 @@ import matrix.util.StringList;
 import org.apache.log4j.Logger;
 
 import java.util.*;
+import java.util.Set;
 
 
 public class IMS_QP_mxJPO extends DomainObject {
@@ -297,12 +298,64 @@ public class IMS_QP_mxJPO extends DomainObject {
      */
     public MapList getAllPBS(Context context, String[] args) {
 
-        MapList result = null;
+        MapList result = new MapList();
         try {
-            result = findObjects(context, IMS_QP_Constants_mxJPO.SYSTEM_TYPES, "*", "revision==last", new StringList("id"));
+            result = findObjects(context, IMS_QP_Constants_mxJPO.SYSTEM_TYPES, "*", "revision==last",
+                    new StringList(DomainConstants.SELECT_ID));
         } catch (FrameworkException frameworkException) {
             frameworkException.printStackTrace();
         }
+        return result;
+    }
+
+    /**
+     * It's retrieve KKS and PBS for table DEP KKS PBS
+     */
+    public MapList getPBSByQPlan(Context context, String[] args) {
+        String parentID = "";
+        try {
+            Map argsMap = JPO.unpackArgs(args);
+            parentID = (String) argsMap.get("parentOID");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        String functionalAreaID = "";
+        DomainObject functionalAreaObject = null;
+        try {
+            DomainObject qpPlan = new DomainObject(parentID);
+            functionalAreaID = qpPlan.getInfo(context, "from[IMS_QP_QPlan2Object].to.id");
+            functionalAreaObject = new DomainObject(functionalAreaID);
+        } catch (Exception e) {
+            LOG.error("error getting info from qpTask " + parentID + ": " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        StringList objectSelects = new StringList();
+        objectSelects.add(DomainConstants.SELECT_ID);
+        objectSelects.add(DomainConstants.SELECT_NAME);
+
+        MapList result = new MapList();
+        if (UIUtil.isNotNullAndNotEmpty(functionalAreaID)) {
+            try {
+                result = functionalAreaObject.getRelatedObjects(context,
+                        /*relationship*/ null,
+                        /*type*/ "IMS_PBSSystem,IMS_GBSBuilding",
+                        /*object attributes*/ objectSelects,
+                        /*relationship selects*/ null,
+                        /*getTo*/false,/*getFrom*/ true,
+                        /*recurse level*/(short) 1,
+                        /*object where*/ null,
+                        /*relationship where*/ null,
+                        /*limit*/0);
+            } catch (FrameworkException frameworkException) {
+                LOG.error("Framework exception: " + frameworkException.getMessage());
+                frameworkException.printStackTrace();
+            }
+        } else {
+            result = getAllPBS(context, null);
+        }
+
         return result;
     }
 
@@ -338,12 +391,10 @@ public class IMS_QP_mxJPO extends DomainObject {
                 result.addElement(stringBuilder.toString());
             }
         } catch (Exception e) {
-            try {
-                LOG.error("error getting url string: " + e.getMessage());
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
+            e.printStackTrace();
+            LOG.error("error getting url string: " + e.getMessage());
         }
+
         return result;
     }
 
@@ -351,64 +402,119 @@ public class IMS_QP_mxJPO extends DomainObject {
         Vector result = new Vector();
         StringBuilder stringBuilder = new StringBuilder();
 
+        Map argsMap = null;
         try {
-            Map argsMap = JPO.unpackArgs(args);
-            MapList objectList = (MapList) argsMap.get("objectList");
+            argsMap = JPO.unpackArgs(args);
+        } catch (Exception exception) {
+            exception.printStackTrace();
+            LOG.error("error unpack args: " + exception.getMessage());
+        }
+        MapList objectList = (MapList) argsMap.get("objectList");
 
-            /*getting all systems*/
-            List<Map> items = new ArrayList<>();
-            for (Object o : objectList) {
-                items.add((Map) o);
+        List<Map> items = new ArrayList<>();
+        for (Object o : objectList) {
+            items.add((Map) o);
+        }
+
+        String[] ODI = new String[items.size()];
+        for (int i = 0; i < items.size(); i++) {
+            Map map = items.get(i);
+            ODI[i] = (String) map.get(DomainConstants.SELECT_ID);
+        }
+
+        StringList selectBusStmts = new StringList(4);
+        selectBusStmts.add(DomainConstants.SELECT_TYPE);
+        selectBusStmts.add(DomainConstants.SELECT_NAME);
+        selectBusStmts.add(DomainConstants.SELECT_REVISION);
+        selectBusStmts.add(DomainConstants.SELECT_ID);
+        selectBusStmts.add("to[" + IMS_QP_Constants_mxJPO.relationship_IMS_QP_QPlan2Object + "]");
+
+        StringList selectRelStmts = new StringList();
+        selectRelStmts.add(DomainConstants.SELECT_NAME);
+        selectRelStmts.add(DomainConstants.SELECT_FROM_TYPE);
+        selectRelStmts.add("from.current");
+        selectRelStmts.add("from.to[" + IMS_QP_Constants_mxJPO.relationship_IMS_QP_QPlan2QPTask
+                + "].from.from[" + IMS_QP_Constants_mxJPO.relationship_IMS_QP_QPlan2Object + "]");
+        selectRelStmts.add("from.to[" + IMS_QP_Constants_mxJPO.relationship_IMS_QP_QPlan2QPTask + "].from.current");
+        short recurse = 1;
+
+        BusinessObjectWithSelectList businessObjectWithSelectList = null;
+        try {
+            businessObjectWithSelectList = BusinessObject.getSelectBusinessObjectData(context, ODI, selectBusStmts);
+        } catch (MatrixException matrixException) {
+            matrixException.printStackTrace();
+            LOG.error("error getting business objects list: " + matrixException.getMessage());
+        }
+
+        for (Object o : businessObjectWithSelectList) {
+            stringBuilder.setLength(0);
+            BusinessObjectWithSelect bowsSystem = (BusinessObjectWithSelect) o;
+            try {
+                bowsSystem.open(context);
+            } catch (MatrixException e) {
+                System.out.println("error opening business object: " + e.getMessage());
+                e.printStackTrace();
             }
 
-            /*top level Codes by items*/
-            for (Map map : items) {
-                stringBuilder.setLength(0);
+            boolean foundPlan = false;
+            String hasQPlan = bowsSystem.getSelectData("to[" + IMS_QP_Constants_mxJPO.relationship_IMS_QP_QPlan2Object + "]");
 
-                String pbsID = (String) map.get("id");
-                DomainObject systemObject = new DomainObject(pbsID);
-
-                if (pbsID != null) {
-                    String hasQPlan = systemObject.getInfo(context, "to[" + IMS_QP_Constants_mxJPO.relationship_IMS_QP_QPlan2Object + "]");
-                    if ("TRUE".equals(hasQPlan)) {
-                        String relatedType = systemObject.getInfo(context, "to[" + IMS_QP_Constants_mxJPO.relationship_IMS_QP_QPlan2Object + "].from.type");
-
-                        String relatedQPState = "";
-                        switch (relatedType) {
-                            case "IMS_QP_QPlan":
-                                relatedQPState = systemObject.getInfo(context, "to[" + IMS_QP_Constants_mxJPO.relationship_IMS_QP_QPlan2Object + "].from.current");
-                                break;
-                            case "IMS_QP_QPTask":
-                                String isNotInterdisciplinaryTask = systemObject.getInfo(context,
-                                        "to[" + IMS_QP_Constants_mxJPO.relationship_IMS_QP_QPlan2Object
-                                                + "].from.to[" + IMS_QP_Constants_mxJPO.relationship_IMS_QP_QPlan2QPTask
-                                                + "].from.from[" + IMS_QP_Constants_mxJPO.relationship_IMS_QP_QPlan2Object + "]");
-
-                                if ("TRUE".equals(isNotInterdisciplinaryTask)) {
-                                    relatedQPState = systemObject.getInfo(context,
-                                            "to[" + IMS_QP_Constants_mxJPO.relationship_IMS_QP_QPlan2Object
-                                                    + "].from.to[" + IMS_QP_Constants_mxJPO.relationship_IMS_QP_QPlan2QPTask + "].from.current");
-                                } else stringBuilder.append("No plan");
-                                break;
-                        }
-                        stringBuilder.append(relatedQPState);
-                    } else {
-                        stringBuilder.append("No plan");
-                    }
+            if ("TRUE".equals(hasQPlan)) {
+                ExpansionWithSelect expansion = null;
+                try {
+                    expansion = bowsSystem.expandSelect(context,
+                            /*rel type*/ IMS_QP_Constants_mxJPO.relationship_IMS_QP_QPlan2Object, /*obj type*/"*",
+                            selectBusStmts, selectRelStmts, /*getTo*/true,/*getFrom*/false, recurse);
+                } catch (MatrixException e) {
+                    System.out.println("matrix error: " + e.getMessage());
+                    e.printStackTrace();
                 }
 
-                result.addElement(stringBuilder.toString());
+                // getting relationships
+                RelationshipWithSelectList relationshipWithSelectList = expansion.getRelationships();
+                RelationshipWithSelectItr relItr = new RelationshipWithSelectItr(relationshipWithSelectList);
+
+                while (relItr.next()) {
+                    RelationshipWithSelect relSelect = relItr.obj();
+                    String relationshipName = relSelect.getSelectData(DomainConstants.SELECT_NAME);
+                    String relationshipFromType = relSelect.getSelectData(DomainConstants.SELECT_FROM_TYPE);
+                    String relationshipStraightFromCurrent = relSelect.getSelectData("from.current");
+                    String relationshipFromInterdisciplinaryTask = relSelect.getSelectData(
+                            "from.to[" + IMS_QP_Constants_mxJPO.relationship_IMS_QP_QPlan2QPTask
+                                    + "].from.from[" + IMS_QP_Constants_mxJPO.relationship_IMS_QP_QPlan2Object + "]");
+                    String relationshipFromTaskCurrent = relSelect.getSelectData("from.to[" + IMS_QP_Constants_mxJPO.relationship_IMS_QP_QPlan2QPTask + "].from.current");
+
+                    if (IMS_QP_Constants_mxJPO.type_IMS_QP_QPlan.equals(relationshipFromType)) {
+                        result.addElement(relationshipStraightFromCurrent);
+                        foundPlan = true;
+                        break;
+
+                    } else if (foundPlan &&
+                            IMS_QP_Constants_mxJPO.type_IMS_QP_QPTask.equals(relationshipFromType)) {
+                        if ("TRUE".equals(relationshipFromInterdisciplinaryTask)) {
+                            result.addElement(relationshipFromTaskCurrent);
+                            foundPlan = true;
+                            break;
+                        }
+                    }
+                }
             }
-        } catch (Exception e) {
-            try {
-                LOG.error("error getting url string: " + e.getMessage());
-            } catch (Exception ex) {
-                ex.printStackTrace();
+            if (!foundPlan) {
+                result.addElement("No plan");
             }
         }
+
         return result;
     }
 
+    public String stackTraceToString(Throwable e) {
+        StringBuilder sb = new StringBuilder();
+        for (StackTraceElement element : e.getStackTrace()) {
+            sb.append(element.toString());
+            sb.append("\n");
+        }
+        return sb.toString();
+    }
 
     /**
      * Method to show the table of related with DEP-object IMS_QP_DEPTask elements
@@ -541,29 +647,47 @@ public class IMS_QP_mxJPO extends DomainObject {
      */
     public Map copyQPTask(Context context, String... args) {
         Map mapMessage = new HashMap();
-        StringBuilder stringBuilder = new StringBuilder();
-        HashMap paramMap = null;
+        Map argsMap = null;
+        List<String> warnMessageList = new ArrayList<>();
 
         try {
-            paramMap = JPO.unpackArgs(args);
+            argsMap = JPO.unpackArgs(args);
         } catch (Exception e) {
-            stringBuilder.append("error when unpacking arguments: " + e.getMessage() + "\n");
             LOG.error("error when unpacking arguments: " + e.getMessage());
             e.printStackTrace();
         }
 
-        String[] rowIDs = new String[0];
-        if (paramMap != null) {
-            rowIDs = (String[]) paramMap.get("emxTableRowId");
+        String[] emxParentIds = null, emxTableRowId = null;
+        try {
+            emxParentIds = (String[]) argsMap.get("emxParentIds");
+        } catch (NullPointerException nullPointerException) {
+            LOG.error("error: " + nullPointerException.getMessage());
         }
-        List<String> ids = new ArrayList<>();
-        for (String rowID : rowIDs) {
-            ids.add(rowID.substring(0, rowID.indexOf("|")));
+        try {
+            emxTableRowId = (String[]) argsMap.get("emxTableRowId");
+        } catch (NullPointerException nullPointerException) {
+            LOG.error("error: " + nullPointerException.getMessage());
         }
 
-        //copy all ids of objects with new names and not include files
-        if (!ids.isEmpty()) {
-            for (String id : ids) {
+        boolean copyBySystemFlag = false;
+        if (emxParentIds != null) {
+            emxParentIds = emxParentIds[0].split("~");
+            copyBySystemFlag = true;
+        }
+
+        List<String> cleanSystemIds = new ArrayList<>(), cleanTaskIds = new ArrayList<>();
+        if (copyBySystemFlag) {
+            cleanTaskIds.addAll(cleanIdsUtility(emxParentIds));
+            cleanSystemIds.addAll(cleanIdsUtility(emxTableRowId));
+        } else {
+            String rawTableRowId = emxTableRowId[0];
+            emxTableRowId = rawTableRowId.split("\",\"");
+            cleanTaskIds.addAll(cleanIdsUtility(emxTableRowId));
+        }
+
+        //copying all ids of objects with new names and not including files
+        for (int i = 0; i < (cleanSystemIds.size() > 0 ? cleanSystemIds.size() : 1); i++) {
+            for (String id : cleanTaskIds) {
                 try {
                     DomainObject parentTask = new DomainObject(id);
                     String name = parentTask.getName(context), type = "IMS_QP_QPTask";
@@ -575,11 +699,15 @@ public class IMS_QP_mxJPO extends DomainObject {
 
                     //mapList size isn't smaller than 1
                     int counter = mapList.size();
+                    String prefix = copyBySystemFlag ?
+                            new DomainObject(cleanSystemIds.get(i)).getInfo(context, DomainConstants.SELECT_NAME) + "_" : "";
                     String postfix = counter < 10 ? "_0" + counter : "_" + counter;
                     String rename = String.format("%s%s", name, postfix);
 
-                    //transaction
+                    //Transactional
                     ContextUtil.startTransaction(context, true);
+                    boolean commitingFlag = true;
+
                     DomainObject targetTask = new DomainObject();
                     targetTask.createObject(context,
                             /*type*/type,
@@ -590,20 +718,53 @@ public class IMS_QP_mxJPO extends DomainObject {
                     targetTask.setAttributeValue(context, "IMS_Name", parentTask.getAttributeValue(context, "IMS_Name"));
                     targetTask.setAttributeValue(context, "IMS_NameRu", parentTask.getAttributeValue(context, "IMS_NameRu"));
 
-                    copyRelationshipsOfTask(context, id, targetTask, postfix);
-                    ContextUtil.commitTransaction(context);
+                    boolean hasSystemRelationship = copyRelationshipsOfTask(context, id, targetTask, prefix, postfix);
+                    if (copyBySystemFlag && !hasSystemRelationship) {
+                        DomainRelationship.connect(context,/*from*/targetTask, "IMS_QP_QPlan2Object",/*to*/new DomainObject(cleanSystemIds.get(i)));
+                        targetTask.setName(context, prefix + rename);
+                    } else if (copyBySystemFlag && hasSystemRelationship) {
+                        ContextUtil.abortTransaction(context);
+                        warnMessageList.add(rename);
+                        LOG.info("transaction aborted: rel detected!");
+                        commitingFlag = false;
+                    }
+
+                    if (commitingFlag) {
+                        ContextUtil.commitTransaction(context);
+                        LOG.info("new task is name: " + rename + " commited now");
+                    }
 
                 } catch (Exception e) {
-                    stringBuilder.append("error when coping: " + e.getMessage());
                     LOG.error("error when coping: " + e.getMessage());
                     ContextUtil.abortTransaction(context);
                 }
             }
         }
 
-        if (stringBuilder.length() == 0) stringBuilder.append("object copied");
-        mapMessage.put("message", stringBuilder.toString());
+        mapMessage.put("warning", warnMessageList);
+        mapMessage.put("message", warnMessageList.size() > 0 ?
+                "Warning! Tasks doesn't copied: " : cleanSystemIds.size() > 1 ?
+                "Objects copied" : "Object copied");
+        LOG.info(mapMessage);
         return mapMessage;
+    }
+
+    /**
+     * Method to cleaning strings of rel id|kind object id|related object|row id[0,0]
+     * simplify to object id only
+     *
+     * @param rawIds raw ids array
+     * @return cleaned list of ids
+     */
+    private List<String> cleanIdsUtility(String[] rawIds) {
+        List<String> cleanIds = new ArrayList<>();
+        for (String s : rawIds) {
+            s = s.substring(s.indexOf("|") + 1, s.lastIndexOf("|"));
+            s = s.substring(0, s.lastIndexOf("|"));
+            cleanIds.add(s);
+        }
+
+        return cleanIds;
     }
 
     /**
@@ -613,7 +774,9 @@ public class IMS_QP_mxJPO extends DomainObject {
      * @param postfix      last piece of name for copying object name
      * @throws Exception any errors thrown by the method
      */
-    private void copyRelationshipsOfTask(Context context, String id, DomainObject targetObject, String postfix) {
+    private boolean copyRelationshipsOfTask(Context context, String id, DomainObject targetObject,
+                                            String prefix, String postfix) {
+        boolean hasSystemRelationship = false;
 
         // Instantiate the BusinessObject.
         StringList selectBusStmts = new StringList();
@@ -663,17 +826,23 @@ public class IMS_QP_mxJPO extends DomainObject {
         while (relItr.next()) {
             RelationshipWithSelect relSelect = relItr.obj();
             String relationshipType = relSelect.getSelectData("name");
+            if (relationshipType.equals("IMS_QP_QPlan2Object")) {
+                hasSystemRelationship = true;
+                prefix = "";
+            }
+
             //ignoring type of QPTask2QPTask relationships
             if (relationshipType.equals("IMS_QP_QPTask2QPTask")) continue;
 
             //if expected result type
             boolean from = relSelect.getSelectData("from.id").equals(id) ? true : false;
-            if (relSelect.getSelectData("name").equals(IMS_QP_Constants_mxJPO.relationship_IMS_QP_ExpectedResult2QPTask)) {
+
+            if (relationshipType.equals(IMS_QP_Constants_mxJPO.relationship_IMS_QP_ExpectedResult2QPTask)) {
                 DomainObject expectedResult = null, clonedExpectedResult = null;
 
                 try {
                     expectedResult = new DomainObject(relSelect.getSelectData((from ? "to" : "from") + ".id"));
-                    String expectedResultRename = expectedResult.getName(context) + postfix;
+                    String expectedResultRename = String.format("%S%S%S", prefix, expectedResult.getName(context), postfix);
 
                     //copied expected result
                     clonedExpectedResult = new DomainObject();
@@ -706,7 +875,6 @@ public class IMS_QP_mxJPO extends DomainObject {
 
                 try {
                     if ("IMS_Family".equals(resultType.getType(context))) {
-                        LOG.info("try to connect from " + clonedExpectedResult.getId(context) + " to " + resultType.getId(context));
                         clonedExpectedResult.connect(context, new RelationshipType(IMS_QP_Constants_mxJPO.relationship_IMS_QP_ResultType2ExpectedResult), /*from clone*/ false, resultType);
                     } else {
                         emxContextUtil_mxJPO.mqlWarning(context, "Expected result " + expectedResult.getName(context) + " doesn't have connection from IMS_Family. Check this!");
@@ -744,6 +912,7 @@ public class IMS_QP_mxJPO extends DomainObject {
                 }
             }
         }
+        return hasSystemRelationship;
     }
 
     /**

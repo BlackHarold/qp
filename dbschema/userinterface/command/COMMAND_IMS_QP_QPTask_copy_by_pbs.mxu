@@ -1,23 +1,24 @@
 ################################################################################
-# COMMAND_IMS_QP_QPTask_copy.mxu
+# COMMAND_IMS_QP_QPTask_copy_by_pbs.mxu
 #
 #            This file describes the target of a Configuration Item.
 ################################################################################
 
 mxUpdate command "${NAME}" {
-    symbolicname "command_IMS_QP_QPTask_copy"
+    symbolicname "command_IMS_QP_QPTask_copy_by_pbs"
     description "Copying QPlan tasks objects"
-    label "Copy"
-    href "${COMMON_DIR}/IMS_QP_QPTask_mediator_copy.jsp"
+    label "Copy by PBS"
+    href "${COMMON_DIR}/emxIndentedTable.jsp?table=IMS_QP_DEP_KKS_PBS_embd&program=IMS_QP:getPBSByQPlan&targetLocation=popup&mode=chooser&Style=dialog&showPageHeader=false&submitURL=IMS_QP_QPTask_copy_by_pbs.jsp&sortColumnName=qplan&multiColumnSort=true&rowGroupingColumnNames=qplan,pbs&sortDirection=ascending&editLink=false&hideLaunchButton=true&parallelLoading=true&pageSize=10&multipleObjects=true&selection=multiple"
     alt ""
     user "all"
     setting "Access Expression" "true"
     setting "Popup Modal" "true"
     setting "Registered Suite" "Framework"
     setting "Row Select" "multi"
+    setting "Submit" "true"
     ################################################## Info Start
     property "author" value "IMS Team"
-    property "original name" value "IMS_QP_QPTask_copy"
+    property "original name" value "IMS_QP_QPTask_copy_by_pbs"
     property "application" value "IMS_QP"
     property "version" value "1"
     ################################################## Info End
