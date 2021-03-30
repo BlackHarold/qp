@@ -56,7 +56,7 @@ public class IMS_QP_Constants_mxJPO {
     public static final String type_IMS_ExternalDocumentSet = "IMS_ExternalDocumentSet";
     public static final String type_IMS_ExternalObject = "IMS_ExternalObject";
 
-    //by issue 51753
+    //      by issue 51753
     public static final String type_IMS_QP_Reports = "IMS_QP_Reports";
     public static final String type_IMS_QP_ReportUnit = "IMS_QP_ReportUnit";
 
@@ -89,53 +89,53 @@ public class IMS_QP_Constants_mxJPO {
     public static final String relationship_IMS_QP_Classifier2QPlan = "IMS_QP_Classifier2QPlan";
     public static final String relationship_IMS_QP_DEP2Classifier = "IMS_QP_DEP2Classifier";
 
-    //by issue 51753
+    //      by issue 51753
     public static final String relationship_IMS_QP_Project2Reports = "IMS_QP_Project2Reports";
     public static final String relationship_IMS_QP_Reports2ReportUnit = "IMS_QP_Reports2ReportUnit";
 
-    static final String ATTRIBUTE_IMS_DescriptionEn = "IMS_DescriptionEn";
-    static final String ATTRIBUTE_IMS_DescriptionRu = "IMS_DescriptionRu";
-    static final String ATTRIBUTE_IMS_QP_FACT_EXP = "IMS_QP_FactExp";
+    public static final String ATTRIBUTE_IMS_DescriptionEn = "IMS_DescriptionEn";
+    public static final String ATTRIBUTE_IMS_DescriptionRu = "IMS_DescriptionRu";
+    public static final String ATTRIBUTE_IMS_QP_FACT_EXP = "IMS_QP_FactExp";
 
-    static final String TYPE_IMS_QP_DEP = "IMS_QP_DEP";
-    static final String TYPE_IMS_QP_DEPTask = "IMS_QP_DEPTask";
-    static final String RELATIONSHIP_IMS_QP_DEP2DEPProjectStage = "IMS_QP_DEP2DEPProjectStage";
-    static final String RELATIONSHIP_IMS_QP_DEPProjectStage2DEPSubStage = "IMS_QP_DEPProjectStage2DEPSubStage";
-    static final String RELATIONSHIP_IMS_QP_DEPSubStage2DEPTask = "IMS_QP_DEPSubStage2DEPTask";
-    static final String RELATIONSHIP_IMS_QP_DEPTask2DEPTask = "IMS_QP_DEPTask2DEPTask";
-    static final String RELATIONSHIP_IMS_QP_DEPTask2DEP = "IMS_QP_DEPTask2DEP";
+    public static final String TYPE_IMS_QP_DEP = "IMS_QP_DEP";
+    public static final String TYPE_IMS_QP_DEPTask = "IMS_QP_DEPTask";
+    public static final String RELATIONSHIP_IMS_QP_DEP2DEPProjectStage = "IMS_QP_DEP2DEPProjectStage";
+    public static final String RELATIONSHIP_IMS_QP_DEPProjectStage2DEPSubStage = "IMS_QP_DEPProjectStage2DEPSubStage";
+    public static final String RELATIONSHIP_IMS_QP_DEPSubStage2DEPTask = "IMS_QP_DEPSubStage2DEPTask";
+    public static final String RELATIONSHIP_IMS_QP_DEPTask2DEPTask = "IMS_QP_DEPTask2DEPTask";
+    public static final String RELATIONSHIP_IMS_QP_DEPTask2DEP = "IMS_QP_DEPTask2DEP";
 
-    static final String ATTRIBUTE_IMS_Name = "IMS_Name";
-    static final String ATTRIBUTE_IMS_NameRu = "IMS_NameRu";
+    public static final String ATTRIBUTE_IMS_Name = "IMS_Name";
+    public static final String ATTRIBUTE_IMS_NameRu = "IMS_NameRu";
 
-    static final String SELECT_DEP_ID = String.format(
+    public static final String SELECT_DEP_ID = String.format(
             "to[%s].from.to[%s].from.to[%s].from.id",
             RELATIONSHIP_IMS_QP_DEPSubStage2DEPTask,
             RELATIONSHIP_IMS_QP_DEPProjectStage2DEPSubStage,
             RELATIONSHIP_IMS_QP_DEP2DEPProjectStage);
 
-    static final String SELECT_DEP_NAME = String.format(
+    public static final String SELECT_DEP_NAME = String.format(
             "to[%s].from.to[%s].from.to[%s].from.name",
             RELATIONSHIP_IMS_QP_DEPSubStage2DEPTask,
             RELATIONSHIP_IMS_QP_DEPProjectStage2DEPSubStage,
             RELATIONSHIP_IMS_QP_DEP2DEPProjectStage);
 
-    static final String SELECT_DEP_IMS_NAME = String.format(
+    public static final String SELECT_DEP_IMS_NAME = String.format(
             "to[%s].from.to[%s].from.to[%s].from.%s",
             RELATIONSHIP_IMS_QP_DEPSubStage2DEPTask,
             RELATIONSHIP_IMS_QP_DEPProjectStage2DEPSubStage,
             RELATIONSHIP_IMS_QP_DEP2DEPProjectStage,
             DomainObject.getAttributeSelect(ATTRIBUTE_IMS_Name));
 
-    static final String SELECT_DEP_IMS_NAME_RU = String.format(
+    public static final String SELECT_DEP_IMS_NAME_RU = String.format(
             "to[%s].from.to[%s].from.to[%s].from.%s",
             RELATIONSHIP_IMS_QP_DEPSubStage2DEPTask,
             RELATIONSHIP_IMS_QP_DEPProjectStage2DEPSubStage,
             RELATIONSHIP_IMS_QP_DEP2DEPProjectStage,
             DomainObject.getAttributeSelect(ATTRIBUTE_IMS_NameRu));
 
-    static final String SOURCE_DEP = "D_E_P"; // Because source lists are checked using indexOf
-    static final String SOURCE_DEPTask = "DEPTask";
+    public static final String SOURCE_DEP = "D_E_P"; // Because source lists are checked using indexOf
+    public static final String SOURCE_DEPTask = "DEPTask";
 
     public static final String BELL_DELIMITER = "\u0007";
 
@@ -147,7 +147,7 @@ public class IMS_QP_Constants_mxJPO {
     public static final String relationship_IMS_QP_QPTask2QPTask = "IMS_QP_QPTask2QPTask";
     public static final String relationship_IMS_QP_QPTask2Fact = "IMS_QP_QPTask2Fact";
 
-    //    feature 43176 'Actual search plan'
+    //      feature 43176 'Actual search plan'
     public static final String ANOTHER_PLAN_TYPES = "\u0414\u0440\u0443\u0433\u043e\u0435";
     public static final String VTZ_PLAN_TYPES = "\u0422\u0438\u043f\u044b\u0020\u0412\u0422\u0417";
     public static final String FAMILY_CL = "\u0427\u0435\u043a\u002d\u043b\u0438\u0441\u0442\u044b";
@@ -157,6 +157,10 @@ public class IMS_QP_Constants_mxJPO {
     public static final String TYPE_DOCUMENT_SET = "IMS_DocumentSet";
     public static final String BASELINE_TO_QPTASK = "to[IMS_QP_DEPTask2QPTask].from.to[IMS_QP_DEPSubStage2DEPTask].from.to[IMS_QP_BaseLine2DEPSubStage].from.name";
     public static final String PBS_TO_QPTASK = "to[IMS_QP_QPlan2QPTask].from.from[IMS_QP_QPlan2Object].to.name";
+    public static final String SYSTEM_TO_FUNCTIONAL_AREA = "to[IMS_QP_QPlan2QPTask].from.from[IMS_QP_QPlan2Object].to.to[IMS_PBSFunctionalArea2IMS_PBSSystem].from.name";
+    public static final String BUILDING_TO_FUNCTIONAL_AREA = "to[IMS_QP_QPlan2QPTask].from.from[IMS_QP_QPlan2Object].to.to[IMS_PBSFunctionalArea2IMS_GBSBuilding].from.name";
+    public static final String STRAIGHT_SYSTEM_TO_FUNCTIONAL_AREA = "from[IMS_QP_QPlan2Object].to.to[IMS_PBSFunctionalArea2IMS_PBSSystem].from.name";
+    public static final String STRAIGHT_BUILDING_TO_FUNCTIONAL_AREA = "from[IMS_QP_QPlan2Object].to.to[IMS_PBSFunctionalArea2IMS_GBSBuilding].from.name";
     public static final String PBS_TYPE_TO_QPTASK = "to[IMS_QP_QPlan2QPTask].from.from[IMS_QP_QPlan2Object].to.type";
     public static final String FROM_IMS_QP_QPTASK_2_FACT = "from[IMS_QP_QPTask2Fact]";
     public static final String TO_IMS_BBS_2_CI_FROM = "to[IMS_BBS2CI].from";
@@ -166,8 +170,12 @@ public class IMS_QP_Constants_mxJPO {
     public static final String ATTRIBUTE_IMS_EXTERNAL_SYSTEM_USER = "attribute[IMS_ExternalSystemUser]";
     public static final String ATTRIBUTE_IMS_EXTERNAL_SYSTEM_PASSWORD = "attribute[IMS_ExternalSystemPassword]";
     public static final String ATTRIBUTE_IMS_IS_LAST_VERSION = "attribute[IMS_IsLastVersion]";
+    //      feature 56817 'Actual plan search part III
+    public static final String ATTRIBUTE_IMS_SPFMajorRevision = "attribute[IMS_SPFMajorRevision]";
+    public static final String ATTIBUTE_IMS_SPFDocVersion = "attribute[IMS_SPFDocVersion]";
+    public static final String IMS_QP_ADDITIONAL_INFO = "IMS_QP_AdditionalInfo";
 
-    //    feature 51753: added relationships to the 'select' of feature 43176 'Actual search plan'
+    //      feature 51753: added relationships to the 'select' of feature 43176 'Actual search plan'
     public static final String FROM_IMS_QP_TASK_2_SYSTEM = "from[IMS_QP_QPlan2Object].to.name";
     public static final String FROM_IMS_QP_TASK_2_SYSTEM_TYPE = "from[IMS_QP_QPlan2Object].to.type";
     public static final String PLAN_TO_TASK = "to[IMS_QP_QPlan2QPTask].from.id";
@@ -177,6 +185,7 @@ public class IMS_QP_Constants_mxJPO {
     public static final String ATTRIBUTE_STAGE_TO_TASK = "to[IMS_QP_DEPTask2QPTask].from.to[IMS_QP_DEPSubStage2DEPTask].from.attribute[IMS_QP_Stage]";
 
     public static final String attribute_IMS_QP_DocumentCode = "attribute[IMS_QP_DocumentCode]";
+    public static final String IMS_QP_DocumentCode = "IMS_QP_DocumentCode";
     public static final String attribute_IMS_QP_SelectDocument = "attribute[IMS_QP_SelectDocument]";
 
     public static final String EXTERNAL_DOCUMENT = "IMS_ExternalDocumentSet";
@@ -189,11 +198,11 @@ public class IMS_QP_Constants_mxJPO {
     public static final String QP_TASK_REPORT_TEMPLATE_PATH = "C:\\R2019X\\3DSpace\\workspace\\templates\\qp_task_report.xlsx";
     public static final String STATEMENT_REPORT_TEMPLATE_PATH = "C:\\R2019X\\3DSpace\\workspace\\templates\\stmt_report.xlsx";
 
-    // feature 49741 'Statement report'
-    public static String FROM_IMS_ListDocument2DocSet_TO_NAME = "from[IMS_ListDocument2DocSet].to.name";
-    public static String TO_IMS_ListDocument2DocSet_FROM_ID = "to[IMS_ListDocument2DocSet].from.id";
-    public static String TO_IMS_QP_ExpectedResult2QPTask_FROM = "to[IMS_QP_ExpectedResult2QPTask].from.";
-    public static String ATTRIBUTE_DOC_CODE_FROM_EXPECTED_RESULT = "to[IMS_QP_ExpectedResult2QPTask].from.attribute[IMS_QP_DocumentCode]";
-    public static String ATTRIBUTE_DOC_CODE_TO_EXPECTED_RESULT = "from[IMS_QP_ExpectedResult2QPTask].to.attribute[IMS_QP_DocumentCode]";
-    public static String NAME_DEP_TASK_FROM_QP_TASK = "to[IMS_QP_DEPTask2QPTask].from.name";
+    //      feature 49741 'Statement report'
+    public static final String FROM_IMS_ListDocument2DocSet_TO_NAME = "from[IMS_ListDocument2DocSet].to.name";
+    public static final String TO_IMS_ListDocument2DocSet_FROM_ID = "to[IMS_ListDocument2DocSet].from.id";
+    public static final String TO_IMS_QP_ExpectedResult2QPTask_FROM = "to[IMS_QP_ExpectedResult2QPTask].from.";
+    public static final String ATTRIBUTE_DOC_CODE_FROM_EXPECTED_RESULT = "to[IMS_QP_ExpectedResult2QPTask].from.attribute[IMS_QP_DocumentCode]";
+    public static final String ATTRIBUTE_DOC_CODE_TO_EXPECTED_RESULT = "from[IMS_QP_ExpectedResult2QPTask].to.attribute[IMS_QP_DocumentCode]";
+    public static final String NAME_DEP_TASK_FROM_QP_TASK = "to[IMS_QP_DEPTask2QPTask].from.name";
 }

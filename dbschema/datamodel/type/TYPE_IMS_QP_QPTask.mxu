@@ -14,6 +14,7 @@ mxUpdate type "${NAME}" {
     attribute "IMS_DescriptionRu"
     attribute "IMS_Name"
     attribute "IMS_NameRu"
+    attribute "IMS_QP_AdditionalInfo"
     attribute "IMS_QP_CloseStatus"
     attribute "IMS_QP_FactExp"
     attribute "IMS_QP_FactGot"

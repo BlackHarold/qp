@@ -863,14 +863,15 @@ public class IMS_QP_DEPTask_mxJPO {
 
             String color = "";
 
-            //1 if attribute of task IMS_QP_SelectDocument has any values
-            if (UIUtil.isNotNullAndNotEmpty(object.getInfo(context, IMS_QP_Constants_mxJPO.attribute_IMS_QP_SelectDocument)))
-                color = "IMS_QP_Purple";
-
             //2 if attribute of expected result IMS_QP_DocumentCode contains value 'Wrong'
+            //or attribute AdditionalInfo contains some information
             String wrongCodeField = object.getInfo(context, String.format("from[%s].to.%s",
-                    IMS_QP_Constants_mxJPO.relationship_IMS_QP_ExpectedResult2QPTask, IMS_QP_Constants_mxJPO.attribute_IMS_QP_DocumentCode));
-            if (UIUtil.isNotNullAndNotEmpty(wrongCodeField) && wrongCodeField.contains("Wrong code"))
+                    IMS_QP_Constants_mxJPO.relationship_IMS_QP_ExpectedResult2QPTask,
+                    IMS_QP_Constants_mxJPO.attribute_IMS_QP_DocumentCode));
+            String errorCodeField = object.getInfo(context, String.format(
+                    "attribute[%s]", IMS_QP_Constants_mxJPO.IMS_QP_ADDITIONAL_INFO));
+            if (UIUtil.isNotNullAndNotEmpty(wrongCodeField) && wrongCodeField.contains("Wrong code")
+                    || UIUtil.isNotNullAndNotEmpty(errorCodeField))
                 color = "IMS_QP_Orange";
 
             //3 if the task has more than one expected result in direction 'Output'
@@ -889,8 +890,13 @@ public class IMS_QP_DEPTask_mxJPO {
             //5 if the task is 'VTZ' type and attribute of expected result IMS_DocumentCode is empty value
             boolean vtzTypeAndNoFact = IMS_QP_Constants_mxJPO.VTZ_PLAN_TYPES.equals(resultType) && "FALSE".equals(checkIfHasFact);
 
-            if (anotherTypeAndNoFact || vtzTypeAndNoFact) color = "IMS_QP_Blue";
+            if (anotherTypeAndNoFact) color = "IMS_QP_Blue";
 
+            //1 if attribute of task IMS_QP_SelectDocument has any values
+            if (UIUtil.isNotNullAndNotEmpty(object.getInfo(context, IMS_QP_Constants_mxJPO.attribute_IMS_QP_SelectDocument)))
+                color = "IMS_QP_Purple";
+
+            LOG.info(object.getName(context) + " color: " + color);
             getColor(returnList, factExp, factGot, color);
         }
         return returnList;

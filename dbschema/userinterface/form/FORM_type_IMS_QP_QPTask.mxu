@@ -140,6 +140,15 @@ mxUpdate form "${NAME}" {
         setting "function" "getSelectable"
         setting "program" "IMS_ExternalSystem"
     }
+    field {
+        name "additional_information"
+        label "Additional information"
+        setting "Access Expression" "attribute[IMS_QP_AdditionalInfo]!=''"
+        businessobject "$<attribute[IMS_QP_AdditionalInfo]"
+        setting "Editable" "false"
+        setting "Field Type" "attribute"
+        setting "Registered Suite" "Framework"
+    }
     ################################################## Info Start
     property "author" value "The IMS Team"
     property "original name" value "type_IMS_QP_QPTask"

@@ -463,14 +463,14 @@ emxUICoreToolbarItem.prototype.createDOM = function _emxUICoreToolbarItem_create
             addEvent(this.element, "click", function () {
                                                                                                     //START IMS
                 let button = document.getElementById(objThis.id);
-                if (button.className != 'icon-button button-disabled button-disabled') {
+                if (button == null || button.className != 'icon-button-32x32 button-disabled button-disabled') {
                                                                                                     //END IMS
                     objThis.fireEvent("click");
                                                                                                     //START IMS
                 }
 
-                if (button.id.indexOf('Report') > -1) {
-                    button.className = 'icon-button button-disabled button-disabled';
+                if (button != null && button.id.indexOf('Report') > -1) {
+                    button.className = 'icon-button-32x32 button-disabled button-disabled';
                     button.disabled = true;
                     console.log("objThis: " + button.className + " " + button.disabled);
                 }
