@@ -1,0 +1,81 @@
+################################################################################
+# TABLE_IMS_QP_DEP_KKS_PBS_embd.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate table "${NAME}" {
+    symbolicname "table_IMS_QP_DEP_KKS_PBS_embd"
+    description ""
+    column {
+        name "code"
+        label "Code"
+        businessobject "name"
+        setting "Registered Suite" "Framework"
+        setting "Sortable" "false"
+    }
+    column {
+        name "group_info"
+        label "Group SQP/BQP"
+        businessobject "from[IMS_PBS2DEP].to.from[IMS_QP_DEP2Classifier].to.name"
+        setting "Registered Suite" "Framework"
+        setting "Width" "100"
+    }
+    column {
+        name "pbs"
+        label "PBS"
+        user "all"
+        setting "Column Type" "programHTMLOutput"
+        setting "Editable" "false"
+        setting "Registered Suite" "Framework"
+        setting "Width" "100"
+        setting "function" "getPBS"
+        setting "program" "IMS_QP"
+    }
+    column {
+        name "revision"
+        label "Revision"
+        businessobject "revision"
+        setting "Registered Suite" "Framework"
+        setting "Sortable" "false"
+        setting "Width" "100"
+    }
+    column {
+        name "type"
+        label "Type"
+        businessobject "type"
+        setting "Registered Suite" "Framework"
+        setting "Sortable" "false"
+        setting "Width" "200"
+    }
+    column {
+        name "qplan"
+        label "QP"
+        setting "Column Type" "programHTMLOutput"
+        setting "Editable" "false"
+        setting "Registered Suite" "Framework"
+        setting "Width" "100"
+        setting "function" "getQP"
+        setting "program" "IMS_QP"
+    }
+    column {
+        name "dep"
+        label "DEP"
+        businessobject "from[IMS_PBS2DEP].to.name"
+        setting "Registered Suite" "Framework"
+        setting "Sortable" "false"
+        setting "Width" "200"
+    }
+    column {
+        name "description"
+        label "emxComponents.Common.Description"
+        businessobject "description"
+        setting "Registered Suite" "Components"
+    }
+    ################################################## Info Start
+    property "author" value "IMS Team"
+    property "original name" value "IMS_QP_DEP_KKS_PBS_embd"
+    property "application" value "IMS_QP"
+    property "version" value "1"
+    ################################################## Info End
+}

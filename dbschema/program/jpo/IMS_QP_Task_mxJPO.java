@@ -10,7 +10,6 @@ import matrix.util.StringList;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.log4j.Logger;
 
-import java.time.LocalTime;
 import java.util.*;
 
 public class IMS_QP_Task_mxJPO {
@@ -424,10 +423,8 @@ public class IMS_QP_Task_mxJPO {
      * @param args
      * @return
      */
-    public HashMap generateRelIN_OUT(Context context,
-                                     String[] args
-    ) {
-        HashMap returnMap = new HashMap();
+    public Map generateRelIN_OUT(Context context, String[] args) {
+        Map returnMap = new HashMap();
         StringBuilder message = new StringBuilder();
 
         try {
@@ -498,14 +495,9 @@ public class IMS_QP_Task_mxJPO {
      * @param line
      * @throws Exception
      */
-    private void setRelations(Context context,
-                              StringList qpTaskIdsList,
-                              MapList mapQPTask,
-                              String nameQP,
-                              String idQPTask,
-                              StringBuilder message,
-                              String line
-    ) throws Exception {
+    private void setRelations(Context context, StringList qpTaskIdsList, MapList mapQPTask, String nameQP,
+                              String idQPTask, StringBuilder message, String line) throws Exception {
+
         for (Object objQPTask : mapQPTask) {
             Map objMapQPTask = (Map) objQPTask;
             String qpPlanName = (String) objMapQPTask.get("to[" + IMS_QP_Constants_mxJPO.relationship_IMS_QP_QPlan2QPTask + "].from.name");
@@ -514,12 +506,14 @@ public class IMS_QP_Task_mxJPO {
             String inQPTaskId = (String) objMapQPTask.get("to[" + IMS_QP_Constants_mxJPO.relationship_IMS_QP_QPTask2QPTask + "].from.id");
             String outQPTaskId = (String) objMapQPTask.get("from[" + IMS_QP_Constants_mxJPO.relationship_IMS_QP_QPTask2QPTask + "].to.id");
 
-            if (!nameQP.equals(qpPlanName)) {
-                if ("IN".equals(line) && !(UIUtil.isNotNullAndNotEmpty(outQPTaskId) && outQPTaskId.contains(idQPTask))) {
-                    DomainRelationship inRel = DomainRelationship.connect(context, new DomainObject(idTask), IMS_QP_Constants_mxJPO.relationship_IMS_QP_QPTask2QPTask, new DomainObject(idQPTask));
-                    if (qpTaskIdsList.contains(idTask))
-                        inRel.setAttributeValue(context, "IMS_QP_DEPTaskStatus", "Approved");
-                    message.append("from " + nameTask + " to " + nameQP + " connection was build \n");
+            if (!idTask.equals(idQPTask)) {
+                if (!nameQP.equals(qpPlanName)) {
+                    if ("IN".equals(line) && !(UIUtil.isNotNullAndNotEmpty(outQPTaskId) && outQPTaskId.contains(idQPTask))) {
+                        DomainRelationship inRel = DomainRelationship.connect(context, new DomainObject(idTask), IMS_QP_Constants_mxJPO.relationship_IMS_QP_QPTask2QPTask, new DomainObject(idQPTask));
+                        if (qpTaskIdsList.contains(idTask))
+                            inRel.setAttributeValue(context, "IMS_QP_DEPTaskStatus", "Approved");
+                        message.append("from " + nameTask + " to " + nameQP + " connection was build \n");
+                    }
                 } else if ("OUT".equals(line) && !(UIUtil.isNotNullAndNotEmpty(inQPTaskId) && inQPTaskId.contains(idQPTask))) {
                     DomainRelationship outRel = DomainRelationship.connect(context, new DomainObject(idQPTask), IMS_QP_Constants_mxJPO.relationship_IMS_QP_QPTask2QPTask, new DomainObject(idTask));
                     if (qpTaskIdsList.contains(idTask))
@@ -557,8 +551,6 @@ public class IMS_QP_Task_mxJPO {
     }
 
     public Vector getQPTaskRelatedObjects(Context context, String[] args, boolean in) {
-        LOG.info("started at : " + LocalTime.now().toString());
-
         Vector result = new Vector();
 
         Map argsMap;
@@ -624,7 +616,6 @@ public class IMS_QP_Task_mxJPO {
             result.add(resultMap.get(mainTaskID));
         }
 
-        LOG.info("done at: " + LocalTime.now().toString());
         return result;
     }
 
@@ -704,13 +695,13 @@ public class IMS_QP_Task_mxJPO {
 
                 //if expected result type
                 boolean from = relationshipFromId.equals(id); // input is TO (!from)
-                if (in&&!from) {
+                if (in && !from) {
                     String relationshipState = relSelect.getSelectData("attribute[IMS_QP_DEPTaskStatus]");
 //                    LOG.info(id + "|" + name + "[type: " + relationshipType + "|from.id=" + relationshipFromId + "|to.id=" + relationshipToId + "|from:" + from + "|state:" + relationshipState + "]");
                     statesList.add(relationshipState);
                 }
 
-                if (!in&&from) {
+                if (!in && from) {
                     String relationshipState = relSelect.getSelectData("attribute[IMS_QP_DEPTaskStatus]");
 //                    LOG.info(id + "|" + name + "[type: " + relationshipType + "|from.id=" + relationshipToId + "|to.id=" + relationshipToId + "|from:" + from + "|state:" + relationshipState + "]");
                     statesList.add(relationshipState);
