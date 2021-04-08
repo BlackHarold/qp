@@ -8,7 +8,7 @@ mxUpdate command "${NAME}" {
     symbolicname "command_IMS_QP_QPTasksFromPlan"
     description ""
     label "Related tasks"
-    href "${COMMON_DIR}/emxIndentedTable.jsp?program=IMS_QP_DEPTask:getRelatedQPTask&table=IMS_QP_QPTasks&selection=multiple&pageSize=50&editLink=false&toolbar=IMS_QP_QPTask"
+    href "${COMMON_DIR}/emxIndentedTable.jsp?program=IMS_QP_DEPTask:getRelatedQPTask&table=IMS_QP_QPTasks&selection=multiple&pageSize=50&editLink=false&toolbar=IMS_QP_QPTask&sortColumnName=Sort"
     alt ""
     user "all"
     ################################################## Info Start

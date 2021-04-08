@@ -194,6 +194,7 @@ public class IMS_QP_Constants_mxJPO {
     public static final String PLAN_SEARCH_REPORT_TEMPLATE_PATH = "C:\\R2019X\\3DSpace\\workspace\\templates\\51753.xlsx";
     public static final String SQP_REPORT_TEMPLATE_PATH = "C:\\R2019X\\3DSpace\\workspace\\templates\\sqp_report.xlsx";
     public static final String DEP_REPORT_TEMPLATE_PATH = "C:\\R2019X\\3DSpace\\workspace\\templates\\dep_report.xlsx";
+    public static final String SORT_REPORT_TEMPLATE_PATH = "C:\\R2019X\\3DSpace\\workspace\\templates\\sort_report.xlsx";
     public static final String GRP_REPORT_TEMPLATE_PATH = "C:\\R2019X\\3DSpace\\workspace\\templates\\grp_report.xlsx";
     public static final String QP_TASK_REPORT_TEMPLATE_PATH = "C:\\R2019X\\3DSpace\\workspace\\templates\\qp_task_report.xlsx";
     public static final String STATEMENT_REPORT_TEMPLATE_PATH = "C:\\R2019X\\3DSpace\\workspace\\templates\\stmt_report.xlsx";
