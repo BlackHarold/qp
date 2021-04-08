@@ -8,4 +8,7 @@ mxUpdate type "${NAME}" {
     symbolicname "type_IMS_QP_QPlan"
     description ""
     !hidden
+    attribute "IMS_QP_FactExp"
+    attribute "IMS_QP_FactGot"
+    attribute "IMS_QP_SortInfo"
 }

@@ -47,6 +47,17 @@ mxUpdate table "${NAME}" {
         setting "Access Expression" "true"
         setting "format" "date"
     }
+    column {
+        name "SortInfo"
+        label "emxFramework.Attribute.IMS_QP_SortInfo"
+        businessobject "attribute[IMS_QP_SortInfo]"
+        user "all"
+        setting "Admin Type" "attribute_IMS_QP_SortInfo"
+        setting "Editable" "false"
+        setting "Field Type" "attribute"
+        setting "Registered Suite" "Framework"
+        setting "Width" "300"
+    }
     ################################################## Info Start
     property "author" value "IMS Team"
     property "original name" value "IMS_QP_SQP"

@@ -13,4 +13,5 @@ mxUpdate type "${NAME}" {
     attribute "IMS_QP_FactExp"
     attribute "IMS_QP_FactGot"
     attribute "IMS_QP_InterdisciplinaryDEP"
+    attribute "IMS_QP_SortInfo"
 }
