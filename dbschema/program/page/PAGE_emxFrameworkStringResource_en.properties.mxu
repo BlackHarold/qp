@@ -69,5 +69,8 @@ emxComponents.Common.Name=Name
 
 emxFramework.Command.COMMAND_IMS_QP_DEPSubStage_create=New DEPSubStage
 emxFramework.Command.COMMAND_IMS_QP_DEP_create=New DEP
+
+emxFramework.Attribute.IMS_QP_SortInfo = Sequencing
+emxFramework.Attribute.IMS_SortOrder = Order
 "
 }

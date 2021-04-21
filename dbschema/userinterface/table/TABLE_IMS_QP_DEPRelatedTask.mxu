@@ -11,10 +11,12 @@ mxUpdate table "${NAME}" {
         name "Code"
         label "emxFramework.Label.QP_Code"
         businessobject "name"
-        href "${COMMON_DIR}/emxPortal.jsp?portal=IMS_QP_DEPTask_Portal"
+        href "${COMMON_DIR}/emxPortal.jsp?portal=IMS_QP_QPTask_Portal"
         user "all"
         setting "Editable" "false"
         setting "Registered Suite" "Framework"
+        setting "Style Function" "getFactColumnStyle"
+        setting "Style Program" "IMS_QP_DEPTask"
     }
     column {
         name "Name"
@@ -73,10 +75,21 @@ mxUpdate table "${NAME}" {
         setting "function" "getDEPTaskOutput"
         setting "program" "IMS_QP_Task"
     }
+    column {
+        name "Sort"
+        label "emxFramework.Attribute.IMS_SortOrder"
+        businessobject "attribute[IMS_SortOrder]"
+        user "all"
+        setting "Admin Type" "attribute_IMS_SortOrder"
+        setting "Editable" "false"
+        setting "Field Type" "attribute"
+        setting "Registered Suite" "Framework"
+        setting "Width" "50"
+    }
     ################################################## Info Start
     property "author" value "IMS Team"
     property "original name" value "IMS_QP_DEPRelatedTask"
-    property "application" value "IMS_QP"
+    property "application" value "IMS"
     property "version" value "1"
     ################################################## Info End
 }

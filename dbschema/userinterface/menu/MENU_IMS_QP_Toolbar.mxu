@@ -14,6 +14,7 @@ mxUpdate menu "${NAME}" {
     command "IMS_QP_DEP_create"
     command "IMS_QP_DEP_Delete"
     command "IMS_QP_DEP_Report"
+    command "IMS_QP_Ordered"
     ################################################## Info Start
     property "original name" value "IMS_QP_Toolbar"
     property "application" value "IMS_QP"

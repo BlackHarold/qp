@@ -17,6 +17,7 @@ mxUpdate menu "${NAME}" {
     command "IMS_QP_SQP_Report"
     command "IMS_QP_QPTask_Report"
     command "IMS_QP_Statement_Report"
+    command "IMS_QP_OrderedSQP"
     ################################################## Info Start
     property "original name" value "IMS_QP_SQP_Toolbar"
     property "application" value "IMS_QP"

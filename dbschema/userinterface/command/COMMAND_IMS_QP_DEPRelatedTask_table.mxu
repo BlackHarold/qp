@@ -7,12 +7,11 @@
 mxUpdate command "${NAME}" {
     description "Related tasks"
     label "Related tasks"
-    href "${COMMON_DIR}/IMS_IndentedTable.jsp?program=IMS_QP:getAllRelatedTasksForTable&table=IMS_QP_DEPRelatedTask&selection=multiple"
+    href "${COMMON_DIR}/IMS_IndentedTable.jsp?program=IMS_QP:getAllRelatedTasksForTable&table=IMS_QP_DEPRelatedTask&selection=multiple&formHeader=form_header&sortColumnName=Sort"
     alt ""
     ################################################## Info Start
-    property "author" value "IMS Team"
     property "original name" value "IMS_QP_DEPRelatedTask_table"
-    property "application" value "IMS_QP"
+    property "application" value "IMS_HNH19"
     property "version" value "1"
     ################################################## Info End
 }
