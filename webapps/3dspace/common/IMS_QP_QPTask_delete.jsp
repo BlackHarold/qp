@@ -5,7 +5,6 @@
 <%@ page import="com.matrixone.apps.domain.util.ContextUtil" %>
 <%@ page import="com.matrixone.apps.framework.ui.UIUtil" %>
 <%@ page import="static com.matrixone.apps.common.util.JSPUtil.emxGetParameterValues" %>
-<%@ page import="org.apache.log4j.Logger" %>
 <%@ page import="java.util.Arrays" %>
 <%@ page import="java.util.List" %>
 <%@include file="../common/emxNavigatorInclude.inc" %>
@@ -58,15 +57,12 @@
 </style>
 
 <%
-    Logger LOG = Logger.getLogger("blackLogger");
     String[] tableIDs = emxGetParameterValues(request, "emxTableRowId");
     Map objectMap = UIUtil.parseRelAndObjectIds(context, tableIDs, false);
     tableIDs = (String[]) objectMap.get("objectIds");
 
-    HashMap args = new HashMap();
+    Map args = new HashMap();
     args.put("emxTableRowId", tableIDs);
-
-    LOG.info("args to send: " + Arrays.deepToString(tableIDs));
 
     try {
         Map map = JPO.invoke(context, "IMS_QualityPlanBase", new String[]{}, "deleteQPTasks", JPO.packArgs(args), HashMap.class);

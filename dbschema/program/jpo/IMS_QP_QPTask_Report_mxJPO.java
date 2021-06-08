@@ -12,6 +12,8 @@ import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -22,9 +24,14 @@ public class IMS_QP_QPTask_Report_mxJPO extends IMS_QP_ActualPlanSearch_mxJPO {
     private static final Logger LOG = Logger.getLogger("reportLogger");
     private final int ROW_LIMIT = 1048575;
 
+    private String getTimeStamp() {
+        return new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(Calendar.getInstance().getTime());
+    }
+
     public void getReport(Context ctx, String... args) {
 
         /**task report generator*/
+        LOG.info("start report timing : " + getTimeStamp());
         BusinessObjectWithSelectList reportData = getAllQPTaskList(ctx);
         createReportUnit(ctx, reportData, "QPTask");
     }
@@ -99,6 +106,7 @@ public class IMS_QP_QPTask_Report_mxJPO extends IMS_QP_ActualPlanSearch_mxJPO {
                 e.printStackTrace();
             }
         }
+        LOG.info("finished report timing: " + getTimeStamp());
     }
 
     private String getWorkspacePath(Context ctx) {
@@ -115,7 +123,6 @@ public class IMS_QP_QPTask_Report_mxJPO extends IMS_QP_ActualPlanSearch_mxJPO {
 
         SXSSFWorkbook wb = null;
         try {
-//            IMS_QP_Constants_mxJPO.QP_TASK_REPORT_TEMPLATE_PATH
             wb = new SXSSFWorkbook(new XSSFWorkbook(), 100000);
         } catch (Exception e) {
             LOG.error("IO exception: " + e.getMessage());
@@ -127,24 +134,29 @@ public class IMS_QP_QPTask_Report_mxJPO extends IMS_QP_ActualPlanSearch_mxJPO {
         for (Object o : reportData) {
             BusinessObjectWithSelect businessObject = (BusinessObjectWithSelect) o;
 
+            Map<String, Map<String, String>> taskMap = new HashMap<>();
             try {
                 businessObject.open(ctx);
+                if (businessObject.isOpen()) {
+                    RelationshipWithSelectItr relItr = getRelationshipsWithItr(ctx, businessObject);
+                    taskMap = getQPTaskList(
+                            businessObject.getSelectData(DomainObject.SELECT_ID),
+                            businessObject.getSelectData(DomainObject.SELECT_NAME),
+                            relItr);
+                }
+
             } catch (MatrixException e) {
                 LOG.error("error opening business object: " + e.getMessage());
                 e.printStackTrace();
             }
 
-            RelationshipWithSelectItr relItr = getRelationshipsWithItr(ctx, businessObject);
-            Map<String, Map<String, String>> taskMap = getQPTaskList(
-                    businessObject.getSelectData(DomainObject.SELECT_ID),
-                    businessObject.getSelectData(DomainObject.SELECT_NAME),
-                    relItr);
-
             if (sheet == null) {
                 sheet = wb.createSheet(businessObject.getSelectData(DomainObject.SELECT_NAME));
             }
 
-            sheet = pushCellsValues(pointCounter, wb, sheet, taskMap);
+            if (!taskMap.isEmpty()) {
+                sheet = pushCellsValues(pointCounter, wb, sheet, taskMap);
+            }
 
             try {
                 businessObject.close(ctx);

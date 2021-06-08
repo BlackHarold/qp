@@ -78,12 +78,6 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
         return mapMessage;
     }
 
-    private void getArrayIDs(List<String> deletingIDs, String[] var1) {
-        for (int i = 0; i < deletingIDs.size(); i++) {
-            var1[i] = deletingIDs.get(i);
-        }
-    }
-
     /**
      * Method to show the table of IMS_SubStage elements
      */
@@ -303,7 +297,7 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
             }
 
             substage.setName(context, uniqueNameSubStage);
-            substage.setAttributeValue(context,"IMS_QP_Stage", stage);
+            substage.setAttributeValue(context, "IMS_QP_Stage", stage);
 
             ContextUtil.commitTransaction(context);
         } catch (Exception e) {
@@ -885,7 +879,7 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
     public Map deleteQPTasks(Context context, String[] args) {
 
         //get all ids
-        HashMap<String, Object> argsMap = null;
+        Map<String, Object> argsMap = null;
         try {
             argsMap = JPO.unpackArgs(args);
         } catch (Exception e) {
@@ -942,21 +936,20 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
     }
 
     private void deleteObjects(Context context, List<String> deletingIDs) {
-        String[] var1 = new String[deletingIDs.size()];
-        getArrayIDs(deletingIDs, var1);
-
-        //delete tasks
-        try {
-            if (var1.length > 0)
-                DomainObject.deleteObjects(context, var1);
-        } catch (Exception e) {
-            LOG.error("delete error: " + e.getMessage());
-            e.printStackTrace();
+        for (int i = 0; i < deletingIDs.size(); i++) {
+            try {
+                MqlUtil.mqlCommand(context, "delete bus $1", new String[]{deletingIDs.get(i)});
+            } catch (Exception e) {
+                LOG.error("delete error id:" + deletingIDs.get(i) + " message: " + e.getMessage());
+                for (StackTraceElement trace : e.getStackTrace()) {
+                    LOG.error(deletingIDs.get(i) + ": " + trace.toString());
+                }
+            }
         }
     }
 
-    public MapList getFindObject(Context context, String type, String name, String revision, String expression) throws
-            Exception {
+    public MapList getFindObject(Context context, String type, String name, String revision, String expression)
+            throws Exception {
         StringList objectSelects = new StringList();
         objectSelects.add(DomainConstants.SELECT_ID);
         objectSelects.add(DomainConstants.SELECT_NAME);
@@ -966,8 +959,8 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
     }
 
     public void setCounterForDEPProjectStage(Context context, String[] args) throws Exception {
-        try {
 
+        try {
             MapList resultTasks = getFindObject(context,
                     "IMS_QP_DEPSubStage", "*", "*", "");
 
