@@ -13,6 +13,13 @@ import org.apache.log4j.Logger;
 public class IMS_QP_ListObjectsReportGenerator_mxJPO {
     private static final Logger LOG = Logger.getLogger("reportLogger");
 
+    /**
+     * Type report chooser
+     * @param ctx usual parameter
+     * @param type of report
+     * @param ids id objects to molding the report
+     * @return list of business objects by type of the report
+     */
     public BusinessObjectWithSelectList reportGeneration(Context ctx, String type, String... ids) {
 
         BusinessObjectWithSelectList boList;
@@ -104,14 +111,22 @@ public class IMS_QP_ListObjectsReportGenerator_mxJPO {
         busSelect.addElement(DomainConstants.SELECT_ID);
         busSelect.addElement(DomainConstants.SELECT_NAME);
         busSelect.addElement(DomainConstants.SELECT_TYPE);
+        busSelect.addElement(DomainConstants.SELECT_CURRENT);
+        busSelect.addElement(DomainConstants.SELECT_OWNER);
+        busSelect.addElement(DomainConstants.SELECT_ORIGINATED);
+        busSelect.addElement("from[IMS_QP_QPlan2Object].to.name");
+        busSelect.addElement("from[IMS_QP_QPlan2Object].to.attribute[IMS_DescriptionEn]");
+        busSelect.addElement("from[IMS_QP_QPlan2Object].to.attribute[IMS_DescriptionRu]");
 
         //DEP
-        busSelect.addElement(String.format("to[%s].from.name",
-                IMS_QP_Constants_mxJPO.relationship_IMS_QP_DEP2QPlan));
+        busSelect.addElement(String.format("to[%s].from.name",IMS_QP_Constants_mxJPO.relationship_IMS_QP_DEP2QPlan));
+        busSelect.addElement(String.format("to[%s].from.description",IMS_QP_Constants_mxJPO.relationship_IMS_QP_DEP2QPlan));
         //Classifier
         busSelect.addElement(String.format("from[%s].to.name", IMS_QP_Constants_mxJPO.relationship_IMS_QP_DEP2Classifier));
         busSelect.addElement(String.format("to[%s].from.name", IMS_QP_Constants_mxJPO.relationship_IMS_QP_DEP2Classifier));
         busSelect.addElement(String.format("to[%s].from.name", IMS_QP_Constants_mxJPO.relationship_IMS_QP_Classifier2QPlan));
+        busSelect.addElement(String.format("to[%s].from.attribute[IMS_Name]", IMS_QP_Constants_mxJPO.relationship_IMS_QP_Classifier2QPlan));
+        busSelect.addElement(String.format("to[%s].from.attribute[IMS_NameRu]", IMS_QP_Constants_mxJPO.relationship_IMS_QP_Classifier2QPlan));
         busSelect.addElement(String.format("from[%s].to.name", IMS_QP_Constants_mxJPO.relationship_IMS_QP_Classifier2QPlan));
 
         return busSelect;

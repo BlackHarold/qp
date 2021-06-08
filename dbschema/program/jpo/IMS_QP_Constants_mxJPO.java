@@ -5,6 +5,7 @@ public class IMS_QP_Constants_mxJPO {
     private IMS_QP_Constants_mxJPO() {
     }
 
+    public static final Object OBJECT_ID = "objectId";
     public static final String ESERVICE_PRODUCTION = "eService Production";
     public static final String ATTRIBUTE_IMS_QP_INTERDISCIPLINARY_DEP = "attribute[IMS_QP_InterdisciplinaryDEP]";
     public static final String ATTRIBUTE_IMS_QP_FILE_CHECKIN_STATUS = "attribute[IMS_QP_FileCheckinStatus]";
@@ -193,6 +194,7 @@ public class IMS_QP_Constants_mxJPO {
 
     public static final String PLAN_SEARCH_REPORT_TEMPLATE_PATH = "C:\\R2019X\\3DSpace\\workspace\\templates\\51753.xlsx";
     public static final String SQP_REPORT_TEMPLATE_PATH = "C:\\R2019X\\3DSpace\\workspace\\templates\\sqp_report.xlsx";
+    public static final String DQP_REPORT_TEMPLATE_PATH = "C:\\R2019X\\3DSpace\\workspace\\templates\\dqp_report.xlsx";
     public static final String DEP_REPORT_TEMPLATE_PATH = "C:\\R2019X\\3DSpace\\workspace\\templates\\dep_report.xlsx";
     public static final String SORT_REPORT_TEMPLATE_PATH = "C:\\R2019X\\3DSpace\\workspace\\templates\\sort_report.xlsx";
     public static final String GRP_REPORT_TEMPLATE_PATH = "C:\\R2019X\\3DSpace\\workspace\\templates\\grp_report.xlsx";
