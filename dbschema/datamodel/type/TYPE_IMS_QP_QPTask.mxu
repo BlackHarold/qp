@@ -19,6 +19,7 @@ mxUpdate type "${NAME}" {
     attribute "IMS_QP_FactExp"
     attribute "IMS_QP_FactGot"
     attribute "IMS_QP_SelectDocument"
+    attribute "IMS_QP_SortLevel"
     attribute "IMS_SortOrder"
     attribute "Originator"
     ################################################## Info Start
