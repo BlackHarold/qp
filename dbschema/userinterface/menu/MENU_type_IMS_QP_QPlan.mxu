@@ -5,7 +5,7 @@
 ################################################################################
 
 mxUpdate menu "${NAME}" {
-    description ""
+    description "Quality plan"
     treemenu
     label ""
     href ""
@@ -13,9 +13,10 @@ mxUpdate menu "${NAME}" {
     setting "Default Category" "IMS_QP_QPlan_Portal"
     command "IMS_QP_QPlan_Portal"
     command "IMS_QP_QPlan_form"
+    command "IMS_QP_AllRelatedItems"
     ################################################## Info Start
     property "original name" value "type_IMS_QP"
-    property "application" value "IMS_HNH19"
+    property "application" value "IMS_QP"
     property "version" value "1"
     ################################################## Info End
-}
+}multi

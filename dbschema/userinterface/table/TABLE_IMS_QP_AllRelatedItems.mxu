@@ -1,0 +1,69 @@
+################################################################################
+# TABLE_IMS_QP_AllRelatedItems.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate table "${NAME}" {
+    symbolicname "table_IMS_QP_AllRelatedItems"
+    description ""
+    column {
+        name "name"
+        label "Code"
+        businessobject "name"
+        href "${COMMON_DIR}/emxTree.jsp"
+        user "all"
+        setting "Registered Suite" "Framework"
+        setting "Show Type Icon" "true"
+        setting "Target Location" "popup"
+    }
+    column {
+        name "revision"
+        label "Revision"
+        businessobject "revision"
+        user "all"
+        setting "Registered Suite" "Framework"
+    }
+    column {
+        name "type"
+        label "Type"
+        businessobject "type"
+        user "all"
+        setting "Registered Suite" "Framework"
+    }
+    column {
+        name "IMS_DescriptionRu"
+        label "Description Ru"
+        businessobject "$<attribute[IMS_DescriptionRu]>"
+        user "all"
+        setting "Registered Suite" "Framework"
+    }
+    column {
+        name "IMS_DescriptionEn"
+        label "Description En"
+        businessobject "$<attribute[IMS_DescriptionEn]>"
+        user "all"
+        setting "Registered Suite" "Framework"
+    }
+    column {
+        name "originator"
+        label "emxFramework.Basic.Originator"
+        businessobject "owner"
+        user "all"
+        setting "Registered Suite" "Framework"
+    }
+    column {
+        name "originated"
+        label "Originated"
+        businessobject "originated"
+        user "all"
+        setting "Access Expression" "true"
+        setting "format" "date"
+    }
+    ################################################## Info Start
+    property "author" value "IMS Team"
+    property "original name" value "IMS_QP_AllRelatedItems"
+    property "application" value "IMS_QP"
+    property "version" value "1"
+    ################################################## Info End
+}
