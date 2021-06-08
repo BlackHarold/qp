@@ -1,5 +1,8 @@
 import com.google.common.html.HtmlEscapers;
+import com.matrixone.apps.domain.DomainConstants;
 import com.matrixone.apps.domain.DomainObject;
+import com.matrixone.apps.domain.DomainRelationship;
+import com.matrixone.apps.domain.util.FrameworkException;
 import com.matrixone.apps.domain.util.MapList;
 import com.matrixone.apps.framework.ui.UIUtil;
 import matrix.db.Context;
@@ -26,7 +29,7 @@ public class IMS_QP_DEP_mxJPO {
         try {
             Map argsMap = JPO.unpackArgs(args);
             Map requestMap = (Map) argsMap.get("requestMap");
-            objectId = (String) requestMap.get("objectId");
+            objectId = (String) requestMap.get(IMS_QP_Constants_mxJPO.OBJECT_ID);
             if (UIUtil.isNotNullAndNotEmpty(objectId)) {
                 DomainObject depObject = new DomainObject(objectId);
 
@@ -52,7 +55,7 @@ public class IMS_QP_DEP_mxJPO {
 
         Map argsMap = JPO.unpackArgs(args);
         Map paramMap = (Map) argsMap.get("paramMap");
-        String objectId = (String) paramMap.get("objectId");
+        String objectId = (String) paramMap.get(IMS_QP_Constants_mxJPO.OBJECT_ID);
 
         DomainObject objectClassifier = new DomainObject(objectId);
         StringList selects = new StringList("id");
@@ -74,7 +77,6 @@ public class IMS_QP_DEP_mxJPO {
                 Map externalDocument = (Map) o;
                 String docId = (String) externalDocument.get("id");
                 String docName = (String) externalDocument.get("name");
-                LOG.info(objectId + " is DEP owner: " + IMS_QP_Security_mxJPO.currentUserIsDEPOwner(ctx, objectId));
                 if (IMS_QP_Security_mxJPO.currentUserIsDEPOwner(ctx, objectId) || IMS_QP_Security_mxJPO.currentUserIsQPSuperUser(ctx)) {
                     sb.append(getDisconnectLinkHTML(IMS_QP_Constants_mxJPO.TYPE_IMS_QP_DEP, "disconnectExternalDocumentSet",
                             objectId, docId, true, "IMS_QP_DEP2Doc", "../common/images/fugue/16x16/cross.png", "Disconnect", getRefreshWindowFunction()));
@@ -82,7 +84,6 @@ public class IMS_QP_DEP_mxJPO {
                 String emxTableLinkClick = String.format("emxTableColumnLinkClick('../common/emxForm.jsp?objectId=%s&form=type_IMS_ExternalDocumentSet')", docId);
                 sb.append(String.format("<a href=\"javascript:%s\"><img src=\"%s\" />%s</a>", emxTableLinkClick, "../common/images/fugue/16x16/document.png", HtmlEscapers.htmlEscaper().escape(docName)));
             }
-            LOG.info("has doc link: " + sb.toString());
         } else {
             String tableParameter = String.format("table=%s", IMS_QP_Constants_mxJPO.EXTERNAL_DOCUMENT);
             String systemNameParameter = String.format("IMS_ExternalSystemName=%s", IMS_QP_Constants_mxJPO.HNH_PRODUCTION_SRV);
@@ -96,7 +97,6 @@ public class IMS_QP_DEP_mxJPO {
                 sb.append(String.format(
                         "<a href=\"javascript:%s\"><img src=\"%s\" title=\"%s\" /></a>", windowOpen, imageUrl, "Connect set of document"));
             }
-            LOG.info("hasn't doc link: " + sb.toString());
         }
 
         return sb.toString();
@@ -150,5 +150,159 @@ public class IMS_QP_DEP_mxJPO {
         }
         return "{\"status code\": 200," +
                 "\"message\": \"sucess\"}";
+    }
+
+    public MapList getRelatedSystems(Context ctx, String... args) {
+        Map argsMap = null;
+        try {
+            argsMap = JPO.unpackArgs(args);
+        } catch (Exception e) {
+            LOG.error("error getting args: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        //get objectID
+        String objectId = (String) argsMap.get(IMS_QP_Constants_mxJPO.OBJECT_ID);
+        StringList selects = new StringList();
+        selects.add("id");
+
+        DomainObject parent = null;
+        try {
+            parent = new DomainObject(objectId);
+        } catch (Exception e) {
+            LOG.error("error getting domain object: " + objectId + ": " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        MapList listObjects = new MapList();
+        try {
+            listObjects = parent.getRelatedObjects(ctx,
+                    /*relationship*/"IMS_PBS2DEP",
+                    /*type*/DomainConstants.QUERY_WILDCARD,
+                    /*object attributes*/ selects,
+                    /*relationship selects*/ null,
+                    /*getTo*/ true, /*getFrom*/ false,
+                    /*recurse to level*/ (short) 1,
+                    /*object where*/ null,
+                    /*relationship where*/ null,
+                    /*limit*/ 0);
+        } catch (FrameworkException e) {
+            LOG.error("error getting related objects from: " + objectId + "  with message: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        return listObjects;
+    }
+
+    public String disconnectSystem(Context ctx, String... args) {
+
+        Map argsMap = null;
+        try {
+            argsMap = JPO.unpackArgs(args);
+        } catch (Exception e) {
+            LOG.error("error: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        String[] rowIDs = (String[]) argsMap.get("emxTableRowId");
+        if (rowIDs.length == 0) {
+            return "no selected items";
+        }
+
+        String objectId = (String) argsMap.get(IMS_QP_Constants_mxJPO.OBJECT_ID);
+        DomainObject domainObject = null;
+        try {
+            domainObject = new DomainObject(objectId);
+        } catch (Exception e) {
+            LOG.error("error getting domain object: " + e.getMessage());
+            e.printStackTrace();
+        }
+        String[] cleanedIDs = new String[rowIDs.length];
+        if (domainObject != null) {
+            RelationshipType relationshipType = new RelationshipType("IMS_PBS2DEP");
+            for (int i = 0; i < rowIDs.length; i++) {
+                String[] rowIdArray = rowIDs[i].split("\\|");
+                cleanedIDs[i] = rowIdArray[1];
+                try {
+                    domainObject.disconnect(ctx, relationshipType, false, new DomainObject(rowIdArray[1]));
+                } catch (Exception e) {
+                    LOG.error("error disconnect relationship from " + objectId + " from " + rowIdArray[1]);
+                    e.printStackTrace();
+                }
+            }
+        }
+        return "all ok";
+    }
+
+    public MapList findSystemByName(Context ctx, String... args) {
+        Map argsMap = null;
+        try {
+            argsMap = JPO.unpackArgs(args);
+        } catch (Exception e) {
+            LOG.error("error getting args: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        String partWhere = "";
+        String externalSystemQuery = (String) argsMap.get("IMS_ExternalSystemQuery");
+        if (UIUtil.isNotNullAndNotEmpty(externalSystemQuery) && externalSystemQuery.contains(",")) {
+            externalSystemQuery = externalSystemQuery.replaceAll("\\s+", "");
+            String[] rawQueryParts = externalSystemQuery.split(",");
+            for (int i = 0; i < rawQueryParts.length; i++) {
+                partWhere += "name ~~'*" + rawQueryParts[i] + "*'";
+                if ((rawQueryParts.length - i) > 1) {
+                    partWhere += "||";
+                }
+            }
+        } else {
+            partWhere = "name ~~'*" + externalSystemQuery + "*'";
+        }
+
+        //get objectID
+        String objectId = (String) argsMap.get(IMS_QP_Constants_mxJPO.OBJECT_ID);
+
+        MapList listObjects = new MapList();
+        try {
+            listObjects = DomainObject.findObjects(ctx,
+                    /*var1 type*/IMS_QP_Constants_mxJPO.SYSTEM_TYPES,
+                    /*var2 name*/DomainConstants.QUERY_WILDCARD,
+                    /*var3 revision*/DomainConstants.QUERY_WILDCARD,
+                    /*var4 owner*/DomainConstants.QUERY_WILDCARD,
+                    /*var5 vault*/ ctx.getVault().getName(),
+                    /*var6 where*/ partWhere +
+                            "&&from[IMS_PBS2DEP]==false",
+                    /*var8 expand type*/false,
+                    /*var14*/new StringList("id")
+            );
+        } catch (FrameworkException e) {
+            LOG.error("error getting related objects from: " + objectId + "  with message: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        return listObjects;
+    }
+
+    public void connectSystem(Context ctx, String... args) {
+        String depId = args[0];
+        DomainObject depObject = null;
+        try {
+            depObject = new DomainObject(depId);
+        } catch (Exception e) {
+            LOG.error("error getting domain object: " + e.getMessage());
+            e.printStackTrace();
+        }
+        String systemId = args[1];
+        systemId = systemId.replace("[", "").replace("]", "");
+        String[] systemIds = systemId.split(",");
+
+        for (int i = 0; i < systemIds.length; i++) {
+            try {
+                DomainRelationship relationship = DomainRelationship.connect(ctx, /*from*/ new DomainObject(systemIds[i]), "IMS_PBS2DEP", /*to*/depObject);
+                LOG.info("system Id: " + systemIds[i]);
+            } catch (Exception e) {
+                LOG.error("error creating connection: " + e.getMessage());
+                e.printStackTrace();
+            }
+        }
     }
 }

@@ -1,23 +1,20 @@
 ################################################################################
-# CHANNEL_IMS_QP_DEPForm_channel.mxu
+# COMMAND_IMS_QP_AllRelatedItems.mxu
 #
 #            This file describes the target of a Configuration Item.
 ################################################################################
 
-mxUpdate channel "${NAME}" {
-    symbolicname "channel_IMS_QP_DEPForm_channel"
-    description ""
-    label ""
-    href ""
+mxUpdate command "${NAME}" {
+    symbolicname "command_IMS_QP_AllRelatedItems"
+    description "To all related items of current object"
+    label "All related items"
+    href "${COMMON_DIR}/emxIndentedTable.jsp?program=IMS_QP:getAllRelatedObjects&table=IMS_QP_AllRelatedItems&selection=multiple&editLink=false"
     alt ""
-    height 50
+    user "all"
     setting "Registered Suite" "Framework"
-    command "IMS_QP_DEP_Form"
-    command "IMS_QP_DEPRelatedTask_table"
-    command "IMS_QP_RelationshipManagement"
     ################################################## Info Start
     property "author" value "IMS Team"
-    property "original name" value "IMS_QP_DEPForm_channel"
+    property "original name" value "IMS_QP_AllRelatedItems"
     property "application" value "IMS_QP"
     property "version" value "1"
     ################################################## Info End
