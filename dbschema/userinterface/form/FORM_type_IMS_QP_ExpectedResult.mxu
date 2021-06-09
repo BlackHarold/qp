@@ -85,6 +85,7 @@ mxUpdate form "${NAME}" {
         name "family"
         label "Type Level 2"
         businessobject "to[IMS_QP_ResultType2ExpectedResult].from.name"
+        setting "Editable" "false"
         setting "Group Name" "resultType"
         setting "Input Type" "combobox"
         setting "OnFocus Handler" "onfocusComboboxResultType"

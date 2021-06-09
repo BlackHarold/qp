@@ -13,12 +13,6 @@
 
 <html>
 <body>
-<script>
-    let isConfirm = confirm("Are you sure?");
-    if (!isConfirm) {
-        window.close();
-    }
-</script>
 <style>
     a.button {
         font-weight: 700;
