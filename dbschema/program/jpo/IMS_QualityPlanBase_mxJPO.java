@@ -921,7 +921,7 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
                 bows.open(ctx);
                 ExpansionWithSelect expansion = bows.expandSelect(ctx,
                         /*rel type*/ "*", /*obj type*/"*",
-                        selectBusStmts, selectRelStmts, /*getTo*/true,/*getFrom*/false, recurse);
+                        selectBusStmts, selectRelStmts, /*getTo*/true,/*getFrom*/true, recurse);
                 RelationshipWithSelectList relationshipWithSelectList = expansion.getRelationships();
 
                 relationCounter += relationshipWithSelectList.size();
@@ -931,7 +931,7 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
             matrixException.printStackTrace();
         }
 
-        double timeCostMinutes = relationCounter * 0.17 / 60;
+        double timeCostMinutes = relationCounter * 0.10 / 60;
         String timeMessage = (
                 timeCostMinutes > 1 ?
                         " This may take a long time (about " + ((timeCostMinutes > 60) ? (int) timeCostMinutes / 60 + " hour(s))" : (int) timeCostMinutes + " minute(s))")

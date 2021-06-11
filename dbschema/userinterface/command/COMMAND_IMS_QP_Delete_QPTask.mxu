@@ -11,7 +11,7 @@ mxUpdate command "${NAME}" {
     href "${COMMON_DIR}/IMS_QP_QPTask_delete.jsp"
     alt ""
     user "all"
-    setting "Access Expression" "current==Draft"
+    setting "Access Expression" "current==Draft||context.user.isassigned[IMS_Admin]==True"
     setting "Image" "${COMMON_DIR}/images/iconActionDelete.gif"
     setting "Registered Suite" "Framework"
     setting "Row Select" "multi"
