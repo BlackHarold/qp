@@ -294,6 +294,9 @@ public class IMS_QP_DEPTask_mxJPO {
         MapList resultType = DomainObject.findObjects(context,
                 IMS_FAMILY, "*", "*", "*", "*", TO_IMS_QP_RESULT_TYPE_2_FAMILY + "==True", true, objectSelects);
 
+        resultType.addSortKey("name", "ascending", "string");
+        resultType.sort();
+
         for (Object resultTypObject : resultType) {
             Map objTemp = (HashMap) resultTypObject;
             String name = objTemp.get(DomainConstants.SELECT_ID) + "_" + objTemp.get(SELECT_TO_IMS_QP_RESULT_TYPE_2_FAMILY_FROM_ID);
