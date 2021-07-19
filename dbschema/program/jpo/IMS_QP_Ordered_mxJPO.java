@@ -25,6 +25,7 @@ public class IMS_QP_Ordered_mxJPO {
 
     static final String BELL_DELIMITER = "\\u0007";
 
+    private int level = 0;
 
     public void sort(Context context, String[] args) throws Exception {
         HashMap programMap = (HashMap) JPO.unpackArgs(args);
@@ -140,12 +141,36 @@ public class IMS_QP_Ordered_mxJPO {
                         for (Object domObjObj : domObjMapList) {
                             Map domObj = (Map) domObjObj;
                             if (type.equals("DEP")) {
-                                input = (String) domObj.get("to[IMS_QP_DEPTask2DEPTask].from.id");
-                                output = (String) domObj.get("from[IMS_QP_DEPTask2DEPTask].to.id");
+                                String inputTemp = (String) domObj.get("to[IMS_QP_DEPTask2DEPTask].from.id");
+                                String outputTemp = (String) domObj.get("from[IMS_QP_DEPTask2DEPTask].to.id");
+                                if (UIUtil.isNotNullAndNotEmpty(inputTemp)) {
+                                    String[] inputId = inputTemp.split(BELL_DELIMITER);
+                                    StringBuilder inputBuild = new StringBuilder();
+                                    getActualId (inputBuild, inputId, idsFromKey);
+                                    input = inputBuild.toString();
+                                }
+                                if (UIUtil.isNotNullAndNotEmpty(outputTemp)) {
+                                    String[] outputId = outputTemp.split(BELL_DELIMITER);
+                                    StringBuilder outputBuild = new StringBuilder();
+                                    getActualId (outputBuild, outputId, idsFromKey);
+                                    output = outputBuild.toString();
+                                }
                             }
                             if (type.equals("SQP")) {
-                                input = (String) domObj.get("to[IMS_QP_QPTask2QPTask].from.id");
-                                output = (String) domObj.get("from[IMS_QP_QPTask2QPTask].to.id");
+                                String inputTemp = (String) domObj.get("to[IMS_QP_QPTask2QPTask].from.id");
+                                String outputTemp = (String) domObj.get("from[IMS_QP_QPTask2QPTask].to.id");
+                                if (UIUtil.isNotNullAndNotEmpty(inputTemp)) {
+                                    String[] inputId = inputTemp.split(BELL_DELIMITER);
+                                    StringBuilder inputBuild = new StringBuilder();
+                                    getActualId (inputBuild, inputId, idsFromKey);
+                                    input = inputBuild.toString();
+                                }
+                                if (UIUtil.isNotNullAndNotEmpty(outputTemp)) {
+                                    String[] outputId = outputTemp.split(BELL_DELIMITER);
+                                    StringBuilder outputBuild = new StringBuilder();
+                                    getActualId (outputBuild, outputId, idsFromKey);
+                                    output = outputBuild.toString();
+                                }
                             }
                         }
                         if (!(UIUtil.isNullOrEmpty(output) && UIUtil.isNullOrEmpty(input))) {
@@ -196,7 +221,12 @@ public class IMS_QP_Ordered_mxJPO {
                     allIdsTaskNotPermanent.remove(matrixResult.get(matrixResult.size()-1));
                     ArrayList<String> prevStep = matrixResult.get(matrixResult.size()-1);
 
+                    level++;
                     if (!(checkEndlessCycle(context, new ArrayList<String>(), prevStep, currentArray, type, dObj, errorList, nameSelectItem))) {
+                        for (String idItem : prevStep) {
+                            DomainObject domObj = new DomainObject(idItem);
+                            domObj.setAttributeValue(context, "IMS_QP_SortLevel", String.valueOf(level));
+                        }
                         getOutput(context, matrixResult, prevStep, currentArray, allIdsTaskNotPermanent, idsFromKey, type);
                     } else {
                         error = true;
@@ -208,6 +238,10 @@ public class IMS_QP_Ordered_mxJPO {
                         ArrayList<String> currentTempSort = new ArrayList<>();
                         sortByArrayList(context, currentTempSort, idsFromKey, currentArray, type);
                         matrixResult.add(currentTempSort);
+                        for (String idItem : currentTempSort) {
+                            DomainObject domObj = new DomainObject(idItem);
+                            domObj.setAttributeValue(context, "IMS_QP_SortLevel", String.valueOf(level));
+                        }
                         idsFromKey.clear();
                     }
 
@@ -245,6 +279,18 @@ public class IMS_QP_Ordered_mxJPO {
             createReportUnit(context, errorList, type);
         }
 
+    }
+
+    public void getActualId (StringBuilder strBuild, String[] array, ArrayList<String> idsFromKey) {
+        String prefix = "";
+        for (String str : array) {
+            if (idsFromKey.contains(str)) {
+                strBuild.append(prefix).append(str);
+            }
+            if (UIUtil.isNullOrEmpty(prefix)) {
+                prefix = BELL_DELIMITER;
+            }
+        }
     }
 
 
@@ -493,7 +539,7 @@ public class IMS_QP_Ordered_mxJPO {
         return true;
     }
 
-    public void getOutput (Context context, ArrayList<ArrayList<String>> matrixResult, ArrayList<String> prevStep, ArrayList<String> currentArray, ArrayList<String> allIdsTaskNotPermanent, ArrayList<String> idsFromKey, String type) throws FrameworkException {
+    public void getOutput (Context context, ArrayList<ArrayList<String>> matrixResult, ArrayList<String> prevStep, ArrayList<String> currentArray, ArrayList<String> allIdsTaskNotPermanent, ArrayList<String> idsFromKey, String type) throws Exception {
         ArrayList<ArrayList<String>> currentTempAll = new ArrayList<>();
         for (String id:prevStep) {
             ArrayList<String> currentTemp = new ArrayList<>();
@@ -537,6 +583,7 @@ public class IMS_QP_Ordered_mxJPO {
         }
 
         if (!isEmptyArr) {
+            level++;
             ArrayList<String> nextStep = new ArrayList<>();
             for (ArrayList<String> arr : currentTempAll) {
                 ArrayList<String> currentTempSort = new ArrayList<>();
@@ -544,6 +591,10 @@ public class IMS_QP_Ordered_mxJPO {
                 matrixResult.add(currentTempSort);
                 idsFromKey.removeAll(currentTempSort);
                 nextStep.addAll(currentTempSort);
+            }
+            for (String idItem : nextStep) {
+                DomainObject domObj = new DomainObject(idItem);
+                domObj.setAttributeValue(context, "IMS_QP_SortLevel", String.valueOf(level));
             }
             getOutput(context, matrixResult, nextStep, currentArray, allIdsTaskNotPermanent, idsFromKey, type);
         }

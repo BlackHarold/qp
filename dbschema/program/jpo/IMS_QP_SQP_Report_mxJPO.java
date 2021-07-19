@@ -13,6 +13,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class IMS_QP_SQP_Report_mxJPO {
@@ -117,12 +118,14 @@ public class IMS_QP_SQP_Report_mxJPO {
 
     private int counter;
     private int greenCounter;
+    Map<String, CellStyle> styles;
 
     private Workbook createReport(Context ctx, BusinessObjectWithSelectList reportData, String sheetName) {
 
         Workbook wb = null;
         try {
             wb = new XSSFWorkbook(IMS_QP_Constants_mxJPO.SQP_REPORT_TEMPLATE_PATH);
+            styles = IMS_QP_ExcelUtil_mxJPO.getStyle(wb);
         } catch (IOException ioException) {
             LOG.error("IO exception: " + ioException.getMessage());
             ioException.printStackTrace();
@@ -143,20 +146,33 @@ public class IMS_QP_SQP_Report_mxJPO {
             }
 
             Row row = sheet.createRow(lastRowCount);
-            row.createCell(0).setCellValue(pointCounter);
-            row.createCell(1).setCellValue(businessObject.getSelectData("name"));
+            Cell cell;
+            cell = row.createCell(0);
+            cell.setCellStyle(styles.get("black11"));
+            cell.setCellValue(pointCounter);
+
+            cell = row.createCell(1);
+            cell.setCellStyle(styles.get("black11left"));
+            cell.setCellValue(businessObject.getSelectData("name"));
 
             /*SQP sheet specified zone*/
-            row.createCell(2).setCellValue(businessObject.getSelectData(
+            cell = row.createCell(2);
+            cell.setCellStyle(styles.get("black11left"));
+            cell.setCellValue(businessObject.getSelectData(
                     String.format("to[%s].from.name",
                             IMS_QP_Constants_mxJPO.relationship_IMS_QP_Classifier2QPlan)));
-            row.createCell(3).setCellValue(businessObject.getSelectData(
+            cell = row.createCell(3);
+            cell.setCellStyle(styles.get("black11left"));
+            cell.setCellValue(businessObject.getSelectData(
                     String.format("to[%s].from.name",
                             IMS_QP_Constants_mxJPO.relationship_IMS_QP_DEP2QPlan)));
 
             RelationshipWithSelectItr relItr = getRelationshipsWithItr(ctx, businessObject);
-            Map<String, String> taskMap = getQPTaskList(
-                    businessObject.getSelectData(DomainObject.SELECT_ID), relItr);
+
+            String[] plansCleanIDs = new String[]{businessObject.getSelectData(DomainObject.SELECT_ID)};
+            getQPTaskList(businessObject.getSelectData(DomainObject.SELECT_ID), relItr);
+            Map<String, String> taskMap = (Map<String, String>) new IMS_QP_PreparationStatement_Report_mxJPO()
+                    .getPrepare(ctx, "SQP", plansCleanIDs);
             pushCellsValuesSQP(wb, row, taskMap);
 
             lastRowCount++;
@@ -187,40 +203,18 @@ public class IMS_QP_SQP_Report_mxJPO {
         cell = row.createCell(4);
         counter = counter > 0 ? counter : 1;
         float mathResult = 100.0f * greenCounter / counter;
+        cell.setCellStyle(
+                Float.compare(mathResult, 100.0f) == 0 ? styles.get("green11left") : styles.get("red11left"));
         cell.setCellValue(String.format("%.1f", mathResult) + "%");
 
         /*code task cell*/
         cell = row.createCell(5);
-        cell.setCellStyle(getStyle(wb, "wrap10red"));
+        cell.setCellStyle(styles.get("red11left"));
         cell.setCellValue(codeCellValueBuilder.toString());
         /*name task cell*/
         cell = row.createCell(6);
-        cell.setCellStyle(getStyle(wb, "wrap10red"));
+        cell.setCellStyle(styles.get("red11left"));
         cell.setCellValue(nameCellValueBuilder.toString());
-    }
-
-    private CellStyle getStyle(Workbook wb, String styleParam) {
-        CellStyle cellStyle = wb.createCellStyle();
-        Font font;
-        switch (styleParam) {
-            case "wrap":
-                cellStyle.setWrapText(true);
-                break;
-            case "wrap10":
-                cellStyle.setWrapText(true);
-                font = wb.createFont();
-                font.setFontHeightInPoints((short) 8);
-                cellStyle.setFont(font);
-                break;
-            case "wrap10red":
-                cellStyle.setWrapText(true);
-                font = wb.createFont();
-                font.setFontHeightInPoints((short) 8);
-                font.setColor((short) 10);
-                cellStyle.setFont(font);
-                break;
-        }
-        return cellStyle;
     }
 
     private Map<String, String> getQPTaskList(String taskId, RelationshipWithSelectItr relItr) {

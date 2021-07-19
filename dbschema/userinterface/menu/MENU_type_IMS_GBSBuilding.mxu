@@ -15,9 +15,11 @@ mxUpdate menu "${NAME}" {
     command "IMS_GBSBuilding_Form"
     command "AEFLifecycle"
     command "APPDocumentHistory"
+    command "IMS_QP_AllRelatedItems"
     ################################################## Info Start
+    property "author" value "IMS Team"
     property "original name" value "type_IMS_GBSBuilding"
-    property "application" value "QP"
+    property "application" value "IMS_QP"
     property "version" value "1"
     ################################################## Info End
 }

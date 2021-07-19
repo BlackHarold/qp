@@ -574,6 +574,47 @@ public class IMS_QP_mxJPO extends DomainObject {
         return listSQPs;
     }
 
+    public MapList getAllRelatedObjects(Context context, String... args) {
+        Map argsMap = null;
+        try {
+            argsMap = JPO.unpackArgs(args);
+        } catch (Exception e) {
+            LOG.error("error getting args: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        //get objectID
+        String objectId = (String) argsMap.get("objectId");
+        StringList selects = new StringList();
+        selects.add("id");
+
+        DomainObject parent = null;
+        try {
+            parent = new DomainObject(objectId);
+        } catch (Exception e) {
+            LOG.error("error getting domain object: " + objectId + ": " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        MapList listObjects = new MapList();
+        try {
+            listObjects = parent.getRelatedObjects(context,
+                    /*relationship*/DomainConstants.QUERY_WILDCARD,
+                    /*type*/DomainConstants.QUERY_WILDCARD,
+                    /*object attributes*/ selects,
+                    /*relationship selects*/ null,
+                    /*getTo*/ true, /*getFrom*/ true,
+                    /*recurse to level*/ (short) 1,
+                    /*object where*/ null,
+                    /*relationship where*/ null,
+                    /*limit*/ 0);
+        } catch (FrameworkException e) {
+            LOG.error("error getting related objects from: " + objectId + "  with message: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return listObjects;
+    }
+
     /**
      * It deletes IMS_DEP in the table IMS_QP_DEP
      */
@@ -745,7 +786,6 @@ public class IMS_QP_mxJPO extends DomainObject {
         mapMessage.put("message", warnMessageList.size() > 0 ?
                 "Warning! Tasks doesn't copied: " : cleanSystemIds.size() > 1 ?
                 "Objects copied" : "Object copied");
-        LOG.info(mapMessage);
         return mapMessage;
     }
 
@@ -868,7 +908,6 @@ public class IMS_QP_mxJPO extends DomainObject {
                 try {
                     resultTypeID = expectedResult.getInfo(context, "to[" + IMS_QP_Constants_mxJPO.relationship_IMS_QP_ResultType2ExpectedResult + "].from.id");
                     resultType = new DomainObject(resultTypeID);
-                    LOG.info("resultType: " + resultType.getType(context) + "|" + resultType.getName(context) + "|" + resultType.getId(context));
                 } catch (Exception e) {
                     LOG.error("error getting Domain Object: " + resultTypeID + " message: " + e.getMessage());
                 }
@@ -903,7 +942,6 @@ public class IMS_QP_mxJPO extends DomainObject {
                 }
                 try {
                     DomainObject anotherObject = new DomainObject(relSelect.getSelectData(relationshipRoute));
-                    LOG.info(anotherObject.getType(context) + " connect " + relationshipType + " !from " + !from + " " + targetObject.getType(context));
                     anotherObject.connect(context, new RelationshipType(relationshipType), !from, targetObject);
                 } catch (FrameworkException frameworkException) {
                     LOG.error("error getting attribute IMS_Family: " + relSelect.getSelectData("from.id") + " to " + targetObject + "| message: " + frameworkException.getMessage());

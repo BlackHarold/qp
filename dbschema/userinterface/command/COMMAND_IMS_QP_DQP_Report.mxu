@@ -1,23 +1,23 @@
 ################################################################################
-# CHANNEL_IMS_QP_DEPForm_channel.mxu
+# COMMAND_IMS_QP_DQP_Report.mxu
 #
 #            This file describes the target of a Configuration Item.
 ################################################################################
 
-mxUpdate channel "${NAME}" {
-    symbolicname "channel_IMS_QP_DEPForm_channel"
-    description ""
-    label ""
-    href ""
+mxUpdate command "${NAME}" {
+    symbolicname "command_IMS_QP_DQP_Report"
+    description "Digital quality plan"
+    label "Mold DQP report"
+    href "${COMMON_DIR}/IMS_QP_DQP_Report.jsp"
     alt ""
-    height 50
+    user "all"
+    setting "Image" "${COMMON_DIR}/images/dqp.png"
     setting "Registered Suite" "Framework"
-    command "IMS_QP_DEP_Form"
-    command "IMS_QP_DEPRelatedTask_table"
-    command "IMS_QP_RelationshipManagement"
+    setting "Submit" "true"
+    setting "Target Location" "hiddenFrame"
     ################################################## Info Start
-    property "author" value "IMS Team"
-    property "original name" value "IMS_QP_DEPForm_channel"
+    property "author" value "The IMS Team"
+    property "original name" value "IMS_QP_DQP_Report"
     property "application" value "IMS_QP"
     property "version" value "1"
     ################################################## Info End

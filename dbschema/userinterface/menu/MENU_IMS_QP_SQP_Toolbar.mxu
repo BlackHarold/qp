@@ -15,6 +15,7 @@ mxUpdate menu "${NAME}" {
     command "IMS_QP_QPlan_Delete"
     command "AEFSeparator"
     command "IMS_QP_SQP_Report"
+    command "IMS_QP_DQP_MultiReport"
     command "IMS_QP_QPTask_Report"
     command "IMS_QP_Statement_Report"
     command "IMS_QP_OrderedSQP"

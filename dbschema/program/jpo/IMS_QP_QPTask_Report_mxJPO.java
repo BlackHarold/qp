@@ -131,10 +131,10 @@ public class IMS_QP_QPTask_Report_mxJPO extends IMS_QP_ActualPlanSearch_mxJPO {
 
         Sheet sheet = null;
         int pointCounter = 1;
+        int tempCounter = 1;
+        LOG.info("start time: " + getTimeStamp());
         for (Object o : reportData) {
             BusinessObjectWithSelect businessObject = (BusinessObjectWithSelect) o;
-
-            Map<String, Map<String, String>> taskMap = new HashMap<>();
             try {
                 businessObject.open(ctx);
                 if (businessObject.isOpen()) {
@@ -167,7 +167,7 @@ public class IMS_QP_QPTask_Report_mxJPO extends IMS_QP_ActualPlanSearch_mxJPO {
 
             pointCounter++;
         }
-
+        LOG.info("time of ending: " + getTimeStamp());
         return wb;
     }
 
@@ -175,7 +175,6 @@ public class IMS_QP_QPTask_Report_mxJPO extends IMS_QP_ActualPlanSearch_mxJPO {
 
         int rowNum = sheet.getLastRowNum();
         if (rowNum < 2) rowNum = 2;
-        LOG.info("rowNum: " + rowNum);
         Row row = sheet.createRow(rowNum);
 
         //set number of parent task
@@ -303,6 +302,7 @@ public class IMS_QP_QPTask_Report_mxJPO extends IMS_QP_ActualPlanSearch_mxJPO {
             LOG.error("matrix error: " + e.getMessage());
             e.printStackTrace();
         }
+
         // Getting Relationships
         RelationshipWithSelectList relationshipWithSelectList = expansion.getRelationships();
         RelationshipWithSelectItr relItr = new RelationshipWithSelectItr(relationshipWithSelectList);

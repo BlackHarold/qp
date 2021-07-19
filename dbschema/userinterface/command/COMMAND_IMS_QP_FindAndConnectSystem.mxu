@@ -1,0 +1,26 @@
+################################################################################
+# COMMAND_IMS_QP_FindAndConnectSystem.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate command "${NAME}" {
+    symbolicname "command_IMS_QP_FindAndConnectSystem"
+    description ""
+    label "Connect"
+    href "${COMMON_DIR}/IMS_QP_SystemSearch.jsp?table=IMS_QP_AllRelatedItems&selection=multiple"
+    alt ""
+    user "all"
+    setting "Access Expression" "context.user.isassigned[IMS_Admin]==True || context.user.isassigned[IMS_QP_SuperUser]==True"
+    setting "Image" "${COMMON_DIR}/images/iconActionAdd.png"
+    setting "Popup Modal" "true"
+    setting "Popup Size" "MediumTall"
+    setting "Registered Suite" "Framework"
+    setting "Target Location" "popup"
+    ################################################## Info Start
+    property "author" value "The IMS Team"
+    property "original name" value "IMS_QP_FindAndConnectSystem"
+    property "application" value "IMS_QP"
+    property "version" value "1"
+    ################################################## Info End
+}
