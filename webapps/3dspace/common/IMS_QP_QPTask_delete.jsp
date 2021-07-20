@@ -47,12 +47,40 @@
         margin-top: 60px;
         font-family: Arial;
         font-size: 16px;
-        color: #243b77;
+        color: #005584;
     }
 
     p {
         margin-top: 60px;
         font-size: 16px;
+    }
+
+    .loader {
+        display: none;
+        top: 50%;
+        left: 50%;
+        position: absolute;
+        transform: translate(-50%, -50%);
+    }
+
+    .loading {
+        border: 3px solid #ccc;
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        border-top-color: #005584;
+        border-left-color: #005584;
+        animation: spin 1s infinite ease-in;
+    }
+
+    @keyframes spin {
+        0% {
+            transform: rotate(0deg);
+        }
+
+        100% {
+            transform: rotate(360deg);
+        }
     }
 </style>
 
@@ -64,28 +92,43 @@
     Map args = new HashMap();
     args.put("emxTableRowId", tableIDs);
 
-    try {
-        Map map = JPO.invoke(context, "IMS_QualityPlanBase", new String[]{}, "deleteQPTasks", JPO.packArgs(args), HashMap.class);
-        map.remove("message");
-        if (!map.isEmpty()) {
-            out.print("<center>");
-            List<String> list = (List) map.get("array");
-            out.print("<span class=\"header\">An error, check tasks and try again<br><br></span></header>");
-            out.print("Details: <br>");
-            for (String name : list) {
-                out.print("<br>" + name + " has a task");
-            }
-            out.print("<p><a class=\"button\" onclick=\"window.close();\">It's my fault</a><p>");
-            out.print("</center>");
-        } else {
-%>
-<script>
-    window.opener.location.reload();
-    window.close();
+    String cleanedIds = "";
+    for (int i = 0; i < tableIDs.length; i++) {
+        cleanedIds += tableIDs[i].substring(0, tableIDs[i].indexOf("|"));
+        cleanedIds += "|";
+    }
 
-</script>
-<%
-        }
+    int cleanedIdsArray = cleanedIds.split("\\|").length;
+
+    String url = "\"IMS_QP_PureDelete.jsp?emxTableRowId=" + cleanedIds + "\"";
+
+    try {
+        String message = JPO.invoke(context, "IMS_QualityPlanBase", new String[]{}, "getTimeInfoAboutDeleteTasks", JPO.packArgs(args), String.class);
+        out.print("<script>\n" +
+                "function IMS_QP_CloseWindow() {\n" +
+                "    window.opener.location.reload();\n" +
+                "    window.close();" +
+                "}\n" +
+                "function IMS_QP_DeletingTasksCommand(ids) {\n" +
+                "   document.getElementsByClassName(\"loader\")[0].style.display = \"block\";\n" +
+                "   document.getElementsByClassName(\"button\")[0].style.display = \"none\";\n" +
+                "   document.getElementsByClassName(\"button\")[1].style.display = \"none\";\n" +
+                "    let xhr = new XMLHttpRequest();\n" +
+                "    xhr.onloadend = function() {\n" +
+                "    window.opener.location.reload();\n" +
+                "    window.close();\n" +
+                " };\n" +
+                "    let url = " + url + ";\n" +
+                "    xhr.open('GET', " + url + ");\n" +
+                "    xhr.send();\n" +
+                "}\n" +
+                "</script>");
+        out.print("<center><b>" + message+"</b>");
+        out.print("<p>" + cleanedIdsArray + " task" + (cleanedIdsArray > 1 ? "s" : "") + " selected</p>");
+        out.print("<p><a class=\"button\" onclick=\"IMS_QP_DeletingTasksCommand('" + cleanedIds + "');\">Do it!</a></p>");
+        out.print("<p><a class=\"button\" onclick=\"window.close()\">Cancel</a></p>");
+        out.print("<p><div class=\"loader\"><div class=\"loading\"></div><div></p>");
+        out.print("</center>");
     } catch (Exception ex) {
         ex.printStackTrace();
         emxNavErrorObject.addMessage(ex.toString());

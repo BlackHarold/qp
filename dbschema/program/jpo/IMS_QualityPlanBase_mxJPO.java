@@ -6,9 +6,7 @@ import com.matrixone.apps.domain.util.FrameworkException;
 import com.matrixone.apps.domain.util.MapList;
 import com.matrixone.apps.domain.util.MqlUtil;
 import com.matrixone.apps.framework.ui.UIUtil;
-import matrix.db.Context;
-import matrix.db.JPO;
-import matrix.db.Person;
+import matrix.db.*;
 import matrix.util.MatrixException;
 import matrix.util.SelectList;
 import matrix.util.StringList;
@@ -887,44 +885,58 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
             e.printStackTrace();
         }
 
-        String[] rowIDs = (String[]) argsMap.get("emxTableRowId");
-        String[] taskIDs = new String[rowIDs.length];
-        for (int i = 0; i < rowIDs.length; i++) {
-            taskIDs[i] = rowIDs[i].substring(0, rowIDs[i].indexOf("|"));
-        }
-
-        //selects all tasks  with their subtasks
-        StringList selects = new StringList("id");
-        selects.add("name");
-
-        MapList objectsInfo = null;
-        try {
-            objectsInfo = DomainObject.getInfo(context, taskIDs, selects);
-        } catch (FrameworkException e) {
-            LOG.error("error getting info: " + e.getMessage());
-            e.printStackTrace();
-        }
-
-        //check if substage has some subtask
-        List<String> deletingIDs = new ArrayList();
-
+        String rowIDs = (String) argsMap.get("emxTableRowId");
+        List<String> deletingIDs = Arrays.asList(rowIDs.split("\\|"));
         List<String> badNames = new ArrayList<>();
         boolean flag = false;
-
-        for (int i = 0; i < objectsInfo.size(); i++) {
-            Map map = (Map) objectsInfo.get(i);
-            if (!IMS_QP_Security_mxJPO.isOwnerQPlanFromTaskID(context, (String) map.get("id"))) {
-                badNames.add((String) map.get("name"));
-                flag = true;
-            } else {
-                deletingIDs.add((String) map.get("id"));
-            }
-        }
 
         Map mapMessage = getMessage(badNames, flag);
         deleteObjects(context, deletingIDs);
 
         return mapMessage;
+    }
+
+    public String getTimeInfoAboutDeleteTasks(Context ctx, String... args) {
+        Map<String, Object> argsMap = null;
+        try {
+            argsMap = JPO.unpackArgs(args);
+            LOG.info("argsMap: " + argsMap);
+        } catch (Exception e) {
+            LOG.error("error: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        String[] rowIDs = (String[]) argsMap.get("emxTableRowId");
+
+        int relationCounter = 0;
+        try {
+            BusinessObjectWithSelectList businessObjectWithSelectList
+                    = BusinessObject.getSelectBusinessObjectData(ctx,
+                    rowIDs, new StringList("id"));
+            StringList selectBusStmts = new StringList("id");
+            StringList selectRelStmts = new StringList("id");
+            short recurse = 1;
+            for (Object o : businessObjectWithSelectList) {
+                BusinessObjectWithSelect bows = (BusinessObjectWithSelect) o;
+                bows.open(ctx);
+                ExpansionWithSelect expansion = bows.expandSelect(ctx,
+                        /*rel type*/ "*", /*obj type*/"*",
+                        selectBusStmts, selectRelStmts, /*getTo*/true,/*getFrom*/true, recurse);
+                RelationshipWithSelectList relationshipWithSelectList = expansion.getRelationships();
+
+                relationCounter += relationshipWithSelectList.size();
+            }
+
+        } catch (MatrixException matrixException) {
+            matrixException.printStackTrace();
+        }
+
+        double timeCostMinutes = relationCounter * 0.10 / 60;
+        String timeMessage = (
+                timeCostMinutes > 1 ?
+                        " This may take a long time (about " + ((timeCostMinutes > 60) ? (int) timeCostMinutes / 60 + " hour(s))" : (int) timeCostMinutes + " minute(s))")
+                        : "");
+        return "More than " + relationCounter + " connections will be terminated. " + timeMessage;
     }
 
     private Map getMessage(List<String> badNames, boolean flag) {
@@ -940,7 +952,7 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
             try {
                 MqlUtil.mqlCommand(context, "delete bus $1", new String[]{deletingIDs.get(i)});
             } catch (Exception e) {
-                LOG.error("delete error id:" + deletingIDs.get(i) + " message: " + e.getMessage());
+                LOG.error("delete error id:" + i + ": " + deletingIDs.get(i) + " message: " + e.getMessage());
                 for (StackTraceElement trace : e.getStackTrace()) {
                     LOG.error(deletingIDs.get(i) + ": " + trace.toString());
                 }
