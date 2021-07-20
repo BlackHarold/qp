@@ -97,7 +97,8 @@ public class IMS_QP_DQP_Report_mxJPO {
                     new StringList(DomainConstants.SELECT_ID));
             int reportsCount = reportsByType.size();
 
-            BusinessObject boReportContainerObject = new BusinessObject(IMS_QP_Constants_mxJPO.type_IMS_QP_Reports, "Reports", "-", vault);
+            BusinessObject boReportContainerObject = new BusinessObject(
+                    IMS_QP_Constants_mxJPO.type_IMS_QP_Reports, "Reports", "-", vault);
             reportsContainerObject = new DomainObject(boReportContainerObject);
 
             BusinessObject boReportUnit;
@@ -124,12 +125,14 @@ public class IMS_QP_DQP_Report_mxJPO {
         try {
             if (reportsContainerObject != null && reportObject != null) {
                 reportObject.setAttributeValue(ctx, IMS_QP_Constants_mxJPO.IMS_QP_FILE_CHECKIN_STATUS, "Not ready yet");
-                IMS_KDD_mxJPO.connectIfNotConnected(ctx, IMS_QP_Constants_mxJPO.relationship_IMS_QP_Reports2ReportUnit, reportsContainerObject, reportObject);
+                IMS_KDD_mxJPO.connectIfNotConnected(ctx,
+                        IMS_QP_Constants_mxJPO.relationship_IMS_QP_Reports2ReportUnit, reportsContainerObject, reportObject);
             }
             objectId = reportObject.getId(ctx);
 
         } catch (Exception e) {
-            LOG.error("error connecting: " + IMS_QP_Constants_mxJPO.relationship_IMS_QP_Reports2ReportUnit + "|" + e.getMessage());
+            LOG.error(String.format("error connecting: %s message: %s",
+                    IMS_QP_Constants_mxJPO.relationship_IMS_QP_Reports2ReportUnit, e.getMessage()));
         }
 
         //Get report
@@ -290,7 +293,8 @@ public class IMS_QP_DQP_Report_mxJPO {
     private String getOwners(Context ctx, BusinessObjectWithSelect boWithSelect) {
         String s = "";
         try {
-            String owners = MqlUtil.mqlCommand(ctx, String.format("print bus %s select %s dump |", boWithSelect.getSelectData(DomainObject.SELECT_ID), "from[IMS_QP_QPlan2Owner].to.name"));
+            String owners = MqlUtil.mqlCommand(ctx, String.format("print bus %s select %s dump |",
+                    boWithSelect.getSelectData(DomainObject.SELECT_ID), "from[IMS_QP_QPlan2Owner].to.name"));
             List<String> ownersList = Arrays.asList(owners.split("\\|"));
 
 
@@ -342,10 +346,11 @@ public class IMS_QP_DQP_Report_mxJPO {
                 cell.setCellValue(s);
             }
 
-            //cell with empty document but style needs
+            //cell with empty document but style and '-' needs
             if (cellCounter == 9) {
                 cell = row.createCell(cellCounter);
                 cell.setCellStyle(style);
+                cell.setCellValue("-");
             }
 
         }
@@ -390,39 +395,57 @@ public class IMS_QP_DQP_Report_mxJPO {
                         .append("\t");
 
                 //project stages
-                String stage = relSelect.getSelectData("to.to[IMS_QP_DEPTask2QPTask].from.to[IMS_QP_DEPSubStage2DEPTask].from.to[IMS_QP_DEPProjectStage2DEPSubStage].from.to[IMS_QP_ProjectStage2DEPProjectStage].from.name");
-                String stageLevel = relSelect.getSelectData("to.to[IMS_QP_DEPTask2QPTask].from.to[IMS_QP_DEPSubStage2DEPTask].from.attribute[IMS_QP_Stage]");
-                stage += stage.equals("BD") ? (UIUtil.isNotNullAndNotEmpty(stageLevel) ? " Stage " + stageLevel : "") : "";
+                String stage = relSelect.getSelectData("to." +
+                        "to[IMS_QP_DEPTask2QPTask].from." +
+                        "to[IMS_QP_DEPSubStage2DEPTask].from." +
+                        "to[IMS_QP_DEPProjectStage2DEPSubStage].from." +
+                        "to[IMS_QP_ProjectStage2DEPProjectStage].from.name");
+                String stageLevel = relSelect.getSelectData("to." +
+                        "to[IMS_QP_DEPTask2QPTask].from." +
+                        "to[IMS_QP_DEPSubStage2DEPTask].from.attribute[IMS_QP_Stage]");
+                stage += stage.equals("BD") ?
+                        (UIUtil.isNotNullAndNotEmpty(stageLevel) ? " Stage " + stageLevel : "") : "";
                 qpTaskData.append(stage)
                         .append("\t");
 
                 //doc fact
-                qpTaskData.append(currentTaskState.equals("Full") ?
-                        relSelect.getSelectData("to.from[IMS_QP_ExpectedResult2QPTask].to.attribute[IMS_QP_DocumentCode]") : "-")
+                String docFactCode = currentTaskState.equals("Full") ?
+                        relSelect.getSelectData("to." +
+                                "from[IMS_QP_ExpectedResult2QPTask].to.attribute[IMS_QP_DocumentCode]") : "";
+                qpTaskData.append(UIUtil.isNotNullAndNotEmpty(docFactCode) ? docFactCode : "-")
                         .append("\t");
 
                 //output name en/ru
                 qpTaskData.append(UIUtil.isNotNullAndNotEmpty(
-                        relSelect.getSelectData("to.from[IMS_QP_ExpectedResult2QPTask].to.attribute[IMS_Name]")) ?
-                        relSelect.getSelectData("to.from[IMS_QP_ExpectedResult2QPTask].to.attribute[IMS_Name]") : "-")
+                        relSelect.getSelectData("to." +
+                                "from[IMS_QP_ExpectedResult2QPTask].to.attribute[IMS_Name]")) ?
+                        relSelect.getSelectData("to." +
+                                "from[IMS_QP_ExpectedResult2QPTask].to.attribute[IMS_Name]") : "-")
                         .append(" / ")
                         .append(UIUtil.isNotNullAndNotEmpty(
-                                relSelect.getSelectData("to.from[IMS_QP_ExpectedResult2QPTask].to.attribute[IMS_NameRu]")) ?
-                                relSelect.getSelectData("to.from[IMS_QP_ExpectedResult2QPTask].to.attribute[IMS_NameRu]") : "-")
+                                relSelect.getSelectData("to." +
+                                        "from[IMS_QP_ExpectedResult2QPTask].to.attribute[IMS_NameRu]")) ?
+                                relSelect.getSelectData("to." +
+                                        "from[IMS_QP_ExpectedResult2QPTask].to.attribute[IMS_NameRu]") : "-")
                         .append("\t");
 
                 //output description en/ru
                 qpTaskData.append(UIUtil.isNotNullAndNotEmpty(
-                        relSelect.getSelectData("to.from[IMS_QP_ExpectedResult2QPTask].to.attribute[IMS_DescriptionEn]")) ?
-                        relSelect.getSelectData("to.from[IMS_QP_ExpectedResult2QPTask].to.attribute[IMS_DescriptionEn]") : "-")
+                        relSelect.getSelectData("to." +
+                                "from[IMS_QP_ExpectedResult2QPTask].to.attribute[IMS_DescriptionEn]")) ?
+                        relSelect.getSelectData("to." +
+                                "from[IMS_QP_ExpectedResult2QPTask].to.attribute[IMS_DescriptionEn]") : "-")
                         .append(" / ")
                         .append(UIUtil.isNotNullAndNotEmpty(
-                                relSelect.getSelectData("to.from[IMS_QP_ExpectedResult2QPTask].to.attribute[IMS_DescriptionRu]")) ?
-                                relSelect.getSelectData("to.from[IMS_QP_ExpectedResult2QPTask].to.attribute[IMS_DescriptionRu]") : "-")
+                                relSelect.getSelectData("to." +
+                                        "from[IMS_QP_ExpectedResult2QPTask].to.attribute[IMS_DescriptionRu]")) ?
+                                relSelect.getSelectData("to." +
+                                        "from[IMS_QP_ExpectedResult2QPTask].to.attribute[IMS_DescriptionRu]") : "-")
                         .append("\t");
 
                 //expected result family
-                String family = relSelect.getSelectData("to.from[IMS_QP_ExpectedResult2QPTask].to.to[IMS_QP_ResultType2ExpectedResult].from.name");
+                String family = relSelect.getSelectData("to." +
+                        "from[IMS_QP_ExpectedResult2QPTask].to.to[IMS_QP_ResultType2ExpectedResult].from.name");
                 qpTaskData.append(family)
                         .append("\t");
 
@@ -431,45 +454,29 @@ public class IMS_QP_DQP_Report_mxJPO {
                         .append("\t");
 
                 //doc codes inputs tasks
-                String taskStatuses = relSelect.getSelectData("to.to[IMS_QP_QPTask2QPTask].attribute[IMS_QP_DEPTaskStatus]");
-                String taskNames = relSelect.getSelectData("to.to[IMS_QP_QPTask2QPTask].from.name");
-                String taskDocuments = relSelect.getSelectData("to.to[IMS_QP_QPTask2QPTask].from.from[IMS_QP_ExpectedResult2QPTask].to.attribute[IMS_QP_DocumentCode]");
+                String taskDocuments = relSelect.getSelectData("to." +
+                        "to[IMS_QP_QPTask2QPTask].from." +
+                        "from[IMS_QP_ExpectedResult2QPTask].to.attribute[IMS_QP_DocumentCode]");
 
-                List<String> inputStates = new ArrayList<>(), inputNames = new ArrayList<>(), inputDocs = new ArrayList<>();
-                if (taskStatuses.contains(IMS_QP_Constants_mxJPO.BELL_DELIMITER)) {
-                    inputStates = Arrays.asList(taskStatuses.split(IMS_QP_Constants_mxJPO.BELL_DELIMITER));
+                List<String> inputDocs;
+                if (taskDocuments.contains(IMS_QP_Constants_mxJPO.BELL_DELIMITER)) {
                     inputDocs = Arrays.asList(taskDocuments.split(IMS_QP_Constants_mxJPO.BELL_DELIMITER));
-                    inputNames = Arrays.asList(taskNames.split(IMS_QP_Constants_mxJPO.BELL_DELIMITER));
                 } else {
-                    inputStates.add(taskStatuses);
-                    inputNames.add(taskNames);
-                    inputDocs.add(taskDocuments);
+                    inputDocs = Arrays.asList(taskDocuments);
                 }
 
-                if (true/*currentTaskState.equals("Full") && !family.equals("CL-1")*/) {
-
-                    Iterator iterator = new HashSet<>(inputDocs).iterator();
-                    int count = inputDocs.size();
-                    while (iterator.hasNext()) {
-                        String nextString = (String) iterator.next();
-                        qpTaskData.append(UIUtil.isNotNullAndNotEmpty(nextString) ? nextString : "");
-                        --count;
-                        if (count > 1 && UIUtil.isNotNullAndNotEmpty(nextString)) {
-                            qpTaskData.append(", ");
-                        }
+                Iterator iterator = new HashSet<>(inputDocs).iterator();
+                int count = inputDocs.size();
+                while (iterator.hasNext()) {
+                    String nextString = (String) iterator.next();
+                    qpTaskData.append(UIUtil.isNotNullAndNotEmpty(nextString) ? nextString : "");
+                    --count;
+                    if (count > 1 && UIUtil.isNotNullAndNotEmpty(nextString)) {
+                        qpTaskData.append(", ");
                     }
-                } else if (currentTaskState.equals("No") && !family.equals("CL-1")) {
-
-                    for (int i = 0; i < inputStates.size(); i++) {
-                        if (inputStates.get(i).equals("Approved")) {
-                            qpTaskData.append(inputNames.get(i));
-                            if (inputStates.size() - i > 1 && UIUtil.isNotNullAndNotEmpty(inputNames.get(i))) {
-                                qpTaskData.append(", ");
-                            }
-                        }
-                    }
-                } else {
-                    qpTaskData.append("-");
+                }
+                if (qpTaskData.substring(qpTaskData.length() - 2).contains(",")) {
+                    qpTaskData = new StringBuilder(qpTaskData.substring(0, qpTaskData.length() - 2));
                 }
 
                 if (relSelect.getSelectData("to.attribute[IMS_SortOrder]").equals("0")) {
@@ -502,8 +509,13 @@ public class IMS_QP_DQP_Report_mxJPO {
         selectRelStmts.addElement("to.attribute[IMS_DescriptionEn]");
         selectRelStmts.addElement("to.attribute[IMS_DescriptionRu]");
         selectRelStmts.addElement("to.attribute[IMS_SortOrder]");
-        selectRelStmts.addElement("to.to[IMS_QP_DEPTask2QPTask].from.to[IMS_QP_DEPSubStage2DEPTask].from.to[IMS_QP_DEPProjectStage2DEPSubStage].from.to[IMS_QP_ProjectStage2DEPProjectStage].from.name");
-        selectRelStmts.addElement("to.to[IMS_QP_DEPTask2QPTask].from.to[IMS_QP_DEPSubStage2DEPTask].from.attribute[IMS_QP_Stage]");
+        selectRelStmts.addElement("to." +
+                "to[IMS_QP_DEPTask2QPTask].from." +
+                "to[IMS_QP_DEPSubStage2DEPTask].from." +
+                "to[IMS_QP_DEPProjectStage2DEPSubStage].from." +
+                "to[IMS_QP_ProjectStage2DEPProjectStage].from.name");
+        selectRelStmts.addElement("to." +
+                "to[IMS_QP_DEPTask2QPTask].from.to[IMS_QP_DEPSubStage2DEPTask].from.attribute[IMS_QP_Stage]");
         selectRelStmts.addElement("to.id");
         selectRelStmts.addElement("to.name");
         selectRelStmts.addElement("to.current");
@@ -511,8 +523,12 @@ public class IMS_QP_DQP_Report_mxJPO {
         selectRelStmts.addElement("to.to[IMS_QP_QPTask2QPTask].from.name");
         selectRelStmts.addElement("to.from[IMS_QP_QPTask2QPTask].attribute[IMS_QP_DEPTaskStatus]");
         selectRelStmts.addElement("to.to[IMS_QP_QPTask2QPTask].attribute[IMS_QP_DEPTaskStatus]");
-        selectRelStmts.addElement("to.from[IMS_QP_QPTask2QPTask].to.from[IMS_QP_ExpectedResult2QPTask].to.attribute[IMS_QP_DocumentCode]");
-        selectRelStmts.addElement("to.to[IMS_QP_QPTask2QPTask].from.from[IMS_QP_ExpectedResult2QPTask].to.attribute[IMS_QP_DocumentCode]");
+        selectRelStmts.addElement("to." +
+                "from[IMS_QP_QPTask2QPTask].to." +
+                "from[IMS_QP_ExpectedResult2QPTask].to.attribute[IMS_QP_DocumentCode]");
+        selectRelStmts.addElement("to." +
+                "to[IMS_QP_QPTask2QPTask].from." +
+                "from[IMS_QP_ExpectedResult2QPTask].to.attribute[IMS_QP_DocumentCode]");
         selectRelStmts.addElement("to.from[IMS_QP_ExpectedResult2QPTask].to.name");
         selectRelStmts.addElement("to.to[IMS_QP_ExpectedResult2QPTask].from.attribute[IMS_QP_DocumentCode]");
         selectRelStmts.addElement("to.from[IMS_QP_ExpectedResult2QPTask].to.attribute[IMS_Name]");
@@ -524,7 +540,8 @@ public class IMS_QP_DQP_Report_mxJPO {
         selectRelStmts.addElement("to.from[IMS_QP_ExpectedResult2QPTask].to.attribute[IMS_DescriptionRu]");
         selectRelStmts.addElement("to.to[IMS_QP_ExpectedResult2QPTask].from.attribute[IMS_DescriptionRu]");
         selectRelStmts.addElement("to.from[IMS_QP_ExpectedResult2QPTask].to.attribute[IMS_QP_DocumentCode]");
-        selectRelStmts.addElement("to.from[IMS_QP_ExpectedResult2QPTask].to.to[IMS_QP_ResultType2ExpectedResult].from.name");
+        selectRelStmts.addElement("to." +
+                "from[IMS_QP_ExpectedResult2QPTask].to.to[IMS_QP_ResultType2ExpectedResult].from.name");
         selectRelStmts.addElement("to.attribute[IMS_NameRu]");
         selectRelStmts.addElement("to.attribute[IMS_QP_CloseStatus]");
         selectRelStmts.addElement("to.from[IMS_QP_QPTask2Fact].to.name");
