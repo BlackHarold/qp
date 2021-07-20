@@ -5,8 +5,11 @@ import com.matrixone.apps.domain.DomainRelationship;
 import com.matrixone.apps.domain.util.EnoviaResourceBundle;
 import com.matrixone.apps.domain.util.FrameworkException;
 import com.matrixone.apps.domain.util.MapList;
+import com.matrixone.apps.domain.util.MqlUtil;
+import com.matrixone.apps.framework.ui.UIUtil;
 import matrix.db.Context;
 import matrix.db.RelationshipType;
+import matrix.util.SelectList;
 import matrix.util.StringList;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
@@ -761,19 +764,189 @@ public class IMS_QP_DEPSubStageDEPTasks_mxJPO {
                         || IMS_QP_Security_mxJPO.currentUserIsDEPOwner(context, fromObject)
                         || IMS_QP_Security_mxJPO.currentUserIsDEPOwner(context, toObject)) {
 
-                    fromObject.disconnect(
-                            context,
-                            new RelationshipType(toObject.getType(context).equals(TYPE_IMS_QP_DEPTask) ?
-                                    RELATIONSHIP_IMS_QP_DEPTask2DEPTask :
-                                    RELATIONSHIP_IMS_QP_DEPTask2DEP),
-                            !relationship.equals("in"),
-                            toObject);
+                    List<String> checkTrigger = disconnectDEPTaskTrigger(context, fromObject, toObject);
 
-                    return "";
+                    if (checkTrigger.isEmpty()) {
+                        fromObject.disconnect(
+                                context,
+                                new RelationshipType(toObject.getType(context).equals(TYPE_IMS_QP_DEPTask) ?
+                                        RELATIONSHIP_IMS_QP_DEPTask2DEPTask :
+                                        RELATIONSHIP_IMS_QP_DEPTask2DEP),
+                                !relationship.equals("in"),
+                                toObject);
+
+                        return "";
+                    } else {
+                        LOG.info("approved states localized");
+                        return "Related tasks has 'Approved' states. Check it: " + checkTrigger;
+                    }
                 }
                 return "Access denied.";
             }
         });
+    }
+
+    private List<String> disconnectDEPTaskTrigger(Context ctx, DomainObject do1, DomainObject do2) {
+        MapList allRelatedQPTasksByDomainObject1 = new MapList();
+        MapList allRelatedQPTasksByDomainObject2 = new MapList();
+
+        StringList relationshipSelect = new SelectList();
+        relationshipSelect.addElement("to.from[IMS_QP_QPTask2QPTask].to.id");
+        relationshipSelect.addElement("to.from[IMS_QP_QPTask2QPTask].to.name");
+        relationshipSelect.addElement("to.from[IMS_QP_QPTask2QPTask].attribute[IMS_QP_DEPTaskStatus]");
+        relationshipSelect.addElement("to.from[IMS_QP_QPTask2QPTask].id");
+        relationshipSelect.addElement("to.to[IMS_QP_QPTask2QPTask].from.id");
+        relationshipSelect.addElement("to.to[IMS_QP_QPTask2QPTask].from.name");
+        relationshipSelect.addElement("to.to[IMS_QP_QPTask2QPTask].attribute[IMS_QP_DEPTaskStatus]");
+        relationshipSelect.addElement("to.to[IMS_QP_QPTask2QPTask].id");
+        relationshipSelect.addElement("from.id");
+        relationshipSelect.addElement("from.name");
+        relationshipSelect.addElement("to.id");
+        relationshipSelect.addElement("to.name");
+
+        try {
+            allRelatedQPTasksByDomainObject1 = do1.getRelatedObjects(ctx,
+                    /*relationship*/"IMS_QP_DEPTask2QPTask",
+                    /*type*/"IMS_QP_QPTask",
+                    /*object attributes*/ new StringList("id"),
+                    /*relationship selects*/ relationshipSelect,
+                    /*getTo*/ false, /*getFrom*/ true,
+                    /*recurse to level*/ (short) 1,
+                    /*object where*/ null,
+                    /*relationship where*/ null,
+                    /*limit*/ 0);
+            allRelatedQPTasksByDomainObject2 = do2.getRelatedObjects(ctx,
+                    /*relationship*/"IMS_QP_DEPTask2QPTask",
+                    /*type*/"IMS_QP_QPTask",
+                    /*object attributes*/ new StringList("id"),
+                    /*relationship selects*/ relationshipSelect,
+                    /*getTo*/ false, /*getFrom*/ true,
+                    /*recurse to level*/ (short) 1,
+                    /*object where*/ null,
+                    /*relationship where*/ null,
+                    /*limit*/ 0);
+        } catch (Exception e) {
+            LOG.error("some error: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        List<String> taskArray = dropRelationshipsSameTasks(ctx, allRelatedQPTasksByDomainObject1, allRelatedQPTasksByDomainObject2);
+        List<String> taskNamesArray = new ArrayList<>();
+        if (!taskArray.isEmpty()) {
+            for (String taskId : taskArray) {
+                String taskName;
+                try {
+                    taskName = new DomainObject(taskId).getName(ctx);
+                    taskNamesArray.add(taskName);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        return taskNamesArray;
+    }
+
+    private List<String> dropRelationshipsSameTasks(Context ctx, MapList allRelatedQPTasksByDomainObject1, MapList allRelatedQPTasksByDomainObject2) {
+
+        StringList allRelatedQPTasksList2 = getRelatedQpTasks(allRelatedQPTasksByDomainObject2);
+        Map<String, String> allRelatedIdRelations = getRelatedIdRelations(allRelatedQPTasksByDomainObject1);
+        List<String> sameApprovedTaskIds = new ArrayList<>();
+
+        for (Map.Entry entry : allRelatedIdRelations.entrySet()) {
+            String taskId = (String) entry.getKey();
+            if (allRelatedQPTasksList2.contains(taskId)) {
+                try {
+                    DomainRelationship relationship = new DomainRelationship((String) entry.getValue());
+                    String attributeState = relationship.getAttributeValue(ctx, "IMS_QP_DEPTaskStatus");
+
+                    if (attributeState.equals("Approved")) {
+                        sameApprovedTaskIds.add(taskId);
+                    }
+                } catch (FrameworkException e) {
+                    LOG.error("error doing MQL command: " + e.getMessage());
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        if (!sameApprovedTaskIds.isEmpty()) {
+            return sameApprovedTaskIds;
+        }
+
+        for (Map.Entry entry : allRelatedIdRelations.entrySet()) {
+            String taskId = (String) entry.getKey();
+            if (allRelatedQPTasksList2.contains(taskId)) {
+                try {
+                    String command = "delete connection " + entry.getValue();
+                    String result = MqlUtil.mqlCommand(ctx, command);
+                } catch (FrameworkException e) {
+                    LOG.error("error doing MQL command: " + e.getMessage());
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        return sameApprovedTaskIds;
+    }
+
+    private StringList getRelatedQpTasks(MapList allRelatedQPTasksByDomainObject) {
+        StringList allRelatedQPTaskListIds = new StringList();
+        StringList allRelatedQPTaskListNames = new StringList();
+        for (Object o : allRelatedQPTasksByDomainObject) {
+            Map map = (Map) o;
+            Object toQPTaskIds = map.get("to.id");
+            Object toQPTaskNames = map.get("to.name");
+
+
+            if (toQPTaskIds != null) {
+                if (toQPTaskIds instanceof StringList) {
+                    allRelatedQPTaskListIds.addAll((Collection) toQPTaskIds);
+                    allRelatedQPTaskListNames.addAll((Collection) toQPTaskNames);
+                } else {
+                    allRelatedQPTaskListIds.add((String) toQPTaskIds);
+                    allRelatedQPTaskListNames.add((String) toQPTaskNames);
+                }
+            }
+        }
+
+        return allRelatedQPTaskListIds;
+    }
+
+    private Map getRelatedIdRelations(MapList allRelatedQPTasksByDomainObject) {
+        Map<String, String> allTasksWithRelationsIds = new HashMap<>();
+        StringList allRelatedQPTasksIdsList = new StringList();
+        StringList allRelatedRelationshipsIdsList = new StringList();
+
+        for (Object o : allRelatedQPTasksByDomainObject) {
+            Map map = (Map) o;
+
+            Object fromQPTaskId = map.get("to.from[IMS_QP_QPTask2QPTask].to.id");
+            Object toQPTaskId = map.get("to.to[IMS_QP_QPTask2QPTask].from.id");
+            Object fromQPTaskRelationshipId = map.get("to.from[IMS_QP_QPTask2QPTask].id");
+            Object toQPTaskRelationshipId = map.get("to.to[IMS_QP_QPTask2QPTask].id");
+
+            if (fromQPTaskRelationshipId instanceof StringList) {
+                allRelatedQPTasksIdsList.addAll((Collection) fromQPTaskId);
+                allRelatedRelationshipsIdsList.addAll((Collection) fromQPTaskRelationshipId);
+            } else {
+                allRelatedRelationshipsIdsList.add((String) fromQPTaskRelationshipId);
+                allRelatedQPTasksIdsList.add((String) fromQPTaskId);
+            }
+
+            if (toQPTaskRelationshipId instanceof StringList) {
+                allRelatedRelationshipsIdsList.addAll((Collection) toQPTaskRelationshipId);
+                allRelatedQPTasksIdsList.addAll((Collection) toQPTaskId);
+            } else {
+                allRelatedRelationshipsIdsList.add((String) toQPTaskRelationshipId);
+                allRelatedQPTasksIdsList.add((String) toQPTaskId);
+            }
+        }
+
+        for (int i = 0; i < allRelatedRelationshipsIdsList.size(); i++) {
+            allTasksWithRelationsIds.put("" + allRelatedQPTasksIdsList.get(i), "" + allRelatedRelationshipsIdsList.get(i));
+        }
+        return allTasksWithRelationsIds;
     }
 
     @SuppressWarnings("unused")

@@ -5,6 +5,9 @@ import com.matrixone.apps.domain.util.FrameworkException;
 import com.matrixone.apps.domain.util.MapList;
 import matrix.db.Context;
 import matrix.db.JPO;
+import matrix.db.MQLCommand;
+import matrix.util.MatrixException;
+import matrix.util.SelectList;
 import matrix.util.StringList;
 import org.apache.log4j.Logger;
 
@@ -161,7 +164,7 @@ public class IMS_QP_QPTaskRelatedTasks_mxJPO {
 
     private HashMap agreementProcess(Context ctx, String action, String... args) {
         HashMap mapMessage = new HashMap();
-
+        LOG.info("agreementProcess-1");
         //get all ids
         HashMap<String, Object> argsMap = null;
         try {
@@ -188,7 +191,7 @@ public class IMS_QP_QPTaskRelatedTasks_mxJPO {
             rowIDs[i] = rowIDs[i].substring(rowIDs[i].indexOf("|"), rowIDs[i].lastIndexOf("|"));
             taskIDs[i] = rowIDs[i].substring(1, rowIDs[i].lastIndexOf("|"));
         }
-
+        LOG.info("agreementProcess-2");
         String[] rawString = rowIDs[0].split("\\|");
         String parentID = rawString[2];
 
@@ -222,11 +225,12 @@ public class IMS_QP_QPTaskRelatedTasks_mxJPO {
                         /*object where*/ where,
                         /*relationship where*/ null,
                         /*limit*/ 0);
+                LOG.info("taskStates: " + taskStates);
             } catch (FrameworkException fe) {
                 LOG.error("error getting related states: " + fe.getMessage());
             }
         }
-
+        LOG.info("agreementProcess-3");
 //            rel selects
         StringList relSelects = new StringList(IMS_QP_Constants_mxJPO.ATTRIBUTE_IMS_QP_DEPTASK_STATUS);
         relSelects.add("id");
@@ -235,17 +239,19 @@ public class IMS_QP_QPTaskRelatedTasks_mxJPO {
             relIdStates = parent.getRelatedObjects(ctx,
                     /*relationship*/IMS_QP_Constants_mxJPO.relationship_IMS_QP_QPTask2QPTask,
                     /*type*/IMS_QP_Constants_mxJPO.type_IMS_QP_QPTask,
-                    /*object attributes*/ null,
+                    /*object attributes*/ selects,
                     /*relationship selects*/ relSelects,
                     /*getTo*/ roadTo, /*getFrom*/ !roadTo,
                     /*recurse to level*/ (short) 1,
                     /*object where*/ where,
                     /*relationship where*/ null,
                     /*limit*/ 0);
+            LOG.info("relIdStates: " + relIdStates);
         } catch (FrameworkException fe) {
             LOG.error("error getting relation states: " + fe.getMessage());
         }
 
+        LOG.info("agreementProcess-4");
         String parentQPlanId = "", parentDEPId = "";
         try {
             parentQPlanId = parent.getInfo(ctx, planIdFromTask);
@@ -263,25 +269,34 @@ public class IMS_QP_QPTaskRelatedTasks_mxJPO {
         if (taskStates != null && relIdStates != null)
             for (int i = 0; i < taskStates.size(); i++) {
                 Map taskMap = (Map) taskStates.get(i);
-                Map relMap = (Map) relIdStates.get(i);
-                relMap.put("name", taskMap.get("name"));
-
-                //inner check plan
-                if (taskMap.get("to[IMS_QP_QPlan2QPTask].from.id").equals(parentQPlanId)) {
-                    innerQP_taskIDs.put((String) taskMap.get(DomainConstants.SELECT_ID), relMap);
+                Map relMap = null;
+                for (Object o : relIdStates) {
+                    Map map = (Map) o;
+                    if (map.get("name").equals(taskMap.get("name")))
+                        relMap = map;
                 }
+//                relMap.put("name", taskMap.get("name"));
 
-                //brother check DEP
-                else if (!taskMap.get(planIdFromTask).equals(parentQPlanId) && taskMap.get(depIdFromTask).equals(parentDEPId)) {
-                    brotherDEP_taskIDs.put((String) taskMap.get(DomainConstants.SELECT_ID), relMap);
+                if (relMap != null) {
 
-                    //different check DEP
-                } else if (!taskMap.get(depIdFromTask).equals(parentDEPId)) {
-                    differenceDEP_taskIDs.put((String) taskMap.get(DomainConstants.SELECT_ID), relMap);
+                    //inner check plan
+                    if (taskMap.get("to[IMS_QP_QPlan2QPTask].from.id").equals(parentQPlanId)) {
+                        innerQP_taskIDs.put((String) taskMap.get(DomainConstants.SELECT_ID), relMap);
+                    }
+
+                    //brother check DEP
+                    else if (!taskMap.get(planIdFromTask).equals(parentQPlanId) && taskMap.get(depIdFromTask).equals(parentDEPId)) {
+                        brotherDEP_taskIDs.put((String) taskMap.get(DomainConstants.SELECT_ID), relMap);
+
+                        //different check DEP
+                    } else if (!taskMap.get(depIdFromTask).equals(parentDEPId)) {
+                        differenceDEP_taskIDs.put((String) taskMap.get(DomainConstants.SELECT_ID), relMap);
+                    }
+
+                    processMap.put((String) taskMap.get(DomainConstants.SELECT_ID), relMap);
                 }
-
-                processMap.put((String) taskMap.get(DomainConstants.SELECT_ID), relMap);
             }
+        LOG.info("processMap: " + processMap);
 
 //            check table row ids
         for (String taskID : taskIDs) {
@@ -291,9 +306,26 @@ public class IMS_QP_QPTaskRelatedTasks_mxJPO {
                 String taskName = (String) taskRelationship.get(DomainConstants.SELECT_NAME);
 
                 if (innerQP_taskIDs.containsKey(taskID)) {
-                    //
-                    mapMessage.put(taskName, " can't change state of inner tasks");
-                    continue;
+                    //check if user is DEP or PBS owner
+                    String ownerNames = "";
+                    StringBuilder command = new StringBuilder("print bus ").append(taskID).append(" select ")
+                            .append("to[IMS_QP_QPlan2QPTask].from.to[IMS_QP_DEP2QPlan].from.from[IMS_QP_DEP2Owner].to.name")
+                            .append(" ")
+                            .append("to[IMS_QP_QPlan2QPTask].from.from[IMS_QP_QPlan2Object].to.from[IMS_PBS2Owner].to.name")
+                            .append(" dump |");
+                    try {
+                        ownerNames = MQLCommand.exec(ctx, command.toString());
+                    } catch (MatrixException e) {
+                        LOG.error("matrix error: " + e.getMessage());
+                        e.printStackTrace();
+                    }
+                    LOG.info("id: " + taskID + " command: " + command);
+                    LOG.info("ownerNames: " + ownerNames + " user: " + ctx.getUser());
+                    if (!ownerNames.contains(ctx.getUser())) {
+                        mapMessage.put(taskName, " can't change the state of inner tasks who don't own PBS or DEP at all");
+                        LOG.info(ctx.getUser() + " isn't owner!");
+                        continue;
+                    }
                 }
 
                 if (brotherDEP_taskIDs.containsKey(taskID) && !IMS_QP_Security_mxJPO.isUserAdmin(ctx) && !IMS_QP_Security_mxJPO.currentUserIsQPSuperUser(ctx)) {
@@ -337,10 +369,11 @@ public class IMS_QP_QPTaskRelatedTasks_mxJPO {
                     mapMessage.put(taskName, String.format(" wrong result of changing state: %s", taskState));
             }
         }
-
+        LOG.info("agreementProcess-6");
         if (mapMessage.isEmpty()) {
             mapMessage.put("message", "status OK code 200");
         }
+        LOG.info("agreementProcess-7");
         return mapMessage;
     }
 

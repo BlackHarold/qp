@@ -428,7 +428,7 @@ public class IMS_QP_Task_mxJPO {
         StringBuilder message = new StringBuilder();
 
         try {
-            HashMap<String, Object> jpoArgs = JPO.unpackArgs(args);
+            Map<String, Object> jpoArgs = JPO.unpackArgs(args);
             String[] qpTaskIds = (String[]) jpoArgs.get("emxTableRowId");
             String objectId = (String) jpoArgs.get("objectId");
             Hashtable idTasks = new DomainObject(objectId).getBusinessObjectData(context, new StringList("from[IMS_QP_QPlan2QPTask].to.id"));
@@ -456,6 +456,7 @@ public class IMS_QP_Task_mxJPO {
             MapList mapParent = DomainObject.getInfo(context, qpTaskIds, select);
 
             for (Object obj : mapParent) {
+                relCounter++;
                 Map objMap = (Map) obj;
                 String idQPTaskIN = (String) objMap.get("to[" + IMS_QP_Constants_mxJPO.relationship_IMS_QP_DEPTask2QPTask + "].from.to[" + IMS_QP_Constants_mxJPO.relationship_IMS_QP_DEPTask2DEPTask + "].from.from[" + IMS_QP_Constants_mxJPO.relationship_IMS_QP_DEPTask2QPTask + "].to.id");
                 String idQPTaskOUT = (String) objMap.get("to[" + IMS_QP_Constants_mxJPO.relationship_IMS_QP_DEPTask2QPTask + "].from.from[" + IMS_QP_Constants_mxJPO.relationship_IMS_QP_DEPTask2DEPTask + "].to.from[" + IMS_QP_Constants_mxJPO.relationship_IMS_QP_DEPTask2QPTask + "].to.id");
@@ -482,6 +483,70 @@ public class IMS_QP_Task_mxJPO {
             returnMap.put("message", ex.getMessage());
         }
         return returnMap;
+    }
+
+    int relCounter;
+
+    public void generateRelIN_OUT_DailyScript(Context ctx, String... args) {
+
+        //get all QPlans with DEP status is 'Done'
+        MapList allQPWithDEPDone = new MapList();
+        try {
+            allQPWithDEPDone = DomainObject.findObjects(ctx,
+                    /*var1 type*/IMS_QP_Constants_mxJPO.type_IMS_QP_QPlan,
+                    /*var2 name*/DomainConstants.QUERY_WILDCARD,
+                    /*var3 revision*/DomainConstants.QUERY_WILDCARD,
+                    /*var4 owner*/DomainConstants.QUERY_WILDCARD,
+                    /*var5 vault*/ ctx.getVault().getName(),
+                    /*var6 where*/ "to[IMS_QP_DEP2QPlan].from.current==Done",
+                    /*var8 expand type*/false,
+                    /*var14*/new StringList("id"));
+            System.out.println("allQPWithDEPDone: " + allQPWithDEPDone);
+
+        } catch (FrameworkException e) {
+            LOG.error("error finding objects: " + e.getMessage());
+            System.out.println("error finding objects: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        relCounter = 0;
+        //get all QPTasks by QPlan in circle
+        for (Object o : allQPWithDEPDone) {
+            Map map = (Map) o;
+            String qpId = (String) map.get("id");
+            MapList allRelatedQPTasksByQPlan = new MapList();
+            try {
+                allRelatedQPTasksByQPlan = new DomainObject(qpId).getRelatedObjects(ctx,
+                        /*relationship*/"IMS_QP_QPlan2QPTask",
+                        /*type*/"IMS_QP_QPTask",
+                        /*object attributes*/ new StringList("id"),
+                        /*relationship selects*/ null,
+                        /*getTo*/ true, /*getFrom*/ true,
+                        /*recurse to level*/ (short) 1,
+                        /*object where*/ null,
+                        /*relationship where*/ null,
+                        /*limit*/ 0);
+                System.out.println(qpId + ": allRelatedQPTasksByQPlan: " + allRelatedQPTasksByQPlan);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            //get emxTableRowId map
+            Map<String, Object> argsMap = new HashMap<>();
+
+            String[] emxTableRowId = new String[allRelatedQPTasksByQPlan.size()];
+            for (int i = 0; i < allRelatedQPTasksByQPlan.size(); i++) {
+                Map taskMap = (Map) allRelatedQPTasksByQPlan.get(i);
+                emxTableRowId[i] = (String) taskMap.get("id");
+            }
+            System.out.println(qpId + ": emxTableRowId: " + Arrays.asList(emxTableRowId));
+
+            //go to generate RelIN_OUT method
+            argsMap.put("objectId", qpId);
+            argsMap.put("emxTableRowId", emxTableRowId);
+            generateRelIN_OUT(ctx, JPO.packArgs(argsMap));
+        }
+        System.out.println("relations counter: " + relCounter);
     }
 
     /**
