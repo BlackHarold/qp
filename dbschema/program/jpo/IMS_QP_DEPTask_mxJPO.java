@@ -850,7 +850,6 @@ public class IMS_QP_DEPTask_mxJPO {
         return 0;
     }
 
-
     public static StringList getFactColumnStyle(Context context, String[] args) throws Exception {
         Map programMap = JPO.unpackArgs(args);
         MapList mlObList = (MapList) programMap.get("objectList");
@@ -863,41 +862,47 @@ public class IMS_QP_DEPTask_mxJPO {
 
             String color = "";
 
-            //2 if attribute of expected result IMS_QP_DocumentCode contains value 'Wrong'
-            //or attribute AdditionalInfo contains some information
+            //default priority is 0: no color or fact coloring
+
+            //1 if the task is 'Another' type
+            String hasFact = object.getInfo(context,
+                    String.format("from[%s]", IMS_QP_Constants_mxJPO.relationship_IMS_QP_QPTask2Fact));
+            String resultType = object.getInfo(context,
+                    "from[IMS_QP_ExpectedResult2QPTask].to.to[IMS_QP_ResultType2ExpectedResult].from.to[IMS_QP_ResultType2Family].from.name");
+            boolean anotherTypeAndNoFact = IMS_QP_Constants_mxJPO.ANOTHER_PLAN_TYPES.equals(resultType) && "FALSE".equals(hasFact);
+            if (anotherTypeAndNoFact) color = "IMS_QP_Blue";
+
+            //2 if attribute of task IMS_QP_SelectDocument has any values
+            if (UIUtil.isNotNullAndNotEmpty(object.getInfo(context, IMS_QP_Constants_mxJPO.attribute_IMS_QP_SelectDocument)))
+                color = "IMS_QP_Purple";
+
+            //3 if task has relationship to fact but that fact isn't in 'Finalized' state or 'Approved' for CheckList type
+            String factStatus = object.getInfo(context, String.format("from[%s].to.attribute[IMS_ProjDocStatus]", IMS_QP_Constants_mxJPO.relationship_IMS_QP_QPTask2Fact));
+            String factState = object.getInfo(context, String.format("from[%s].to.current", IMS_QP_Constants_mxJPO.relationship_IMS_QP_QPTask2Fact));
+            boolean checkFactStatus = UIUtil.isNotNullAndNotEmpty(factStatus) && factStatus.equals("Finalized") ||
+                    UIUtil.isNotNullAndNotEmpty(factState) && factState.contains("Approved");
+
+            if ("TRUE".equals(hasFact) && !checkFactStatus) {
+                color = "IMS_QP_Red";
+            }
+
+            //4 if attribute of expected result IMS_QP_DocumentCode contains value 'Wrong'
             String wrongCodeField = object.getInfo(context, String.format("from[%s].to.%s",
                     IMS_QP_Constants_mxJPO.relationship_IMS_QP_ExpectedResult2QPTask,
                     IMS_QP_Constants_mxJPO.attribute_IMS_QP_DocumentCode));
+
             String errorCodeField = object.getInfo(context, String.format(
                     "attribute[%s]", IMS_QP_Constants_mxJPO.IMS_QP_ADDITIONAL_INFO));
             if (UIUtil.isNotNullAndNotEmpty(wrongCodeField) && wrongCodeField.contains("Wrong code")
                     || UIUtil.isNotNullAndNotEmpty(errorCodeField))
                 color = "IMS_QP_Orange";
 
-            //3 if the task has more than one expected result in direction 'Output'
+            //5 if the task has more than one expected result in direction 'Output'
             String moreThanOneExpectedRelations = MqlUtil.mqlCommand(context, String.format("print bus %s select from[IMS_QP_ExpectedResult2QPTask].to.id dump |", object.getId(context)));
-            if (UIUtil.isNotNullAndNotEmpty(moreThanOneExpectedRelations) && moreThanOneExpectedRelations.contains("|"))
+            if (UIUtil.isNotNullAndNotEmpty(moreThanOneExpectedRelations) && moreThanOneExpectedRelations.contains("|") || errorCodeField.contains("4.1"))
                 color = "IMS_QP_Yellow";
-
-            String checkIfHasFact = object.getInfo(context,
-                    String.format("from[%s]", IMS_QP_Constants_mxJPO.relationship_IMS_QP_QPTask2Fact));
-
-            //4 if the task is 'Another' type
-            String resultType = object.getInfo(context,
-                    "from[IMS_QP_ExpectedResult2QPTask].to.to[IMS_QP_ResultType2ExpectedResult].from.to[IMS_QP_ResultType2Family].from.name");
-            boolean anotherTypeAndNoFact = IMS_QP_Constants_mxJPO.ANOTHER_PLAN_TYPES.equals(resultType) && "FALSE".equals(checkIfHasFact);
-
-            //5 if the task is 'VTZ' type and attribute of expected result IMS_DocumentCode is empty value
-            boolean vtzTypeAndNoFact = IMS_QP_Constants_mxJPO.VTZ_PLAN_TYPES.equals(resultType) && "FALSE".equals(checkIfHasFact);
-
-            if (anotherTypeAndNoFact) color = "IMS_QP_Blue";
-
-            //1 if attribute of task IMS_QP_SelectDocument has any values
-            if (UIUtil.isNotNullAndNotEmpty(object.getInfo(context, IMS_QP_Constants_mxJPO.attribute_IMS_QP_SelectDocument)))
-                color = "IMS_QP_Purple";
-
-            LOG.info(object.getName(context) + " color: " + color);
             getColor(returnList, factExp, factGot, color);
+
         }
         return returnList;
     }
@@ -917,17 +922,22 @@ public class IMS_QP_DEPTask_mxJPO {
             case "IMS_QP_Orange":
                 returnList.add("IMS_QP_Orange");
                 break;
+            case "IMS_QP_Red":
+                returnList.add("IMS_QP_Red");
+                break;
             default:
-                if (factExp > 0) {
-                    if (factExp == factGot) {
-                        returnList.add("IMS_QP_Green");
-                    } else if (factExp > factGot) {
-                        returnList.add("IMS_QP_Red");
+                if (UIUtil.isNullOrEmpty(color)) {
+                    if (factExp > 0) {
+                        if (factExp == factGot) {
+                            returnList.add("IMS_QP_Green");
+                        } else if (factExp > factGot) {
+                            returnList.add("IMS_QP_Rose");
+                        } else {
+                            returnList.add("");
+                        }
                     } else {
                         returnList.add("");
                     }
-                } else {
-                    returnList.add("");
                 }
         }
     }
