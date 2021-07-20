@@ -32,8 +32,9 @@ public class IMS_QP_ActualPlanSearch_mxJPO {
             "CB03", "CB03.1",
             "CB1"));
 
+    //            "B", "C", "L", "M", "P"));                                                                            //full list of values: look at #56811
     private final List<String> IMS_PHASE_RANGE = Collections.unmodifiableList(Arrays.asList(
-            "B", "C", "L", "M", "P"));                                                                                  //full list of values: look at #56811
+            "EE_Stage_B_1", "EE_Stage_C_1", "EE_Stage_L_1", "EE_Stage_M_1", "EE_Stage_P_1"));                           //full list of values: look at #56812
 
     /**
      * Entering point of service
@@ -44,17 +45,17 @@ public class IMS_QP_ActualPlanSearch_mxJPO {
     public void searchProcess(Context ctx, String... args) {                                                            //0 entry point
 
         BusinessObjectWithSelectList businessObjectList = getAllQPTaskList(ctx);                                        //1 get all QP Tasks
-
+        System.out.println("task list size: " + businessObjectList.size());
         if (businessObjectList != null) {
             getLoopProcess(ctx, businessObjectList);                                                                    //2 loop searching actual plan
         }
 
 //        report generator
-        Map<String, BusinessObjectWithSelectList> reportData =
-                new IMS_QP_ActualPlanSearchGenerator_mxJPO().reportGeneration(ctx);
+//        Map<String, BusinessObjectWithSelectList> reportData =
+//                new IMS_QP_ActualPlanSearchGenerator_mxJPO().reportGeneration(ctx);
 
 //        report write to xlsx
-        new IMS_QP_ActualPlanSearchReport_mxJPO().main(ctx, reportData, args);
+//        new IMS_QP_ActualPlanSearchReport_mxJPO().main(ctx, reportData, args);
     }
 
     /**
@@ -148,125 +149,144 @@ public class IMS_QP_ActualPlanSearch_mxJPO {
      */
     private Map<String, String> getLoopProcess(Context ctx, BusinessObjectWithSelectList businessObjectList) {
         result = new HashMap<>();
+        try {
+            for (Object o : businessObjectList) {
+                BusinessObjectWithSelect bowsTask = (BusinessObjectWithSelect) o;
 
-        for (Object o : businessObjectList) {
-            BusinessObjectWithSelect bowsTask = (BusinessObjectWithSelect) o;
+                try {
+                    bowsTask.open(ctx);
+                } catch (MatrixException e) {
+                    System.out.println("error opening business object: " + e.getMessage());
+                    e.printStackTrace();
+                }
 
-            try {
-                bowsTask.open(ctx);
-            } catch (MatrixException e) {
-                System.out.println("error opening business object: " + e.getMessage());
-                e.printStackTrace();
-            }
+                System.out.println("\n=== " + bowsTask.getSelectData(DomainConstants.SELECT_NAME) + " ===");
 
-            System.out.println("\n=== " + bowsTask.getSelectData(DomainConstants.SELECT_NAME) + " ===");
+                // Instantiating the BusinessObject
+                StringList selectBusStmts = new StringList();
+                selectBusStmts.add(DomainConstants.SELECT_ID);
+                selectBusStmts.add(DomainConstants.SELECT_TYPE);
+                selectBusStmts.add(DomainConstants.SELECT_NAME);
 
-            // Instantiating the BusinessObject
-            StringList selectBusStmts = new StringList();
-            selectBusStmts.add(DomainConstants.SELECT_ID);
-            selectBusStmts.add(DomainConstants.SELECT_TYPE);
-            selectBusStmts.add(DomainConstants.SELECT_NAME);
+                StringList selectRelStmts = new StringList();
+                selectRelStmts.add(DomainConstants.SELECT_NAME);
+                selectRelStmts.add(DomainConstants.SELECT_FROM_ID);
+                selectRelStmts.add(DomainConstants.SELECT_FROM_NAME);
+                selectRelStmts.add(DomainConstants.SELECT_TO_ID);
+                selectRelStmts.add(DomainConstants.SELECT_TO_NAME);
+                short recurse = 1;
 
-            StringList selectRelStmts = new StringList();
-            selectRelStmts.add(DomainConstants.SELECT_NAME);
-            selectRelStmts.add(DomainConstants.SELECT_FROM_ID);
-            selectRelStmts.add(DomainConstants.SELECT_FROM_NAME);
-            selectRelStmts.add(DomainConstants.SELECT_TO_ID);
-            selectRelStmts.add(DomainConstants.SELECT_TO_NAME);
-            short recurse = 1;
+                ExpansionWithSelect expansion = null;
+                try {
+                    expansion = bowsTask.expandSelect(ctx,
+                            "*", "*", selectBusStmts, selectRelStmts, true, true, recurse);
+                    // Getting the expansion
+                    //--------------------------------------------------------------
+                    //  _object.expandSelect(_ctx, - Java ctx object
+                    //  "*",                           - relationship Pattern
+                    //  "*",                           - type Pattern
+                    //  selectBusStmts,                - selects for Business Objects
+                    //  selectRelStmts,                - selects for Relationships
+                    //  true,                          - get To relationships
+                    //  true,                          - get From relationships
+                    //  recurse);                      - recursion level (0 = all)
+                    //--------------------------------------------------------------
 
-            ExpansionWithSelect expansion = null;
-            try {
-                expansion = bowsTask.expandSelect(ctx,
-                        "*", "*", selectBusStmts, selectRelStmts, true, true, recurse);
-                // Getting the expansion
-                //--------------------------------------------------------------
-                //  _object.expandSelect(_ctx, - Java ctx object
-                //  "*",                           - relationship Pattern
-                //  "*",                           - type Pattern
-                //  selectBusStmts,                - selects for Business Objects
-                //  selectRelStmts,                - selects for Relationships
-                //  true,                          - get To relationships
-                //  true,                          - get From relationships
-                //  recurse);                      - recursion level (0 = all)
-                //--------------------------------------------------------------
+                } catch (MatrixException e) {
+                    System.out.println("matrix error: " + e.getMessage());
+                    e.printStackTrace();
+                }
+                // Getting Relationships
+                RelationshipWithSelectList relationshipWithSelectList = expansion.getRelationships();
+                RelationshipWithSelectItr relItr = new RelationshipWithSelectItr(relationshipWithSelectList);
 
-            } catch (MatrixException e) {
-                System.out.println("matrix error: " + e.getMessage());
-                e.printStackTrace();
-            }
-            // Getting Relationships
-            RelationshipWithSelectList relationshipWithSelectList = expansion.getRelationships();
-            RelationshipWithSelectItr relItr = new RelationshipWithSelectItr(relationshipWithSelectList);
+                // Get each relationship of type IMS_QP_ExpectedResult2QPTask and direction output (from task to expected result)
+                int counter = 0;
+                String expectedResultId = null;
 
-            // Get each relationship of type IMS_QP_ExpectedResult2QPTask and direction output (from task to expected result)
-            int counter = 0;
-            String expectedResultId = null;
+                String id = bowsTask.getSelectData(DomainConstants.SELECT_ID);
+                while (relItr.next()) {
+                    RelationshipWithSelect relSelect = relItr.obj();
+                    String relationshipType = relSelect.getSelectData(DomainConstants.SELECT_NAME);
+                    String relationshipFromId = relSelect.getSelectData(DomainConstants.SELECT_FROM_ID);
+                    String relationshipToId = relSelect.getSelectData(DomainConstants.SELECT_TO_ID);
 
-            String id = bowsTask.getSelectData(DomainConstants.SELECT_ID);
-            while (relItr.next()) {
-                RelationshipWithSelect relSelect = relItr.obj();
-                String relationshipType = relSelect.getSelectData(DomainConstants.SELECT_NAME);
-                String relationshipFromId = relSelect.getSelectData(DomainConstants.SELECT_FROM_ID);
-                String relationshipToId = relSelect.getSelectData(DomainConstants.SELECT_TO_ID);
+                    //if expected result type and output direct (from)
+                    boolean from = relationshipFromId.equals(id);
+                    if (relationshipType
+                            .equals(IMS_QP_Constants_mxJPO.relationship_IMS_QP_ExpectedResult2QPTask) && from) {            //3 search IMS_QP_ExpectedResult2QPTask with direction output
+                        counter++;
+                        expectedResultId = relationshipToId;
+                    }
+                }
 
-                //if expected result type and output direct (from)
-                boolean from = relationshipFromId.equals(id);
-                if (relationshipType
-                        .equals(IMS_QP_Constants_mxJPO.relationship_IMS_QP_ExpectedResult2QPTask) && from) {            //3 search IMS_QP_ExpectedResult2QPTask with direction output
-                    counter++;
-                    expectedResultId = relationshipToId;
+                //drop any attribute values of the additional information task to the empty string
+                setValueByAttribute(ctx, bowsTask, IMS_QP_Constants_mxJPO.IMS_QP_ADDITIONAL_INFO, "");
+
+                if (counter != 1) {
+                    setValueByAttribute(ctx,
+                            bowsTask, IMS_QP_Constants_mxJPO.IMS_QP_ADDITIONAL_INFO, "4.1 Task has error in ExpectedResult");
+                    continue;
+                }
+
+                BusinessObjectWithSelect bowsExpectedResult = null;
+                try {
+                    bowsExpectedResult = new BusinessObject(expectedResultId).select(ctx, getExpectedResultSelects());
+                    bowsExpectedResult.open(ctx);
+                } catch (Exception e) {
+                    System.out.println("error getting business object: " + expectedResultId);
+                    e.printStackTrace();
+                }
+
+                boolean checkType = false;
+                if (bowsExpectedResult != null) {
+                    checkType = checkResultType(ctx, bowsTask, bowsExpectedResult);                                         //5
+                    System.out.println("checkType: " + checkType);
+                }
+
+                boolean needsCheckDoc = false;
+                if (checkType) {
+                    try {
+                        String logInfo = initializeCommonParameters(bowsTask, bowsExpectedResult);
+                        System.out.println("logInfo: " + logInfo);
+                    } catch (Exception e) {
+                        System.out.println("any error logInfo: " + e.getMessage());
+                    }
+                    needsCheckDoc = searchPreparation(ctx, bowsTask, bowsExpectedResult);                                   //6
+                    System.out.println("needsCheckDoc: " + needsCheckDoc);
+                }
+
+                boolean docFounded = false;
+
+                if (needsCheckDoc) {                                                                                        //5.6.0
+                    System.out.println("doc code: '" + documentCode
+                            + "'|baseline: '" + documentBaseline
+                            + "'|stage: '" + documentStage
+                            + "'|level: '" + documentStageLevel
+                            + "'|type: '" + resultType + "'");
+
+                    if (UIUtil.isNotNullAndNotEmpty(documentCode)) {
+                        System.out.println("find with doc code");
+                        docFounded = findDocumentByCode(ctx, bowsTask, bowsExpectedResult);                                 //8
+                    }
+                    if (UIUtil.isNullOrEmpty(documentCode)) {
+                        System.out.println("find out of doc code");
+                        docFounded = findDocumentEmptyCode(ctx, bowsTask, bowsExpectedResult);                              //9
+                    }
+                }
+
+                System.out.println("Searching result: " + (docFounded ? "Found" : "Not found"));
+
+                try {
+                    bowsTask.close(ctx);
+                    bowsExpectedResult.close(ctx);
+                } catch (MatrixException e) {
+                    System.out.println("error close bo: " + e.getMessage());
+                    e.printStackTrace();
                 }
             }
-
-            //drop any attribute values of the additional information task to the empty string
-            setValueByAttribute(ctx, bowsTask, IMS_QP_Constants_mxJPO.IMS_QP_ADDITIONAL_INFO, "");
-
-            if (counter != 1) {
-                setValueByAttribute(ctx,
-                        bowsTask, IMS_QP_Constants_mxJPO.IMS_QP_ADDITIONAL_INFO, "4.1 Task has error");
-                continue;
-            }
-
-            BusinessObjectWithSelect bowsExpectedResult = null;
-            try {
-                bowsExpectedResult = new BusinessObject(expectedResultId).select(ctx, getExpectedResultSelects());
-                bowsExpectedResult.open(ctx);
-            } catch (Exception e) {
-                System.out.println("error getting business object: " + expectedResultId);
-                e.printStackTrace();
-            }
-
-            boolean checkType = false;
-            if (bowsExpectedResult != null) {
-                checkType = checkResultType(ctx, bowsTask, bowsExpectedResult);                                         //5
-            }
-
-            boolean needsCheckDoc = false;
-            if (checkType) {
-                initializeCommonParameters(bowsTask, bowsExpectedResult);
-                needsCheckDoc = searchPreparation(ctx, bowsTask, bowsExpectedResult);                                   //6
-            }
-
-            boolean docFounded = false;
-            if (needsCheckDoc) {
-                if (UIUtil.isNotNullAndNotEmpty(documentCode)) {
-                    docFounded = findDocumentByCode(ctx, bowsTask, bowsExpectedResult);                                 //8
-                }
-                if (UIUtil.isNullOrEmpty(documentCode)) {
-                    docFounded = findDocumentEmptyCode(ctx, bowsTask, bowsExpectedResult);                              //9
-                }
-            }
-
-            System.out.println("Searching result: " + (docFounded ? "Found" : "Not found"));
-
-            try {
-                bowsTask.close(ctx);
-                bowsExpectedResult.close(ctx);
-            } catch (MatrixException e) {
-                System.out.println("error close bo: " + e.getMessage());
-                e.printStackTrace();
-            }
+        } catch (Exception e) {
+            System.out.println("any errors: " + e.getMessage());
         }
 
         return result;                                                                                                  //11 end of loop
@@ -295,8 +315,8 @@ public class IMS_QP_ActualPlanSearch_mxJPO {
     private String family;
     private boolean isVTZType;
 
-    private void initializeCommonParameters(BusinessObjectWithSelect bowsTask,
-                                            BusinessObjectWithSelect bowsExpectedResult) {
+    private String initializeCommonParameters(BusinessObjectWithSelect bowsTask,
+                                              BusinessObjectWithSelect bowsExpectedResult) {
 
         documentCode = bowsExpectedResult.getSelectData(IMS_QP_Constants_mxJPO.attribute_IMS_QP_DocumentCode);
         resultType = bowsExpectedResult.getSelectData(IMS_QP_Constants_mxJPO.RESULT_TYPE_TO_EXPECTED_RESULT);
@@ -308,7 +328,7 @@ public class IMS_QP_ActualPlanSearch_mxJPO {
 
         isVTZType = IMS_QP_Constants_mxJPO.VTZ_PLAN_TYPES.equals(resultType);
 
-        System.out.println("code: " + documentCode +
+        return ("code: " + documentCode +
                 " result type: " + resultType +
                 " family: " + family +
                 " CB: " + documentBaseline +
@@ -363,8 +383,9 @@ public class IMS_QP_ActualPlanSearch_mxJPO {
     private boolean searchPreparation(Context ctx,
                                       BusinessObjectWithSelect bowsTask,
                                       BusinessObjectWithSelect bowsExpectedResult) {
+
         if (UIUtil.isNullOrEmpty(documentBaseline)) {
-            setValueByAttribute(ctx, bowsTask, IMS_QP_Constants_mxJPO.IMS_QP_ADDITIONAL_INFO, "6.2.1 Error getting the baseline");
+            setValueByAttribute(ctx, bowsTask, IMS_QP_Constants_mxJPO.IMS_QP_ADDITIONAL_INFO, "6.2.1 The baseline in empty");
             return false;
         }
 
@@ -372,7 +393,7 @@ public class IMS_QP_ActualPlanSearch_mxJPO {
             if (UIUtil.isNullOrEmpty(documentStageLevel)) {
                 setValueByAttribute(ctx,
                         bowsTask, IMS_QP_Constants_mxJPO.IMS_QP_ADDITIONAL_INFO,
-                        "6.2.1 Document is BD stage but level is 'empty'"
+                        "6.2.1 Document is BD but stage is empty"
                 );
                 return false;
             }
@@ -391,6 +412,7 @@ public class IMS_QP_ActualPlanSearch_mxJPO {
                 e.printStackTrace();
             }
         }
+
         return isCorrectDocCode;                                                                                        //6.2
     }
 
@@ -422,14 +444,16 @@ public class IMS_QP_ActualPlanSearch_mxJPO {
 
         if (!isVTZType) {                                                                                               //8.2.2
             builder.append(getBaselineValue(documentBaseline));
-            builder.append(getStageValue(documentStage, documentStageLevel));
+            if (UIUtil.isNotNullAndNotEmpty(documentStage) && "BD".equals(documentStage)) {
+                builder.append(getStageValue(documentStage, documentStageLevel));
+            }
         }
 
         if (isVTZType) {
             if (!checkBaselineContainer(documentBaseline)) {                                                            //8.2.1
                 setValueByAttribute(ctx,                                                                                //8.2.1.1
                         bowsTask, IMS_QP_Constants_mxJPO.IMS_QP_ADDITIONAL_INFO,
-                        "8.2.1.1 Wrong baseline for VTZ: " + documentBaseline);
+                        "8.2.1.1 No search algorithm defined for baseline for VTZ");
                 return false;
             }
 
@@ -438,7 +462,7 @@ public class IMS_QP_ActualPlanSearch_mxJPO {
                     if (UIUtil.isNullOrEmpty(documentStageLevel)) {
                         setValueByAttribute(ctx,                                                                        //8.2.1.2.1
                                 bowsTask, IMS_QP_Constants_mxJPO.IMS_QP_ADDITIONAL_INFO,
-                                "8.2.1.2.1 Document is BD stage but level is 'empty'"
+                                "8.2.1.2.1 Document is CB1 but stage is empty"
                         );
                         return false;
                     }
@@ -474,7 +498,9 @@ public class IMS_QP_ActualPlanSearch_mxJPO {
         if (!isVTZType) {                                                                                               //9.1.1
             builder.append(String.format("name smatch 'FH1*.%s.*'", family));
             builder.append(getBaselineValue(documentBaseline));
-            builder.append(getStageValue(documentStage, documentStageLevel));
+            if (UIUtil.isNotNullAndNotEmpty(documentStage) && "BD".equals(documentStage)) {
+                builder.append(getStageValue(documentStage, documentStageLevel));
+            }
             builder.append(checkRelationshipToObject(documentPBSType, documentPBS));
         }
 
@@ -505,7 +531,7 @@ public class IMS_QP_ActualPlanSearch_mxJPO {
             } else {
                 setValueByAttribute(ctx,
                         bowsTask, IMS_QP_Constants_mxJPO.IMS_QP_ADDITIONAL_INFO,
-                        "9.1.2.5.1 Wrong baseline for VTZ: '" + documentBaseline + "'"
+                        "9.1.2.5.1 No search algorithm defined for baseline for VTZ"
                 );
                 return false;
             }
@@ -515,7 +541,7 @@ public class IMS_QP_ActualPlanSearch_mxJPO {
                     if (UIUtil.isNullOrEmpty(documentStageLevel)) {
                         setValueByAttribute(ctx,                                                                        //9.1.2.5.3.1
                                 bowsTask, IMS_QP_Constants_mxJPO.IMS_QP_ADDITIONAL_INFO,
-                                "9.1.2.5.3.1 Document is BD but level is 'empty'"
+                                "9.1.2.5.3.1 Document is CB1 but stage level is empty"
                         );
                         return false;
                     }
@@ -599,8 +625,15 @@ public class IMS_QP_ActualPlanSearch_mxJPO {
     }
 
     private String getITAStageValue(String stageLevel) {
-        String attributeITAStage = "&&attribute[IMS_ITA_Stage]=='%s'";
-        String stageQuery = String.format(attributeITAStage, "2".equals(stageLevel) ? "Finalized DA" : "Preliminary DA");
+        String attributeITAStage = "&&attribute[IMS_ITA_Stage]~~'%s'";
+
+        //"Preliminary DA"
+        String preliminaryStage = "{78642A13-B386-4E18-AFD7-2EC8739F2E75}";
+
+        //"Finalized DA"
+        String finalizedStage = "{CD7D4915-BA05-454B-9206-706B1B14D01B}";
+
+        String stageQuery = String.format(attributeITAStage, "2".equals(stageLevel) ? finalizedStage : preliminaryStage);
         return stageQuery;
     }
 
@@ -636,8 +669,14 @@ public class IMS_QP_ActualPlanSearch_mxJPO {
 
             if (tempMap.containsKey(name)) {
                 Map map2 = tempMap.get(name);
-                String sR1 = ((String) map1.get(IMS_QP_Constants_mxJPO.ATTRIBUTE_IMS_SPFMajorRevision)).replaceAll("[^0-9]", "");
-                String sR2 = ((String) map2.get(IMS_QP_Constants_mxJPO.ATTRIBUTE_IMS_SPFMajorRevision)).replaceAll("[^0-9]", "");
+                String sR1 = UIUtil.isNotNullAndNotEmpty(
+                        (String) map1.get(IMS_QP_Constants_mxJPO.ATTRIBUTE_IMS_SPFMajorRevision)) ?
+                        ((String) map1.get(IMS_QP_Constants_mxJPO.ATTRIBUTE_IMS_SPFMajorRevision))
+                                .replaceAll("[^0-9]", "") : "0";
+                String sR2 = UIUtil.isNotNullAndNotEmpty(
+                        (String) map2.get(IMS_QP_Constants_mxJPO.ATTRIBUTE_IMS_SPFMajorRevision)) ?
+                        ((String) map2.get(IMS_QP_Constants_mxJPO.ATTRIBUTE_IMS_SPFMajorRevision))
+                                .replaceAll("[^0-9]", "") : "0";
                 int r1 = Integer.parseInt(sR1);
                 int r2 = Integer.parseInt(sR2);
                 if (r1 > r2) {
@@ -646,8 +685,14 @@ public class IMS_QP_ActualPlanSearch_mxJPO {
                 }
 
                 if (r1 == r2) {
-                    String sV1 = ((String) map1.get(IMS_QP_Constants_mxJPO.ATTIBUTE_IMS_SPFDocVersion)).replaceAll("[^0-9]", "");
-                    String sV2 = ((String) map2.get(IMS_QP_Constants_mxJPO.ATTIBUTE_IMS_SPFDocVersion)).replaceAll("[^0-9]", "");
+                    String sV1 = UIUtil.isNotNullAndNotEmpty(
+                            (String) map1.get(IMS_QP_Constants_mxJPO.ATTIBUTE_IMS_SPFDocVersion)) ?
+                            ((String) map1.get(IMS_QP_Constants_mxJPO.ATTIBUTE_IMS_SPFDocVersion))
+                                    .replaceAll("[^0-9]", "") : "0";
+                    String sV2 = UIUtil.isNotNullAndNotEmpty(
+                            (String) map2.get(IMS_QP_Constants_mxJPO.ATTIBUTE_IMS_SPFDocVersion)) ?
+                            ((String) map2.get(IMS_QP_Constants_mxJPO.ATTIBUTE_IMS_SPFDocVersion))
+                                    .replaceAll("[^0-9]", "") : "0";
                     int v1 = Integer.parseInt(sV1);
                     int v2 = Integer.parseInt(sV2);
                     if (v1 > v2) {
@@ -729,6 +774,7 @@ public class IMS_QP_ActualPlanSearch_mxJPO {
         HttpURLConnection connection = null;
         MapList contentMapList = new MapList();
         String taskName = bowsTask.getSelectData(DomainConstants.SELECT_NAME);
+        System.out.println("document service -> task name -> " + taskName);
 
         DomainObject objectTask = new DomainObject(bowsTask);
 
@@ -739,10 +785,11 @@ public class IMS_QP_ActualPlanSearch_mxJPO {
             connection = (HttpURLConnection) getConnection(authorizationParameters);
 
         } catch (Exception e) {
-            System.out.println("io error: " + e.getMessage());
+            System.out.println("IO error: " + e.getMessage());
             e.printStackTrace();
         }
         try {
+            System.out.println("find external objects -> " + where);
             content = findExternalObjects(connection, where);
         } catch (IOException ioe) {
             System.out.println("IO error: " + ioe.getMessage());
@@ -761,10 +808,13 @@ public class IMS_QP_ActualPlanSearch_mxJPO {
         boolean docFounded;
         if (contentMapList.size() > 0) {
             docFounded = true;
+            System.out.println("doc founded -> " + docFounded);
 
             //filtering by language type                                                                                //10.2.1.1
             filteredMapList.addAll(getLanguageList(contentMapList));
+            System.out.println("filteredMapList: " + filteredMapList);
             filteredMapList = sortMapListByRevisionAndVersion(filteredMapList);
+            System.out.println("filtered map list");
 
             if (filteredMapList.size() > 1) {                                                                           //10.2.1.2.1
                 String selectResult = fillSelect(filteredMapList, bowsTask.getSelectData(DomainConstants.SELECT_ID));
@@ -772,6 +822,7 @@ public class IMS_QP_ActualPlanSearch_mxJPO {
                 try {
                     if ("FALSE".equals(objectTask.getInfo(ctx, IMS_QP_Constants_mxJPO.FROM_IMS_QP_QPTASK_2_FACT))) {
                         bowsTask.setAttributeValue(ctx, "IMS_QP_SelectDocument", selectResult);
+                        System.out.println("attribute setted: " + selectResult);
                     }
                 } catch (FrameworkException fe) {
                     System.out.println("error setting attribute IMS_QP_SelectDocument for " + taskName);
@@ -801,6 +852,7 @@ public class IMS_QP_ActualPlanSearch_mxJPO {
                     if (UIUtil.isNotNullAndNotEmpty(existedConnectionToExternalDocumentRevision)) {
                         //check equals document revisions
                         equalDocument = existedConnectionToExternalDocumentRevision.equals(map.get(DomainConstants.SELECT_REVISION));
+                        System.out.println("equalDocument: " + equalDocument);
 
                         //delete connection if existed same
                         if (!equalDocument) {
@@ -920,7 +972,7 @@ public class IMS_QP_ActualPlanSearch_mxJPO {
 
         try {
             Map argsMap = JPO.unpackArgs(args);
-            LOG.info("argsMap junctionAction: " + argsMap);
+            System.out.println("argsMap junctionAction: " + argsMap);
             DomainObject objectTask = new DomainObject((String) argsMap.get("objectId"));
 
             MapList contentMapList = null;
@@ -940,7 +992,7 @@ public class IMS_QP_ActualPlanSearch_mxJPO {
             if (UIUtil.isNotNullAndNotEmpty(content)) {
                 contentMapList = jsonArrayToMapList(new JSONArray(content));
             }
-            LOG.info("contentMapList: " + contentMapList);
+            System.out.println("contentMapList: " + contentMapList);
 
             try {
                 ContextUtil.startTransaction(ctx, true);
@@ -1009,9 +1061,6 @@ public class IMS_QP_ActualPlanSearch_mxJPO {
 
         String url = (String) map.get(IMS_QP_Constants_mxJPO.ATTRIBUTE_IMS_EXTERNAL_SYSTEM_URL);
         url = url.replace("https", "http");
-
-        //TODO delete next replace
-        url = url.replace("97", "106");
 
         //        Create a URL object
         URL searchUrl = new URL(url + "/remote/businessobject/search");
@@ -1187,12 +1236,15 @@ public class IMS_QP_ActualPlanSearch_mxJPO {
                 revision = (String) map.get(DomainConstants.SELECT_REVISION);
 
         try {
+            ContextUtil.pushContext(ctx);
+            System.out.println("name: " + name);
             BusinessObject boDocument = new BusinessObject(TYPE_IMS_ExternalDocumentSet, name, revision,
                     ctx.getVault().getName());
-
+            System.out.println("boDocument");
             object = new DomainObject(boDocument);
-
+            System.out.println("object");
             if (!object.exists(ctx)) {
+                System.out.println("exist");
                 object.create(ctx, POLICY_IMS_ExternalObject);
                 object.addBusinessInterface(ctx, new BusinessInterface(INTERFACE_IMS_ExternalObject, ctx.getVault()));
             }
@@ -1202,37 +1254,54 @@ public class IMS_QP_ActualPlanSearch_mxJPO {
         }
 
         try {
+            System.out.println("map: " + map);
+
+            System.out.println("description");
             object.setDescription(ctx, (String) map.get(DomainConstants.SELECT_DESCRIPTION));
 
+            System.out.println(ATTRIBUTE_IMS_ExternalObjectId);
             object.setAttributeValue(ctx, ATTRIBUTE_IMS_ExternalObjectId, (String) map.get(DomainConstants.SELECT_ID));
 
+            System.out.println(ATTRIBUTE_IMS_ExternalObjectType);
             object.setAttributeValue(ctx,
                     ATTRIBUTE_IMS_ExternalObjectType, (String) map.get(DomainConstants.SELECT_TYPE));
+
+            System.out.println(ATTRIBUTE_IMS_ExternalObjectPolicy);
             object.setAttributeValue(ctx,
                     ATTRIBUTE_IMS_ExternalObjectPolicy, (String) map.get(DomainConstants.SELECT_POLICY));
+
+            System.out.println(ATTRIBUTE_IMS_ExternalObjectState);
             object.setAttributeValue(ctx,
                     ATTRIBUTE_IMS_ExternalObjectState, (String) map.get(DomainConstants.SELECT_CURRENT));
 
+            System.out.println("major revision");
             object.setAttributeValue(ctx,
                     ATTRIBUTE_IMS_SPFMajorRevision,
                     (String) map.get(DomainObject.getAttributeSelect(ATTRIBUTE_IMS_SPFMajorRevision)));
+
+            System.out.println("doc version: " + map.get(DomainObject.getAttributeSelect(ATTRIBUTE_IMS_SPFDocVersion)));
             object.setAttributeValue(ctx,
                     ATTRIBUTE_IMS_SPFDocVersion,
                     (String) map.get(DomainObject.getAttributeSelect(ATTRIBUTE_IMS_SPFDocVersion)));
-            object.setAttributeValue(ctx,
-                    ATTRIBUTE_IMS_ProjDocStatus,
-                    (String) map.get(DomainObject.getAttributeSelect(ATTRIBUTE_IMS_ProjDocStatus)));
+
+            System.out.println("projdoc status: " + map.get(DomainObject.getAttributeSelect(ATTRIBUTE_IMS_ProjDocStatus)));
+//            String projDocStatus = (String) map.get(DomainObject.getAttributeSelect(ATTRIBUTE_IMS_ProjDocStatus));
+//            System.out.println("projDocStatus is: " + projDocStatus);
+//            object.setAttributeValue(ctx, ATTRIBUTE_IMS_ProjDocStatus, UIUtil.isNotNullAndNotEmpty(projDocStatus) ? projDocStatus : "-");
+            System.out.println("frozen status " + map.get(DomainObject.getAttributeSelect(ATTRIBUTE_IMS_Frozen)));
             object.setAttributeValue(ctx,
                     ATTRIBUTE_IMS_Frozen,
                     (String) map.get(DomainObject.getAttributeSelect(ATTRIBUTE_IMS_Frozen)));
-
+            System.out.println("bbs: " + map.get(IMS_QP_Constants_mxJPO.TO_IMS_BBS_2_CI_FROM + ".name"));
             object.setAttributeValue(ctx, "IMS_BBSMajor", (String) map.get(IMS_QP_Constants_mxJPO.TO_IMS_BBS_2_CI_FROM + ".name"));
 
             System.out.println("ensure object id: " + object.getAttributeValue(ctx, ATTRIBUTE_IMS_ExternalObjectId));
+
+            ContextUtil.popContext(ctx);
         } catch (FrameworkException fe) {
             System.out.println("setting attributes error: " + fe.getMessage());
         }
-
+        System.out.println("return object");
         return object;
     }
 
