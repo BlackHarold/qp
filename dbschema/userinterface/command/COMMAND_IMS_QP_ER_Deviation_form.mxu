@@ -1,0 +1,18 @@
+################################################################################
+# COMMAND_IMS_QP_ER_Deviation_form.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+mxUpdate command "${NAME}" {
+    symbolicname "command_IMS_QP_ER_Deviation_form"
+    description "Service object"
+    label "Deviation object"
+    href "${COMMON_DIR}/emxForm.jsp?form=type_IMS_QP_ER_Deviation&editLink=true"
+    alt ""
+    ################################################## Info Start
+    property "author" value "The IMS Team"
+    property "original name" value "IMS_QP_ER_Deviation_form"
+    property "application" value "IMS QP"
+    property "version" value "1"
+    ################################################## Info End
+}

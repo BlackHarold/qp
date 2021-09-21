@@ -5,8 +5,15 @@
 ################################################################################
 
 mxUpdate page "${NAME}" {
+    symbolicname "page_emxFrameworkStringResource_en.properties"
     description ""
     mime ""
+    ################################################## Info Start
+    property "author" value "The IMS Team"
+    property "original name" value "emxFrameworkStringResource_en.properties"
+    property "application" value "IMS QP"
+    property "version" value "1"
+    ################################################## Info End
     content "
 # Quality Plan
 emxFramework.Type.IMS_QP=QP
@@ -28,6 +35,13 @@ emxFramework.Type.IMS_QP_DEPProjectStage=ProjectStage
 emxFramework.Type.IMS_QP_Classifier=IMS_QP_Classifier
 emxFramework.Type.IMS_QP_Reports=IMS_QP_Reports
 emxFramework.Type.IMS_QP_ReportUnit=IMS_QP_ReportUnit
+emxFramework.Type.IMS_QP_ExpectedResult=IMS_QP_ExpectedResult
+emxFramework.Type.IMS_QP_QPTask=QP Task
+emxFramework.Type.IMS_QP_ER_Deviation=Deviation
+
+emxFramework.State.IMS_QP_QPTask.Inactive=Inactive
+emxFramework.State.IMS_QP_QPTask.Active=Active
+emxFramework.State.IMS_QP_ExpectedResult.Exist=Exist
 
 emxFramework.State.IMS_PBSSystem.Exist=Exist
 emxFramework.State.IMS_GBSBuilding.Exist=Exist
@@ -45,6 +59,7 @@ emxFramework.State.IMS_QP_DEPTask.Active=Active
 emxFramework.State.IMS_QP_DEPTask.Inactive=Inactive
 emxFramework.State.IMS_QP_DEPProjectStage.Created=Created
 emxFramework.State.IMS_QP_Directory.Created=Created
+emxFramework.State.IMS_Family.Created=Created
 emxFramework.State.IMS_QP_ResultType.Created=Created
 emxFramework.State.IMS_ProjectStage.Created=Created
 emxFramework.State.IMS_QP_QPlan.Draft=Draft
@@ -52,6 +67,8 @@ emxFramework.State.IMS_QP_QPlan.Done=Done
 emxFramework.State.IMS_QP_Reports.Active=Active
 emxFramework.State.IMS_QP_Reports.Inactive=Inactive
 emxFramework.State.IMS_QP_ReportUnit.Exist=Exist
+emxFramework.State.IMS_QP_ER_Deviation.Draft=Draft
+emxFramework.State.IMS_QP_ER_Deviation.Approved=Approved
 
 emxFramework.Attribute.QP_IMS_Name = Name
 emxFramework.Attribute.QP_IMS_NameRu = Name Ru

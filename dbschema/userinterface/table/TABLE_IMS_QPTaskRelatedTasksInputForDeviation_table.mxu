@@ -1,0 +1,62 @@
+################################################################################
+# TABLE_IMS_QPTaskRelatedTasksInputForDeviation_table.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate table "${NAME}" {
+    symbolicname "table_IMS_QPTaskRelatedTasksInputForDeviation_table"
+    description "Input related tasks for Task portal"
+    column {
+        name "Code"
+        label "emxFramework.Label.QP_Code"
+        businessobject "name"
+        href "${COMMON_DIR}/emxPortal.jsp?portal=IMS_QP_QPTask_Portal"
+        setting "Editable" "false"
+        setting "Registered Suite" "Framework"
+    }
+    column {
+        name "doc"
+        label "Document"
+        setting "Column Type" "programHTMLOutput"
+        setting "Registered Suite" "Framework"
+        setting "Sortable" "false"
+        setting "function" "getDocumentCode"
+        setting "program" "IMS_QP_ER_Deviation"
+    }
+    column {
+        name "deviation"
+        label "Deviation"
+        businessobject "$<from[IMS_QP_QPTask2QPTask].tomid[IMS_QP_Deviation_QPTask2QPTask].from.name>"
+        href "${COMMON_DIR}/emxTree.jsp"
+        setting "Alternate OID expression" "$<from[IMS_QP_QPTask2QPTask].tomid[IMS_QP_Deviation_QPTask2QPTask].from.id>"
+        setting "Alternate Type expression" "$<from[IMS_QP_QPTask2QPTask].tomid[IMS_QP_Deviation_QPTask2QPTask].from.type>"
+        setting "Editable" "false"
+        setting "Registered Suite" "Framework"
+        setting "Show Alternate Icon" "true"
+    }
+    column {
+        name "protocol"
+        label "Protocol"
+        businessobject "$<from[IMS_QP_QPTask2QPTask].tomid[IMS_QP_Deviation_QPTask2QPTask].from.attribute[IMS_QP_Protocol]>"
+        setting "Alternate OID expression" "$<from[IMS_QP_QPTask2QPTask].tomid[IMS_QP_Deviation_QPTask2QPTask].from.id>"
+        setting "Alternate Type expression" "$<from[IMS_QP_QPTask2QPTask].tomid[IMS_QP_Deviation_QPTask2QPTask].from.type>"
+        setting "Editable" "false"
+        setting "Registered Suite" "Framework"
+    }
+    column {
+        name "p_description"
+        label "Protocol description"
+        businessobject "$<from[IMS_QP_QPTask2QPTask].tomid[IMS_QP_Deviation_QPTask2QPTask].from.attribute[IMS_QP_ProtocolDescription]>"
+        setting "Alternate OID expression" "$<from[IMS_QP_QPTask2QPTask].tomid[IMS_QP_Deviation_QPTask2QPTask].from.id>"
+        setting "Alternate Type expression" "$<from[IMS_QP_QPTask2QPTask].tomid[IMS_QP_Deviation_QPTask2QPTask].from.type>"
+        setting "Editable" "false"
+        setting "Registered Suite" "Framework"
+    }
+    ################################################## Info Start
+    property "author" value "The IMS Team"
+    property "original name" value "IMS_QPTaskRelatedTasksInputForDeviation_table"
+    property "application" value "IMS_QP"
+    property "version" value "1"
+    ################################################## Info End
+}

@@ -16,6 +16,7 @@ mxUpdate channel "${NAME}" {
     command "IMS_QP_SQP_Table"
     command "IMS_QP_Classifier_table"
     command "IMS_QP_DEP_KKS_Table"
+    command "IMS_QP_Workbench_table"
     ################################################## Info Start
     property "author" value "IMS Team"
     property "original name" value "IMS_QP_Channel"

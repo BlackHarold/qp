@@ -31,7 +31,9 @@ public class IMS_QP_DEPTask_mxJPO {
     public static final String RELATIONSHIP_IMS_DEPResult2QPResult = "IMS_DEPResult2QPResult";
     public static final String ATTRIBUTE_IMS_QP_FACT_EXP = "IMS_QP_FactExp";
     public static final String SELECT_ATTRIBUTE_IMS_QP_FACT_EXP = "attribute[IMS_QP_FactExp]";
-    public static final String SELECT_ATTRIBUTE_IMS_QP_CloseStatus = "attribute[IMS_QP_CloseStatus]";
+    protected static final String ATTRIBUTE_IMS_QP_CLOSE_STATUS = "IMS_QP_CloseStatus";
+    protected static final String SELECT_ATTRIBUTE_IMS_QP_CLOSE_STATUS = "attribute[" + ATTRIBUTE_IMS_QP_CLOSE_STATUS + "]";
+    public static final String SELECT_ATTRIBUTE_IMS_QP_CloseStatus = SELECT_ATTRIBUTE_IMS_QP_CLOSE_STATUS;
     public static final String SELECT_ATTRIBUTE_IMS_QP_FACT_GOT = "attribute[IMS_QP_FactGot]";
     public static final String ATTRIBUTE_IMS_QP_FACT_GOT = "IMS_QP_FactGot";
     public static final String RELATIONSHIP_IMS_QP_QPTask2QPTask = "IMS_QP_QPTask2QPTask";
@@ -48,6 +50,10 @@ public class IMS_QP_DEPTask_mxJPO {
     public static final String TYPE_IMS_QP_QPTASK = "IMS_QP_QPTask";
     public static final String RELATIONSHIP_IMS_DEPTask2QPTask = "IMS_QP_DEPTask2QPTask";
     public static final String RELATIONSHIP_IMS_QP_EXPECTED_RESULT_2_QP_TASK = "IMS_QP_ExpectedResult2QPTask";
+
+    protected static final String VALUE_APPROVED = "Approved";
+    protected static final String VALUE_NO = "No";
+    protected static final String ATTRIBUTE_IMS_SORT_ORDER = "IMS_SortOrder";
 
     private static final Logger LOG = Logger.getLogger("IMS_QP_DEP");
 
@@ -80,7 +86,7 @@ public class IMS_QP_DEPTask_mxJPO {
             DomainObject parent = new DomainObject(parentOID);
             MapList depTask = getRelatedMapList(context, parent, RELATIONSHIP_IMS_QP_DEP_SUB_STAGE_2_DEP_TASK, TYPE_IMS_QP_DEP_TASK, true, true, (short) 1, "", null, 0);
 
-            getNextName(context, objectId, parent, depTask, "", 1, 1);
+            getNextName(context, objectId, parent, depTask, "", 1, 0);
 
         } catch (Exception ex) {
             returnMap.put("Message", ex.toString());
@@ -89,28 +95,75 @@ public class IMS_QP_DEPTask_mxJPO {
         return returnMap;
     }
 
-    private DomainObject getNextName(Context context, String objectId, DomainObject parent, MapList mapList, String family, int i, int element) throws Exception {
-        DomainObject newObject = new DomainObject(objectId);
-        String number = "01";
-        int numberInt = 1;
+    public static DomainObject getNextName(Context context, String objectId, DomainObject parent, MapList mapList, String family, int i, int element) {
+        String vault = context.getVault().getName();
+
         mapList.addSortKey("attribute[IMS_SortOrder]", "descending", "integer");
         mapList.sort();
-        if (mapList.size() > i) {
-            String name = (String) ((Map) mapList.get(element)).get(DomainConstants.SELECT_NAME);
-            numberInt = Integer.parseInt(name.substring(name.lastIndexOf("-") + 1)) + 1;
-            number = (numberInt < 10) ? "0" + numberInt : Integer.toString(numberInt);
-        }
+        int numberInt = mapList.size() + 1;
 
         /*mask name: [Task name]_[Type level 2]_[Count]*/
         String familyPostfix = "";
-        if (!family.equals("")) {
-            String familyName = new DomainObject(family.substring(0, family.lastIndexOf("_"))).getName(context);
+        if ("DEVIATION".equals(family)) {
+            familyPostfix = "_DEVIATION";
+        } else if (!family.equals("")) {
+            String familyName = "empty";
+            if (family.contains("_")) {
+                try {
+                    LOG.info("family: " + family);
+                    familyName = new DomainObject(family.substring(0, family.lastIndexOf("_"))).getName(context);
+                } catch (Exception e) {
+                    LOG.error("checking family name error: " + e.getMessage());
+                    e.printStackTrace();
+                }
+            }
             familyPostfix = "_" + familyName;
-
         }
-        LOG.info("set name: " + parent.getInfo(context, DomainObject.SELECT_NAME) + familyPostfix + "-" + number);
-        newObject.setName(context, parent.getInfo(context, DomainObject.SELECT_NAME) + familyPostfix + "-" + number);
-        newObject.setAttributeValue(context, "IMS_SortOrder", String.valueOf(numberInt));
+
+        String needZero = (numberInt < 10) ? "0" : "";
+        String newName = null;
+        try {
+            newName = parent.getInfo(context, DomainObject.SELECT_NAME) + familyPostfix + "-" + needZero;
+        } catch (FrameworkException e) {
+            LOG.error("getting parent name error: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        //check name existing
+        BusinessObject boCandidate = null;
+        int number = numberInt;
+        String nameCandidate = "";
+        try {
+            do {
+                nameCandidate = newName + number;
+                boCandidate = new BusinessObject(IMS_QP_Constants_mxJPO.type_IMS_QP_ExpectedResult, nameCandidate, "", vault);
+                number++;
+            } while (boCandidate.exists(context));
+        } catch (MatrixException e) {
+            LOG.error("check existing name error: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        //create new object process
+        DomainObject newObject = null;
+        try {
+            if (boCandidate != null) {
+                newObject = new DomainObject(boCandidate);
+                if (UIUtil.isNotNullAndNotEmpty(nameCandidate)) {
+                    newObject.setId(objectId);
+                    newObject.setName(context, nameCandidate);
+                    newObject.setAttributeValue(context, ATTRIBUTE_IMS_SORT_ORDER, String.valueOf(numberInt));
+                }
+            }
+
+        } catch (FrameworkException e) {
+            LOG.error("setting parameters for new object got error: " + e.getMessage());
+            e.printStackTrace();
+        } catch (MatrixException e) {
+            LOG.error("trying to opening business object error: " + e.getMessage());
+            e.printStackTrace();
+        }
+
         return newObject;
     }
 
@@ -150,15 +203,16 @@ public class IMS_QP_DEPTask_mxJPO {
     }
 
 
-    public MapList getRelatedExpectedResult(Context context, String[] args) throws Exception {
+    public MapList getRelatedExpectedResult(Context context, String[] args) {
+        MapList expectedResults = new MapList();
 
         try {
             Map programMap = JPO.unpackArgs(args);
-            String sOID = (String) programMap.get("objectId");
-            DomainObject task = DomainObject.newInstance(context, sOID);
+            String objectId = (String) programMap.get("objectId");
+            DomainObject task = new DomainObject(objectId);
 
             //output expected result
-            MapList expectedResults = getRelatedMapList(context,
+            expectedResults = getRelatedMapList(context,
                     task, RELATIONSHIP_IMS_QP_EXPECTED_RESULT_2_DEP_TASK + "," + RELATIONSHIP_IMS_QP_EXPECTED_RESULT_2_QP_TASK,
                     "*", true, true, (short) 1, "", "", 0);
 
@@ -167,20 +221,46 @@ public class IMS_QP_DEPTask_mxJPO {
             MapList inputQPTasks = getRelatedMapList(context,
                     task, RELATIONSHIP_IMS_QP_QPTask2QPTask, "*", true, false, (short) 1, "", whereBuilder.toString(), 0);
 
+            MapList rawList = new MapList();
+            MapList expectedResultQP = new MapList();
             for (Object o : inputQPTasks) {
                 Map map = (Map) o;
                 String sID = (String) map.get(DomainObject.SELECT_ID);
-                MapList expectedResultQP = getRelatedMapList(context,
+                expectedResultQP.addAll(getRelatedMapList(context,
                         new DomainObject(sID), RELATIONSHIP_IMS_QP_EXPECTED_RESULT_2_QP_TASK,
-                        "*", true, true, (short) 1, "", "", 0);
-                expectedResults.addAll(expectedResultQP);
+                        "*", true, true, (short) 1, "", "", 0));
             }
-            return expectedResults;
+
+            for (Object o1 : expectedResultQP) {
+                Map map1 = (Map) o1;
+                boolean flag = false;
+                for (Object o2 : expectedResults) {
+                    Map map2 = (Map) o2;
+                    String id1 = (String) map1.get(DomainConstants.SELECT_ID);
+                    String name1 = (String) map1.get(DomainConstants.SELECT_NAME);
+                    String id2 = (String) map2.get(DomainConstants.SELECT_ID);
+                    String name2 = (String) map2.get(DomainConstants.SELECT_NAME);
+                    LOG.info(id1 + ":" + name1 + " == " + id2 + ":" + name2);
+                    if (id1.equals(id2)) {
+                        flag = true;
+                        continue;
+                    }
+                }
+                if (!flag) {
+                    rawList.add(map1);
+                }
+            }
+
+            //return map without doubles
+            expectedResults.addAll(rawList);
+            LOG.info("related expected result without doubles: " + expectedResults);
 
         } catch (Exception ex) {
-            LOG.error(ex.getMessage());
-            throw ex;
+            LOG.error("error getting related results: " + ex.getMessage());
+            ex.printStackTrace();
         }
+
+        return expectedResults;
     }
 
     public Object getFromTo(Context context, String[] args) throws Exception {
@@ -345,11 +425,7 @@ public class IMS_QP_DEPTask_mxJPO {
             if (UIUtil.isNotNullAndNotEmpty(depTaskOID)) {
                 DomainObject depTask = new DomainObject(depTaskOID);
                 DomainRelationship.connect(context, new DomainObject(depTaskOID), RELATIONSHIP_IMS_DEPTask2QPTask, new DomainObject(objectId));
-                addFactExpTree(context, depTask, 1);
             }
-
-            qpTask.setAttributeValue(context, ATTRIBUTE_IMS_QP_FACT_EXP, "1");
-            setFactExp(context, parent, 1);
 
             MapList depTask = getRelatedMapList(context, parent, RELATIONSHIP_IMS_QPlan2QPTask, TYPE_IMS_QP_QPTASK, true, true, (short) 1, "", "", 0);
             getNextName(context, objectId, parent, depTask, "", 1, 1);
@@ -374,7 +450,8 @@ public class IMS_QP_DEPTask_mxJPO {
         StringList QAGrelSelects = new StringList();  // Rel
         QAGrelSelects.add(DomainConstants.SELECT_RELATIONSHIP_ID);
 
-        return object.getRelatedObjects(context, relationship, type, QAGbusSelects, QAGrelSelects, from, to, level, expressionObject, expressionRelationship, i);
+        MapList result = object.getRelatedObjects(context, relationship, type, QAGbusSelects, QAGrelSelects, from, to, level, expressionObject, expressionRelationship, i);
+        return result;
     }
 
     public MapList getFindObject(Context context, String type, String name, String revision, String expression) throws Exception {
@@ -383,31 +460,52 @@ public class IMS_QP_DEPTask_mxJPO {
         objectSelects.add(DomainConstants.SELECT_NAME);
         MapList resultType = DomainObject.findObjects(context, type, name,
                 revision, "*", "*", expression, true, objectSelects);
+        resultType.addSortKey("name", "ascending", "string");
+        resultType.sort();
         return resultType;
     }
 
-    public StringList includeSearch(Context context, String[] args) throws FrameworkException {
+    public MapList includeSearch(Context context, String[] args) {
+        Map programMap = null;
         try {
-            Map programMap = JPO.unpackArgs(args);
-            String objectId = (String) programMap.get("objectId");
-
-            StringList stringList = new StringList();
-
-            String objectWhere = new DomainObject(objectId).getInfo(context, "to[IMS_QP_DEPTask2QPTask].from.id");
-            if (objectWhere != null && !objectWhere.equals("")) {
-
-                MapList mapList = getRelatedMapList(context, new DomainObject(objectWhere), RELATIONSHIP_IMS_QP_EXPECTED_RESULT_2_DEP_TASK, TYPE_IMS_QP_EXPECTED_RESULT,
-                        /*direction input only*/true, false, (short) 1, "", "", 0);
-                for (Object resultTypeObject : mapList) {
-                    Map objTemp = (Map) resultTypeObject;
-                    stringList.add((String) objTemp.get(DomainObject.SELECT_ID));
-                }
-            }
-            return stringList;
-
-        } catch (Exception ex) {
-            throw new FrameworkException(ex);
+            programMap = JPO.unpackArgs(args);
+        } catch (Exception e) {
+            LOG.error("error unpacking arguments: " + e.getMessage());
+            e.printStackTrace();
         }
+        String objectId = (String) programMap.get("objectId");
+
+        String depId = null;
+        try {
+            depId = new DomainObject(objectId).getInfo(context, "to[IMS_QP_DEPTask2QPTask].from.id");
+        } catch (Exception e) {
+            LOG.error("error gitting dep id: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        MapList relatedObjectList = new MapList();
+        if (UIUtil.isNotNullAndNotEmpty(depId)) {
+
+            try {
+                relatedObjectList = new DomainObject(depId).getRelatedObjects(context,
+                        /*relationship*/RELATIONSHIP_IMS_QP_EXPECTED_RESULT_2_DEP_TASK,
+                        /*type*/TYPE_IMS_QP_EXPECTED_RESULT,
+                        /*object attributes*/ new StringList(DomainConstants.SELECT_ID),
+                        /*relationship selects*/ null,
+                        /*getTo*/ true, /*getFrom*/ false,
+                        /*recurse to level*/ (short) 1,
+                        /*object where*/ "attribute[IMS_QP_ProjectStage]!=''&&attribute[IMS_QP_Baseline]!=''",
+                        /*relationship where*/ null,
+                        /*limit*/ 0);
+                LOG.info(new DomainObject(objectId).getName(context) + "related with dep: " + new DomainObject(depId).getName(context) + " who's related count " + relatedObjectList.size() + " : " + relatedObjectList);
+
+            } catch (Exception e) {
+                LOG.error("error getting list of related tasks from dep: " + e.getMessage());
+                e.printStackTrace();
+            }
+        }
+
+        return relatedObjectList;
     }
 
     public String dynamicFormTask(final Context context, final String[] args) {
@@ -452,9 +550,105 @@ public class IMS_QP_DEPTask_mxJPO {
 
     }
 
-    public Map createExpectedResultQP(Context context, String[] args) {
+    /**
+     * @param context usual parameter
+     * @param object1 DomainObject copied from
+     * @param object2 DomainObject copied to
+     * @throws MatrixException throwable Matrix database exception throwable
+     */
+    private void copyAttributes(Context context, DomainObject object1, DomainObject object2) throws MatrixException {
+        object1.open(context);
+        object2.open(context);
 
+        BusinessObjectAttributes businessObjectAttributes = object1.getAttributes(context);
+        AttributeList attributes = businessObjectAttributes.getAttributes();
+        object2.setAttributes(context, attributes);
+        object2.update(context);
+
+        object1.close(context);
+        object2.close(context);
+    }
+
+    @Deprecated
+    public Map createExpectedResult(Context ctx, String[] args) {
+        Map errorMessageMap = new HashMap();
+
+        Map programMap = null;
+        try {
+            programMap = JPO.unpackArgs(args);
+        } catch (Exception e) {
+            LOG.error("error getting arguments: " + e.getMessage());
+        }
+
+        Map paramMap = (Map) programMap.get("paramMap");
+        Map requestMap = (Map) programMap.get("requestMap");
+
+        String deviation = (String) requestMap.get("deviation");
+        String family = (String) requestMap.get("family");
+
+        String parentOID = "";
+        if (requestMap != null && !requestMap.isEmpty()) {
+            parentOID = (String) requestMap.get("parentOID");
+        }
+
+        String type = null;
+        try {
+            //IMS_QP_DEPTask or IMS_QP_QPlan
+            type = new DomainObject(parentOID).getType(ctx);
+        } catch (Exception e) {
+            LOG.error("error getting object: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        if ("IMS_QP_DEPTask".equals(type)) {
+            createExpectedResultFromDEPTask(ctx, args);
+        } else if ("IMS_QP_QPlan".equals(type)) {
+            createExpectedResultFromQPTask(ctx, args);
+        }
+
+        return errorMessageMap;
+    }
+
+    @Deprecated
+    public Map createExpectedResultFromQPTask(Context context, String[] args) {
         Map returnMap = new HashMap();
+
+        try {
+
+            Map programMap = JPO.unpackArgs(args);
+            Map requestMap = (Map) programMap.get("requestMap");
+            Map paramMap = (Map) programMap.get("paramMap");
+
+            String objectId = (String) requestMap.get("objectId");
+            String newObjectId = (String) paramMap.get("objectId");
+            String arrow = (String) requestMap.get("fromto");
+            String family = (String) requestMap.get("family");
+            DomainObject qpTask = new DomainObject(objectId);
+            String relationship = RELATIONSHIP_IMS_QP_EXPECTED_RESULT_2_QP_TASK;
+
+            MapList taskList = getRelatedMapList(context,
+                    qpTask, relationship, TYPE_IMS_QP_EXPECTED_RESULT,
+                    true, true, (short) 1, "", null, 0);
+
+            DomainObject newObject = getNextName(context, newObjectId, qpTask, taskList, family, 0, 0);
+
+            if (arrow.equals(FROM)) {
+                DomainRelationship.connect(context, newObject, relationship, qpTask);
+            } else {
+                DomainRelationship.connect(context, qpTask, relationship, newObject);
+            }
+
+        } catch (Exception ex) {
+            returnMap.put("Message", ex.toString());
+            returnMap.put("Action", "STOP");
+        }
+        return returnMap;
+    }
+
+    @Deprecated
+    public Map createExpectedResultFromDEPTask(Context context, String[] args) {
+        Map returnMap = new HashMap();
+        LOG.info("createExpectedResultFromDEPTask");
         try {
 
             Map programMap = JPO.unpackArgs(args);
@@ -490,60 +684,6 @@ public class IMS_QP_DEPTask_mxJPO {
                 copyAttributes(context, depTaskObject, newObject);
             }
             String fromto = (String) requestMap.get("fromto");
-
-            if (fromto.equals(FROM)) {
-                DomainRelationship.connect(context, newObject, relationship, parent);
-            } else {
-                DomainRelationship.connect(context, parent, relationship, newObject);
-            }
-
-        } catch (Exception ex) {
-            returnMap.put("Message", ex.toString());
-            returnMap.put("Action", "STOP");
-        }
-        return returnMap;
-    }
-
-    /**
-     * @param context usual parameter
-     * @param object1 DomainObject copied from
-     * @param object2 DomainObject copied to
-     * @throws MatrixException throwable Matrix database exception throwable
-     */
-    private void copyAttributes(Context context, DomainObject object1, DomainObject object2) throws MatrixException {
-        object1.open(context);
-        object2.open(context);
-
-        BusinessObjectAttributes businessObjectAttributes = object1.getAttributes(context);
-        AttributeList attributes = businessObjectAttributes.getAttributes();
-        LOG.info("task assignments copied attributes: " + attributes);
-        object2.setAttributes(context, attributes);
-        object2.update(context);
-
-        object1.close(context);
-        object2.close(context);
-    }
-
-
-    public Map createExpectedResult(Context context, String[] args) {
-
-        Map returnMap = new HashMap();
-        try {
-            Map programMap = JPO.unpackArgs(args);
-            Map paramMap = (Map) programMap.get("paramMap");
-            Map requestMap = (Map) programMap.get("requestMap");
-            String objectId = (String) paramMap.get("objectId");
-            String parentOID = (String) requestMap.get("parentOID");
-            String fromto = (String) requestMap.get("fromto");
-            String family = (String) requestMap.get("family");
-            DomainObject parent = new DomainObject(parentOID);
-            String relationship = RELATIONSHIP_IMS_QP_EXPECTED_RESULT_2_DEP_TASK;
-
-            MapList depTask = getRelatedMapList(context,
-                    parent, relationship, TYPE_IMS_QP_EXPECTED_RESULT,
-                    true, true, (short) 1, "", null, 0);
-
-            DomainObject newObject = getNextName(context, objectId, parent, depTask, family, 0, 0);
 
             if (fromto.equals(FROM)) {
                 DomainRelationship.connect(context, newObject, relationship, parent);
@@ -820,7 +960,7 @@ public class IMS_QP_DEPTask_mxJPO {
             String taskId = args[0];
             DomainObject task = new DomainObject(taskId);
             if (task.getInfo(context, SELECT_ATTRIBUTE_IMS_QP_CloseStatus).equals("Full")) {
-                task.setAttributeValue(context, "IMS_QP_CloseStatus", "No");
+                task.setAttributeValue(context, ATTRIBUTE_IMS_QP_CLOSE_STATUS, VALUE_NO);
                 setAttributeClosedTaskTreeNo(context, task);
 
             }
@@ -841,8 +981,11 @@ public class IMS_QP_DEPTask_mxJPO {
             DomainObject fact = new DomainObject(factId);
             if (fact.getInfo(context, DomainObject.SELECT_TYPE).equals("IMS_ExternalDocumentSet")) {
                 if (fact.getInfo(context, "attribute[IMS_ProjDocStatus]").equals("Finalized")) {
-                    DomainObject task = new DomainObject(taskId);
-                    setAttributeClosedTask(context, task);
+                    setAttributeClosedTask(context, new DomainObject(taskId));
+                }
+            } else {
+                if (fact.getInfo(context, "current").equals("Approved")) {
+                    setAttributeClosedTask(context, new DomainObject(taskId));
                 }
             }
         } catch (Exception ex) {
@@ -1074,7 +1217,8 @@ public class IMS_QP_DEPTask_mxJPO {
             }
 
         } catch (Exception ex) {
-            throw new FrameworkException(ex);
+            LOG.error("setTreeFactExp: " + ex.getMessage());
+            ex.printStackTrace();
         }
     }
 
@@ -1094,19 +1238,11 @@ public class IMS_QP_DEPTask_mxJPO {
 
         if (externalDocumentSetMap != null) {
 
-            sb.append(IMS_KDD_mxJPO.getDisconnectLinkHTML(
-                    "IMS_QP_DEPTask", "disconnectCheckList",
-                    qpTaskObject.getId(context), IMS_KDD_mxJPO.getIdFromMap(externalDocumentSetMap),
-                    RELATIONSHIP_IMS_QP_QPTask2Fact,
-                    "Disconnect",
-                    IMS_KDD_mxJPO.getRefreshWindowFunction()));
-
             sb.append(String.format(
-                    "<a href=\"javascript:%s\"><img src=\"%s\" />%s</a>",
+                    "<a href=\"javascript:%s\">%s</a>",
                     String.format(
                             "emxTableColumnLinkClick('../common/emxForm.jsp?form=type_IMS_QP_CheckList&toolbar=IMS_QP_CheckListToolbar&HelpMarker=emxhelpdocumentproperties&formHeader=emxComponents.Common.PropertiesPageHeading&subHeader=emxComponents.Menu.SubHeaderDocuments&Export=False&&displayCDMFileSummary=true&objectId=%s')",
                             IMS_KDD_mxJPO.getIdFromMap(externalDocumentSetMap)),
-                    IMS_KDD_mxJPO.FUGUE_16x16 + "document.png",
                     HtmlEscapers.htmlEscaper().escape(IMS_KDD_mxJPO.getNameFromMap(externalDocumentSetMap))));
         } else {
             sb.append(String.format(
@@ -1202,20 +1338,23 @@ public class IMS_QP_DEPTask_mxJPO {
             return expectedResult.size() != 0;
 
         } catch (Exception ex) {
-            throw new FrameworkException(ex);
+            LOG.error("accessCheckList: " + ex.getMessage());
+            ex.printStackTrace();
+            return false;
         }
     }
 
-    public boolean accessDocument(Context context, String[] args) throws FrameworkException {
+    public boolean accessDocument(Context ctx, String[] args) throws FrameworkException {
 
         try {
             Map programMap = JPO.unpackArgs(args);
             String objectId = (String) programMap.get("objectId");
             DomainObject object = new DomainObject(objectId);
-            MapList expectedResult = getRelatedMapList(context,
+            MapList expectedResult = getRelatedMapList(ctx,
                     object, RELATIONSHIP_IMS_QP_EXPECTED_RESULT_2_QP_TASK,
                     "*", false, true, (short) 1, "to[" + RELATIONSHIP_IMS_QP_RESULT_TYPE_2_EXPECTED_RESULT + "].from.name!='CL-1'", "", 0);
-            return expectedResult.size() != 0;
+            String hasAttributes = object.getAttributeValue(ctx, "IMS_QP_ProjectStage") + object.getAttributeValue(ctx, "IMS_QP_Baseline");
+            return expectedResult.size() != 0 || UIUtil.isNotNullAndNotEmpty(hasAttributes);
 
         } catch (Exception ex) {
             LOG.error("acessDocument error: " + ex.getMessage());
@@ -1225,28 +1364,28 @@ public class IMS_QP_DEPTask_mxJPO {
     }
 
     public void setAttributeClosedTask(Context context, DomainObject qpTask) throws Exception {
-
         try {
             String full = "Full";
-            MapList outputQPTask = getRelatedMapList(context,
-                    qpTask, RELATIONSHIP_IMS_QP_QPTask2QPTask,
-                    "*", true, false, (short) 1, "", "", 0);
+            if (isFactFull(context, qpTask)) {
+                MapList outputQPTask = getRelatedMapList(context,
+                        qpTask, RELATIONSHIP_IMS_QP_QPTask2QPTask,
+                        "*", true, false, (short) 1, "", "attribute[IMS_QP_DEPTaskStatus]==Approved", 0);
 
-            for (Object objTemp : outputQPTask) {
-                String sID = (String) ((Map) objTemp).get(DomainObject.SELECT_ID);
-                DomainObject relTask = new DomainObject(sID);
-                String closed = relTask.getInfo(context, "attribute[IMS_QP_CloseStatus]");
-                if (!closed.equals("Full")) {
-                    full = "No";
-                    break;
+                for (Object objTemp : outputQPTask) {
+                    String sID = (String) ((Map) objTemp).get(DomainObject.SELECT_ID);
+                    DomainObject relTask = new DomainObject(sID);
+                    String closed = relTask.getInfo(context, SELECT_ATTRIBUTE_IMS_QP_CLOSE_STATUS);
+                    if (!closed.equals("Full")) {
+                        full = VALUE_NO;
+                        break;
+                    }
+                }
+
+                if (full.equals("Full")) {
+                    qpTask.setAttributeValue(context, ATTRIBUTE_IMS_QP_CLOSE_STATUS, "Full");
+                    setAttributeClosedTaskTree(context, qpTask);
                 }
             }
-
-            if (full.equals("Full")) {
-                qpTask.setAttributeValue(context, "IMS_QP_CloseStatus", "Full");
-                setAttributeClosedTaskTree(context, qpTask);
-            }
-
         } catch (Exception ex) {
             LOG.error("setAttributeClosedTask: " + ex.getMessage());
             ex.printStackTrace();
@@ -1254,29 +1393,25 @@ public class IMS_QP_DEPTask_mxJPO {
     }
 
     public void setAttributeClosedTaskTree(Context context, DomainObject qpTask) throws Exception {
-
         try {
-            String full = "Full";
-
-            MapList inputQPTask = getRelatedMapList(context, qpTask, RELATIONSHIP_IMS_QP_QPTask2QPTask, "*", true, false, (short) 1, "", "", 0);
+            MapList inputQPTask = getRelatedMapList(context, qpTask, RELATIONSHIP_IMS_QP_QPTask2QPTask, "*", false, true, (short) 1, "", "attribute[IMS_QP_DEPTaskStatus]==Approved", 0);
             for (Object inputMap : inputQPTask) {
+                String full = "Full";
                 String inputId = (String) ((Map) inputMap).get(DomainObject.SELECT_ID);
-
                 DomainObject inputObject = new DomainObject(inputId);
-                if (isFactFull(context, qpTask)) {
-                    MapList outputQPTask = getRelatedMapList(context, inputObject, RELATIONSHIP_IMS_QP_QPTask2QPTask, "*", false, true, (short) 1, "", "", 0);
+                if (isFactFull(context, inputObject)) {
+                    MapList outputQPTask = getRelatedMapList(context, inputObject, RELATIONSHIP_IMS_QP_QPTask2QPTask, "*", true, false, (short) 1, "", "attribute[IMS_QP_DEPTaskStatus]==Approved", 0);
                     for (Object outputMap : outputQPTask) {
                         String outputId = (String) ((Map) outputMap).get(DomainObject.SELECT_ID);
                         DomainObject outputObject = new DomainObject(outputId);
-                        String closed = outputObject.getInfo(context, "attribute[IMS_QP_CloseStatus]");
-
+                        String closed = outputObject.getInfo(context, SELECT_ATTRIBUTE_IMS_QP_CLOSE_STATUS);
                         if (!closed.equals("Full")) {
-                            full = "No";
+                            full = VALUE_NO;
                             break;
                         }
                     }
                     if (full.equals("Full")) {
-                        inputObject.setAttributeValue(context, "IMS_QP_CloseStatus", "Full");
+                        inputObject.setAttributeValue(context, ATTRIBUTE_IMS_QP_CLOSE_STATUS, "Full");
 
                         setAttributeClosedTaskTree(context, inputObject);
                     }
@@ -1313,7 +1448,6 @@ public class IMS_QP_DEPTask_mxJPO {
             StringList qpTaskIDs = checkList.getInfoList(context, "to[IMS_QP_QPTask2Fact].from.id");
             for (Object qpTaskID : qpTaskIDs) {
                 setAttributeClosedTask(context, new DomainObject((String) qpTaskID));
-
             }
 
         } catch (Exception ex) {
@@ -1329,11 +1463,13 @@ public class IMS_QP_DEPTask_mxJPO {
         try {
             String checklistID = args[0];
             DomainObject checkList = new DomainObject(checklistID);
-            String qpTaskID = checkList.getInfo(context, "to[IMS_QP_QPTask2Fact].from.id");
-            DomainObject task = new DomainObject(qpTaskID);
-            if (task.getInfo(context, SELECT_ATTRIBUTE_IMS_QP_CloseStatus).equals("Full")) {
-                task.setAttributeValue(context, "IMS_QP_CloseStatus", "No");
-                setAttributeClosedTaskTreeNo(context, task);
+            StringList qpTaskIDs = checkList.getInfoList(context, "to[IMS_QP_QPTask2Fact].from.id");
+            for (Object qpTaskID : qpTaskIDs) {
+                DomainObject task = new DomainObject((String) qpTaskID);
+                if (task.getInfo(context, SELECT_ATTRIBUTE_IMS_QP_CloseStatus).equals("Full")) {
+                    task.setAttributeValue(context, ATTRIBUTE_IMS_QP_CLOSE_STATUS, VALUE_NO);
+                    setAttributeClosedTaskTreeNo(context, task);
+                }
             }
 
         } catch (Exception ex) {
@@ -1368,16 +1504,16 @@ public class IMS_QP_DEPTask_mxJPO {
     public void setAttributeClosedTaskTreeNo(Context context, DomainObject qpTask) throws Exception {
 
         try {
-            MapList inputQPTask = getRelatedMapList(context,
+            MapList outputQPTask = getRelatedMapList(context,
                     qpTask, RELATIONSHIP_IMS_QP_QPTask2QPTask,
-                    "*", true, false, (short) 1, "", "", 0);
-            for (Object inputMap : inputQPTask) {
+                    "*", false, true, (short) 1, "", "attribute[IMS_QP_DEPTaskStatus]==Approved", 0);
+            for (Object inputMap : outputQPTask) {
                 String inputId = (String) ((Map) inputMap).get(DomainObject.SELECT_ID);
 
                 DomainObject inputObject = new DomainObject(inputId);
                 String status = inputObject.getInfo(context, SELECT_ATTRIBUTE_IMS_QP_CloseStatus);
                 if (status.equals("Full")) {
-                    inputObject.setAttributeValue(context, "IMS_QP_CloseStatus", "No");
+                    inputObject.setAttributeValue(context, ATTRIBUTE_IMS_QP_CLOSE_STATUS, VALUE_NO);
 
                     setAttributeClosedTaskTreeNo(context, inputObject);
                 }
@@ -1413,7 +1549,7 @@ public class IMS_QP_DEPTask_mxJPO {
             taskIDs[i] = rowIDs[i].substring(0, rowIDs[i].indexOf("|"));
         }
 
-        //selects all tasks
+        //select all tasks
         StringList selects = new StringList();
         selects.add("id");
         selects.add(IMS_QP_Constants_mxJPO.FROM_IMS_QP_DEPTASK_2_DEPTASK_ATTRIBUTE_IMS_QP_DEPTASK_STATUS);
@@ -1441,7 +1577,7 @@ public class IMS_QP_DEPTask_mxJPO {
             Map map = (Map) objectsInfo.get(i);
             String taskStates = "" + map.get(IMS_QP_Constants_mxJPO.FROM_IMS_QP_DEPTASK_2_DEPTASK_ATTRIBUTE_IMS_QP_DEPTASK_STATUS);
             String qpTaskRelation = "" + map.get("from[IMS_QP_DEPTask2QPTask]");
-            if (taskStates.contains("Approved") || qpTaskRelation.equals("TRUE")) {
+            if (taskStates.contains(VALUE_APPROVED) || qpTaskRelation.equals("TRUE")) {
                 buffer.append(map.get("name")).append("\n");
                 badNames.add((String) map.get("name"));
                 flag = true;
@@ -1486,7 +1622,7 @@ public class IMS_QP_DEPTask_mxJPO {
             DomainObject obj = DomainObject.newInstance(context, objID);
             String name = obj.getName(context);
             int numberInt = Integer.parseInt(name.substring(name.lastIndexOf("-") + 1));
-            obj.setAttributeValue(context, "IMS_SortOrder", String.valueOf(numberInt));
+            obj.setAttributeValue(context, ATTRIBUTE_IMS_SORT_ORDER, String.valueOf(numberInt));
         } catch (Exception ex) {
             LOG.error("setCounterType Error: " + ex.getMessage());
         }
@@ -1511,12 +1647,12 @@ public class IMS_QP_DEPTask_mxJPO {
                 try {
                     if (name.contains("-")) {
                         int numberInt = Integer.parseInt(name.substring(name.lastIndexOf("-") + 1));
-                        new DomainObject((String) objTemp.get(DomainConstants.SELECT_ID)).setAttributeValue(context, "IMS_SortOrder", String.valueOf(numberInt));
+                        new DomainObject((String) objTemp.get(DomainConstants.SELECT_ID)).setAttributeValue(context, ATTRIBUTE_IMS_SORT_ORDER, String.valueOf(numberInt));
                     } else {
-                        new DomainObject((String) objTemp.get(DomainConstants.SELECT_ID)).setAttributeValue(context, "IMS_SortOrder", "0");
+                        new DomainObject((String) objTemp.get(DomainConstants.SELECT_ID)).setAttributeValue(context, ATTRIBUTE_IMS_SORT_ORDER, "0");
                     }
                 } catch (Exception e) {
-                    new DomainObject((String) objTemp.get(DomainConstants.SELECT_ID)).setAttributeValue(context, "IMS_SortOrder", "0");
+                    new DomainObject((String) objTemp.get(DomainConstants.SELECT_ID)).setAttributeValue(context, ATTRIBUTE_IMS_SORT_ORDER, "0");
                     System.out.println(e.fillInStackTrace());
                 }
             }
@@ -1524,5 +1660,182 @@ public class IMS_QP_DEPTask_mxJPO {
             LOG.error(ex.fillInStackTrace());
             throw ex;
         }
+    }
+
+    public int addFactTriggerCreateType(Context context, String[] args) throws Exception {
+
+        try {
+            String objectId = args[0];
+            DomainObject qptask = new DomainObject(objectId);
+            LOG.info("before arror: ");
+            qptask.setAttributeValue(context, ATTRIBUTE_IMS_QP_FACT_EXP, "1");
+
+        } catch (Exception ex) {
+            MQLCommand mc = new MQLCommand();
+            mc.executeCommand(context, "error $1", ex.getMessage());
+            return 1;
+        }
+
+        LOG.info("get error");
+        return 0;
+    }
+
+    public int addFactTriggerConnectDep(Context context, String[] args) throws Exception {
+
+        try {
+            String qptaskid = args[0];
+            String deptaskid = args[1];
+            DomainObject deptask = new DomainObject(deptaskid);
+            addFactExpTree(context, deptask, 1);
+
+        } catch (Exception ex) {
+            MQLCommand mc = new MQLCommand();
+            mc.executeCommand(context, "error $1", ex.getMessage());
+            return 1;
+        }
+        return 0;
+    }
+
+    public int addFactTriggerConnectQPLan(Context context, String[] args) throws Exception {
+
+        try {
+            String qptaskid = args[0];
+            String qplanid = args[1];
+            DomainObject qplan = new DomainObject(qplanid);
+            setFactExp(context, qplan, 1);
+
+        } catch (Exception ex) {
+            MQLCommand mc = new MQLCommand();
+            mc.executeCommand(context, "error $1", ex.getMessage());
+            return 1;
+        }
+        return 0;
+    }
+
+
+    public int modifyAttributeDEPTaskStatus(Context context, String[] args) throws Exception {
+        try {
+
+            String qpTaskId = args[0];
+            String valuenew = args[1];
+            String value = args[2];
+
+            DomainObject qpTask = new DomainObject(qpTaskId);
+            if (!value.equals(VALUE_APPROVED) && valuenew.equals(VALUE_APPROVED)) {
+                if (isFactFull(context, qpTask)) {
+                    setAttributeClosedTask(context, qpTask);
+                }
+            } else if (value.equals(VALUE_APPROVED) && !valuenew.equals(VALUE_APPROVED)) {
+                if (!isFactFull(context, qpTask)) {
+                    setAttributeClosedTaskTreeNo(context, qpTask);
+                }
+            }
+
+        } catch (Exception ex) {
+            MQLCommand mc = new MQLCommand();
+            mc.executeCommand(context, "error $1", ex.getMessage());
+            return 1;
+        }
+        return 0;
+    }
+
+    public int modifyAttributeProjDocStatus(Context context, String[] args) throws Exception {
+        try {
+
+            String documentId = args[0];
+            String valuenew = args[1];
+            String value = args[2];
+
+            DomainObject document = new DomainObject(documentId);
+
+            if (!value.equals("Finalized") && valuenew.equals("Finalized")) {
+                StringList qpTaskIDs = document.getInfoList(context, "to[IMS_QP_QPTask2Fact].from.id");
+                for (Object qpTaskID : qpTaskIDs) {
+                    setAttributeClosedTask(context, new DomainObject((String) qpTaskID));
+                }
+            } else if (value.equals("Finalized") && !valuenew.equals("Finalized")) {
+                StringList qpTaskIDs = document.getInfoList(context, "to[IMS_QP_QPTask2Fact].from.id");
+                for (Object qpTaskID : qpTaskIDs) {
+                    DomainObject qpTask = new DomainObject((String) qpTaskID);
+                    qpTask.setAttributeValue(context, ATTRIBUTE_IMS_QP_CLOSE_STATUS, VALUE_NO);
+                    setAttributeClosedTaskTreeNo(context, qpTask);
+                }
+            }
+
+        } catch (Exception ex) {
+            MQLCommand mc = new MQLCommand();
+            mc.executeCommand(context, "error $1", ex.getMessage());
+            return 1;
+        }
+        return 0;
+    }
+
+    public void setAttributeClosedTask(Context context, String[] args) throws Exception {
+        setAttributeClosedTask(context, new DomainObject(args[0]));
+    }
+
+    public int addInputTask(Context context, String[] args) throws Exception {
+
+        try {
+            String toTaskID = args[0];
+            String relID = args[1];
+            String fromTaskID = args[2];
+            DomainRelationship rel = new DomainRelationship(relID);
+            String attribute = rel.getAttributeValue(context, "IMS_QP_DEPTaskStatus");
+            if (attribute.equals("Approved")) {
+                DomainObject fromTask = new DomainObject(fromTaskID);
+                DomainObject toTask = new DomainObject(toTaskID);
+                if ((isFactFull(context, toTask)) && (!isFactFull(context, fromTask))) {
+                    toTask.setAttributeValue(context, ATTRIBUTE_IMS_QP_CLOSE_STATUS, VALUE_NO);
+                    setAttributeClosedTaskTreeNo(context, toTask);
+                }
+            }
+
+        } catch (Exception ex) {
+            MQLCommand mc = new MQLCommand();
+            mc.executeCommand(context, "error $1", ex.getMessage());
+            return 1;
+        }
+        return 0;
+    }
+
+    public int delInputTask(Context context, String[] args) throws Exception {
+
+        try {
+            String toTaskID = args[0];
+            String relID = args[1];
+            String fromTaskID = args[2];
+            DomainRelationship rel = new DomainRelationship(relID);
+            String attribute = rel.getAttributeValue(context, "IMS_QP_DEPTaskStatus");
+            DomainObject toTask = new DomainObject(toTaskID);
+            DomainObject fromTask = new DomainObject(fromTaskID);
+            if ((attribute.equals("Approved")) && !isFactFull(context, fromTask)) {
+                String full = "Full";
+                MapList outputQPTask = getRelatedMapList(context,
+                        toTask, RELATIONSHIP_IMS_QP_QPTask2QPTask,
+                        "*", true, false, (short) 1, "", "(attribute[IMS_QP_DEPTaskStatus]==Approved AND id!=" + relID + ")", 0);
+
+                for (Object objTemp : outputQPTask) {
+                    String sID = (String) ((Map) objTemp).get(DomainObject.SELECT_ID);
+                    DomainObject relTask = new DomainObject(sID);
+                    String closed = relTask.getInfo(context, SELECT_ATTRIBUTE_IMS_QP_CLOSE_STATUS);
+                    if (!closed.equals("Full")) {
+                        full = VALUE_NO;
+                        break;
+                    }
+                }
+                if (full.equals("Full")) {
+                    toTask.setAttributeValue(context, ATTRIBUTE_IMS_QP_CLOSE_STATUS, "Full");
+                    setAttributeClosedTaskTree(context, toTask);
+                }
+
+            }
+
+        } catch (Exception ex) {
+            MQLCommand mc = new MQLCommand();
+            mc.executeCommand(context, "error $1", ex.getMessage());
+            return 1;
+        }
+        return 0;
     }
 }

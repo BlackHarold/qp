@@ -1,0 +1,24 @@
+################################################################################
+# ATTRIBUTE_IMS_QP_Deviation.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate attribute "${NAME}" {
+    kind boolean
+    symbolicname "attribute_IMS_QP_Deviation"
+    description ""
+    !hidden
+    !multivalue
+    !resetonclone
+    !resetonrevision
+    default "FALSE"
+    range = "FALSE"
+    range = "TRUE"
+    ################################################## Info Start
+    property "author" value "The IMS Team"
+    property "original name" value "IMS_QP_Deviation"
+    property "application" value "IMS QP"
+    property "version" value "1"
+    ################################################## Info End
+}

@@ -1,0 +1,158 @@
+################################################################################
+# TABLE_IMS_QP_Workbench_table.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate table "${NAME}" {
+    symbolicname "table_IMS_QP_Workbench_table"
+    description ""
+    column {
+        name "name"
+        label "emxFramework.Label.QP_Code"
+        businessobject "name"
+        href "${COMMON_DIR}/emxPortal.jsp?portal=IMS_QP_QPTask_Portal"
+        setting "Editable" "false"
+        setting "Sortable" "false"
+        setting "Registered Suite" "Framework"
+        setting "Style Function" "getFactColumnStyle"
+        setting "Style Program" "IMS_QP_DEPTask"
+        setting "Target Location" "popup"
+    }
+    column {
+        name "percentage"
+        label "Completion, %"
+        user "all"
+        setting "Access Expression" "type==IMS_QP"
+        setting "Column Type" "program"
+        setting "Registered Suite" "Framework"
+        setting "Sortable" "false"
+        setting "function" "getColumnPercentage"
+        setting "program" "IMS_QP_Workbench"
+    }
+    column {
+        name "check"
+        label "Error"
+        user "all"
+        setting "Access Expression" "type==IMS_QP"
+        setting "Column Type" "programHTMLOutput"
+        setting "Registered Suite" "Framework"
+        setting "Width" "50"
+        setting "Sortable" "false"
+        setting "function" "getColumnCheck"
+        setting "program" "IMS_QP_Workbench"
+    }
+    column {
+        name "first_red_task"
+        label "Current task"
+        user "all"
+        setting "Access Expression" "type==IMS_QP"
+        setting "Column Type" "program"
+        setting "Registered Suite" "Framework"
+        setting "Sortable" "false"
+        setting "function" "getColumnRedCode"
+        setting "program" "IMS_QP_Workbench"
+    }
+    column {
+        name "name_en"
+        label "Name (EN)"
+        businessobject "attribute[IMS_Name]"
+        setting "Access Expression" "type==IMS_QP_QPlan||type==IMS_QP_DEP"
+        setting "Admin Type" "attribute_IMS_Name"
+        setting "Editable" "false"
+        setting "Sortable" "false"
+        setting "Field Type" "attribute"
+        setting "Registered Suite" "Framework"
+        setting "Width" "150"
+    }
+    column {
+        name "name_ru"
+        label "Name (RU)"
+        businessobject "attribute[IMS_NameRu]"
+        setting "Access Expression" "type==IMS_QP_QPlan||type==IMS_QP_DEP"
+        setting "Admin Type" "attribute_IMS_NameRu"
+        setting "Editable" "false"
+        setting "Sortable" "false"
+        setting "Field Type" "attribute"
+        setting "Width" "150"
+    }
+    column {
+        name "input_er_name"
+        label "IER Name"
+        user "all"
+        setting "Column Type" "programHTMLOutput"
+        setting "Registered Suite" "Framework"
+        setting "Sortable" "false"
+        setting "function" "getColumnExpectedResultByKey"
+        setting "program" "IMS_QP_Workbench"
+        setting "Access Expression" "type==IMS_QP_QPlan||type==IMS_QP_DEP"
+        setting "key" "name"
+    }
+    column {
+        name "input_er_doc"
+        label "IER Doc"
+        user "all"
+        setting "Column Type" "program"
+        setting "Registered Suite" "Framework"
+        setting "Sortable" "false"
+        setting "function" "getColumnExpectedResultByKey"
+        setting "program" "IMS_QP_Workbench"
+        setting "Access Expression" "type==IMS_QP_QPlan||type==IMS_QP_DEP"
+        setting "key" "attribute[IMS_QP_DocumentCode]"
+        setting "Style Function" "getColumnStyleByKey"
+        setting "Style Program" "IMS_QP_Workbench"
+    }
+    column {
+        name "initial_data_status"
+        label "Initial Data status"
+        user "all"
+        setting "Column Type" "programHTMLOutput"
+        setting "Registered Suite" "Framework"
+        setting "Sortable" "false"
+        setting "function" "getColumnDeviationByKey"
+        setting "program" "IMS_QP_Workbench"
+        setting "Access Expression" "type==IMS_QP_QPlan"
+        setting "key" "initial"
+    }
+    column {
+        name "input_er_protocol"
+        label "Protocol"
+        user "all"
+        setting "Column Type" "programHTMLOutput"
+        setting "Registered Suite" "Framework"
+        setting "Sortable" "false"
+        setting "function" "getColumnDeviationByKey"
+        setting "program" "IMS_QP_Workbench"
+        setting "Access Expression" "type==IMS_QP_QPlan"
+        setting "key" "protocol"
+    }
+    column {
+        name "input_er_protocol_desc"
+        label "Protocol description"
+        user "all"
+        setting "Column Type" "programHTMLOutput"
+        setting "Registered Suite" "Framework"
+        setting "Sortable" "false"
+        setting "function" "getColumnDeviationByKey"
+        setting "program" "IMS_QP_Workbench"
+        setting "Access Expression" "type==IMS_QP_QPlan"
+        setting "key" "p_description"
+    }
+    column {
+        name "sort_order"
+        label "emxFramework.Attribute.IMS_SortOrder"
+        businessobject "attribute[IMS_SortOrder]"
+        user "all"
+        setting "Admin Type" "attribute_IMS_SortOrder"
+        setting "Editable" "false"
+        setting "Field Type" "attribute"
+        setting "Access Expression" "type==IMS_QP_QPlan||type==IMS_QP_DEP"
+        setting "Registered Suite" "Framework"
+    }
+    ################################################## Info Start
+    property "author" value "IMS Team"
+    property "original name" value "IMS_QP_Workbench_table"
+    property "application" value "IMS QP"
+    property "version" value "1"
+    ################################################## Info End
+}

@@ -10,7 +10,7 @@ mxUpdate menu "${NAME}" {
     label ""
     href ""
     alt ""
-    setting "Access Function" "checkStateAndOwnerOfExpectedResult"
+    setting "Access Function" "checkOwnerAccess"
     setting "Access Program" "IMS_QP_ExpectedResult"
     command "IMS_QP_Create_ExpectedResultQP"
     command "IMS_QP_Delete_ExpectedResultQP"

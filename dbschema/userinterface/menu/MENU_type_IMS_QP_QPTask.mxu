@@ -5,9 +5,19 @@
 ################################################################################
 
 mxUpdate menu "${NAME}" {
+    symbolicname "menu_type_IMS_QP_QPTask"
     description ""
+    treemenu
     label ""
     href ""
     alt ""
-    command "IMS_QP_DEPTask_CommandToPortal"
+    setting "Default Category" "IMS_QP_QPTask_CommandToPortal"
+    command "IMS_QP_QPTask_CommandToPortal"
+    command "AEFLifecycle"
+    command "APPDocumentHistory"
+    ################################################## Info Start
+    property "original name" value "type_IMS_QP_QPTask"
+    property "application" value "IMS QP"
+    property "version" value "1"
+    ################################################## Info End
 }

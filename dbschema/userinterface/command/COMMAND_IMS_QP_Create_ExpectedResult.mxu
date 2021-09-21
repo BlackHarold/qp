@@ -7,7 +7,7 @@
 mxUpdate command "${NAME}" {
     description ""
     label "Create"
-    href "${COMMON_DIR}/IMS_QP_CreateER.jsp?type=type_IMS_QP_ExpectedResult&typeChooser=false&form=IMS_QP_Create_ExpectedResult&findMxLink=false&nameField=autoName&policy=policy_QP_ExpectedResult&postProcessJPO=IMS_QP_DEPTask:createExpectedResult&submitAction=refreshCaller"
+    href "${COMMON_DIR}/IMS_QP_CreateER.jsp?type=type_IMS_QP_ExpectedResult&typeChooser=false&form=IMS_QP_Create_ExpectedResult&findMxLink=false&nameField=autoName&policy=policy_QP_ExpectedResult&postProcessJPO=IMS_QP_ExpectedResult:createExpectedResult&submitAction=refreshCaller"
     alt ""
     user "all"
     setting "Registered Suite" "Framework"

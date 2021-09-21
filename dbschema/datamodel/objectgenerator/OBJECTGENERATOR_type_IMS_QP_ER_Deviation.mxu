@@ -1,0 +1,18 @@
+################################################################################
+# OBJECTGENERATOR_type_IMS_QP_ER_Deviation.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate objectgenerator "${NAME}" "${REVISION}" {
+    description "Deviation objects generator"
+    current "Exists"
+    attribute "eService Name Prefix" "Deviation-"
+    attribute "eService Name Suffix" ""
+    attribute "eService Processing Time Limit" "60"
+    attribute "eService Retry Count" "5"
+    attribute "eService Retry Delay" "60"
+    attribute "eService Safety Policy" "policy_IMS_QP_ER_Deviation"
+    attribute "eService Safety Vault" "vault_eServiceAdministration"
+    connection "eService Number Generator" to "eService Number Generator" "type_IMS_QP_ER_Deviation" ""
+}

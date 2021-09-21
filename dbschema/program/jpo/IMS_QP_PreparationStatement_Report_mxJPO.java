@@ -12,10 +12,9 @@ public class IMS_QP_PreparationStatement_Report_mxJPO {
     private static final Logger LOG = Logger.getLogger("reportLogger");
 
     public Map<?, ?> getPrepare(Context ctx, String type, String... args) {
-
         String[] cleanedIDs = args; //QP-00SNA
         BusinessObjectWithSelectList data = getByTypeAndSelectedIds(ctx, IMS_QP_Constants_mxJPO.type_IMS_QP_QPlan, cleanedIDs);
-
+        LOG.info("data: " + data);
         Collections.sort(data, new Comparator<BusinessObjectWithSelect>() {
             @Override
             public int compare(BusinessObjectWithSelect bos1, BusinessObjectWithSelect bos2) {
@@ -27,6 +26,7 @@ public class IMS_QP_PreparationStatement_Report_mxJPO {
         });
 
         Map<String, String> taskMap = new LinkedHashMap<>();
+        LOG.info("sorted business object data: " + data);
         for (Object o : data) {
             BusinessObjectWithSelect businessObject = (BusinessObjectWithSelect) o;
 
@@ -38,10 +38,12 @@ public class IMS_QP_PreparationStatement_Report_mxJPO {
             }
 
             RelationshipWithSelectList relationshipWithSelectList = getRelationshipWithSelectList(ctx, businessObject);
+            LOG.info("relationships list: " + relationshipWithSelectList);
             RelationshipWithSelectItr relItr = new RelationshipWithSelectItr(relationshipWithSelectList);
             taskMap.putAll(getQPTaskList(businessObject.getSelectData(DomainObject.SELECT_ID), relItr));
         }
 
+        LOG.info("type: " + type + " return taskMap: " + taskMap + " or return getInfoMap: " + getInfoMap(taskMap));
         if (type.equals("SQP")) {
             return taskMap;
 
@@ -51,7 +53,7 @@ public class IMS_QP_PreparationStatement_Report_mxJPO {
     }
 
     private Map<List<String>, List<String>> getInfoMap(Map<String, String> taskMap) {
-        Map<List<String>, List<String>> tasksInfoMap = new HashMap<>();
+        Map<List<String>, List<String>> tasksInfoMap = new LinkedHashMap<>();
         List<String> keys = new ArrayList<>();
         List<String> values = new ArrayList<>();
         for (Map.Entry<String, String> entry : taskMap.entrySet()) {
@@ -72,7 +74,8 @@ public class IMS_QP_PreparationStatement_Report_mxJPO {
                 queryList.add(query);
             }
 
-            for (Query query : queryList) {
+            for (Object o : queryList) {
+                Query query = (Query) o;
                 businessObjectList.addAll(query.selectTmp(ctx, getBusinessSelect()));
             }
         } catch (MatrixException e) {
@@ -157,6 +160,7 @@ public class IMS_QP_PreparationStatement_Report_mxJPO {
             int sortLevel = Integer.parseInt(relToTask.getSelectData("to.attribute[IMS_QP_SortLevel]"));
 
             if (toState.equals("Full")) {
+                LOG.info(toName + " has state Full. Additional info: " + toState + " sort level: " + sortLevel);
                 continue;
 
             } else {
@@ -177,23 +181,33 @@ public class IMS_QP_PreparationStatement_Report_mxJPO {
 
                     //if only one task without relationships by issue 59788 / comment #9 / point 3.
                     if (toTasksId.size() == 1) {
+                        LOG.info("only one task without relationships by issue comment #9 point 3: " + toName);
                         badTasks.put(toName, to_IMSName);
                         continue;
                     }
 
                     if (sortedMap.containsKey(toTasksNames.get(i))) {
                         int parentTaskSortLevel = Integer.parseInt(toTasksSortLevel.get(i));
+                        LOG.info(toName + "->" + toTasksNames.get(i) + "|" + toTasksStates.get(i) + "|"
+                                + parentTaskSortLevel +
+                                (parentTaskSortLevel == sortLevel ? " = " : parentTaskSortLevel > sortLevel ? " > " : " < ")
+                                + sortLevel + " -checkup!");
 
                         //task has relationship from upper task whose has been state is 'Full'
                         if (parentTaskSortLevel < sortLevel && toTasksStates.get(i).equals("Full")) {
+                            LOG.info("task has relationship from upper task whose has been state is 'Full': " + toName);
                             badTasks.put(toName, to_IMSName);
                         }
 
                         //task has no relationship from upper task & has a state
                     } else if (UIUtil.isNullOrEmpty(toTasksSortLevel.get(i)) && toState.equals("No")) {
+                        LOG.info(toName + "->" + toTasksNames.get(i) + "|" + toTasksSortLevel.get(i) + " -skip!");
+                        LOG.info("task has no relationship from upper task & has a state: " + toName);
                         badTasks.put(toName, to_IMSName);
                     }
                 }
+
+                LOG.info("bad tasks: " + badTasks);
             }
         }
 
@@ -204,17 +218,17 @@ public class IMS_QP_PreparationStatement_Report_mxJPO {
 
         // Instantiating the BusinessObject
         StringList selectBusStmts = new StringList();
-        selectBusStmts.addElement("id");
-        selectBusStmts.addElement("type");
-        selectBusStmts.addElement("name");
+        selectBusStmts.addElement(DomainConstants.SELECT_ID);
+        selectBusStmts.addElement(DomainConstants.SELECT_TYPE);
+        selectBusStmts.addElement(DomainConstants.SELECT_NAME);
 
         StringList selectRelStmts = new StringList();
-        selectRelStmts.addElement("name");
-        selectRelStmts.addElement("from.id");
-        selectRelStmts.addElement("from.name");
+        selectRelStmts.addElement(DomainConstants.SELECT_NAME);
+        selectRelStmts.addElement(DomainConstants.SELECT_FROM_ID);
+        selectRelStmts.addElement(DomainConstants.SELECT_FROM_NAME);
+        selectRelStmts.addElement(DomainConstants.SELECT_TO_ID);
+        selectRelStmts.addElement(DomainConstants.SELECT_TO_NAME);
         selectRelStmts.addElement("from.attribute[IMS_NameRu]");
-        selectRelStmts.addElement("to.id");
-        selectRelStmts.addElement("to.name");
         selectRelStmts.addElement("to.attribute[IMS_QP_CloseStatus]");
         selectRelStmts.addElement("to.attribute[IMS_QP_SortLevel]");
         selectRelStmts.addElement("to.attribute[IMS_SortOrder]");
@@ -234,7 +248,13 @@ public class IMS_QP_PreparationStatement_Report_mxJPO {
         ExpansionWithSelect expansion = null;
         try {
             expansion = businessObject.expandSelect(ctx,
-                    "IMS_QP_QPlan2QPTask", "*", selectBusStmts, selectRelStmts, false, true, (short) 1);
+                    IMS_QP_Constants_mxJPO.relationship_IMS_QP_QPlan2QPTask,
+                    DomainConstants.QUERY_WILDCARD,
+                    selectBusStmts,
+                    selectRelStmts,
+                    false,
+                    true,
+                    (short) 1);
             // Getting the expansion
             //--------------------------------------------------------------
             //  _object.expandSelect(_context, - Java context object

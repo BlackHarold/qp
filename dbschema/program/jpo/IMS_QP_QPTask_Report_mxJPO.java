@@ -131,8 +131,8 @@ public class IMS_QP_QPTask_Report_mxJPO extends IMS_QP_ActualPlanSearch_mxJPO {
 
         Sheet sheet = null;
         int pointCounter = 1;
-        int tempCounter = 1;
         LOG.info("start time: " + getTimeStamp());
+        Map<String, Map<String, String>> taskMap = new HashMap<>();
         for (Object o : reportData) {
             BusinessObjectWithSelect businessObject = (BusinessObjectWithSelect) o;
             try {
@@ -251,14 +251,17 @@ public class IMS_QP_QPTask_Report_mxJPO extends IMS_QP_ActualPlanSearch_mxJPO {
 
         while (relItr.next()) {
             RelationshipWithSelect relSelect = relItr.obj();
-            if (relSelect.getSelectData("name").equals(IMS_QP_Constants_mxJPO.relationship_IMS_QP_QPTask2QPTask) &&
-                    taskId.equals(relSelect.getSelectData("from.id"))) {
+            if (relSelect.getSelectData(DomainConstants.SELECT_NAME)
+                    .equals(IMS_QP_Constants_mxJPO.relationship_IMS_QP_QPTask2QPTask) &&
+                    taskId.equals(relSelect.getSelectData(DomainConstants.SELECT_FROM_ID))) {
 
                 taskInfo.put(
-                        relSelect.getSelectData("to.name"),
+                        relSelect.getSelectData(DomainConstants.SELECT_TO_NAME),
                         String.format("%s|%s",
-                                relSelect.getSelectData("attribute[IMS_QP_DEPTaskStatus]"),
-                                relSelect.getSelectData("to.to[IMS_QP_QPlan2QPTask].from.to[IMS_QP_DEP2QPlan].from.name")));
+                                relSelect.getSelectData(
+                                        IMS_QP_Constants_mxJPO.ATTRIBUTE_IMS_QP_DEPTASK_STATUS),
+                                relSelect.getSelectData(
+                                        "to.to[IMS_QP_QPlan2QPTask].from.to[IMS_QP_DEP2QPlan].from.name")));
             }
         }
         map.put(taskName, taskInfo);
@@ -269,17 +272,17 @@ public class IMS_QP_QPTask_Report_mxJPO extends IMS_QP_ActualPlanSearch_mxJPO {
 
         // Instantiating the BusinessObject
         StringList selectBusStmts = new StringList();
-        selectBusStmts.addElement("id");
-        selectBusStmts.addElement("type");
-        selectBusStmts.addElement("name");
+        selectBusStmts.addElement(DomainConstants.SELECT_ID);
+        selectBusStmts.addElement(DomainConstants.SELECT_TYPE);
+        selectBusStmts.addElement(DomainConstants.SELECT_NAME);
 
         StringList selectRelStmts = new StringList();
-        selectRelStmts.addElement("name");
-        selectRelStmts.addElement("from.id");
-        selectRelStmts.addElement("from.name");
-        selectRelStmts.addElement("to.id");
-        selectRelStmts.addElement("to.name");
-        selectRelStmts.addElement("attribute[IMS_QP_DEPTaskStatus]");
+        selectRelStmts.addElement(DomainConstants.SELECT_NAME);
+        selectRelStmts.addElement(DomainConstants.SELECT_FROM_ID);
+        selectRelStmts.addElement(DomainConstants.SELECT_FROM_NAME);
+        selectRelStmts.addElement(DomainConstants.SELECT_TO_ID);
+        selectRelStmts.addElement(DomainConstants.SELECT_TO_NAME);
+        selectRelStmts.addElement(IMS_QP_Constants_mxJPO.ATTRIBUTE_IMS_QP_DEPTASK_STATUS);
         selectRelStmts.addElement("to.to[IMS_QP_QPlan2QPTask].from.to[IMS_QP_DEP2QPlan].from.name");
 
         ExpansionWithSelect expansion = null;

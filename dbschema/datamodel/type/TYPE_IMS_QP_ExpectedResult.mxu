@@ -12,12 +12,16 @@ mxUpdate type "${NAME}" {
     attribute "IMS_DescriptionRu"
     attribute "IMS_Name"
     attribute "IMS_NameRu"
+    attribute "IMS_QP_Baseline"
     attribute "IMS_QP_DocumentCode"
+    attribute "IMS_QP_ProjectStage"
+    attribute "IMS_QP_Stage"
     attribute "IMS_SortOrder"
     attribute "Originator"
     ################################################## Info Start
+    property "author" value "The IMS Team"
     property "original name" value "IMS_QP_ExpectedResult"
-    property "application" value "IMS_QP"
+    property "application" value "IMS QP"
     property "version" value "1"
     ################################################## Info End
 }
