@@ -11,6 +11,7 @@ mxUpdate menu "${NAME}" {
     href ""
     alt ""
     command "IMS_QP_GeneralReportDownload"
+    command "IMS_QP_ActualPlanSearch_TXT_ReportDownload"
     ################################################## Info Start
     property "author" value "The IMS Team"
     property "original name" value "IMS_QP_Reports_toolbar"

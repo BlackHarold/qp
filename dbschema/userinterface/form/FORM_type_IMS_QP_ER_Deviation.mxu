@@ -1,0 +1,80 @@
+################################################################################
+# FORM_type_IMS_QP_ER_Deviation.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate form "${NAME}" {
+    symbolicname "form_type_IMS_QP_ER_Deviation"
+    description ""
+    field {
+        name "info"
+        label "Main Information"
+        setting "Field Type" "Section Header"
+        setting "Section Level" "2"
+    }
+    field {
+        name "name"
+        label "Name"
+        businessobject "name"
+        setting "Access Expression" "true"
+        setting "Field Type" "basic"
+        setting "Registered Suite" "Framework"
+        setting "Editable" "false"
+    }
+    field {
+        name "Originated"
+        label "emxComponents.Common.Originated"
+        businessobject "originated"
+        setting "Access Expression" "true"
+        setting "Editable" "false"
+        setting "Field Type" "basic"
+        setting "Registered Suite" "Components"
+        setting "format" "date"
+    }
+    field {
+        name "IMS_DescriptionRu"
+        label "DescriptionRu"
+        businessobject "$<attribute[attribute_IMS_DescriptionRu]>"
+        setting "Access Expression" "true"
+        setting "Editable" "true"
+        setting "Field Type" "attribute"
+        setting "Group Name" "description"
+        setting "Registered Suite" "Framework"
+    }
+    field {
+        name "IMS_DescriptionEn"
+        label "DescriptionEn"
+        businessobject "$<attribute[attribute_IMS_DescriptionEn]"
+        setting "Editable" "true"
+        setting "Field Type" "attribute"
+        setting "Group Name" "description"
+        setting "Registered Suite" "Framework"
+    }
+  field {
+        name "protocol"
+        label "Protocol"
+        businessobject "attribute[IMS_QP_Protocol]"
+        setting "Admin Type" "attribute_IMS_QP_Protocol"
+        setting "Field Type" "attribute"
+        setting "Registered Suite" "Framework"
+        setting "Group Name" "protocol"
+        setting "Required" "true"
+    }
+    field {
+        name "p_description"
+        label "Protocol description"
+        businessobject "attribute[IMS_QP_ProtocolDescription]"
+        setting "Admin Type" "attribute_IMS_QP_ProtocolDescription"
+        setting "Field Type" "attribute"
+        setting "Registered Suite" "Framework"
+        setting "Group Name" "protocol"
+        setting "Required" "true"
+    }
+    ################################################## Info Start
+    property "author" value "The IMS Team"
+    property "original name" value "type_IMS_QP_ER_Deviation"
+    property "application" value "IMS QP"
+    property "version" value "1"
+    ################################################## Info End
+}

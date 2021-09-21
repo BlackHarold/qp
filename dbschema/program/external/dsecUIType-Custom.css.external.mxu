@@ -366,13 +366,15 @@ font-style: italic;
 .IMS_QP_DEPTaskInput{vertical-align:top;background-color:aliceblue !important;}
 .IMS_QP_DEPTaskOutput{vertical-align:top;background-color:#ffecef !important;}
 
-.IMS_QP_Green{vertical-align:top;background-color:#e7ffde !important;}
-.IMS_QP_Rose{vertical-align:top;background-color:#ffd0d0 !important;}
-.IMS_QP_Blue{vertical-align:top;background-color:#95caff !important;}
-.IMS_QP_Purple{vertical-align:top;background-color:#d595ff !important;}
-.IMS_QP_Red{vertical-align:top;background-color:#ff5945 !important;}
-.IMS_QP_Orange{vertical-align:top;background-color:#ffb973 !important;}
-.IMS_QP_Yellow{vertical-align:top;background-color:#ffff01 !important;}
+.IMS_QP_Green{background-color:#e7ffde !important;}
+.IMS_QP_Rose{background-color:#ffd0d0 !important;}
+.IMS_QP_Blue{background-color:#95caff !important;}
+.IMS_QP_Purple{background-color:#d595ff !important;}
+.IMS_QP_Red{background-color:#ff5945 !important;}
+.IMS_QP_Orange{background-color:#ffb973 !important;}
+.IMS_QP_Yellow{background-color:#ffff01 !important;}
+#by issue 62906
+.IMS_QP_ExpectedResultToWorkbench{font-size:14px !important;}
 #IMS End
 "
 }

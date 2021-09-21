@@ -16,16 +16,18 @@ import java.util.*;
 
 public class IMS_QP_Security_mxJPO {
 
-    private static final String TYPE_Person = "Person";
+    public static final String TYPE_Person = "Person";
 
-    private static final String ROLE_IMS_QP_DEPOwner = "IMS_QP_DEPOwner";
-    private static final String ROLE_IMS_Admin = "IMS_Admin";
-    private static final String ROLE_IMS_QP_SuperUser = "IMS_QP_SuperUser";
+    public static final String ROLE_IMS_QP_DEPOwner = "IMS_QP_DEPOwner";
+    public static final String ROLE_IMS_Admin = "IMS_Admin";
+    public static final String ROLE_IMS_QP_SuperUser = "IMS_QP_SuperUser";
     //added by feature #54625
-    private static final String ROLE_IMS_QP_Viewer = "IMS_QP_Viewer";
+    public static final String ROLE_IMS_QP_Viewer = "IMS_QP_Viewer";
+    //added by feature  #65455
+    public static final  String ROLE_IMS_QP_Supervisor = "IMS_QP_Supervisor";
 
-    private static final String RELATIONSHIP_IMS_QP_DEP2Owner = "IMS_QP_DEP2Owner";
-    private static final String RELATIONSHIP_IMS_PBS2Owner = "IMS_PBS2Owner";
+    public static final String RELATIONSHIP_IMS_QP_DEP2Owner = "IMS_QP_DEP2Owner";
+    public static final String RELATIONSHIP_IMS_PBS2Owner = "IMS_PBS2Owner";
 
     private static final String RELATIONSHIP_IMS_QP_DEP2DEPProjectStage = "IMS_QP_DEP2DEPProjectStage";
     private static final String RELATIONSHIP_IMS_QP_DEPProjectStage2DEPSubStage = "IMS_QP_DEPProjectStage2DEPSubStage";
@@ -900,6 +902,10 @@ public class IMS_QP_Security_mxJPO {
     }
 
     public static boolean isOwnerQPlanFromTask(Context context, String... args) {
+
+        if (IMS_QP_Security_mxJPO.isUserAdminOrSuper(context)) {
+            return true;
+        }
 
         Map argsMap;
         boolean isOwnerQPlanFromTask = false;

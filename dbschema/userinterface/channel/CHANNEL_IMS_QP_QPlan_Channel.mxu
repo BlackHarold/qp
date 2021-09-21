@@ -14,6 +14,7 @@ mxUpdate channel "${NAME}" {
     command "IMS_QP_QPlan_form"
     command "IMS_QP_QPTasksFromPlan"
     command "IMS_QP_RelatedQPTask"
+    command "IMS_QP_Workbench_table"
     ################################################## Info Start
     property "author" value "IMS Team"
     property "original name" value "IMS_QP_QPlan_Channel"

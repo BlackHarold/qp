@@ -5,6 +5,7 @@
 ################################################################################
 
 mxUpdate form "${NAME}" {
+    symbolicname "form_type_IMS_QP_DEPTask"
     description "Quality Plan Form"
     field {
         name "info"
@@ -75,4 +76,43 @@ mxUpdate form "${NAME}" {
         setting "Field Type" "attribute"
         setting "Registered Suite" "Components"
     }
+    field {
+        name "project_stage"
+        label "Project stage"
+        businessobject "attribute[IMS_QP_ProjectStage]"
+        setting "Access Expression" "from[IMS_QP_DEPTask2DEP].to.name==DEP_ExternalInitialData"
+        setting "Admin Type" "attribute_IMS_QP_ProjectStage"
+        setting "Editable" "false"
+        setting "Field Type" "attribute"
+        setting "Group Name" "attributes"
+        setting "Registered Suite" "Framework"
+    }
+    field {
+        name "stage"
+        label "Stage"
+        businessobject "attribute[IMS_QP_Stage]"
+        setting "Access Expression" "from[IMS_QP_DEPTask2DEP].to.name==DEP_ExternalInitialData"
+        setting "Admin Type" "attribute_IMS_QP_Stage"
+        setting "Editable" "false"
+        setting "Field Type" "attribute"
+        setting "Group Name" "attributes"
+        setting "Registered Suite" "Framework"
+    }
+    field {
+        name "baseline"
+        label "Baseline"
+        businessobject "attribute[IMS_QP_Baseline]"
+        setting "Access Expression" "from[IMS_QP_DEPTask2DEP].to.name==DEP_ExternalInitialData"
+        setting "Admin Type" "attribute_IMS_QP_Baseline"
+        setting "Editable" "false"
+        setting "Field Type" "attribute"
+        setting "Group Name" "attributes"
+        setting "Registered Suite" "Framework"
+    }
+    ################################################## Info Start
+    property "author" value "The IMS Team"
+    property "original name" value "type_IMS_QP_DEPTask"
+    property "application" value "IMS QP"
+    property "version" value "1"
+    ################################################## Info End
 }

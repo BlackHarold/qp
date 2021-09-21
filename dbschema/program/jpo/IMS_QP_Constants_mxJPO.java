@@ -78,7 +78,6 @@ public class IMS_QP_Constants_mxJPO {
     public static final String relationship_IMS_QP_QP2DEP = "IMS_QP_QP2DEP";
     public static final String relationship_IMS_QP_DEP2DEPProjectStage = "" + type_IMS_QP_DEP + "2DEPProjectStage";
     public static final String relationship_IMS_QP_DEPProjectStage2DEPSubStage = "" + type_IMS_QP_DEP + "ProjectStage2DEPSubStage";
-    public static final String relationship_IMS_QP_DEPSubStage2DEPTask = "" + type_IMS_QP_DEP + "SubStage2DEPTask";
     public static final String relationship_IMS_QP_ResultType2Family = "IMS_QP_ResultType2Family";
     public static final String relationship_IMS_QP_QP2QPlan = "IMS_QP_QP2QPlan";
     public static final String relationship_IMS_QP_QPlan2QPTask = "IMS_QP_QPlan2QPTask";
@@ -103,6 +102,7 @@ public class IMS_QP_Constants_mxJPO {
     public static final String RELATIONSHIP_IMS_QP_DEP2DEPProjectStage = "IMS_QP_DEP2DEPProjectStage";
     public static final String RELATIONSHIP_IMS_QP_DEPProjectStage2DEPSubStage = "IMS_QP_DEPProjectStage2DEPSubStage";
     public static final String RELATIONSHIP_IMS_QP_DEPSubStage2DEPTask = "IMS_QP_DEPSubStage2DEPTask";
+    public static final String relationship_IMS_QP_DEPSubStage2DEPTask = RELATIONSHIP_IMS_QP_DEPSubStage2DEPTask;
     public static final String RELATIONSHIP_IMS_QP_DEPTask2DEPTask = "IMS_QP_DEPTask2DEPTask";
     public static final String RELATIONSHIP_IMS_QP_DEPTask2DEP = "IMS_QP_DEPTask2DEP";
 
@@ -139,11 +139,12 @@ public class IMS_QP_Constants_mxJPO {
     public static final String SOURCE_DEPTask = "DEPTask";
 
     public static final String BELL_DELIMITER = "\u0007";
+    public static final String APPROVED = "Approved";
+    public static final String REJECTED = "Rejected";
 
     public static final String relationship_IMS_QP_DEPTask2DEP = "IMS_QP_DEPTask2DEP";
     public static final String relationship_IMS_QP_DEPTask2QPTask = "IMS_QP_DEPTask2QPTask";
-    public static final String relationshipIMS_QP_DEPTask2DEPTask = "IMS_QP_DEPTask2DEPTask";
-    public static final String relationship_IMS_QP_DEPTaskStatus = "IMS_QP_DEPTaskStatus";
+    public static final String attribute_IMS_QP_DEPTaskStatus = "IMS_QP_DEPTaskStatus";
     public static final String relationship_IMS_QP_DEPTask2DEPTask = "IMS_QP_DEPTask2DEPTask";
     public static final String relationship_IMS_QP_QPTask2QPTask = "IMS_QP_QPTask2QPTask";
     public static final String relationship_IMS_QP_QPTask2Fact = "IMS_QP_QPTask2Fact";
@@ -175,6 +176,7 @@ public class IMS_QP_Constants_mxJPO {
     public static final String ATTRIBUTE_IMS_SPFMajorRevision = "attribute[IMS_SPFMajorRevision]";
     public static final String ATTIBUTE_IMS_SPFDocVersion = "attribute[IMS_SPFDocVersion]";
     public static final String IMS_QP_ADDITIONAL_INFO = "IMS_QP_AdditionalInfo";
+    public static final String attribute_IMS_QP_ADDITIONAL_INFO = "attribute[IMS_QP_AdditionalInfo]";
 
     //      feature 51753: added relationships to the 'select' of feature 43176 'Actual search plan'
     public static final String FROM_IMS_QP_TASK_2_SYSTEM = "from[IMS_QP_QPlan2Object].to.name";
@@ -208,4 +210,7 @@ public class IMS_QP_Constants_mxJPO {
     public static final String ATTRIBUTE_DOC_CODE_FROM_EXPECTED_RESULT = "to[IMS_QP_ExpectedResult2QPTask].from.attribute[IMS_QP_DocumentCode]";
     public static final String ATTRIBUTE_DOC_CODE_TO_EXPECTED_RESULT = "from[IMS_QP_ExpectedResult2QPTask].to.attribute[IMS_QP_DocumentCode]";
     public static final String NAME_DEP_TASK_FROM_QP_TASK = "to[IMS_QP_DEPTask2QPTask].from.name";
+
+    //     feature 65454 'External expected result'
+    public static final String IDP_FROM_OWNER = "\u0418\u0414\u041f\u0020\u043e\u0442\u0020\u0432\u043b\u0430\u0434\u0435\u043b\u044c\u0446\u0430";
 }

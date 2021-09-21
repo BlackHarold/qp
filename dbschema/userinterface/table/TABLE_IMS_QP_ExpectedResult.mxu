@@ -5,12 +5,13 @@
 ################################################################################
 
 mxUpdate table "${NAME}" {
+    symbolicname "table_IMS_QP_ExpectedResult"
     description ""
     column {
         name "Code"
         label "emxFramework.Label.QP_Code"
         businessobject "name"
-        href "${COMMON_DIR}/emxForm.jsp?form=type_IMS_QP_ExpectedResult&formHeader=Quality Expected Result&toolbar=IMS_QP_ExpectedResultToolbar"
+        href "${COMMON_DIR}/emxTree.jsp"
         user "all"
         setting "Editable" "false"
         setting "Registered Suite" "Framework"
@@ -78,4 +79,10 @@ mxUpdate table "${NAME}" {
         businessobject "to[IMS_QP_ResultType2ExpectedResult].from.name"
         user "all"
     }
+    ################################################## Info Start
+    property "author" value "IMS Team"
+    property "original name" value "IMS_QP_ExpectedResult"
+    property "application" value "IMS"
+    property "version" value "1"
+    ################################################## Info End
 }

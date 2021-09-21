@@ -5,6 +5,7 @@
 ################################################################################
 
 mxUpdate form "${NAME}" {
+    symbolicname "form_type_IMS_QP_ExpectedResult"
     description "Quality Expected Result Form"
     field {
         name "info"
@@ -17,6 +18,7 @@ mxUpdate form "${NAME}" {
         label "emxFramework.Label.QP_Code"
         businessobject "name"
         setting "Access Expression" "true"
+        setting "Editable" "false"
         setting "Field Type" "basic"
         setting "Registered Suite" "Framework"
     }
@@ -34,9 +36,25 @@ mxUpdate form "${NAME}" {
         name "DocCode"
         label "emxFramework.Attribute.IMS_QP_DocumentCode"
         businessobject "attribute[IMS_QP_DocumentCode]"
+        setting "Access Function" "checkAccess"
+        setting "Access Program" "IMS_QP_ExpectedResult"
         setting "Admin Type" "attribute_IMS_QP_DocumentCode"
+        setting "Editable" "true"
         setting "Field Type" "attribute"
         setting "Registered Suite" "Framework"
+        setting "key" "qp"
+    }
+    field {
+        name "DocCode"
+        label "emxFramework.Attribute.IMS_QP_DocumentCode"
+        businessobject "attribute[IMS_QP_DocumentCode]"
+        setting "Access Function" "checkAccess"
+        setting "Access Program" "IMS_QP_ExpectedResult"
+        setting "Admin Type" "attribute_IMS_QP_DocumentCode"
+        setting "Editable" "false"
+        setting "Field Type" "attribute"
+        setting "Registered Suite" "Framework"
+        setting "key" "dep"
     }
     field {
         name "NameEn"
@@ -44,6 +62,7 @@ mxUpdate form "${NAME}" {
         businessobject "attribute[IMS_Name]"
         setting "Admin Type" "attribute_IMS_Name"
         setting "Field Type" "attribute"
+        setting "Group Name" "names"
         setting "Registered Suite" "Framework"
     }
     field {
@@ -52,6 +71,7 @@ mxUpdate form "${NAME}" {
         businessobject "attribute[IMS_NameRu]"
         setting "Admin Type" "IMS_IMS_NameRu"
         setting "Field Type" "attribute"
+        setting "Group Name" "names"
         setting "Registered Suite" "Framework"
     }
     field {
@@ -60,6 +80,7 @@ mxUpdate form "${NAME}" {
         businessobject "attribute[IMS_DescriptionEn]"
         setting "Admin Type" "attribute_IMS_DescriptionEn"
         setting "Field Type" "attribute"
+        setting "Input Type" "textarea"
         setting "Registered Suite" "Framework"
     }
     field {
@@ -68,18 +89,16 @@ mxUpdate form "${NAME}" {
         businessobject "attribute[IMS_DescriptionRu]"
         setting "Admin Type" "attribute_IMS_DescriptionRu"
         setting "Field Type" "attribute"
+        setting "Input Type" "textarea"
         setting "Registered Suite" "Framework"
     }
     field {
         name "resultType"
         label "Type Level 1"
         businessobject "to[IMS_QP_ResultType2ExpectedResult].from.to[IMS_QP_ResultType2Family].from.name"
-        range "${COMMON_DIR}/emxIndentedTable.jsp?program==IMS_QP_DEPTask:getResultType&table=IMS_QP_ResultType&selection=multiple&header=emxFramework.Command.IMS_RelatedDocuments&editLink=false&toolbar=IMS_QP_ResultTypeAddToolbar"
+        setting "Editable" "false"
         setting "Group Name" "resultType"
-        setting "Input Type" "combobox"
-        setting "OnChange Handler" "onchangeComboboxResultType"
-        setting "Range Function" "getRangeResultType"
-        setting "Range Program" "IMS_QP_DEPTask"
+        setting "Registered Suite" "Framework"
     }
     field {
         name "family"
@@ -87,11 +106,45 @@ mxUpdate form "${NAME}" {
         businessobject "to[IMS_QP_ResultType2ExpectedResult].from.name"
         setting "Editable" "false"
         setting "Group Name" "resultType"
-        setting "Input Type" "combobox"
-        setting "OnFocus Handler" "onfocusComboboxResultType"
-        setting "Range Function" "getRangeFamily"
-        setting "Range Program" "IMS_QP_DEPTask"
-        setting "Update Function" "setResultType"
-        setting "Update Program" "IMS_QP_DEPTask"
+        setting "Registered Suite" "Framework"
     }
+    field {
+        name "project_stage"
+        label "Project stage"
+        businessobject "attribute[IMS_QP_ProjectStage]"
+        setting "Access Expression" "from[IMS_QP_ExpectedResult2DEPTask]==True||from[IMS_QP_ExpectedResult2QPTask]==True"
+        setting "Admin Type" "attribute_IMS_QP_ProjectStage"
+        setting "Editable" "false"
+        setting "Field Type" "attribute"
+        setting "Group Name" "attributes"
+        setting "Registered Suite" "Framework"
+    }
+    field {
+        name "stage"
+        label "Stage"
+        businessobject "attribute[IMS_QP_Stage]"
+        setting "Access Expression" "from[IMS_QP_ExpectedResult2DEPTask]==True||from[IMS_QP_ExpectedResult2QPTask]==True"
+        setting "Admin Type" "attribute_IMS_QP_Stage"
+        setting "Editable" "false"
+        setting "Field Type" "attribute"
+        setting "Group Name" "attributes"
+        setting "Registered Suite" "Framework"
+    }
+    field {
+        name "baseline"
+        label "Baseline"
+        businessobject "attribute[IMS_QP_Baseline]"
+        setting "Access Expression" "from[IMS_QP_ExpectedResult2DEPTask]==True||from[IMS_QP_ExpectedResult2QPTask]==True"
+        setting "Admin Type" "attribute_IMS_QP_Baseline"
+        setting "Editable" "false"
+        setting "Field Type" "attribute"
+        setting "Group Name" "attributes"
+        setting "Registered Suite" "Framework"
+    }
+    ################################################## Info Start
+    property "author" value "The IMS Team"
+    property "original name" value "type_IMS_QP_ExpectedResult"
+    property "application" value "IMS QP"
+    property "version" value "1"
+    ################################################## Info End
 }

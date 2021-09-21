@@ -1,0 +1,23 @@
+################################################################################
+# COMMAND_IMS_QP_QPTask_CreateDeviation.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate command "${NAME}" {
+    symbolicname "command_IMS_QP_QPTask_CreateDeviation"
+    description ""
+    label "Create deviation"
+    href "${COMMON_DIR}/emxCreate.jsp?type=IMS_QP_ER_Deviation&policy=policy_IMS_QP_ER_Deviation&typeChooser=false&form=type_IMS_QP_ER_Deviation&nameField=autoName&postProcessJPO=IMS_QP_ER_Deviation:create&submitAction=refreshCaller"
+    alt ""
+    setting "Image" "${COMMON_DIR}/images/I_MajorVersion.png"
+    setting "Registered Suite" "Framework"
+    setting "Row Select" "single"
+    setting "Submit" "true"
+    ################################################## Info Start
+    property "author" value "IMS Team"
+    property "original name" value "IMS_QP_QPTask_CreateDeviation"
+    property "application" value "IMS_QP"
+    property "version" value "1"
+    ################################################## Info End
+}

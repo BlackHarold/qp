@@ -7,13 +7,12 @@
 mxUpdate command "${NAME}" {
     description ""
     label "Delete"
-    href "${COMMON_DIR}/emxGenericDeleteProcess.jsp"
+    href "${COMMON_DIR}/IMS_QP_ExpectedResult_delete.jsp"
     alt ""
     user "all"
     setting "Registered Suite" "Framework"
     setting "Row Select" "multi"
     setting "Submit" "true"
-    setting "Target Location" "listHidden"
     ################################################## Info Start
     property "author" value "The IMS Team"
     property "original name" value "IMS_QP_Delete_ExpectedResult"

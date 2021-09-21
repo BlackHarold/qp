@@ -1,0 +1,19 @@
+################################################################################
+# PAGE_emxComponentsStringResource_en.properties.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate page "${NAME}" {
+    description ""
+    mime ""
+    ################################################## Info Start
+    property "original name" value "page_emxComponentsStringResource_en.properties"
+    property "application" value "IMS QP"
+    property "version" value "1"
+    ################################################## Info End
+    content "
+emxComponents.Common.EditDetailsHeadingWithoutRev=Edit details
+
+"
+}

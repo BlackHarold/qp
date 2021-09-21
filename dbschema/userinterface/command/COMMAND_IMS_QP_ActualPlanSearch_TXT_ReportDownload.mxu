@@ -1,0 +1,22 @@
+################################################################################
+# COMMAND_IMS_QP_ActualPlanSearch_TXT_ReportDownload.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate command "${NAME}" {
+    symbolicname "command_IMS_QP_ActualPlanSearch_TXT_ReportDownload"
+    description ""
+    label "Actual plan search report"
+    href "${COMMON_DIR}/IMS_QP_ActualPlanSearch_TXT_ReportDownload.jsp"
+    alt ""
+    user "all"
+    setting "Access Expression" "context.user.isassigned[IMS_Admin]==True"
+    setting "Image" "${COMMON_DIR}/images/txt-file.png"
+    ################################################## Info Start
+    property "author" value "The MxUpdate Team"
+    property "original name" value "IMS_QP_ActualPlanSearch_TXT_ReportDownload"
+    property "application" value "IMS_QP"
+    property "version" value "1"
+    ################################################## Info End
+}

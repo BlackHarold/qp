@@ -13,6 +13,14 @@ mxUpdate policy "${NAME}" {
     defaultformat "generic"
     sequence ""
     store ""
+    allstate {
+        public {checkin checkout fromconnect fromdisconnect read show toconnect todisconnect viewform}
+        user "IMS_Admin" {all}
+        user "IMS_QP_SuperUser" {all}
+        user "IMS_QP_Supervisor" {changename create delete modify}
+        user "IMS_QP_QPOwner" {changename create delete modify}
+        user "IMS_QP_DEPOwner" {changename create delete modify}
+    }
     state "Inactive" {
         !enforcereserveaccess
         majorrevision
@@ -21,8 +29,6 @@ mxUpdate policy "${NAME}" {
         !promote
         !checkouthistory
         !published
-        owner {all}
-        public {all}
     }
     state "Active" {
         !enforcereserveaccess
@@ -32,12 +38,11 @@ mxUpdate policy "${NAME}" {
         !promote
         !checkouthistory
         !published
-        owner {all}
-        public {all}
     }
     ################################################## Info Start
+    property "author" value "The IMS Team"
     property "original name" value "IMS_QP_QPTask"
-    property "application" value "mxUpdate11"
+    property "application" value "IMS QP"
     property "version" value "1"
     ################################################## Info End
 }

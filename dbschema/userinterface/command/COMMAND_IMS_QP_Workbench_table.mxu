@@ -1,0 +1,22 @@
+################################################################################
+# COMMAND_IMS_QP_Workbench_table.mxu
+#
+#            This file describes the target of a Configuration Item.
+################################################################################
+
+mxUpdate command "${NAME}" {
+    symbolicname "command_IMS_QP_Workbench_table"
+    description "by issue #62906"
+    label "Workbench"
+    href "${COMMON_DIR}/IMS_QP_Workbench_redirect.jsp"
+    alt ""
+    setting "Access Function" "checkAccess"
+    setting "Access Program" "IMS_QP_Workbench"
+    setting "Registered Suite" "Framework"
+    ################################################## Info Start
+    property "author" value "IMS Team"
+    property "original name" value "IMS_QP_Workbench_table"
+    property "application" value "IMS_QP"
+    property "version" value "1"
+    ################################################## Info End
+}

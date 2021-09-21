@@ -276,13 +276,23 @@
             let inputDocCode = document.querySelector('#DocCode');
             let inputDocCodeValue = inputDocCode.value;
             let matchedValue = inputDocCodeValue.match(/[F][H][1][.][A-Z0-9.&]*/);
-            console.log(inputDocCodeValue == matchedValue);
-            if (inputDocCodeValue != matchedValue) {
-                // inputDocCode.style.color = '#ff0000';
+            const inputDocCodeValueLength = inputDocCodeValue.length;
+            const flag = (inputDocCodeValueLength > 20 && inputDocCodeValue != '');
+            if (!flag || inputDocCodeValue != matchedValue) {
                 inputDocCode.setAttribute("style", "color:red; border: 1px solid red;");
-            }
-            if (inputDocCodeValue == matchedValue) {
+            } else {
                 inputDocCode.setAttribute("style", "color:; border:;");
+            }
+
+            let inputProtocol = document.querySelector('#protocol');
+            let inputProtocolDescription = document.querySelector('#p_description');
+            let button = document.querySelector('#divPageFoot > table > tbody > tr > td.buttons > table > tbody > tr > td:nth-child(2) > a > button');
+            if (inputProtocol.value != '' && inputProtocolDescription.value == '') {
+                button.disabled = true;
+                inputProtocolDescription.setAttribute("style", "color:red; border: 1px solid red;");
+            } else {
+                button.disabled = false;
+                inputProtocolDescription.setAttribute("style", "color:; border:;");
             }
         });
 

@@ -5,6 +5,7 @@
 ################################################################################
 
 mxUpdate channel "${NAME}" {
+    symbolicname "channel_IMS_QP_QPTask_Channel"
     description ""
     label ""
     href ""
@@ -12,10 +13,11 @@ mxUpdate channel "${NAME}" {
     height 260
     command "IMS_QP_QPTask_Form"
     command "IMS_QP_RelatedExpectedResultQP"
+    command "IMS_QP_QPTask_Input_ForDeviation"
     ################################################## Info Start
-    property "author" value "The MxUpdate Team"
+    property "author" value "The IMS Team"
     property "original name" value "IMS_QP_QPTask_Channel"
-    property "application" value "IMS_QP"
+    property "application" value "IMS QP"
     property "version" value "1"
     ################################################## Info End
 }

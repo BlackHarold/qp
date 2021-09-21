@@ -5,18 +5,20 @@
 ################################################################################
 
 mxUpdate menu "${NAME}" {
+    symbolicname "menu_type_IMS_QP_ExpectedResult"
     description ""
     treemenu
     label ""
     href ""
     alt ""
-    setting "Default Category" "IMS_Project_QP_Form"
-    command "IMS_QP_ExpectedResult_Form"
+    setting "Default Category" "IMS_QP_ExpectedResult_portal"
+    command "IMS_QP_ExpectedResult_portal"
     command "AEFLifecycle"
     command "APPDocumentHistory"
     ################################################## Info Start
+    property "author" value "The IMS Team"
     property "original name" value "type_IMS_QP_ExpectedResult"
-    property "application" value "IMS_HNH19"
+    property "application" value "IMS QP"
     property "version" value "1"
     ################################################## Info End
 }
