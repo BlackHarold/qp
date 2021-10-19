@@ -25,7 +25,6 @@
     }
 
     function select() {
-
         var checkboxesChecked = []; // можно в массиве их хранить, если нужно использовать
         let selectedExternalObjectId = $('#resultsFrame').contents()
             .find('iframe[name=\'listDisplay\']').contents()

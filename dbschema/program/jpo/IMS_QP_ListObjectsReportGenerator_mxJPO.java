@@ -25,6 +25,10 @@ public class IMS_QP_ListObjectsReportGenerator_mxJPO {
         BusinessObjectWithSelectList boList;
 
         switch (type) {
+            case "AQP":
+                boList = getByTypeAndSelectedIds(ctx,
+                        IMS_QP_Constants_mxJPO.type_IMS_QP_QPlan, ids);
+                break;
             case "SQP":
                 boList = getByTypeAndSelectedIds(ctx,
                         IMS_QP_Constants_mxJPO.type_IMS_QP_QPlan, ids);

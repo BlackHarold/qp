@@ -139,7 +139,6 @@ public class IMS_QP_ExpectedResult_mxJPO {
                     /*object where*/ null,
                     /*relationship where*/ null,
                     /*limit*/ 0);
-
             Map<String, String> relatedExpectedResultIDs = new HashMap<>();
 
             //old rules highlighting alone output. it's still working
@@ -158,37 +157,40 @@ public class IMS_QP_ExpectedResult_mxJPO {
                     mapLonelyResults.put(domainObject.getName(ctx), "You can't delete the alone 'output' for " + domainObject.getInfo(ctx, "to[IMS_QP_ExpectedResult2QPTask].from.name"));
                 }
             }
-            LOG.info("mapLonelyResults: " + mapLonelyResults);
 
             //check table row ids and then delete
             for (int i = 0; i < expectedResultIDs.length; i++) {
                 DomainObject candidateToRemove = new DomainObject(expectedResultIDs[i]);
                 String candidateToRemoveName = candidateToRemove.getName(ctx);
-                LOG.info("candidate to remove name: " + candidateToRemoveName);
 
                 StringList planNames = candidateToRemove.getInfoList(ctx, "to[IMS_QP_ExpectedResult2QPTask].from.to[IMS_QP_QPlan2QPTask].from.name");
                 boolean isExternalInitialData = false;
-                LOG.info("plan names: " + planNames);
                 for (Object o : planNames) {
                     String s = (String) o;
                     if (s.contains("ExternalInitialData")) isExternalInitialData = true;
-                    String sameNamedTaskId = MqlUtil.mqlCommand(ctx, String.format("print bus IMS_QP_QPTask '%s' '-' select id dump |", candidateToRemoveName));
-                    LOG.info("sameNamedTask: " + sameNamedTaskId);
-                    MqlUtil.mqlCommand(ctx, String.format("delete bus %s", sameNamedTaskId));
-                    LOG.info("removed task: " + candidateToRemoveName);
+                    MapList mapList = DomainObject.findObjects(ctx,
+                            IMS_QP_Constants_mxJPO.type_IMS_QP_QPTask,
+                            candidateToRemoveName,
+                            "",
+                            new StringList(DomainConstants.SELECT_ID)
+                    );
+
+                    if (mapList != null && mapList.size() > 0) {
+                        Map map = (Map) mapList.get(0);
+                        String sameNamedTaskId = (String) map.get(DomainConstants.SELECT_ID);
+                        MqlUtil.mqlCommand(ctx, String.format("delete bus %s", sameNamedTaskId));
+                    }
                 }
 
                 if (!isExternalInitialData && mapLonelyResults.containsKey(candidateToRemoveName)) {
                     mapMessage.put(candidateToRemoveName, mapLonelyResults.get(candidateToRemoveName));
-                    LOG.info(candidateToRemoveName + "drop message: " + mapLonelyResults.get(candidateToRemoveName));
                 } else if (isExternalInitialData || relatedExpectedResultIDs.containsKey(expectedResultIDs[i])) {
                     //removing by trigger
 //                    MqlUtil.mqlCommand(ctx, String.format("delete bus %s", expectedResultIDs[i]));
-                    LOG.info("removed er: " + candidateToRemoveName);
                 } else {
                     if (!mapMessage.containsKey(candidateToRemoveName)) {
                         mapMessage.put(candidateToRemoveName, "You can't delete the expected result of another owners.");
-                        LOG.info(candidateToRemoveName + "drop message: " + "You can't delete the expected result of another owners.");
+                        LOG.info(candidateToRemoveName + " drop message: " + "You can't delete the expected result of another owners.");
                     }
                 }
             }
@@ -231,16 +233,27 @@ public class IMS_QP_ExpectedResult_mxJPO {
             permission = true;
         }
 
-        //commented after meeting 08.09. version 1.3.1
-//        if ("TRUE".equals(parentTypeQP) && "qp".equals(key)) {
-//            permission = true;
-//        }
-//
-//        if ("TRUE".equals(parentTypeDEP) && "dep".equals(key)) {
-//            permission = true;
-//        }
-
         return permission;
+    }
+
+    public boolean checkMenuAccess(Context ctx, String... args) throws Exception {
+        Map argsMap = JPO.unpackArgs(args);
+
+        String objectId = (String) argsMap.get("parentOID");
+        DomainObject domainObject = new DomainObject(objectId);
+        String type = domainObject.getType(ctx);
+
+        //AQP aspect
+        if (UIUtil.isNotNullAndNotEmpty(objectId) &&
+                IMS_QP_Constants_mxJPO.type_IMS_QP_QPTask.equals(type)) {
+            Map map = new HashMap<>();
+            map.put("parentOID", objectId);
+            boolean aspectAccess = IMS_QP_Security_mxJPO.isOwnerQPlanFromTask(ctx, JPO.packArgs(map));
+
+            return aspectAccess;
+        } else {
+            return checkAccess(ctx, args);
+        }
     }
 
     public boolean checkOwnerAccess(Context ctx, String... args) {
@@ -252,29 +265,70 @@ public class IMS_QP_ExpectedResult_mxJPO {
         boolean granted = false;
 
         try {
-            LOG.info("viewer: " + person.isAssigned(ctx, ROLE_IMS_QP_Viewer));
             if (person.isAssigned(ctx, ROLE_IMS_QP_Viewer)) {
                 granted = false;
             }
 
-            Map map = JPO.unpackArgs(args);
-            String objectId = UIUtil.isNotNullAndNotEmpty((String) map.get("objectId")) ?
-                    (String) map.get("objectId") : (String) map.get("parentOID");
+            Map argsMap = JPO.unpackArgs(args);
+            String objectId = UIUtil.isNotNullAndNotEmpty((String) argsMap.get("objectId")) ?
+                    (String) argsMap.get("objectId") : (String) argsMap.get("parentOID");
             DomainObject domainObject = new DomainObject(objectId);
             String type = domainObject.getType(ctx);
             String toId = "";
-            if ("IMS_QP_ExpectedResult".equals(type)) {
+            LOG.info("type: " + type);
+
+            if (IMS_QP_Constants_mxJPO.type_IMS_QP_ExpectedResult.equals(type)) {
                 toId = domainObject.getInfo(ctx, "from[IMS_QP_ExpectedResult2QPTask].to.id");
-                map.put("objectId", objectId);
-                args = JPO.packArgs(map);
+
+                if (UIUtil.isNullOrEmpty(toId)) {
+                    toId = domainObject.getInfo(ctx, "to[IMS_QP_ExpectedResult2QPTask].from.id");
+                }
+
+                if (UIUtil.isNullOrEmpty(toId)) {
+                    toId = domainObject.getInfo(ctx, "from[IMS_QP_ExpectedResult2DEPTask].to.id");
+                }
+
+                if (UIUtil.isNullOrEmpty(toId)) {
+                    toId = domainObject.getInfo(ctx, "to[IMS_QP_ExpectedResult2DEPTask].from.id");
+                }
+
+                String toIdType = new DomainObject(toId).getType(ctx);
+                if (IMS_QP_Constants_mxJPO.type_IMS_QP_QPTask.equals(toIdType)) {
+                    String qPlanId = new DomainObject(toId).getInfo(ctx, "to[IMS_QP_QPlan2QPTask].from.id");
+                    if (UIUtil.isNotNullAndNotEmpty(qPlanId)) {
+                        LOG.info("qplan info: " + new DomainObject(qPlanId).getName(ctx));
+                        granted = IMS_QP_Security_mxJPO.isOwnerQPlan(ctx, qPlanId) || IMS_QP_Security_mxJPO.isOwnerDepFromQPPlan(ctx, qPlanId);
+                        LOG.info("granted from qplan: " + granted);
+                    }
+                }
+
+                argsMap.put("objectId", objectId);
+                argsMap.put("parentOID", toId);
             }
 
-            LOG.info("admin or su: " + IMS_QP_Security_mxJPO.isUserAdminOrSuper(ctx)
-                    + " qp plan owner: " + IMS_QP_Security_mxJPO.isOwnerQPlan(ctx, args)
-                    + " dep owner: " + IMS_QP_Security_mxJPO.isOwnerDepFromQPTask(ctx, args)
-                    + " task owner: " + IMS_QP_Security_mxJPO.isOwnerQPlanFromTaskID(ctx, toId));
+            if (IMS_QP_Constants_mxJPO.type_IMS_QP_QPTask.equals(type)) {
+                String qPlanId = new DomainObject(objectId).getInfo(ctx, "to[IMS_QP_QPlan2QPTask].from.id");
+                if (UIUtil.isNotNullAndNotEmpty(qPlanId)) {
+                    LOG.info("qplan info: " + new DomainObject(qPlanId).getName(ctx));
+                    granted = IMS_QP_Security_mxJPO.isOwnerQPlan(ctx, qPlanId) || IMS_QP_Security_mxJPO.isOwnerDepFromQPPlan(ctx, qPlanId);
+                    LOG.info("granted from qplan: " + granted);
+                }
+            }
 
-            if (IMS_QP_Security_mxJPO.isOwnerQPlan(ctx, args) || IMS_QP_Security_mxJPO.isOwnerDepFromQPTask(ctx, args) || IMS_QP_Security_mxJPO.isOwnerQPlanFromTaskID(ctx, toId)) {
+            args = JPO.packArgs(argsMap);
+
+            if (granted) {
+                return true;
+            }
+
+            if (IMS_QP_Security_mxJPO.isOwnerDepFromQPTask(ctx, args)) {
+                return true;
+            }
+
+            if (IMS_QP_Security_mxJPO.isOwnerQPlan(ctx, args)
+                    || IMS_QP_Security_mxJPO.isOwnerDepFromQPTask(ctx, args)
+                    || IMS_QP_Security_mxJPO.isOwnerQPlanFromTaskID(ctx, toId)
+                    || IMS_QP_Security_mxJPO.currentUserIsDEPOwner(ctx, new DomainObject(toId))) {
                 granted = true;
             }
 
@@ -291,7 +345,7 @@ public class IMS_QP_ExpectedResult_mxJPO {
         }
 
 
-        LOG.info("er access: " + granted);
+        LOG.info("access to expected result: " + granted);
         return granted;
     }
 
@@ -308,7 +362,7 @@ public class IMS_QP_ExpectedResult_mxJPO {
             String state = "";
 
             // IMS_QP_DEPTask
-            if ("IMS_QP_DEPTask".equals(type)) {
+            if (IMS_QP_Constants_mxJPO.TYPE_IMS_QP_DEPTask.equals(type)) {
                 result = IMS_QP_Security_mxJPO.currentUserIsDEPOwner(context, object) ||
                         IMS_QP_Security_mxJPO.currentUserIsQPSuperUser(context);
                 state = object.getInfo(context, String.format("to[%s].from.to[%s].from.to[%s].from.current",
@@ -976,9 +1030,6 @@ public class IMS_QP_ExpectedResult_mxJPO {
         } catch (FrameworkException fe) {
             LOG.error("error connecting: " + fe.getMessage());
             fe.printStackTrace();
-        } catch (MatrixException e) {
-            LOG.error("error opening object: " + e.getMessage());
-            e.printStackTrace();
         }
 
         //finally
@@ -1030,23 +1081,25 @@ public class IMS_QP_ExpectedResult_mxJPO {
             e.printStackTrace();
         }
 
-        DomainObject depObject = null;
+        DomainObject externalDepObject = null;
         try {
             if (externalDepTask != null) {
                 DomainRelationship.connect(ctx, /*from*/externalDepTask, relationshipToTask, /*to*/newObject);
                 LOG.info("related " + externalDepTask.getName(ctx) + " -> " + relationshipToTask + " -> " + newObject.getName(ctx));
-                DomainRelationship.connect(ctx, /*from*/externalDepTask, relationshipToExternalTask, /*to*/parent);
+                DomainRelationship externalRelationship = DomainRelationship.connect(ctx, /*from*/externalDepTask, relationshipToExternalTask, /*to*/parent);
+                //external relationship going to Approve
+                externalRelationship.setAttributeValue(ctx, IMS_QP_Constants_mxJPO.attribute_IMS_QP_DEPTaskStatus, IMS_QP_Constants_mxJPO.APPROVED);
                 LOG.info("related " + externalDepTask.getName(ctx) + " -> " + relationshipToExternalTask + " -> " + parent.getName(ctx));
 
-                depObject = new DomainObject(boDep);
-                if (depObject != null) {
-                    LOG.info("dep object found");
+                externalDepObject = new DomainObject(boDep);
+                if (externalDepObject != null) {
                     String relationshipToDep = IMS_QP_Constants_mxJPO.RELATIONSHIP_IMS_QP_DEPTask2DEP;
-                    DomainRelationship.connect(ctx, /*from*/externalDepTask, relationshipToDep, /*to*/depObject);
-                    LOG.info("related " + externalDepTask.getName(ctx) + " -> " + relationshipToDep + " -> " + depObject.getName(ctx));
+                    DomainRelationship externalRelationshipToDep = DomainRelationship.connect(ctx, /*from*/externalDepTask, relationshipToDep, /*to*/externalDepObject);
+                    externalRelationshipToDep.setAttributeValue(ctx, IMS_QP_Constants_mxJPO.attribute_IMS_QP_DEPTaskStatus, IMS_QP_Constants_mxJPO.APPROVED);
+                    LOG.info("related " + externalDepTask.getName(ctx) + " -> " + relationshipToDep + " -> " + externalDepObject.getName(ctx));
                 }
             } else {
-                LOG.error("error: " + externalDepTask + " | " + depObject);
+                LOG.error("error: " + externalDepTask + " | " + externalDepObject);
                 throw new FrameworkException("could not create objects");
             }
 
@@ -1352,8 +1405,8 @@ public class IMS_QP_ExpectedResult_mxJPO {
                     append(objectMap.get("attribute[IMS_QP_DocumentCode]")).append("|").                                        //[1]
                     append(objectMap.get("attribute[IMS_Name]")).append("|").                                                   //[2]
                     append(objectMap.get("attribute[IMS_NameRu]")).append("|").                                                 //[3]
-                    append(objectMap.get("attribute[IMS_DescriptionRu]")).append("|").                                          //[4]
-                    append(objectMap.get("attribute[IMS_DescriptionEn]")).append("|").                                          //[5]
+                    append(objectMap.get("attribute[IMS_DescriptionEn]")).append("|").                                          //[4]
+                    append(objectMap.get("attribute[IMS_DescriptionRu]")).append("|").                                          //[5]
                     append(objectMap.get("attribute[IMS_QP_ProjectStage]")).append("|").                                        //[6]
                     append(objectMap.get("attribute[IMS_QP_Stage]")).append("|").                                               //[7]
                     append(objectMap.get("attribute[IMS_QP_Baseline]")).append("|").                                            //[8]

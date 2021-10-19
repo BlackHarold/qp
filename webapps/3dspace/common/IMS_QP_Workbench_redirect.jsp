@@ -21,12 +21,20 @@
     String toolbar = "";
     String disableSorting = "false";
     String program = "IMS_QP_Workbench";
-    String method =
-            type.equals("IMS_QP") && name.equals("DEP") ? "findAllDepsForBenchTable"
-                    : type.equals("IMS_QP") && name.equals("SQP") ? "findAllQPsForBenchTable"
-                    : type.equals("IMS_QP_DEP") ? "findDepTasksForBenchTableInit"
-                    : type.equals("IMS_QP_QPlan") ? "findQPTasksForBenchTableInit"
-                    : "";
+
+    String method = "";
+    switch (type) {
+        case "IMS_QP":
+            method = "find" + name + "sForBenchTable";
+            break;
+        case "IMS_QP_DEP":
+            method = "findDepTasksForBenchTableInit";
+            break;
+        case "IMS_QP_QPlan":
+            method = "findQPTasksForBenchTableInit";
+            break;
+    }
+
     String sortColumnName = "sort_order";
     String sortDirection = "ascending";
     String groupColumnName = "";

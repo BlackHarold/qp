@@ -1,20 +1,20 @@
 ################################################################################
-# COMMAND_IMS_QP_SQP_Table.mxu
+# COMMAND_IMS_QP_AQP_table.mxu
 #
 #            This file describes the target of a Configuration Item.
 ################################################################################
 
 mxUpdate command "${NAME}" {
-    symbolicname "command_IMS_QP_SQP_Table"
-    description "SQPs"
-    label "SQPs"
-    href "${COMMON_DIR}/IMS_QP_SQP_IndentedTable.jsp?program=IMS_QP:getAllSQP&table=IMS_QP_SQP&toolbar=IMS_QP_SQP_Toolbar&sortColumnName=Name&selection=multiple&pageSize=50&&parallelLoading=true"
+    symbolicname "command_IMS_QP_AQP_table"
+    description "AQPs"
+    label "AQPs"
+    href "${COMMON_DIR}/IMS_QP_SQP_IndentedTable.jsp?program=IMS_QP:getAllSQP&table=IMS_QP_SQP&toolbar=IMS_QP_SQP_Toolbar&sortColumnName=Name&selection=multiple"
     alt ""
-    setting "Access Expression" "name=='SQP'"
+    setting "Access Expression" "name=='AQP'"
     setting "Registered Suite" "Framework"
     ################################################## Info Start
     property "author" value "IMS Team"
-    property "original name" value "IMS_QP_SQP_Table"
+    property "original name" value "IMS_QP_AQP_table"
     property "application" value "IMS_QP"
     property "version" value "1"
     ################################################## Info End

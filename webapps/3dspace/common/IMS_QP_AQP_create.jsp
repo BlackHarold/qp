@@ -25,22 +25,16 @@
     }
 
     function onChangeComboboxDep() {
-        // var dep = document.getElementsByName("dep");
-        var depId = document.getElementById("depId");
-        var depIndex = depId.selectedIndex;
-    }
-
-    function onChangeComboboxDep() {
         let depId = document.getElementById("depId");
         let depIndex = depId.selectedIndex;
         let value = depId[depIndex].value;
+        let text = depId[depIndex].text;
         let systemInput = document.querySelector("#calc_system > td.createInputField > input[type=\"text\"]:nth-child(1)");
-        console.log(systemInput);
 
         //check attribute
         if (value.endsWith("_TRUE")) {
-            document.getElementById("calc_system").style.display = 'none';
-            systemInput.value = "empty";
+            // document.getElementById("calc_system").style.display = 'none';
+            // systemInput.value = "";
         } else {
             document.getElementById("calc_system").style.display = 'table-row';
         }

@@ -7,8 +7,8 @@
 mxUpdate command "${NAME}" {
     symbolicname "COMMAND_IMS_QP_QPlan_create"
     description ""
-    label "New QPlan"
-    href "${COMMON_DIR}/IMS_QP_SQP_Create.jsp?type=IMS_QP_QPlan&typeChooser=false&form=IMS_QP_SQP_create&relationship=relationship_IMS_QP_QP2QPlan&policy=IMS_QP_QPlan&header=IMS_QP_QPlan&postProcessJPO=IMS_QualityPlanBase:createQPlanPostProcess&submitAction=refreshCaller&nameField=autoName"
+    label "New plan"
+    href "${COMMON_DIR}/IMS_QP_QPlan_create.jsp"
     alt ""
     user "all"
     setting "Access Function" "isOwner"
