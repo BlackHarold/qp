@@ -5,13 +5,13 @@
 ################################################################################
 
 mxUpdate form "${NAME}" {
-    symbolicname "FORM_IMS_QP_Qplan_edit"
+    symbolicname "form_IMS_QP_QPlan_edit"
     description ""
     field {
         name "description"
         label "emxComponents.Common.Description"
         businessobject "description"
-        setting "Editable" "true"
+        setting "Access Expression" "(to[IMS_QP_QP2QPlan].from.name=='AQP'&&owner==context.user)||to[IMS_QP_QP2QPlan].from.name!='AQP'"
         setting "Input Type" "textarea"
         setting "Registered Suite" "Components"
     }
@@ -20,13 +20,29 @@ mxUpdate form "${NAME}" {
         label "Group SQP/BQP"
         businessobject "$<from[IMS_QP_Classifier2QPlan].to.name>"
         range "${COMMON_DIR}/emxIndentedTable.jsp?program=IMS_QP_Classifier:findAllFiltered&table=IMS_QP_Classifier_table&selection=single&targetLocation=popup&mode=chooser&cancelButton=true&cancelLabel=Cancel&submitLabel=Select&submitURL=../common/AEFSearchUtil.jsp"
+        setting "Access Expression" "to[IMS_QP_QP2QPlan].from.name!='AQP'"
         setting "Input Type" "textbox"
         setting "Registered Suite" "Components"
+    }
+    field {
+        name "owner"
+        label "emxComponents.Common.Owner"
+        businessobject "owner"
+        range "${COMMON_DIR}/emxFullSearch.jsp?type=PERSON_CHOOSER&showInitialResults=false&selection=single"
+        setting "Access Expression" "to[IMS_QP_QP2QPlan].from.name=='AQP'"
+        setting "Admin Type" "owner"
+        setting "Editable" "true"
+        setting "Field Type" "basic"
+        setting "Input Type" "textbox"
+        setting "Registered Suite" "Components"
+        setting "Required" "true"
+        setting "Show Clear Button" "true"
+        setting "format" "user"
     }
     ################################################## Info Start
     property "author" value "The IMS Team"
     property "original name" value "IMS_QP_QPlan_edit"
-    property "application" value "IMS"
+    property "application" value "IMS QP"
     property "version" value "1"
     ################################################## Info End
 }

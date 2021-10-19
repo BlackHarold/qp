@@ -84,8 +84,8 @@ public class IMS_QP_mxJPO extends DomainObject {
                         .append("to[IMS_QP_DEP2QPlan].from.from[IMS_QP_DEP2Owner].to.name==" + context.getUser());
             }
 
-            LOG.info(context.isAssigned(IMS_QP_Security_mxJPO.ROLE_IMS_QP_Supervisor) + "|" + objectType + "|" + objectName);
-            if (context.isAssigned(IMS_QP_Security_mxJPO.ROLE_IMS_QP_Supervisor) && IMS_QP_Constants_mxJPO.type_IMS_QP.equals(objectType)) {
+            LOG.info(context.isAssigned(IMS_QP_Security_mxJPO.ROLE_IMS_QP_Viewer) + "|" + objectType + "|" + objectName);
+            if (context.isAssigned(IMS_QP_Security_mxJPO.ROLE_IMS_QP_Viewer) && IMS_QP_Constants_mxJPO.type_IMS_QP.equals(objectType)) {
                 if (whereStringBuilder.length() > 0) {
                     whereStringBuilder.append("&&");
                 }
@@ -291,12 +291,23 @@ public class IMS_QP_mxJPO extends DomainObject {
      */
     public MapList getAllDEP(Context context, String[] args) throws Exception {
 
+        StringBuilder whereStringBuilder = new StringBuilder("");
+        if (context.isAssigned(IMS_QP_Security_mxJPO.ROLE_IMS_QP_Viewer)) {
+            if (whereStringBuilder.length() > 0) {
+                whereStringBuilder.append("&&");
+            }
+
+            //tree without external initial objects
+            whereStringBuilder
+                    .append("name nsmatch '*ExternalInitialData*'");
+        }
+
         MapList allDEPs = new MapList();
         try {
             allDEPs = DomainObject.findObjects(context,
                     /*type*/ IMS_QP_Constants_mxJPO.TYPE_IMS_QP_DEP,
                     /*vault*/IMS_QP_Constants_mxJPO.ESERVICE_PRODUCTION,
-                    /*where*/null,
+                    /*where*/whereStringBuilder.toString(),
                     /*selects*/ new StringList(DomainConstants.SELECT_ID));
         } catch (FrameworkException fe) {
             LOG.error("error getting tasks: " + fe.getMessage());

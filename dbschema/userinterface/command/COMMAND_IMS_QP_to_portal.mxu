@@ -8,7 +8,7 @@ mxUpdate command "${NAME}" {
     symbolicname "COMMAND_IMS_QP_to_portal"
     description "IMS_QP_to_portal"
     label "QP Portal"
-    href "${COMMON_DIR}/emxPortal.jsp?portal=IMS_QP_Portal&portalMode=true&H elpMarker=HelpMarker&header=PowerView"
+    href "${COMMON_DIR}/emxPortal.jsp?portal=IMS_QP_Portal&portalMode=true&HelpMarker=HelpMarker&header=PowerView"
     alt ""
     user "all"
     setting "Registered Suite" "Framework"

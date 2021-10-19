@@ -10,7 +10,7 @@ mxUpdate command "${NAME}" {
     label "Group SQP/BQP"
     href "${COMMON_DIR}/emxIndentedTable.jsp?program=IMS_QP_Classifier:findAll&table=IMS_QP_Classifier_table&toolbar=IMS_QP_Classifier_for_table&selection=multiple"
     alt ""
-    setting "Access Expression" "name!='DEP'"
+    setting "Access Expression" "name=='SQP'"
     setting "Registered Suite" "Framework"
     ################################################## Info Start
     property "author" value "IMS Team"

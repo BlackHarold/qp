@@ -119,6 +119,15 @@ public class IMS_QP_DEP_Report_mxJPO {
     Map<List<String>, List<String>> tasksInfoMap = new LinkedHashMap<>();
     Map<String, CellStyle> styles;
 
+    /**
+     * Creating report by type with using a report business object data
+     * *
+     * @param ctx
+     * @param reportData
+     * @param sheetName
+     * @return
+     */
+
     private Workbook createReport(Context ctx, BusinessObjectWithSelectList reportData, String sheetName) {
 
         Workbook wb = null;

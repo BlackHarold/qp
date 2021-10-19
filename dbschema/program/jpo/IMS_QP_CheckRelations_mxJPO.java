@@ -6,10 +6,7 @@ import com.matrixone.apps.domain.util.FrameworkException;
 import com.matrixone.apps.domain.util.MapList;
 import com.matrixone.apps.domain.util.MqlUtil;
 import com.matrixone.apps.framework.ui.UIUtil;
-import matrix.db.BusinessObjectWithSelect;
-import matrix.db.BusinessObjectWithSelectList;
-import matrix.db.Context;
-import matrix.db.Query;
+import matrix.db.*;
 import matrix.util.MatrixException;
 import matrix.util.StringList;
 import org.apache.log4j.Logger;
@@ -19,6 +16,7 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
+import java.io.File;
 import java.io.*;
 import java.nio.file.Files;
 import java.text.SimpleDateFormat;
@@ -1026,5 +1024,207 @@ public class IMS_QP_CheckRelations_mxJPO {
         busSelect.addElement(IMS_QP_Constants_mxJPO.ATTRIBUTE_IMS_NAME_RU);
 
         return busSelect;
+    }
+
+    /**
+     * report by issue #66675
+     *
+     * @param ctx
+     * @param args if it needs all parameters
+     *             [1] - path to directory of report,
+     *             [2] - name of report template
+     *             or using default values
+     */
+    public void getInitialDesignReport(Context ctx, String... args) {
+        int cellCountRequired = 12;
+        Date date = new Date();
+        SimpleDateFormat formatter = new SimpleDateFormat("ddMM_HHmm");
+
+        String dataFilePath = "C:\\Temp\\66675\\initial_design_data.txt";
+
+        String absolutePath = "C:\\Temp\\66675\\";
+        String fileName = "initial_report.xlsx";
+
+        if (args != null && args.length > 0) {
+            absolutePath = args[0];
+            fileName = args[1];
+        }
+
+        FileInputStream fis = null;
+        try {
+            System.out.println(absolutePath + fileName);
+            fis = new FileInputStream(absolutePath + fileName);
+
+            if (fis != null) {
+                wb = new XSSFWorkbook(fis);
+            }
+        } catch (IOException e) {
+            System.out.println("IO error: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        int rowCount = 1;
+
+        //get next row from txt file
+        File file = new File(dataFilePath);
+
+        FileReader fileReader = null;
+        Reader reader = null;
+        try {
+            fileReader = new FileReader(file);
+            reader = new InputStreamReader(new FileInputStream(file), "utf-8");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        BufferedReader bufferedReader = new BufferedReader(reader);
+        List<String> lineArray = null;
+
+        try {
+            String line;
+            while ((line = bufferedReader.readLine()) != null) {
+                lineArray = new ArrayList<>();
+                if (line != null) {
+                    String[] array = line.split("\\|\\|\\|");
+                    for (String s : array) {
+                        lineArray.add(s);
+                    }
+
+                    if (lineArray != null && lineArray.size() > 0) {
+                        lineArray.remove(0);
+
+                        //find task name related document by name revision&version
+                        BusinessObject businessObject = null;
+                        try {
+
+                            String name = lineArray.get(0);
+                            String revision = lineArray.get(1);
+                            System.out.println("check document by name: " + name + " revision: " + revision);
+                            businessObject = new BusinessObject(IMS_QP_Constants_mxJPO.type_IMS_ExternalDocumentSet, name, revision, IMS_QP_Constants_mxJPO.ESERVICE_PRODUCTION);
+
+                            if (businessObject != null && businessObject.exists(ctx)) {
+                                System.out.print("document " + name + " exist ");
+                                DomainObject domainObject = new DomainObject(businessObject);
+                                StringList relatedTasks = domainObject.getInfoList(ctx, "to[IMS_QP_QPTask2Fact].from.name");
+                                System.out.println(revision + " relatedTasks: " + relatedTasks.size() + ": " + relatedTasks);
+                                StringBuilder builder = new StringBuilder("");
+                                if (relatedTasks != null & relatedTasks.size() > 0) {
+                                    for (int i = 0; i < relatedTasks.size(); i++) {
+                                        builder.append(relatedTasks.get(i));
+                                        if (relatedTasks.size() - i > 1) {
+                                            builder.append(",");
+                                        }
+                                    }
+                                }
+                                lineArray.add(1, UIUtil.isNotNullAndNotEmpty(builder.toString())?builder.toString():"not applicable");
+                            } else {
+                                lineArray.add(1, "-");
+                            }
+                        } catch (MatrixException e) {
+                            System.out.println("matrix error: " + e.getMessage());
+                            e.printStackTrace();
+
+                        } catch (IndexOutOfBoundsException ioe) {
+                            System.out.println("empty list: " + lineArray);
+                            ioe.printStackTrace();
+                        }
+
+                        if (lineArray.size() < cellCountRequired) {
+                            lineArray.add("empty description");
+                        }
+                        if (lineArray.size() == cellCountRequired) {
+                            fillSheet(0, rowCount, lineArray);
+                            rowCount++;
+                        } else {
+                            System.out.println("bad doc: " + lineArray);
+                        }
+                    }
+                }
+            }
+            bufferedReader.close();
+
+        } catch (IOException e) {
+            System.out.println("IO exception " + e.getMessage());
+            e.printStackTrace();
+        }
+        //write book to new file
+        try {
+            date = new Date();
+            fileName = "initial_report";
+            String toFileName = absolutePath + fileName + "_" + formatter.format(date) + ".xlsx";
+            System.out.println("finished to reporting at " + formatter.format(date) + "\nwith new file name: " + toFileName);
+            FileOutputStream fos = new FileOutputStream(toFileName);
+            wb.write(fos);
+
+            //close streams
+            if (fis != null) {
+                fis.close();
+                fos.close();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Utility method for filling rows in indexed sheets for report by issue #63784
+     *
+     * @param sheetIndex
+     * @param rowIndex
+     * @return
+     */
+    private void fillSheet(int sheetIndex, int rowIndex, List<String> dataRow) {
+        Sheet sheet = wb.getSheetAt(sheetIndex);
+        Row row;
+        Cell cell;
+
+        row = sheet.createRow(rowIndex);
+        System.out.println(rowIndex + ": " + dataRow);
+//        [0]  FH1.B.P000.1.030233.01&&&&.011.CA.0001.E
+//        [1]  task_name
+//        [2]  fd7e382d-ebd8-4572-bc68-d4d604201f51
+//        [3]  64032.5386.10544.50562
+//        [4]  PreReview_RS
+//        [5]  01 _ [6] 1
+//        [7]  FALSE  attribute[IMS_Frozen]
+//        [8]  TRUE attribute[IMS_IsLast]
+//        [9]  Preliminary  attribute[IMS_ProjDocStatus]
+//        [10] Is Finalized
+//        [11] Description
+
+        cell = row.createCell(0);
+        cell.setCellValue(dataRow.get(0));                          //doc name
+
+        cell = row.createCell(1);
+        cell.setCellValue(dataRow.get(1));                          //task name
+
+        cell = row.createCell(2);
+        cell.setCellValue(dataRow.get(2));                          //revision
+
+        cell = row.createCell(3);
+        cell.setCellValue(dataRow.get(3));                          //id
+
+        cell = row.createCell(4);
+        cell.setCellValue(dataRow.get(4));                          //current state
+
+        cell = row.createCell(5);
+        cell.setCellValue(dataRow.get(5) + "_" + dataRow.get(6));   //rev_ver
+
+        cell = row.createCell(7);
+        cell.setCellValue(dataRow.get(7));                          //frozen
+
+        cell = row.createCell(8);
+        cell.setCellValue(dataRow.get(8));                          //last
+
+        cell = row.createCell(9);
+        cell.setCellValue(dataRow.get(9));                          //doc status
+
+        cell = row.createCell(10);
+        cell.setCellValue(dataRow.get(10));                          //is finalized
+
+        cell = row.createCell(11);
+        cell.setCellValue(dataRow.get(11));                          //description
     }
 }

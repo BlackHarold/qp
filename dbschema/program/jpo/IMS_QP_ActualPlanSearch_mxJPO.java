@@ -797,6 +797,7 @@ public class IMS_QP_ActualPlanSearch_mxJPO {
         }
         if (UIUtil.isNotNullAndNotEmpty(content)) {
             try {
+                System.out.println("content: " + content);
                 contentMapList = jsonArrayToMapList(new JSONArray(content));
             } catch (MatrixException matrixException) {
                 System.out.println("matrix exception: " + matrixException.getMessage());
@@ -804,17 +805,17 @@ public class IMS_QP_ActualPlanSearch_mxJPO {
             }
         }
 
-        MapList filteredMapList = new MapList();
+
         boolean docFounded;
         if (contentMapList.size() > 0) {
             docFounded = true;
             System.out.println("doc founded -> " + docFounded);
 
             //filtering by language type                                                                                //10.2.1.1
+            MapList filteredMapList = new MapList();
             filteredMapList.addAll(getLanguageList(contentMapList));
-            System.out.println("filteredMapList: " + filteredMapList);
+
             filteredMapList = sortMapListByRevisionAndVersion(filteredMapList);
-            System.out.println("filtered map list");
 
             if (filteredMapList.size() > 1) {                                                                           //10.2.1.2.1
                 String selectResult = fillSelect(filteredMapList, bowsTask.getSelectData(DomainConstants.SELECT_ID));
@@ -834,6 +835,7 @@ public class IMS_QP_ActualPlanSearch_mxJPO {
             } else if (filteredMapList.size() == 1) {
 
                 Map map = (Map) filteredMapList.get(0);
+                System.out.println("map: " + map);
 
                 //check if task has same connection to the document
                 try {
@@ -844,10 +846,10 @@ public class IMS_QP_ActualPlanSearch_mxJPO {
 
                 boolean equalDocument;
                 try {
-                    String existedConnectionToExternalDocumentId = objectTask.getInfo(ctx,
-                            "from[IMS_QP_QPTask2Fact].id");
-                    String existedConnectionToExternalDocumentRevision = objectTask.getInfo(ctx,
-                            "from[IMS_QP_QPTask2Fact].to.revision");
+                    String existedConnectionToExternalDocumentId =
+                            objectTask.getInfo(ctx, "from[IMS_QP_QPTask2Fact].id");
+                    String existedConnectionToExternalDocumentRevision =
+                            objectTask.getInfo(ctx, "from[IMS_QP_QPTask2Fact].to.revision");
 
                     if (UIUtil.isNotNullAndNotEmpty(existedConnectionToExternalDocumentRevision)) {
                         //check equals document revisions
@@ -1237,14 +1239,11 @@ public class IMS_QP_ActualPlanSearch_mxJPO {
 
         try {
             ContextUtil.pushContext(ctx);
-            System.out.println("name: " + name);
+
             BusinessObject boDocument = new BusinessObject(TYPE_IMS_ExternalDocumentSet, name, revision,
                     ctx.getVault().getName());
-            System.out.println("boDocument");
             object = new DomainObject(boDocument);
-            System.out.println("object");
             if (!object.exists(ctx)) {
-                System.out.println("exist");
                 object.create(ctx, POLICY_IMS_ExternalObject);
                 object.addBusinessInterface(ctx, new BusinessInterface(INTERFACE_IMS_ExternalObject, ctx.getVault()));
             }
@@ -1256,46 +1255,38 @@ public class IMS_QP_ActualPlanSearch_mxJPO {
         try {
             System.out.println("map: " + map);
 
-            System.out.println("description");
+//            System.out.println("description: " + map.get(DomainConstants.SELECT_DESCRIPTION));
             object.setDescription(ctx, (String) map.get(DomainConstants.SELECT_DESCRIPTION));
 
-            System.out.println(ATTRIBUTE_IMS_ExternalObjectId);
             object.setAttributeValue(ctx, ATTRIBUTE_IMS_ExternalObjectId, (String) map.get(DomainConstants.SELECT_ID));
-
-            System.out.println(ATTRIBUTE_IMS_ExternalObjectType);
-            object.setAttributeValue(ctx,
-                    ATTRIBUTE_IMS_ExternalObjectType, (String) map.get(DomainConstants.SELECT_TYPE));
-
-            System.out.println(ATTRIBUTE_IMS_ExternalObjectPolicy);
-            object.setAttributeValue(ctx,
-                    ATTRIBUTE_IMS_ExternalObjectPolicy, (String) map.get(DomainConstants.SELECT_POLICY));
-
-            System.out.println(ATTRIBUTE_IMS_ExternalObjectState);
-            object.setAttributeValue(ctx,
-                    ATTRIBUTE_IMS_ExternalObjectState, (String) map.get(DomainConstants.SELECT_CURRENT));
-
-            System.out.println("major revision");
-            object.setAttributeValue(ctx,
-                    ATTRIBUTE_IMS_SPFMajorRevision,
-                    (String) map.get(DomainObject.getAttributeSelect(ATTRIBUTE_IMS_SPFMajorRevision)));
-
-            System.out.println("doc version: " + map.get(DomainObject.getAttributeSelect(ATTRIBUTE_IMS_SPFDocVersion)));
-            object.setAttributeValue(ctx,
-                    ATTRIBUTE_IMS_SPFDocVersion,
-                    (String) map.get(DomainObject.getAttributeSelect(ATTRIBUTE_IMS_SPFDocVersion)));
-
-            System.out.println("projdoc status: " + map.get(DomainObject.getAttributeSelect(ATTRIBUTE_IMS_ProjDocStatus)));
-//            String projDocStatus = (String) map.get(DomainObject.getAttributeSelect(ATTRIBUTE_IMS_ProjDocStatus));
-//            System.out.println("projDocStatus is: " + projDocStatus);
-//            object.setAttributeValue(ctx, ATTRIBUTE_IMS_ProjDocStatus, UIUtil.isNotNullAndNotEmpty(projDocStatus) ? projDocStatus : "-");
-            System.out.println("frozen status " + map.get(DomainObject.getAttributeSelect(ATTRIBUTE_IMS_Frozen)));
-            object.setAttributeValue(ctx,
-                    ATTRIBUTE_IMS_Frozen,
-                    (String) map.get(DomainObject.getAttributeSelect(ATTRIBUTE_IMS_Frozen)));
-            System.out.println("bbs: " + map.get(IMS_QP_Constants_mxJPO.TO_IMS_BBS_2_CI_FROM + ".name"));
-            object.setAttributeValue(ctx, "IMS_BBSMajor", (String) map.get(IMS_QP_Constants_mxJPO.TO_IMS_BBS_2_CI_FROM + ".name"));
-
             System.out.println("ensure object id: " + object.getAttributeValue(ctx, ATTRIBUTE_IMS_ExternalObjectId));
+
+            object.setAttributeValue(ctx, ATTRIBUTE_IMS_ExternalObjectType, (String) map.get(DomainConstants.SELECT_TYPE));
+            System.out.println("ensure object type: " + object.getAttributeValue(ctx, ATTRIBUTE_IMS_ExternalObjectType));
+
+            object.setAttributeValue(ctx, ATTRIBUTE_IMS_ExternalObjectPolicy, (String) map.get(DomainConstants.SELECT_POLICY));
+            System.out.println("ensure object policy: " + object.getAttributeValue(ctx, ATTRIBUTE_IMS_ExternalObjectPolicy));
+
+            object.setAttributeValue(ctx, ATTRIBUTE_IMS_ExternalObjectState, (String) map.get(DomainConstants.SELECT_CURRENT));
+            System.out.println("ensure object current: " + object.getAttributeValue(ctx, ATTRIBUTE_IMS_ExternalObjectState));
+
+            object.setAttributeValue(ctx, ATTRIBUTE_IMS_ProjDocStatus,
+                    (String) map.get(DomainObject.getAttributeSelect(ATTRIBUTE_IMS_ProjDocStatus)));
+            System.out.println("ensure object proj doc status: " + object.getAttributeValue(ctx, ATTRIBUTE_IMS_ProjDocStatus));
+
+            object.setAttributeValue(ctx, ATTRIBUTE_IMS_SPFMajorRevision,
+                    (String) map.get(DomainObject.getAttributeSelect(ATTRIBUTE_IMS_SPFMajorRevision)));
+            System.out.println("ensure object spf major revision: " + object.getAttributeValue(ctx, ATTRIBUTE_IMS_SPFMajorRevision));
+
+            object.setAttributeValue(ctx, ATTRIBUTE_IMS_SPFDocVersion,
+                    (String) map.get(DomainObject.getAttributeSelect(ATTRIBUTE_IMS_SPFDocVersion)));
+            System.out.println("ensure object spf doc version: " + object.getAttributeValue(ctx, ATTRIBUTE_IMS_SPFDocVersion));
+
+            object.setAttributeValue(ctx, ATTRIBUTE_IMS_Frozen, (String) map.get(DomainObject.getAttributeSelect(ATTRIBUTE_IMS_Frozen)));
+            System.out.println("ensure object frozen status: " + object.getAttributeValue(ctx, ATTRIBUTE_IMS_Frozen));
+
+            object.setAttributeValue(ctx, "IMS_BBSMajor", (String) map.get(IMS_QP_Constants_mxJPO.TO_IMS_BBS_2_CI_FROM + ".name"));
+            System.out.println("ensure object CB: " + object.getAttributeValue(ctx, "IMS_BBSMajor"));
 
             ContextUtil.popContext(ctx);
         } catch (FrameworkException fe) {

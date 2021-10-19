@@ -14,7 +14,6 @@ public class IMS_QP_PreparationStatement_Report_mxJPO {
     public Map<?, ?> getPrepare(Context ctx, String type, String... args) {
         String[] cleanedIDs = args; //QP-00SNA
         BusinessObjectWithSelectList data = getByTypeAndSelectedIds(ctx, IMS_QP_Constants_mxJPO.type_IMS_QP_QPlan, cleanedIDs);
-        LOG.info("data: " + data);
         Collections.sort(data, new Comparator<BusinessObjectWithSelect>() {
             @Override
             public int compare(BusinessObjectWithSelect bos1, BusinessObjectWithSelect bos2) {
@@ -26,7 +25,6 @@ public class IMS_QP_PreparationStatement_Report_mxJPO {
         });
 
         Map<String, String> taskMap = new LinkedHashMap<>();
-        LOG.info("sorted business object data: " + data);
         for (Object o : data) {
             BusinessObjectWithSelect businessObject = (BusinessObjectWithSelect) o;
 
@@ -38,7 +36,6 @@ public class IMS_QP_PreparationStatement_Report_mxJPO {
             }
 
             RelationshipWithSelectList relationshipWithSelectList = getRelationshipWithSelectList(ctx, businessObject);
-            LOG.info("relationships list: " + relationshipWithSelectList);
             RelationshipWithSelectItr relItr = new RelationshipWithSelectItr(relationshipWithSelectList);
             taskMap.putAll(getQPTaskList(businessObject.getSelectData(DomainObject.SELECT_ID), relItr));
         }
@@ -98,6 +95,8 @@ public class IMS_QP_PreparationStatement_Report_mxJPO {
     }
 
     private Map<String, String> getQPTaskList(String planId, RelationshipWithSelectItr relItr) {
+        String full = "Full", no = "No";
+
         Map<String, RelationshipWithSelect> map = new HashMap<>();
         Map<String, RelationshipWithSelect> sortedMap = new LinkedHashMap<>();
         List<String> taskList = new ArrayList<>();
@@ -148,7 +147,6 @@ public class IMS_QP_PreparationStatement_Report_mxJPO {
         }
 
         Map<String, String> badTasks = new LinkedHashMap<>();
-        String full = "Full", no = "No";
         for (Map.Entry entry : sortedMap.entrySet()) {
             RelationshipWithSelect relToTask = (RelationshipWithSelect) entry.getValue();
 
@@ -157,12 +155,10 @@ public class IMS_QP_PreparationStatement_Report_mxJPO {
             String to_IMSName = UIUtil.isNotNullAndNotEmpty(relToTask.getSelectData("to.attribute[IMS_NameRu]")) ?
                     relToTask.getSelectData("to.attribute[IMS_NameRu]") : "-";
             String toState = relToTask.getSelectData("to.attribute[IMS_QP_CloseStatus]");
-            int sortLevel = Integer.parseInt(relToTask.getSelectData("to.attribute[IMS_QP_SortLevel]"));
+            int toSortLevel = Integer.parseInt(relToTask.getSelectData("to.attribute[IMS_QP_SortLevel]"));
 
             if (toState.equals("Full")) {
-                LOG.info(toName + " has state Full. Additional info: " + toState + " sort level: " + sortLevel);
                 continue;
-
             } else {
                 List<String> toTasksId = Arrays.asList(
                         relToTask.getSelectData("to.to[IMS_QP_QPTask2QPTask].from.id")
@@ -177,40 +173,41 @@ public class IMS_QP_PreparationStatement_Report_mxJPO {
                         relToTask.getSelectData("to.to[IMS_QP_QPTask2QPTask].from.attribute[IMS_QP_SortLevel]")
                                 .split(IMS_QP_Constants_mxJPO.BELL_DELIMITER));
 
+                boolean toAlienTasksOnly = true;
                 for (int i = 0; i < toTasksId.size(); i++) {
 
                     //if only one task without relationships by issue 59788 / comment #9 / point 3.
                     if (toTasksId.size() == 1) {
                         LOG.info("only one task without relationships by issue comment #9 point 3: " + toName);
                         badTasks.put(toName, to_IMSName);
+                        toAlienTasksOnly = false;
                         continue;
                     }
 
                     if (sortedMap.containsKey(toTasksNames.get(i))) {
-                        int parentTaskSortLevel = Integer.parseInt(toTasksSortLevel.get(i));
-                        LOG.info(toName + "->" + toTasksNames.get(i) + "|" + toTasksStates.get(i) + "|"
-                                + parentTaskSortLevel +
-                                (parentTaskSortLevel == sortLevel ? " = " : parentTaskSortLevel > sortLevel ? " > " : " < ")
-                                + sortLevel + " -checkup!");
+                        toAlienTasksOnly = false;
+                        int toTaskSortLevel = Integer.parseInt(toTasksSortLevel.get(i));
 
-                        //task has relationship from upper task whose has been state is 'Full'
-                        if (parentTaskSortLevel < sortLevel && toTasksStates.get(i).equals("Full")) {
-                            LOG.info("task has relationship from upper task whose has been state is 'Full': " + toName);
+                        //task has relationship from upper task whose state is 'Full'
+
+                        if (toSortLevel > toTaskSortLevel && toTasksStates.get(i).equals(full)) {
                             badTasks.put(toName, to_IMSName);
                         }
 
-                        //task has no relationship from upper task & has a state
-                    } else if (UIUtil.isNullOrEmpty(toTasksSortLevel.get(i)) && toState.equals("No")) {
-                        LOG.info(toName + "->" + toTasksNames.get(i) + "|" + toTasksSortLevel.get(i) + " -skip!");
-                        LOG.info("task has no relationship from upper task & has a state: " + toName);
+                        //task has no relationship from upper task & has 'No' state
+                    } else if (UIUtil.isNullOrEmpty(toTasksSortLevel.get(i)) && toState.equals(no)) {
+                        toAlienTasksOnly = false;
                         badTasks.put(toName, to_IMSName);
                     }
                 }
 
-                LOG.info("bad tasks: " + badTasks);
+                if (toAlienTasksOnly && toState.equals(no)) {
+                    badTasks.put(toName, to_IMSName);
+                }
             }
         }
 
+        LOG.info("bad tasks: " + badTasks);
         return badTasks;
     }
 
@@ -273,7 +270,6 @@ public class IMS_QP_PreparationStatement_Report_mxJPO {
         }
         // Getting Relationships
         RelationshipWithSelectList relationshipWithSelectList = expansion.getRelationships();
-//        RelationshipWithSelectItr relItr = new RelationshipWithSelectItr(relationshipWithSelectList);
         return relationshipWithSelectList;
     }
 

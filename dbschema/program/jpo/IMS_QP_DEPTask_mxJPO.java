@@ -73,7 +73,7 @@ public class IMS_QP_DEPTask_mxJPO {
         }
     }
 
-    public HashMap createDEPTask(Context context, String[] args) {
+    public HashMap createDEPTask(Context ctx, String[] args) {
         HashMap returnMap = new HashMap();
         try {
 
@@ -84,9 +84,11 @@ public class IMS_QP_DEPTask_mxJPO {
             String objectId = (String) paramMap.get("objectId");
             String parentOID = (String) requestMap.get("parentOID");
             DomainObject parent = new DomainObject(parentOID);
-            MapList depTask = getRelatedMapList(context, parent, RELATIONSHIP_IMS_QP_DEP_SUB_STAGE_2_DEP_TASK, TYPE_IMS_QP_DEP_TASK, true, true, (short) 1, "", null, 0);
+            LOG.info(parent.getType(ctx));
+            MapList depTask = getRelatedMapList(ctx, parent, RELATIONSHIP_IMS_QP_DEP_SUB_STAGE_2_DEP_TASK, TYPE_IMS_QP_DEP_TASK, true, true, (short) 1, "", null, 0);
+            LOG.info(depTask.size() + ": " + depTask);
 
-            getNextName(context, objectId, parent, depTask, "", 1, 0);
+            getNextName(ctx, objectId, parent, depTask, "", 1, 0);
 
         } catch (Exception ex) {
             returnMap.put("Message", ex.toString());
@@ -95,12 +97,21 @@ public class IMS_QP_DEPTask_mxJPO {
         return returnMap;
     }
 
-    public static DomainObject getNextName(Context context, String objectId, DomainObject parent, MapList mapList, String family, int i, int element) {
-        String vault = context.getVault().getName();
+    public static DomainObject getNextName(Context ctx, String objectId, DomainObject parent, MapList mapList, String family, int i, int element) {
+        String vault = ctx.getVault().getName();
 
         mapList.addSortKey("attribute[IMS_SortOrder]", "descending", "integer");
         mapList.sort();
-        int numberInt = mapList.size() + 1;
+
+        int numberInt = mapList.size();
+        try {
+            if (parent != null && !IMS_QP_Constants_mxJPO.type_IMS_QP_DEPSubStage.equals(parent.getType(ctx))) {
+                numberInt += 1;
+            }
+        } catch (FrameworkException e) {
+            LOG.error(e.getMessage());
+            e.printStackTrace();
+        }
 
         /*mask name: [Task name]_[Type level 2]_[Count]*/
         String familyPostfix = "";
@@ -111,7 +122,7 @@ public class IMS_QP_DEPTask_mxJPO {
             if (family.contains("_")) {
                 try {
                     LOG.info("family: " + family);
-                    familyName = new DomainObject(family.substring(0, family.lastIndexOf("_"))).getName(context);
+                    familyName = new DomainObject(family.substring(0, family.lastIndexOf("_"))).getName(ctx);
                 } catch (Exception e) {
                     LOG.error("checking family name error: " + e.getMessage());
                     e.printStackTrace();
@@ -123,7 +134,7 @@ public class IMS_QP_DEPTask_mxJPO {
         String needZero = (numberInt < 10) ? "0" : "";
         String newName = null;
         try {
-            newName = parent.getInfo(context, DomainObject.SELECT_NAME) + familyPostfix + "-" + needZero;
+            newName = parent.getInfo(ctx, DomainObject.SELECT_NAME) + familyPostfix + "-" + needZero;
         } catch (FrameworkException e) {
             LOG.error("getting parent name error: " + e.getMessage());
             e.printStackTrace();
@@ -138,7 +149,7 @@ public class IMS_QP_DEPTask_mxJPO {
                 nameCandidate = newName + number;
                 boCandidate = new BusinessObject(IMS_QP_Constants_mxJPO.type_IMS_QP_ExpectedResult, nameCandidate, "", vault);
                 number++;
-            } while (boCandidate.exists(context));
+            } while (boCandidate.exists(ctx));
         } catch (MatrixException e) {
             LOG.error("check existing name error: " + e.getMessage());
             e.printStackTrace();
@@ -151,16 +162,13 @@ public class IMS_QP_DEPTask_mxJPO {
                 newObject = new DomainObject(boCandidate);
                 if (UIUtil.isNotNullAndNotEmpty(nameCandidate)) {
                     newObject.setId(objectId);
-                    newObject.setName(context, nameCandidate);
-                    newObject.setAttributeValue(context, ATTRIBUTE_IMS_SORT_ORDER, String.valueOf(numberInt));
+                    newObject.setName(ctx, nameCandidate);
+                    newObject.setAttributeValue(ctx, ATTRIBUTE_IMS_SORT_ORDER, String.valueOf(numberInt));
                 }
             }
 
         } catch (FrameworkException e) {
             LOG.error("setting parameters for new object got error: " + e.getMessage());
-            e.printStackTrace();
-        } catch (MatrixException e) {
-            LOG.error("trying to opening business object error: " + e.getMessage());
             e.printStackTrace();
         }
 

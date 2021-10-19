@@ -41,6 +41,7 @@ mxUpdate form "${NAME}" {
         name "group"
         label "Group SQP/BQP"
         businessobject "$<to[IMS_QP_Classifier2QPlan].from.name>"
+        setting "Access Expression" "to[IMS_QP_QP2QPlan].from.name!=AQP"
         setting "Editable" "false"
         setting "Field Type" "basic"
         setting "Registered Suite" "Components"
@@ -66,7 +67,7 @@ mxUpdate form "${NAME}" {
     }
     ################################################## Info Start
     property "author" value "The IMS Team"
-    property "original name" value "IMS_QP_QPlan_form"
+    property "original name" value "type_IMS_QP_QPlan"
     property "application" value "IMS"
     property "version" value "1"
     ################################################## Info End

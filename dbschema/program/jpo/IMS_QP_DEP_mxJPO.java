@@ -243,25 +243,39 @@ public class IMS_QP_DEP_mxJPO {
             e.printStackTrace();
         }
 
-        String partWhere = "";
+        String where = "";
         String externalSystemQuery = (String) argsMap.get("IMS_ExternalSystemQuery");
         if (UIUtil.isNotNullAndNotEmpty(externalSystemQuery) && externalSystemQuery.contains(",")) {
             externalSystemQuery = externalSystemQuery.replaceAll("\\s+", "");
             String[] rawQueryParts = externalSystemQuery.split(",");
             for (int i = 0; i < rawQueryParts.length; i++) {
-                partWhere += "name ~~'*" + rawQueryParts[i] + "*'";
+                where += "name ~~'*" + rawQueryParts[i] + "*'";
                 if ((rawQueryParts.length - i) > 1) {
-                    partWhere += "||";
+                    where += "||";
                 }
             }
         } else {
-            partWhere = "name ~~'*" + externalSystemQuery + "*'";
+            where = "name ~~'*" + externalSystemQuery + "*'";
         }
 
         //get objectID
         String objectId = (String) argsMap.get(IMS_QP_Constants_mxJPO.OBJECT_ID);
+        String isInterdisciplinary = "";
+        try {
+            isInterdisciplinary = new DomainObject(objectId).getAttributeValue(ctx, "IMS_QP_InterdisciplinaryDEP");
+            if ("FALSE".equals(isInterdisciplinary)) {
+                where += "&&from[IMS_PBS2DEP]==false||from[IMS_PBS2DEP].to.attribute[IMS_QP_InterdisciplinaryDEP]==true";
+            }
+            LOG.info("findSystemByName objectId: " + objectId + "|" + new DomainObject(objectId).getName(ctx) + " is indscpl: " + isInterdisciplinary + " where " + where);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         MapList listObjects = new MapList();
+        StringList selects = new StringList();
+        selects.add(DomainConstants.SELECT_ID);
+        selects.add(DomainConstants.SELECT_NAME);
+        selects.add("from[IMS_PBS2DEP].to.attribute[IMS_QP_InterdisciplinaryDEP]");
         try {
             listObjects = DomainObject.findObjects(ctx,
                     /*var1 type*/IMS_QP_Constants_mxJPO.SYSTEM_TYPES,
@@ -269,14 +283,29 @@ public class IMS_QP_DEP_mxJPO {
                     /*var3 revision*/DomainConstants.QUERY_WILDCARD,
                     /*var4 owner*/DomainConstants.QUERY_WILDCARD,
                     /*var5 vault*/ ctx.getVault().getName(),
-                    /*var6 where*/ partWhere +
-                            "&&from[IMS_PBS2DEP]==false",
+                    /*var6 where*/ where,
                     /*var8 expand type*/false,
-                    /*var14*/new StringList("id")
+                    /*var14*/selects
             );
         } catch (FrameworkException e) {
             LOG.error("error getting related objects from: " + objectId + "  with message: " + e.getMessage());
             e.printStackTrace();
+        }
+
+        //62908 #20 11.10.21 filtering if system connected Interdisciplinary DEP
+        MapList filteredMapList; //             has connection to plain DEP also
+        if ("FALSE".equals(isInterdisciplinary)) {
+            filteredMapList = new MapList();
+            for (Object o : listObjects) {
+                Map map = (Map) o;
+                String pbs2DepRelatedInterdisciplinaryAttribute = (String) map.get("from[IMS_PBS2DEP].to.attribute[IMS_QP_InterdisciplinaryDEP]");
+                if (pbs2DepRelatedInterdisciplinaryAttribute == null || !pbs2DepRelatedInterdisciplinaryAttribute.contains("FALSE")) {
+                    filteredMapList.add(o);
+                } else {
+                    LOG.info("bad boy: " + map.get(DomainConstants.SELECT_ID) + "|" + map.get(DomainConstants.SELECT_NAME) + "|" + map.get("from[IMS_PBS2DEP].to.attribute[IMS_QP_InterdisciplinaryDEP]"));
+                }
+            }
+            return filteredMapList;
         }
 
         return listObjects;
