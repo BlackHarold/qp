@@ -186,6 +186,7 @@ public class IMS_QP_Workbench_mxJPO {
     }
 
     public Vector getColumnPercentage(Context ctx, String[] args) {
+        LOG.info("getColumnPercentage start time");
         Vector result = new Vector();
         Map argsMap = new HashMap();
 
@@ -214,23 +215,21 @@ public class IMS_QP_Workbench_mxJPO {
             e.printStackTrace();
         }
         BusinessObjectWithSelectList businessObjectWithSelectList = getReportData(ctx, key, cleanedIds);
+        LOG.info("key: " + key + " result -> " + businessObjectWithSelectList);
 
-        MapList percentList;
-        percentList = createReport(ctx, businessObjectWithSelectList);
+        List percentList = createReport(ctx, businessObjectWithSelectList);
 
         /*top level Codes by items*/
         for (Object o : percentList) {
-            Map map = (Map) o;
-            for (Object oValue : map.values()) {
-                String s = (String) oValue;
-                result.addElement(s);
-            }
+            result.addElement(o);
         }
+
+        LOG.info("getColumnPercentage finished time");
         return result;
     }
 
     public Vector getColumnCheck(Context ctx, String... args) {
-
+        LOG.info("getColumnCheck start time");
         Vector result = new Vector();
         Map argsMap = new HashMap();
 
@@ -242,19 +241,59 @@ public class IMS_QP_Workbench_mxJPO {
 
         MapList argsList = (MapList) argsMap.get("objectList");
 
-        /*top level Codes by items*/
-        StringBuilder stringBuilder = new StringBuilder();
-        StringList returnList = new StringList();
-        try {
-            returnList = IMS_QP_DEPTask_mxJPO.getFactColumnStyle(ctx, args);
-        } catch (Exception e) {
-            LOG.error("getting color exception: " + e.getMessage());
-            e.printStackTrace();
+        List<Boolean> checkList = new ArrayList<>();
+        for (int i = 0; i < argsList.size(); i++) {
+            List<String> objectIds = new ArrayList<>(); //truncate ids each turn
+            Map map = (Map) argsList.get(i);
+            String objectId = (String) map.get(DomainConstants.SELECT_ID);
+            String type = "", name = "";
+            DomainObject domainObject = null;
+            try {
+                domainObject = new DomainObject(objectId);
+                type = domainObject.getType(ctx);
+                name = domainObject.getName(ctx);
+            } catch (Exception e) {
+                LOG.error("error getting type: " + e.getMessage());
+                e.printStackTrace();
+            }
+
+            //add all ids to the list of plans
+            if (IMS_QP_Constants_mxJPO.type_IMS_QP_QPlan.equals(type)) {
+                objectIds.add(objectId);
+            } else if (IMS_QP_Constants_mxJPO.TYPE_IMS_QP_DEP.equals(type)) {
+                try {
+
+                    objectIds.addAll(
+                            domainObject
+                                    .getInfoList(ctx, "from[IMS_QP_DEP2QPlan].to.id"));
+
+                } catch (Exception e) {
+                    LOG.error("error getting list of QPlan ids");
+                    e.printStackTrace();
+                }
+            }
+
+            //convert ids to array
+            String[] cleanedIds = new String[objectIds.size()];
+            for (int j = 0; j < cleanedIds.length; j++) {
+                cleanedIds[j] = objectIds.get(j);
+            }
+
+            BusinessObjectWithSelectList businessObjectWithSelectList = getReportData(ctx, "SQP", cleanedIds);
+
+            /*Main check process*/
+            boolean checkResult = createCheckReport(ctx, businessObjectWithSelectList);
+            checkList.add(checkResult);
+            LOG.info("" +
+                    "type: " + type +
+                    " name " + name +
+                    " count related: " + objectIds.size() +
+                    " check: " + checkResult);
         }
 
+        StringBuilder stringBuilder = new StringBuilder();
         for (int i = 0; i < argsList.size(); i++) {
-            String color = returnList.get(i);
-            if (!"IMS_QP_Red".equals(color) || !"IMS_QP_Rose".equals(color) || !"IMS_QP_Green".equals(color) || !"".equals(color)) {
+            if (checkList != null && checkList.get(i)) {
                 stringBuilder.setLength(0);
                 String pictureName = "exclamation";
                 stringBuilder
@@ -266,11 +305,12 @@ public class IMS_QP_Workbench_mxJPO {
                 result.addElement(stringBuilder.toString());
             } else result.addElement("");
         }
-
+        LOG.info("getColumnCheck finished time");
         return result;
     }
 
     public Vector getColumnRedCode(Context ctx, String... args) {
+        LOG.info("getColumnRedCode start time");
         Vector result = new Vector();
         Map argsMap = new HashMap();
 
@@ -302,7 +342,6 @@ public class IMS_QP_Workbench_mxJPO {
                 try {
                     DomainObject object = new DomainObject(objectId);
                     StringList listQPlanIds = object.getInfoList(ctx, "from[IMS_QP_DEP2QPlan].to.id");
-                    LOG.info(object.getType(ctx) + " " + object.getName(ctx) + " - deps: " + listQPlanIds);
                     objectIds.addAll(listQPlanIds);
                 } catch (Exception e) {
                     LOG.error("error getting list of QPlan ids");
@@ -336,6 +375,7 @@ public class IMS_QP_Workbench_mxJPO {
             result.addElement(builder.toString());
         }
 
+        LOG.info("getColumnRedCode finished time");
         return result;
     }
 
@@ -505,9 +545,9 @@ public class IMS_QP_Workbench_mxJPO {
     int counter;
     int greenCounter;
 
-    private MapList createReport(Context ctx, BusinessObjectWithSelectList reportData) {
+    private List createReport(Context ctx, BusinessObjectWithSelectList reportData) {
 
-        MapList mathResultList = new MapList();
+        List mathResultList = new MapList();
         for (Object o : reportData) {
             counter = 0;
             greenCounter = 0;
@@ -536,8 +576,7 @@ public class IMS_QP_Workbench_mxJPO {
             float mathResult = 100.0f * greenCounter / counter;
             Map<String, String> resultItem = new HashMap<>();
             String value = String.format("%.1f", mathResult);
-            resultItem.put(businessObject.getSelectData("id"), value);
-            mathResultList.add(resultItem);
+            mathResultList.add(value);
 
             try {
                 businessObject.close(ctx);
@@ -549,6 +588,33 @@ public class IMS_QP_Workbench_mxJPO {
 
 
         return mathResultList;
+    }
+
+    private boolean createCheckReport(Context ctx, BusinessObjectWithSelectList reportData) {
+
+        try {
+            for (Object o : reportData) {
+                BusinessObjectWithSelect businessObject = (BusinessObjectWithSelect) o;
+                businessObject.open(ctx);
+
+                /*DEP sheet specified zone*/
+                RelationshipWithSelectItr relItr = getRelationshipsWithItr(ctx, businessObject);
+                List<String> tasksInfo = getQPTaskList(businessObject.getSelectData(DomainObject.SELECT_ID), relItr);
+
+                //check tasks
+                boolean checkFlag = getTaskColorFlags(ctx, tasksInfo);
+
+                businessObject.close(ctx);
+
+                if (checkFlag) {
+                    return true;
+                }
+            }
+        } catch (MatrixException e) {
+            e.printStackTrace();
+        }
+
+        return false;
     }
 
     private RelationshipWithSelectItr getRelationshipsWithItr(Context ctx, BusinessObjectWithSelect businessObject) {
@@ -625,10 +691,6 @@ public class IMS_QP_Workbench_mxJPO {
     }
 
     private void getInfoTasks(Context ctx, List<String> tasksInfo) {
-        Map<List<String>, List<String>> tasksInfoMap = new HashMap<>();
-        List<String> taskCodes = new ArrayList<>();
-        List<String> taskNames = new ArrayList<>();
-
         for (String taskId : tasksInfo) {
 
             // Instantiate the BusinessObject.
@@ -690,6 +752,34 @@ public class IMS_QP_Workbench_mxJPO {
                 }
             }
         }
+    }
+
+    private boolean getTaskColorFlags(Context ctx, List<String> tasksInfo) {
+        StringList resultList = new StringList();
+
+        MapList allPlansToMap = new MapList();
+        for (String taskId : tasksInfo) {
+            Map<String, String> map = new LinkedHashMap();
+            map.put("id", taskId);
+            allPlansToMap.add(map);
+        }
+
+        Map argsMap = new HashMap();
+        argsMap.put("objectList", allPlansToMap);
+        try {
+            resultList = IMS_QP_DEPTask_mxJPO.getFactColumnStyle(ctx, JPO.packArgs(argsMap));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        for (String color : resultList) {
+            if ("IMS_QP_Purple".equals(color) || "IMS_QP_Yellow".equals(color) || "IMS_QP_Orange".equals(color) || "IMS_QP_Blue".equals(color)) {
+                LOG.info("style: " + color);
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private List<String> getRelationshipGroupReportSelects() {
