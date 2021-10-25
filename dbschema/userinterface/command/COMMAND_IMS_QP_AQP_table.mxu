@@ -8,7 +8,7 @@ mxUpdate command "${NAME}" {
     symbolicname "command_IMS_QP_AQP_table"
     description "AQPs"
     label "AQPs"
-    href "${COMMON_DIR}/IMS_QP_SQP_IndentedTable.jsp?program=IMS_QP:getAllSQP&table=IMS_QP_SQP&toolbar=IMS_QP_SQP_Toolbar&sortColumnName=Name&selection=multiple"
+    href "${COMMON_DIR}/IMS_QP_SQP_IndentedTable.jsp?program=IMS_QP_Workbench:findAQPsForBenchTable&table=IMS_QP_SQP&toolbar=IMS_QP_SQP_Toolbar&sortColumnName=Name&selection=multiple"
     alt ""
     setting "Access Expression" "name=='AQP'"
     setting "Registered Suite" "Framework"

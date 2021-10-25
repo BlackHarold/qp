@@ -116,7 +116,9 @@ public class IMS_QP_Workbench_mxJPO {
             e.printStackTrace();
         }
 
-        String where = "owner==" + ctx.getUser();
+
+        String where = IMS_QP_Security_mxJPO.isUserAdminOrSuper(ctx) ?
+                null : "owner==" + ctx.getUser();
 
         MapList items = new MapList();
         try {

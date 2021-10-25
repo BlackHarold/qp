@@ -11,11 +11,13 @@ mxUpdate menu "${NAME}" {
     label ""
     href ""
     alt ""
+    setting "Access Expression" "to[IMS_QP_QP2QPlan].from.name==AQP||(to[IMS_QP_DEP2QPlan].from.attribute[IMS_QP_InterdisciplinaryDEP]==FALSE&&context.user==from[IMS_QP_QPlan2Object].to.from[IMS_PBS2Owner].to.name)||(to[IMS_QP_DEP2QPlan].from.attribute[IMS_QP_InterdisciplinaryDEP]==TRUE&&context.user==to[IMS_QP_DEP2QPlan].from.from[IMS_QP_DEP2Owner].to.name)"
     command "IMS_QP_QPlan_edit"
     command "IMS_QP_DQP_Report"
     ################################################## Info Start
+    property "author" value "The IMS Team"
     property "original name" value "IMS_QP_QPlan_toolbar"
-    property "application" value "IMS_HNH19"
+    property "application" value "IMS QP"
     property "version" value "1"
     ################################################## Info End
 }

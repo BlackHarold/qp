@@ -910,7 +910,6 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
         objectSelects.add("from[IMS_QP_DEP2QPlan].to.id");
         objectSelects.add("attribute[IMS_QP_InterdisciplinaryDEP]");
         objectSelects.add("to[IMS_PBS2DEP].from.id");
-        objectSelects.add("to[IMS_PBS2DEP].from.id");
 
         StringBuilder whereBuilder = new StringBuilder();
 
@@ -918,6 +917,12 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
             whereBuilder.append("attribute[IMS_QP_InterdisciplinaryDEP]==TRUE&&name nsmatch '*ExternalInitialData*'");
         }
 
+        if (UIUtil.isNotNullAndNotEmpty(form) && form.contains("SQP")) {
+            whereBuilder.append("attribute[IMS_QP_InterdisciplinaryDEP]==FALSE||context.user==from[IMS_QP_DEP2Owner].to.name");
+        }
+
+
+        LOG.info("where: " + whereBuilder);
         MapList allDEPs = null;
         try {
             allDEPs = DomainObject.findObjects(context,
@@ -935,6 +940,7 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
         StringList fieldRangeValues = new StringList("");
         StringList fieldDisplayRangeValues = new StringList("");
 
+        LOG.info("allDEPs: " + allDEPs);
         for (Object rawStage : allDEPs) {
             Map<String, String> map = (Map<String, String>) rawStage;
 
@@ -947,11 +953,11 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
         }
 
 
-        HashMap tempMap = new HashMap();
-        tempMap.put("field_choices", fieldRangeValues);
-        tempMap.put("field_display_choices", fieldDisplayRangeValues);
+        Map resultMap = new HashMap();
+        resultMap.put("field_choices", fieldRangeValues);
+        resultMap.put("field_display_choices", fieldDisplayRangeValues);
 
-        return tempMap;
+        return resultMap;
     }
 
     /**
