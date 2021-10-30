@@ -4,6 +4,8 @@
 <%@ page import="matrix.db.JPO" %>
 <%@ page import="com.matrixone.apps.domain.util.ContextUtil" %>
 <%@ page import="com.matrixone.apps.framework.ui.UIUtil" %>
+<%@ page import="java.util.List" %>
+<%@ page import="org.apache.log4j.Logger" %>
 <%@include file="../common/emxNavigatorInclude.inc" %>
 <%@include file="../common/emxNavigatorTopErrorInclude.inc" %>
 

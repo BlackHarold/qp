@@ -345,7 +345,7 @@ public class IMS_QP_TaskAssignment_mxJPO {
     /**
      * Deprecated since 17.11.2021 This method is no longer acceptable
      * <p> Use {@link IMS_QualityPlanBase_mxJPO#copyPlan(Context, String...)} instead
-     *
+     * </p>
      * createQPlan(context, args);
      *
      * @param ctx
@@ -625,7 +625,7 @@ public class IMS_QP_TaskAssignment_mxJPO {
         return returnList;
     }
 
-    public boolean isQPlanDraft(Context context, String... args) {
+    public boolean isQPlanDraft(Context context, String... args) throws MatrixException {
         Map argsMap = null;
         String objectId = "";
         try {

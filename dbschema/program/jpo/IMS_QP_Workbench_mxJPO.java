@@ -69,12 +69,57 @@ public class IMS_QP_Workbench_mxJPO {
             e.printStackTrace();
         }
 
-        String where = "";
-        if (!IMS_QP_Security_mxJPO.isUserAdminOrSuper(ctx)) {
-            where = "from[IMS_QP_QPlan2Owner].to.name==" + ctx.getUser() +
-                    "||from[IMS_QP_QPlan2Object].to.from[IMS_PBS2Owner].to.name==" + ctx.getUser() +
-                    "||to[IMS_QP_DEP2QPlan].from.from[IMS_QP_DEP2Owner].to.name==" + ctx.getUser();
+        String objectType = null;
+        String objectName = null;
+        try {
+            objectType = parent.getType(ctx);
+            objectName = parent.getName(ctx);
+        } catch (FrameworkException e) {
+            LOG.error("framework exception: " + e.getMessage());
+            e.printStackTrace();
         }
+
+        boolean isViewer = IMS_QP_Security_mxJPO.isUserViewerWithChild(ctx);
+
+        StringBuilder whereStringBuilder = new StringBuilder("");
+
+        /**
+         * For `AQP` OR `SQP` level
+         * To show all objects of type `IMS_QP_QPlan` only if user has roles: `IMS_Admin` or `IMS_QP_SuperUser` or `IMS_QP_Viewer`
+         * To show those objects of type `IMS_QP_QPlan` whose owner are
+         */
+        if (!isViewer && !IMS_QP_Security_mxJPO.isUserAdminOrSuper(ctx) && IMS_QP_Constants_mxJPO.type_IMS_QP.equals(objectType)) {
+
+            if ("AQP".equals(objectName)) {
+                whereStringBuilder
+                        .append("owner==" + ctx.getUser());
+            }
+
+            if ("SQP".equals(objectName)) {
+                whereStringBuilder
+                        .append("(to[IMS_QP_DEP2QPlan].from.attribute[IMS_QP_InterdisciplinaryDEP]==FALSE")
+                        .append("&&from[IMS_QP_QPlan2Object].to.from[IMS_PBS2Owner].to.name==" + ctx.getUser() + ")")
+                        .append("||")
+                        .append("(to[IMS_QP_DEP2QPlan].from.attribute[IMS_QP_InterdisciplinaryDEP]==TRUE")
+                        .append("&&to[IMS_QP_DEP2QPlan].from.from[IMS_QP_DEP2Owner].to.name==" + ctx.getUser() + ")");
+            }
+        }
+
+        /**
+         * Users who have `IMS_QP_Viewer` type roles can not see `ExternalInitialData` names objects
+         */
+
+        if (isViewer &&
+                IMS_QP_Constants_mxJPO.type_IMS_QP.equals(objectType)) {
+            if (whereStringBuilder.length() > 0) {
+                whereStringBuilder.append("&&");
+            }
+
+            //tree without external initial objects
+            whereStringBuilder
+                    .append("name nsmatch '*ExternalInitialData*'");
+        }
+
 
         MapList items = new MapList();
         try {
@@ -85,7 +130,7 @@ public class IMS_QP_Workbench_mxJPO {
                     /*relationship selects*/ null,
                     /*getTo*/ false, /*getFrom*/ true,
                     /*recurse to level*/ (short) 1,
-                    /*object where*/ where,
+                    /*object where*/ whereStringBuilder.toString(),
                     /*relationship where*/ null,
                     /*limit*/ 0);
         } catch (FrameworkException e) {
@@ -116,9 +161,11 @@ public class IMS_QP_Workbench_mxJPO {
             e.printStackTrace();
         }
 
-
-        String where = IMS_QP_Security_mxJPO.isUserAdminOrSuper(ctx) ?
-                null : "owner==" + ctx.getUser();
+        String where = "";
+        if (!IMS_QP_Security_mxJPO.isUserViewerWithChild(ctx)) {
+            where = IMS_QP_Security_mxJPO.isUserAdminOrSuper(ctx) ?
+                    null : "owner==" + ctx.getUser();
+        }
 
         MapList items = new MapList();
         try {
@@ -878,15 +925,22 @@ public class IMS_QP_Workbench_mxJPO {
 
         String objectId = (String) argsMap.get("objectId");
 
-        String type = "", name = "";
+        String type = "", name = "", from = "";
         try {
             DomainObject object = new DomainObject(objectId);
             type = object.getInfo(ctx, DomainConstants.SELECT_TYPE);
             name = object.getInfo(ctx, DomainConstants.SELECT_NAME);
+            from = object.getInfo(ctx, "to[IMS_QP_QP2QPlan].from.name");
         } catch (Exception e) {
             LOG.error("error getting object: " + e.getMessage());
             e.printStackTrace();
         }
+
+        boolean isPlanType = IMS_QP_Constants_mxJPO.type_IMS_QP_QPlan.equals(type);
+        if (isPlanType && "AQP".equals(from)) {
+            return true;
+        }
+
 
         LOG.info("type: " + type + " name: " + name);
 

@@ -596,33 +596,6 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
                 DomainRelationship.connect(ctx, objectClassifier, "IMS_QP_Classifier2QPlan", newObject);
             }
 
-            //to person
-            if (form.contains("AQP")) {
-                DomainObject user = IMS_QP_Security_mxJPO.getPersonObject(ctx, ctx.getUser());
-                DomainRelationship.connect(ctx, newObject, "IMS_QP_QPlan2Owner", user);
-            } else {
-                for (String ownerName : depOwners) {
-                    DomainObject personObject = new DomainObject(ownerName);
-                    DomainRelationship.connect(ctx, newObject, "IMS_QP_QPlan2Owner", personObject);
-
-                    Person person = new Person(personObject.getName(ctx));
-                    if (!person.isAssigned(ctx, "IMS_QP_QPOwner")) {
-                        try {
-                            ContextUtil.pushContext(ctx);
-                        } catch (FrameworkException e) {
-                            LOG.error("push context error: " + e.getMessage());
-                        }
-                        MqlUtil.mqlCommand(ctx, "mod person $1 assign role $2", person.getName(), "IMS_QP_QPOwner");
-                        LOG.info(String.format("mod person %s assign role %s", person.getName(), "IMS_QP_QPOwner"));
-                        try {
-                            ContextUtil.popContext(ctx);
-                        } catch (FrameworkException e) {
-                            LOG.error("pop context error: " + e.getMessage());
-                        }
-                    }
-                }
-            }
-
             //to system
             if (system != null && system.exists(ctx)) {
                 DomainRelationship.connect(ctx, newObject, "IMS_QP_QPlan2Object", system);
@@ -1141,12 +1114,64 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
     }
 
     /**
+     * @param ctx
+     * @param args
+     * @return
+     */
+    private boolean isDraft(Context ctx, String... args) {
+
+        Map argsMap = null;
+        String objectId;
+        DomainObject object;
+        String currentState = "";
+        try {
+            argsMap = JPO.unpackArgs(args);
+            objectId = (String) argsMap.get("objectId");
+            if (!StringUtils.isEmpty(objectId)) {
+                object = new DomainObject(objectId);
+                currentState = object.getInfo(ctx, DomainConstants.SELECT_CURRENT);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return currentState.equals("Draft");
+    }
+
+    public boolean checkAccess(Context ctx, String... args) throws Exception {
+
+        /**
+         * rule for admins
+         */
+        if (IMS_QP_Security_mxJPO.isUserAdmin(ctx)) {
+            LOG.info("admin: access granted");
+            return true;
+        }
+
+        /**
+         * rule for viewer
+         */
+        if (IMS_QP_Security_mxJPO.isUserViewer(ctx)) {
+            LOG.info("viewer: access non-granted");
+            return false;
+        }
+
+        /**
+         * if current state is `Draft` & Security returned `true`
+         */
+        LOG.info("draft&owner: access=" +
+                (isDraft(ctx, args) && IMS_QP_Security_mxJPO.isOwnerQPlan(ctx, args)));
+
+        return isDraft(ctx, args) && IMS_QP_Security_mxJPO.isOwnerQPlan(ctx, args);
+    }
+
+    /**
      * Method to deleting IMS_QP_QPTask if their hasn't any approved related tasks
      *
-     * @param context
+     * @param ctx
      * @param args
      */
-    public Map deleteQPTasks(Context context, String[] args) {
+    public Map deleteQPTasks(Context ctx, String[] args) {
 
         //get all ids
         Map<String, Object> argsMap = null;
@@ -1162,8 +1187,60 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
         List<String> badNames = new ArrayList<>();
         boolean flag = false;
 
+        //#62908_II
+        for (String s : deletingIDs) {
+            DomainObject domainObject = null;
+            MapList relatedTasks = new MapList();
+            String mainPlan = "";
+            try {
+                domainObject = new DomainObject(s);
+                mainPlan = domainObject.getInfo(ctx, IMS_QP_Constants_mxJPO.PLAN_TO_TASK);
+
+                StringList selects = new StringList();
+                selects.addElement(DomainConstants.SELECT_ID);
+                selects.addElement(DomainConstants.SELECT_NAME);
+                selects.addElement(IMS_QP_Constants_mxJPO.PLAN_TO_TASK);
+
+                SelectList relSelect = new SelectList();
+                relSelect.addElement(IMS_QP_Constants_mxJPO.ATTRIBUTE_IMS_QP_DEPTASK_STATUS);
+
+                String where = "";
+
+                relatedTasks = domainObject.getRelatedObjects(ctx,
+                        /*relationship*/IMS_QP_Constants_mxJPO.relationship_IMS_QP_QPTask2QPTask,
+                        /*type*/IMS_QP_Constants_mxJPO.type_IMS_QP_QPTask,
+                        /*object attributes*/ selects,
+                        /*relationship selects*/ relSelect,
+                        /*getTo*/ true, /*getFrom*/ true,
+                        /*recurse to level*/ (short) 1,
+                        /*object where*/ where,
+                        /*relationship where*/ null,
+                        /*limit*/ 0);
+                LOG.info(domainObject.getName(ctx) + " related with " + relatedTasks);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            for (Object o : relatedTasks) {
+                Map map = (Map) o;
+                if (!map.get(IMS_QP_Constants_mxJPO.PLAN_TO_TASK).equals(mainPlan) && map.get(IMS_QP_Constants_mxJPO.ATTRIBUTE_IMS_QP_DEPTASK_STATUS).equals(IMS_QP_Constants_mxJPO.APPROVED)) {
+                    badNames.add((String) map.get(DomainConstants.SELECT_NAME));
+                    flag = true;
+                }
+            }
+
+        }
+
         Map mapMessage = getMessage(badNames, flag);
-        deleteObjects(context, deletingIDs);
+        if (mapMessage.isEmpty()) {
+                    deleteObjects(ctx, deletingIDs);
+        } else {
+            try {
+                emxContextUtil_mxJPO.mqlWarning(ctx, "task has another plan parent");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
 
         return mapMessage;
     }
@@ -1172,7 +1249,6 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
         Map<String, Object> argsMap = null;
         try {
             argsMap = JPO.unpackArgs(args);
-            LOG.info("argsMap: " + argsMap);
         } catch (Exception e) {
             LOG.error("error: " + e.getMessage());
             e.printStackTrace();

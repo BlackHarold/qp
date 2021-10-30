@@ -71,38 +71,6 @@ public class IMS_QP_mxJPO extends DomainObject {
             StringList relSelects = new StringList(
                     DomainConstants.SELECT_RELATIONSHIP_ID);
 
-            String objectType = domainObject.getType(context);
-            String objectName = domainObject.getName(context);
-            StringBuilder whereStringBuilder = new StringBuilder("");
-
-            //for SQP level
-            if (!isAdminOrSuperOrViewer(context) && IMS_QP_Constants_mxJPO.type_IMS_QP.equals(objectType) && "SQP".equals(objectName)) {
-                whereStringBuilder
-                        .append("from[IMS_QP_QPlan2Owner].to.name==" + context.getUser())
-                        .append("||")
-                        .append("from[IMS_QP_QPlan2Object].to.from[IMS_PBS2Owner].to.name==" + context.getUser())
-                        .append("||")
-                        .append("to[IMS_QP_DEP2QPlan].from.from[IMS_QP_DEP2Owner].to.name==" + context.getUser());
-            }
-
-            //for AQP level
-            if (!isAdminOrSuperOrViewer(context) && IMS_QP_Constants_mxJPO.type_IMS_QP.equals(objectType) && "AQP".equals(objectName)) {
-                whereStringBuilder
-                        .append("owner==" + context.getUser());
-            }
-
-            //for IMS_QP_Viewer user roles
-            LOG.info(context.isAssigned(IMS_QP_Security_mxJPO.ROLE_IMS_QP_Viewer) + "|" + objectType + "|" + objectName);
-            if (context.isAssigned(IMS_QP_Security_mxJPO.ROLE_IMS_QP_Viewer) && IMS_QP_Constants_mxJPO.type_IMS_QP.equals(objectType)) {
-                if (whereStringBuilder.length() > 0) {
-                    whereStringBuilder.append("&&");
-                }
-
-                //tree without external initial objects
-                whereStringBuilder
-                        .append("name nsmatch '*ExternalInitialData*'");
-            }
-
             componentsList = domainObject.getRelatedObjects(
                     context, // matrix context
                     sbRel.toString(), // all relationships to expand
@@ -112,7 +80,7 @@ public class IMS_QP_mxJPO extends DomainObject {
                     false, // to direction
                     true, // from direction
                     (short) 1, // recursion level
-                    whereStringBuilder.toString(), // object where clause
+                    getWhere(context, domainObject), // object where clause
                     "", // relationship where clause
                     0);
 
@@ -597,19 +565,6 @@ public class IMS_QP_mxJPO extends DomainObject {
 
         DomainObject parent = new DomainObject(objectId);
 
-        String objectType = new DomainObject(objectId).getType(context);
-        String objectName = new DomainObject(objectId).getName(context);
-        StringBuilder whereStringBuilder = new StringBuilder("");
-
-        if (!isAdminOrSuperOrViewer(context) && IMS_QP_Constants_mxJPO.type_IMS_QP.equals(objectType) && "SQP/BQP".contains(objectName)) {
-            whereStringBuilder
-                    .append("from[IMS_QP_QPlan2Owner].to.name==" + context.getUser())
-                    .append("||")
-                    .append("from[IMS_QP_QPlan2Object].to.from[IMS_PBS2Owner].to.name==" + context.getUser())
-                    .append("||")
-                    .append("to[IMS_QP_DEP2QPlan].from.from[IMS_QP_DEP2Owner].to.name==" + context.getUser());
-        }
-
         MapList listSQPs = parent.getRelatedObjects(context,
                 /*relationship*/null,
                 /*type*/IMS_QP_Constants_mxJPO.type_IMS_QP_QPlan,
@@ -617,7 +572,7 @@ public class IMS_QP_mxJPO extends DomainObject {
                 /*relationship selects*/ null,
                 /*getTo*/ false, /*getFrom*/ true,
                 /*recurse to level*/ (short) 1,
-                /*object where*/ whereStringBuilder.toString(),
+                /*object where*/ getWhere(context, parent),
                 /*relationship where*/ null,
                 /*limit*/ 0);
 
@@ -1210,7 +1165,6 @@ public class IMS_QP_mxJPO extends DomainObject {
         return 0;
     }
 
-
     private boolean isAdminOrSuperOrViewer(Context context) {
         boolean result = false;
         try {
@@ -1221,5 +1175,62 @@ public class IMS_QP_mxJPO extends DomainObject {
             e.printStackTrace();
         }
         return result;
+    }
+
+
+    private String getWhere(Context ctx, DomainObject domainObject) {
+        String objectType = null;
+        String objectName = null;
+        try {
+            objectType = domainObject.getType(ctx);
+            objectName = domainObject.getName(ctx);
+        } catch (FrameworkException e) {
+            LOG.error("framework exception: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        boolean isViewer = IMS_QP_Security_mxJPO.isUserViewerWithChild(ctx);
+
+
+        StringBuilder whereStringBuilder = new StringBuilder("");
+
+        /**
+         * For `AQP` OR `SQP` level
+         * To show all objects of type `IMS_QP_QPlan` only if user has roles: `IMS_Admin` or `IMS_QP_SuperUser` or `IMS_QP_Viewer`
+         * To show those objects of type `IMS_QP_QPlan` whose owner are
+         */
+        if (!isViewer && !IMS_QP_Security_mxJPO.isUserAdminOrSuper(ctx) && IMS_QP_Constants_mxJPO.type_IMS_QP.equals(objectType)) {
+
+            if ("AQP".equals(objectName)) {
+                whereStringBuilder
+                        .append("owner==" + ctx.getUser());
+            }
+
+            if ("SQP".equals(objectName)) {
+                whereStringBuilder
+                        .append("(to[IMS_QP_DEP2QPlan].from.attribute[IMS_QP_InterdisciplinaryDEP]==FALSE")
+                        .append("&&from[IMS_QP_QPlan2Object].to.from[IMS_PBS2Owner].to.name==" + ctx.getUser() + ")")
+                        .append("||")
+                        .append("(to[IMS_QP_DEP2QPlan].from.attribute[IMS_QP_InterdisciplinaryDEP]==TRUE")
+                        .append("&&to[IMS_QP_DEP2QPlan].from.from[IMS_QP_DEP2Owner].to.name==" + ctx.getUser() + ")");
+            }
+        }
+
+        /**
+         * Users who have `IMS_QP_Viewer` type roles can not see `ExternalInitialData` names objects
+         */
+
+        if (isViewer &&
+                IMS_QP_Constants_mxJPO.type_IMS_QP.equals(objectType)) {
+            if (whereStringBuilder.length() > 0) {
+                whereStringBuilder.append("&&");
+            }
+
+            //tree without external initial objects
+            whereStringBuilder
+                    .append("name nsmatch '*ExternalInitialData*'");
+        }
+
+        return whereStringBuilder.toString();
     }
 }

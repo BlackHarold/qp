@@ -1242,7 +1242,7 @@ public class IMS_QP_DEPTask_mxJPO {
                 }),
                 null);
 
-        StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new StringBuilder("");
 
         if (externalDocumentSetMap != null) {
 
@@ -1253,12 +1253,14 @@ public class IMS_QP_DEPTask_mxJPO {
                             IMS_KDD_mxJPO.getIdFromMap(externalDocumentSetMap)),
                     HtmlEscapers.htmlEscaper().escape(IMS_KDD_mxJPO.getNameFromMap(externalDocumentSetMap))));
         } else {
-            sb.append(String.format(
-                    "<a href=\"javascript:%s\"><img src=\"%s\" title=\"%s\" /></a>",
-                    String.format(
-                            "window.open('emxCreate.jsp?type=type_IMS_QP_CheckList&typeChooser=false&form=IMS_QP_Create_CheckList&findMxLink=false&relationship=relationship_IMS_QP_QPTask2Fact&policy=policy_IMS_QP_CheckList&submitAction=refreshCaller&postProcessURL=../common/IMS_PassFilesToJPO.jsp&objectId=%s', '_blank', 'height=800,width=1000,toolbar=0,location=0,menubar=0')", qpTaskObject.getId(context)),
-                    IMS_KDD_mxJPO.FUGUE_16x16 + "plus.png",
-                    "Create and Connect CheckList"));
+            if (IMS_QP_Security_mxJPO.isUserViewerWithChild(context)) {
+                sb.append(String.format(
+                        "<a href=\"javascript:%s\"><img src=\"%s\" title=\"%s\" /></a>",
+                        String.format(
+                                "window.open('emxCreate.jsp?type=type_IMS_QP_CheckList&typeChooser=false&form=IMS_QP_Create_CheckList&findMxLink=false&relationship=relationship_IMS_QP_QPTask2Fact&policy=policy_IMS_QP_CheckList&submitAction=refreshCaller&postProcessURL=../common/IMS_PassFilesToJPO.jsp&objectId=%s', '_blank', 'height=800,width=1000,toolbar=0,location=0,menubar=0')", qpTaskObject.getId(context)),
+                        IMS_KDD_mxJPO.FUGUE_16x16 + "plus.png",
+                        "Create and Connect CheckList"));
+            }
         }
 
         return sb.toString();
@@ -1334,38 +1336,31 @@ public class IMS_QP_DEPTask_mxJPO {
         return map;
     }
 
-    public boolean accessCheckList(Context context, String[] args) throws FrameworkException {
-        try {
-
-            Map programMap = JPO.unpackArgs(args);
-            String objectId = (String) programMap.get("objectId");
-            DomainObject object = new DomainObject(objectId);
-            MapList expectedResult = getRelatedMapList(context,
-                    object, RELATIONSHIP_IMS_QP_EXPECTED_RESULT_2_QP_TASK,
-                    "*", false, true, (short) 1, "to[" + RELATIONSHIP_IMS_QP_RESULT_TYPE_2_EXPECTED_RESULT + "].from.name=='CL-1'", "", 0);
-            return expectedResult.size() != 0;
-
-        } catch (Exception ex) {
-            LOG.error("accessCheckList: " + ex.getMessage());
-            ex.printStackTrace();
-            return false;
-        }
-    }
-
     public boolean accessDocument(Context ctx, String[] args) throws FrameworkException {
-
         try {
-            Map programMap = JPO.unpackArgs(args);
-            String objectId = (String) programMap.get("objectId");
+
+            Map argsMap = JPO.unpackArgs(args);
+            Map settings = (Map) argsMap.get("SETTINGS");
+
+            String objectId = (String) argsMap.get("objectId");
             DomainObject object = new DomainObject(objectId);
             MapList expectedResult = getRelatedMapList(ctx,
-                    object, RELATIONSHIP_IMS_QP_EXPECTED_RESULT_2_QP_TASK,
-                    "*", false, true, (short) 1, "to[" + RELATIONSHIP_IMS_QP_RESULT_TYPE_2_EXPECTED_RESULT + "].from.name!='CL-1'", "", 0);
-            String hasAttributes = object.getAttributeValue(ctx, "IMS_QP_ProjectStage") + object.getAttributeValue(ctx, "IMS_QP_Baseline");
-            return expectedResult.size() != 0 || UIUtil.isNotNullAndNotEmpty(hasAttributes);
+                    object,
+                    RELATIONSHIP_IMS_QP_EXPECTED_RESULT_2_QP_TASK,
+                    "*",
+                    false,
+                    true,
+                    (short) 1,
+                    "to[" + RELATIONSHIP_IMS_QP_RESULT_TYPE_2_EXPECTED_RESULT + "].from.name!='CL-1'",
+                    "",
+                    0
+            );
+            /*String hasAttributes = object.getAttributeValue(ctx, "IMS_QP_ProjectStage") + object.getAttributeValue(ctx, "IMS_QP_Baseline");*/
+            String key = (String) settings.get("key");
+            return UIUtil.isNotNullAndNotEmpty(key) && key.equals("doc") && expectedResult.size() != 0/*|| UIUtil.isNotNullAndNotEmpty(hasAttributes)*/;
 
         } catch (Exception ex) {
-            LOG.error("acessDocument error: " + ex.getMessage());
+            LOG.error("accessDocument error: " + ex.getMessage());
             ex.printStackTrace();
             return false;
         }

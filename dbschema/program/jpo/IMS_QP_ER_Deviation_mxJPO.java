@@ -410,47 +410,11 @@ public class IMS_QP_ER_Deviation_mxJPO {
      * @return bool access mark
      */
     public boolean checkAccess(Context ctx, String... args) {
-        Person person = new Person(ctx.getUser());
 
-        String ROLE_IMS_QP_Viewer = "IMS_QP_Viewer";
-        String ROLE_IMS_QP_Supervisor = "IMS_QP_Supervisor";
-
-        boolean granted = false;
-
-        try {
-            LOG.info("viewer: " + person.isAssigned(ctx, ROLE_IMS_QP_Viewer));
-            if (person.isAssigned(ctx, ROLE_IMS_QP_Viewer)) {
-                granted = false;
-            }
-
-            Map map = JPO.unpackArgs(args);
-            String objectId = UIUtil.isNotNullAndNotEmpty((String) map.get("objectId")) ?
-                    (String) map.get("objectId") : (String) map.get("parentOID");
-            LOG.info("admin or su: " + IMS_QP_Security_mxJPO.isUserAdminOrSuper(ctx)
-                    + " qp plan owner: " + IMS_QP_Security_mxJPO.isOwnerQPlan(ctx, args)
-                    + " dep owner: " + IMS_QP_Security_mxJPO.isOwnerDepFromQPTask(ctx, args)
-                    + " task owner: " + IMS_QP_Security_mxJPO.isOwnerQPlanFromTaskID(ctx, objectId));
-
-            if (IMS_QP_Security_mxJPO.isOwnerQPlan(ctx, args) || IMS_QP_Security_mxJPO.isOwnerDepFromQPTask(ctx, args) || IMS_QP_Security_mxJPO.isOwnerQPlanFromTaskID(ctx, objectId)) {
-                if (person.isAssigned(ctx, ROLE_IMS_QP_Supervisor)) {
-                    granted = true;
-                }
-            }
-
-            if (IMS_QP_Security_mxJPO.isUserAdminOrSuper(ctx)) {
-                granted = true;
-            }
-
-        } catch (MatrixException e) {
-            LOG.error("error when checking Person: " + e.getMessage());
-            e.printStackTrace();
-        } catch (Exception e) {
-            LOG.error("error when checking Person is dep owner: " + e.getMessage());
-            e.printStackTrace();
+        if (IMS_QP_Security_mxJPO.isUserSupervisor(ctx)||IMS_QP_Security_mxJPO.isUserAdminOrSuper(ctx)) {
+            return true;
         }
 
-
-        LOG.info("access: " + granted);
-        return granted;
+        return false;
     }
 }
