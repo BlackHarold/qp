@@ -243,6 +243,12 @@ public class IMS_QP_ExpectedResult_mxJPO {
         DomainObject domainObject = new DomainObject(objectId);
         String type = domainObject.getType(ctx);
 
+        String currentState = domainObject.getInfo(ctx, "to[IMS_QP_QPlan2QPTask].from.current");
+        LOG.info("currentState: " + currentState);
+        if ("Done".equals(currentState)) {
+            return false;
+        }
+
         //AQP aspect
         if (UIUtil.isNotNullAndNotEmpty(objectId) &&
                 IMS_QP_Constants_mxJPO.type_IMS_QP_QPTask.equals(type)) {

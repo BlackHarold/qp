@@ -1344,6 +1344,7 @@ public class IMS_QP_DEPTask_mxJPO {
 
             String objectId = (String) argsMap.get("objectId");
             DomainObject object = new DomainObject(objectId);
+            String currentState = "";
             MapList expectedResult = getRelatedMapList(ctx,
                     object,
                     RELATIONSHIP_IMS_QP_EXPECTED_RESULT_2_QP_TASK,
@@ -1355,15 +1356,17 @@ public class IMS_QP_DEPTask_mxJPO {
                     "",
                     0
             );
+            currentState = object.getInfo(ctx, "to[IMS_QP_QPlan2QPTask].from.current");
             /*String hasAttributes = object.getAttributeValue(ctx, "IMS_QP_ProjectStage") + object.getAttributeValue(ctx, "IMS_QP_Baseline");*/
             String key = (String) settings.get("key");
-            return UIUtil.isNotNullAndNotEmpty(key) && key.equals("doc") && expectedResult.size() != 0/*|| UIUtil.isNotNullAndNotEmpty(hasAttributes)*/;
+            return UIUtil.isNotNullAndNotEmpty(key) && key.equals("doc") && (expectedResult.size() != 0||!"Done".equals(currentState))/*|| UIUtil.isNotNullAndNotEmpty(hasAttributes)*/;
 
         } catch (Exception ex) {
             LOG.error("accessDocument error: " + ex.getMessage());
             ex.printStackTrace();
-            return false;
         }
+
+        return false;
     }
 
     public void setAttributeClosedTask(Context context, DomainObject qpTask) throws Exception {
