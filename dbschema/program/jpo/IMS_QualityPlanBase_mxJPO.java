@@ -1143,7 +1143,7 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
         /**
          * rule for admins
          */
-        if (IMS_QP_Security_mxJPO.isUserAdmin(ctx)) {
+        if (IMS_QP_Security_mxJPO.isUserAdminOrSuper(ctx)) {
             LOG.info("admin: access granted");
             return true;
         }
