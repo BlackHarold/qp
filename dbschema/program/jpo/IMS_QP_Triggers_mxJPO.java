@@ -31,7 +31,7 @@ public class IMS_QP_Triggers_mxJPO {
 
         boolean isQPOwner = IMS_QP_Security_mxJPO.isOwnerQPlan(context, id);
         String message = "";
-        if (!isQPOwner || taskStates.contains("Draft")) {
+        if (!isQPOwner && !IMS_QP_Security_mxJPO.isUserAdminOrSuper(context) || taskStates.contains("Draft")) {
             if (!isQPOwner) message = "is not qp owner";
             if (taskStates.contains("Draft")) message = "has 'Draft' relationships, check this";
             try {
@@ -49,14 +49,14 @@ public class IMS_QP_Triggers_mxJPO {
         boolean isDEPOwner = false;
         try {
             String id = args[0];
-            isDEPOwner = IMS_QP_Security_mxJPO.isOwnerDepFromQPPlan(context, id);
+            isDEPOwner = IMS_QP_Security_mxJPO.isOwnerDepFromQPPlan(context, id) || IMS_QP_Security_mxJPO.isUserAdminOrSuper(context);
         } catch (Exception e) {
             LOG.error("exception security check: " + e.getMessage());
             return 1;
         }
 
         String message = "";
-        if (!isDEPOwner) {
+        if (!isDEPOwner && !IMS_QP_Security_mxJPO.isUserAdminOrSuper(context)) {
             try {
                 message = "You haven't rights for Demote process, check this";
                 emxContextUtil_mxJPO.mqlWarning(context, message);

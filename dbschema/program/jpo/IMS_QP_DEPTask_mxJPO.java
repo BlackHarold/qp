@@ -1245,7 +1245,6 @@ public class IMS_QP_DEPTask_mxJPO {
         StringBuilder sb = new StringBuilder("");
 
         if (externalDocumentSetMap != null) {
-
             sb.append(String.format(
                     "<a href=\"javascript:%s\">%s</a>",
                     String.format(
@@ -1253,7 +1252,7 @@ public class IMS_QP_DEPTask_mxJPO {
                             IMS_KDD_mxJPO.getIdFromMap(externalDocumentSetMap)),
                     HtmlEscapers.htmlEscaper().escape(IMS_KDD_mxJPO.getNameFromMap(externalDocumentSetMap))));
         } else {
-            if (IMS_QP_Security_mxJPO.isUserViewerWithChild(context)) {
+            if (IMS_QP_Security_mxJPO.isOwnerQPlanFromTask(context, args) || IMS_QP_Security_mxJPO.isUserAdmin(context)) {
                 sb.append(String.format(
                         "<a href=\"javascript:%s\"><img src=\"%s\" title=\"%s\" /></a>",
                         String.format(
@@ -1337,6 +1336,7 @@ public class IMS_QP_DEPTask_mxJPO {
     }
 
     public boolean accessDocument(Context ctx, String[] args) throws FrameworkException {
+
         try {
 
             Map argsMap = JPO.unpackArgs(args);
@@ -1344,6 +1344,9 @@ public class IMS_QP_DEPTask_mxJPO {
 
             String objectId = (String) argsMap.get("objectId");
             DomainObject object = new DomainObject(objectId);
+            String key = (String) settings.get("key");
+            String expressionObject = UIUtil.isNotNullAndNotEmpty(key) && "cl".equals(key) ? "" :
+                    "to[" + RELATIONSHIP_IMS_QP_RESULT_TYPE_2_EXPECTED_RESULT + "].from.name!='CL-1'";
             String currentState = "";
             MapList expectedResult = getRelatedMapList(ctx,
                     object,
@@ -1352,14 +1355,16 @@ public class IMS_QP_DEPTask_mxJPO {
                     false,
                     true,
                     (short) 1,
-                    "to[" + RELATIONSHIP_IMS_QP_RESULT_TYPE_2_EXPECTED_RESULT + "].from.name!='CL-1'",
+                    expressionObject,
                     "",
                     0
             );
             currentState = object.getInfo(ctx, "to[IMS_QP_QPlan2QPTask].from.current");
             /*String hasAttributes = object.getAttributeValue(ctx, "IMS_QP_ProjectStage") + object.getAttributeValue(ctx, "IMS_QP_Baseline");*/
-            String key = (String) settings.get("key");
-            return UIUtil.isNotNullAndNotEmpty(key) && key.equals("doc") && (expectedResult.size() != 0||!"Done".equals(currentState))/*|| UIUtil.isNotNullAndNotEmpty(hasAttributes)*/;
+            LOG.info(key + " ext doc access: " + (expectedResult.size() != 0));
+            return expectedResult.size() != 0&&(IMS_QP_Security_mxJPO.isOwnerQPlanFromTask(ctx, args)
+                    || IMS_QP_Security_mxJPO.isUserAdminOrSuper(ctx) || IMS_QP_Security_mxJPO.isUserViewerWithChild(ctx));
+//            return UIUtil.isNotNullAndNotEmpty(key) && key.equals("doc") && (expectedResult.size() != 0/*||!"Done".equals(currentState)*/)/*|| UIUtil.isNotNullAndNotEmpty(hasAttributes)*/;
 
         } catch (Exception ex) {
             LOG.error("accessDocument error: " + ex.getMessage());
