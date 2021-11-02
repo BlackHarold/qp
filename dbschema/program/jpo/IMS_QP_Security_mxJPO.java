@@ -44,7 +44,7 @@ public class IMS_QP_Security_mxJPO {
 
     private static final String PROGRAM_IMS_QP_Security = "IMS_QP_Security";
 
-    private static final String STATE_DONE = "Done";
+    public static final String STATE_DONE = "Done";
 
     public IMS_QP_Security_mxJPO(Context context, String[] args) throws Exception {
     }

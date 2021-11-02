@@ -1118,34 +1118,52 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
      * @param args
      * @return
      */
-    private boolean isDraft(Context ctx, String... args) {
+    private boolean isDraft(Context ctx, String type, String... args) {
 
         Map argsMap = null;
         String objectId;
         DomainObject object;
         String currentState = "";
-        try {
-            argsMap = JPO.unpackArgs(args);
-            objectId = (String) argsMap.get("objectId");
-            if (!StringUtils.isEmpty(objectId)) {
-                object = new DomainObject(objectId);
-                currentState = object.getInfo(ctx, DomainConstants.SELECT_CURRENT);
+
+
+            try {
+                argsMap = JPO.unpackArgs(args);
+                objectId = (String) argsMap.get("objectId");
+                if (!StringUtils.isEmpty(objectId)) {
+                    object = new DomainObject(objectId);
+                    if (IMS_QP_Constants_mxJPO.type_IMS_QP_QPlan.equals(type)) {
+                        currentState = object.getInfo(ctx, DomainConstants.SELECT_CURRENT);
+                    }
+                    if (IMS_QP_Constants_mxJPO.type_IMS_QP_QPTask.equals(type)) {
+                        currentState = object.getInfo(ctx, "to[IMS_QP_QPlan2QPTask].from.current");
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
 
         return currentState.equals("Draft");
     }
 
     public boolean checkAccess(Context ctx, String... args) throws Exception {
+        if (IMS_QP_Security_mxJPO.isUserAdmin(ctx)) {
+            return true;
+        }
+
+        Map argsMap = JPO.unpackArgs(args);
+        Map settings = (Map) argsMap.get("SETTINGS");
+        LOG.info("argsMap: " + argsMap);
+        String key = (String) settings.get("key");
+        LOG.info("key: " + key);
 
         /**
          * rule for admins
          */
-        if (IMS_QP_Security_mxJPO.isUserAdminOrSuper(ctx)) {
-            LOG.info("admin: access granted");
-            return true;
+        if (UIUtil.isNotNullAndNotEmpty(key) &&
+                !"menu_IMS_QP_QPTask".equals(key) && !key.contains("approve_menu")) {
+            if (IMS_QP_Security_mxJPO.currentUserIsQPSuperUser(ctx)) {
+                return true;
+            }
         }
 
         /**
@@ -1157,12 +1175,30 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
         }
 
         /**
-         * if current state is `Draft` & Security returned `true`
+         * In `Confirmation process` when toggle selected takes task Ids
          */
-        LOG.info("draft&owner: access=" +
-                (isDraft(ctx, args) && IMS_QP_Security_mxJPO.isOwnerQPlan(ctx, args)));
+        String objectId = (String) argsMap.get("objectId");
+        DomainObject object = new DomainObject(objectId);
+        String type = object.getType(ctx);
 
-        return isDraft(ctx, args) && IMS_QP_Security_mxJPO.isOwnerQPlan(ctx, args);
+        /**
+         * check is current state `Draft` & Security returned `true`
+         */
+        if (IMS_QP_Constants_mxJPO.type_IMS_QP_QPlan.equals(type)) {
+            return isDraft(ctx, type, args) && IMS_QP_Security_mxJPO.isOwnerQPlan(ctx, args);
+        }
+
+        /**
+         * check is current state `Draft` & User the task Owner
+         */
+        if (IMS_QP_Constants_mxJPO.type_IMS_QP_QPTask.equals(type)) {
+            return (isDraft(ctx, type, args) && IMS_QP_Security_mxJPO.isOwnerQPlanFromTask(ctx, args));
+        }
+
+        /**
+         * another stories
+         */
+        return false;
     }
 
     /**
@@ -1233,7 +1269,7 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
 
         Map mapMessage = getMessage(badNames, flag);
         if (mapMessage.isEmpty()) {
-                    deleteObjects(ctx, deletingIDs);
+            deleteObjects(ctx, deletingIDs);
         } else {
             try {
                 emxContextUtil_mxJPO.mqlWarning(ctx, "task has another plan parent");

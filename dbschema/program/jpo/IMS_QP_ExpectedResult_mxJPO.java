@@ -238,28 +238,32 @@ public class IMS_QP_ExpectedResult_mxJPO {
 
     public boolean checkMenuAccess(Context ctx, String... args) throws Exception {
         Map argsMap = JPO.unpackArgs(args);
-
-        String objectId = (String) argsMap.get("parentOID");
+//
+        String objectId = (String) argsMap.get("objectId");
         DomainObject domainObject = new DomainObject(objectId);
         String type = domainObject.getType(ctx);
 
-        String currentState = domainObject.getInfo(ctx, "to[IMS_QP_QPlan2QPTask].from.current");
-        LOG.info("currentState: " + currentState);
-        if ("Done".equals(currentState)) {
-            return false;
+        if (IMS_QP_Constants_mxJPO.type_IMS_QP_QPTask.equals(type)) {
+            String currentState = domainObject.getInfo(ctx, "to[IMS_QP_QPlan2QPTask].from.current");
+            if (IMS_QP_Security_mxJPO.STATE_DONE.equals(currentState)) {
+                return false;
+            }
+
         }
+//        LOG.info("currentState: " + currentState);
+//
 
         //AQP aspect
-        if (UIUtil.isNotNullAndNotEmpty(objectId) &&
-                IMS_QP_Constants_mxJPO.type_IMS_QP_QPTask.equals(type)) {
-            Map map = new HashMap<>();
-            map.put("parentOID", objectId);
-            boolean aspectAccess = IMS_QP_Security_mxJPO.isOwnerQPlanFromTask(ctx, JPO.packArgs(map));
+//        if (UIUtil.isNotNullAndNotEmpty(objectId) &&
+//                IMS_QP_Constants_mxJPO.type_IMS_QP_QPTask.equals(type)) {
+//            Map map = new HashMap<>();
+//            map.put("parentOID", objectId);
+        boolean aspectAccess = IMS_QP_Security_mxJPO.isOwnerQPlanFromTask(ctx, args);
 
-            return aspectAccess;
-        } else {
-            return checkAccess(ctx, args);
-        }
+        return aspectAccess;
+//        } else {
+//            return checkAccess(ctx, args);
+//        }
     }
 
     public boolean checkOwnerAccess(Context ctx, String... args) {

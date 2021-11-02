@@ -18,6 +18,7 @@ mxUpdate menu "${NAME}" {
     menu "IMS_QP_TaskCopy"
     command "IMS_QP_Create_Rel_OUT_IN"
     command "IMS_QP_EditTableQPTask"
+    setting "key" "menu_IMS_QP_QPTask"
     ################################################## Info Start
     property "original name" value "IMS_QP_QPTask"
     property "application" value "IMS_QP"
