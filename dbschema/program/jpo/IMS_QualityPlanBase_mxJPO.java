@@ -1126,21 +1126,21 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
         String currentState = "";
 
 
-            try {
-                argsMap = JPO.unpackArgs(args);
-                objectId = (String) argsMap.get("objectId");
-                if (!StringUtils.isEmpty(objectId)) {
-                    object = new DomainObject(objectId);
-                    if (IMS_QP_Constants_mxJPO.type_IMS_QP_QPlan.equals(type)) {
-                        currentState = object.getInfo(ctx, DomainConstants.SELECT_CURRENT);
-                    }
-                    if (IMS_QP_Constants_mxJPO.type_IMS_QP_QPTask.equals(type)) {
-                        currentState = object.getInfo(ctx, "to[IMS_QP_QPlan2QPTask].from.current");
-                    }
+        try {
+            argsMap = JPO.unpackArgs(args);
+            objectId = (String) argsMap.get("objectId");
+            if (!StringUtils.isEmpty(objectId)) {
+                object = new DomainObject(objectId);
+                if (IMS_QP_Constants_mxJPO.type_IMS_QP_QPlan.equals(type)) {
+                    currentState = object.getInfo(ctx, DomainConstants.SELECT_CURRENT);
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
+                if (IMS_QP_Constants_mxJPO.type_IMS_QP_QPTask.equals(type)) {
+                    currentState = object.getInfo(ctx, "to[IMS_QP_QPlan2QPTask].from.current");
+                }
             }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         return currentState.equals("Draft");
     }
@@ -1159,8 +1159,7 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
         /**
          * rule for admins
          */
-        if (UIUtil.isNotNullAndNotEmpty(key) &&
-                !"menu_IMS_QP_QPTask".equals(key) && !key.contains("approve_menu")) {
+        if (UIUtil.isNotNullAndNotEmpty(key) && "IMS_QP_QPlan_edit".equals(key)) {
             if (IMS_QP_Security_mxJPO.currentUserIsQPSuperUser(ctx)) {
                 return true;
             }

@@ -18,6 +18,7 @@ mxUpdate command "${NAME}" {
     setting "Popup Size" "MediumTall"
     setting "Registered Suite" "Framework"
     setting "Target Location" "popup"
+    setting "key" "IMS_QP_QPlan_edit"
     ################################################## Info Start
     property "author" value "IMS Team"
     property "original name" value "IMS_QP_QPlan_edit"

@@ -1252,7 +1252,14 @@ public class IMS_QP_DEPTask_mxJPO {
                             IMS_KDD_mxJPO.getIdFromMap(externalDocumentSetMap)),
                     HtmlEscapers.htmlEscaper().escape(IMS_KDD_mxJPO.getNameFromMap(externalDocumentSetMap))));
         } else {
-            if (IMS_QP_Security_mxJPO.isOwnerQPlanFromTask(context, args) || IMS_QP_Security_mxJPO.isUserAdmin(context)) {
+            LOG.info("" +
+                    "owner dep: " + IMS_QP_Security_mxJPO.isOwnerDepFromQPTask(context, args) +
+                    " owner qplan: " + IMS_QP_Security_mxJPO.isOwnerQPlanFromTask(context, args) +
+                    " admin: " + IMS_QP_Security_mxJPO.isUserAdmin(context)
+            );
+            if (IMS_QP_Security_mxJPO.isOwnerDepFromQPTask(context, args)
+                    || IMS_QP_Security_mxJPO.isOwnerQPlanFromTask(context, args)
+                    || IMS_QP_Security_mxJPO.isUserAdmin(context)) {
                 sb.append(String.format(
                         "<a href=\"javascript:%s\"><img src=\"%s\" title=\"%s\" /></a>",
                         String.format(
@@ -1345,8 +1352,13 @@ public class IMS_QP_DEPTask_mxJPO {
             String objectId = (String) argsMap.get("objectId");
             DomainObject object = new DomainObject(objectId);
             String key = (String) settings.get("key");
-            String expressionObject = UIUtil.isNotNullAndNotEmpty(key) && "cl".equals(key) ? "" :
-                    "to[" + RELATIONSHIP_IMS_QP_RESULT_TYPE_2_EXPECTED_RESULT + "].from.name!='CL-1'";
+            String expressionObject = "";
+            if (UIUtil.isNotNullAndNotEmpty(key)) {
+                expressionObject = String.format("to["
+                        + RELATIONSHIP_IMS_QP_RESULT_TYPE_2_EXPECTED_RESULT
+                        + "].from.name%s='CL-1'", "cl".equals(key) ? "=" : "!");
+            }
+
             String currentState = "";
             MapList expectedResult = getRelatedMapList(ctx,
                     object,
@@ -1362,8 +1374,17 @@ public class IMS_QP_DEPTask_mxJPO {
             currentState = object.getInfo(ctx, "to[IMS_QP_QPlan2QPTask].from.current");
             /*String hasAttributes = object.getAttributeValue(ctx, "IMS_QP_ProjectStage") + object.getAttributeValue(ctx, "IMS_QP_Baseline");*/
             LOG.info(key + " ext doc access: " + (expectedResult.size() != 0));
-            return expectedResult.size() != 0&&(IMS_QP_Security_mxJPO.isOwnerQPlanFromTask(ctx, args)
-                    || IMS_QP_Security_mxJPO.isUserAdminOrSuper(ctx) || IMS_QP_Security_mxJPO.isUserViewerWithChild(ctx));
+            List<String> owners = object.getInfoList(ctx, "to[IMS_QP_QPlan2QPTask].from.to[IMS_QP_DEP2QPlan].from.from[IMS_QP_DEP2Owner].to.name");
+            LOG.info(""
+                    + "qp owner from task: " + IMS_QP_Security_mxJPO.isOwnerQPlanFromTask(ctx, args)
+                    + " admin: " + IMS_QP_Security_mxJPO.isUserViewerWithChild(ctx)
+                    + " dep info user: " + owners
+                    + " ctx user: " + ctx.getUser());
+            return expectedResult.size() != 0 && (IMS_QP_Security_mxJPO.isOwnerQPlanFromTask(ctx, args)
+                    || IMS_QP_Security_mxJPO.isUserAdminOrSuper(ctx)
+                    || IMS_QP_Security_mxJPO.isUserViewerWithChild(ctx)
+                    || owners.contains(ctx.getUser())
+            );
 //            return UIUtil.isNotNullAndNotEmpty(key) && key.equals("doc") && (expectedResult.size() != 0/*||!"Done".equals(currentState)*/)/*|| UIUtil.isNotNullAndNotEmpty(hasAttributes)*/;
 
         } catch (Exception ex) {

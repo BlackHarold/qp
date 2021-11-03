@@ -149,10 +149,27 @@ public class IMS_QP_Security_mxJPO {
      * @throws Exception
      */
     public static boolean isOwnerDepFromQPTask(Context context, String[] args) throws Exception {
-        Map map = JPO.unpackArgs(args);
-        String objectId = UIUtil.isNotNullAndNotEmpty((String) map.get("objectId")) ?
-                (String) map.get("objectId") : (String) map.get("parentOID");
-        return isOwnerDepFromQPTask(context, objectId) || isUserAdmin(context);
+        boolean access;
+        Map argsMap = JPO.unpackArgs(args);
+        LOG.info("argsMap: " + argsMap);
+        String objectId = UIUtil.isNotNullAndNotEmpty((String) argsMap.get("objectId")) ?
+                (String) argsMap.get("objectId") : (String) argsMap.get("parentOID");
+        if (UIUtil.isNullOrEmpty(objectId)) {
+            Map paramMap = (Map) argsMap.get("paramMap");
+            objectId = (String) paramMap.get("objectId");
+
+        }
+
+        if (UIUtil.isNotNullAndNotEmpty(objectId)) {
+            String planId = new DomainObject(objectId).getInfo(context, "to[IMS_QP_QPlan2QPTask].from.id");
+            access = IMS_QP_Security_mxJPO.isOwnerQPlan(context, planId);
+            LOG.info("isOwnerDepFromQPTask access " + access);
+        } else {
+            return false;
+        }
+
+
+        return access || isUserAdmin(context);
     }
 
     /**
@@ -161,6 +178,7 @@ public class IMS_QP_Security_mxJPO {
      * @return
      * @throws Exception
      */
+    @Deprecated
     public static boolean isOwnerDepFromQPTask(Context context, String objectId) {
         StringBuilder sb = new StringBuilder(String.format("print bus %s select ", objectId));
         sb.append("to[IMS_QP_DEPTask2QPTask].from.");
