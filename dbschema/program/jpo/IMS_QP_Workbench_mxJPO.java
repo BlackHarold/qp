@@ -163,8 +163,8 @@ public class IMS_QP_Workbench_mxJPO {
 
         String where = "";
         if (!IMS_QP_Security_mxJPO.isUserViewerWithChild(ctx)) {
-            where = IMS_QP_Security_mxJPO.isUserAdminOrSuper(ctx) ?
-                    null : "owner==" + ctx.getUser();
+            where = IMS_QP_Security_mxJPO.isUserAdminOrSuper(ctx) ? null : "owner==" + ctx.getUser()
+                    + "||to[IMS_QP_DEP2QPlan].from.from[IMS_QP_DEP2Owner].to.name==" + ctx.getUser();
         }
 
         MapList items = new MapList();

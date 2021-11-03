@@ -200,7 +200,7 @@ public class IMS_QP_Security_mxJPO {
             frameworkException.printStackTrace();
             throw frameworkException;
         }
-        return objectOwners.contains(context.getUser()) || isUserAdminOrSuper(context);
+        return objectOwners.contains(context.getUser());
     }
 
     private static void checkAccess(Context context, DomainObject depObject) throws Exception {
@@ -891,9 +891,9 @@ public class IMS_QP_Security_mxJPO {
          * rule for `AQP` level
          */
         LOG.info("_stage 1_ isPlanType: " + isPlanType + " from " + from + " owner " + planObject.getOwner(ctx));
-        if (isPlanType &&
-                "AQP".equals(from) &&
-                planObject.getOwner(ctx).getName().equals(ctx.getUser())) {
+        if (isPlanType && "AQP".equals(from) && planObject.getOwner(ctx).getName().equals(ctx.getUser())
+                || isOwnerDepFromQPPlan(ctx, id)) {
+
             return true;
         }
 

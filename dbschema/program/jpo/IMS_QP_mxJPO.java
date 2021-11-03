@@ -1203,7 +1203,10 @@ public class IMS_QP_mxJPO extends DomainObject {
 
             if ("AQP".equals(objectName)) {
                 whereStringBuilder
-                        .append("owner==" + ctx.getUser());
+                        .append("owner==" + ctx.getUser())
+                        .append("||")
+                        .append("to[IMS_QP_DEP2QPlan].from.")
+                        .append("from[IMS_QP_DEP2Owner].to.name==" + ctx.getUser());
             }
 
             if ("SQP".equals(objectName)) {
