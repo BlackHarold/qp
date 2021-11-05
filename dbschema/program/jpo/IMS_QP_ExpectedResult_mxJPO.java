@@ -258,8 +258,8 @@ public class IMS_QP_ExpectedResult_mxJPO {
 //                IMS_QP_Constants_mxJPO.type_IMS_QP_QPTask.equals(type)) {
 //            Map map = new HashMap<>();
 //            map.put("parentOID", objectId);
-        LOG.info("qplan owner " + IMS_QP_Security_mxJPO.isOwnerQPlanFromTask(ctx, args) + " : dep owner "+IMS_QP_Security_mxJPO.isOwnerDepFromQPTask(ctx,args));
-        boolean aspectAccess = IMS_QP_Security_mxJPO.isOwnerQPlanFromTask(ctx, args)||IMS_QP_Security_mxJPO.isOwnerDepFromQPTask(ctx,args);
+        LOG.info("qplan owner " + IMS_QP_Security_mxJPO.isOwnerQPlanFromTask(ctx, args) + " : dep owner " + IMS_QP_Security_mxJPO.isOwnerDepFromQPTask(ctx, args));
+        boolean aspectAccess = IMS_QP_Security_mxJPO.isOwnerQPlanFromTask(ctx, args) || IMS_QP_Security_mxJPO.isOwnerDepFromQPTask(ctx, args);
 
         return aspectAccess;
 //        } else {

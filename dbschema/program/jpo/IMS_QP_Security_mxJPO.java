@@ -1043,7 +1043,7 @@ public class IMS_QP_Security_mxJPO {
 
             LOG.info("plan id: " + planId + " plan type: " + planType + " from " + from);
             if (IMS_QP_Constants_mxJPO
-                    .type_IMS_QP_QPlan.equals(planType) && "AQP".equals(from)) {
+                    .type_IMS_QP_QPlan.equals(planType)) {
                 if (planObject.getOwner(ctx).getName().equals(ctx.getUser())) {
                     return true;
                 } else {

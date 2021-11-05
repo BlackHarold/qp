@@ -1145,6 +1145,18 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
         return currentState.equals("Draft");
     }
 
+    public boolean checkDeleteQPlan(Context ctx, String... args) throws Exception {
+
+        Map argsMap = JPO.unpackArgs(args);
+        LOG.info("checkDeleteQPlan argsMap: " + argsMap);
+        String objectId = (String) argsMap.get("objectId");
+        if (!IMS_QP_Security_mxJPO.isUserAdminOrSuper(ctx) && "SQP".equals(new DomainObject(objectId).getName(ctx))) {
+            return false;
+        }
+
+        return IMS_QP_Security_mxJPO.isOwner(ctx, args);
+    }
+
     public boolean checkAccess(Context ctx, String... args) throws Exception {
         if (IMS_QP_Security_mxJPO.isUserAdmin(ctx)) {
             return true;
@@ -1216,9 +1228,39 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
             LOG.error("error: " + e.getMessage());
             e.printStackTrace();
         }
+        LOG.info(argsMap.get("objectMap").getClass().getSimpleName());
+        Map objectMap = null;
+        if (argsMap.get("objectMap") instanceof Map) {
+            objectMap = (Map) argsMap.get("objectMap");
+        }
 
-        String rowIDs = (String) argsMap.get("emxTableRowId");
-        List<String> deletingIDs = Arrays.asList(rowIDs.split("\\|"));
+        String rawString = "";
+        List<String> rawList = null;
+        if (argsMap.get("objectMap") instanceof String) {
+            if (((String) argsMap.get("objectMap")).contains("objectIds=[")) {
+                rawString = (String) argsMap.get("objectMap");
+                rawString = rawString.substring(rawString.lastIndexOf("[") + 1, rawString.lastIndexOf("]"));
+                rawList = Arrays.asList(rawString.split(" "));
+                LOG.info("rawList: " + rawList.size());
+                for (String s : rawList) {
+                    LOG.info("s " + s);
+                }
+            }
+        }
+
+        StringList rawIds = new StringList();
+        if (objectMap != null) {
+            rawIds = (StringList) objectMap.get("objectIds");
+        } else if (rawList != null) {
+            rawIds.addAll(rawList);
+        }
+
+        String[] rowIDs = new String[rawIds.size()];
+        for (int i = 0; i < rawIds.size(); i++) {
+            rowIDs[i] = rawIds.get(i).substring(0, rawIds.get(i).indexOf("|"));
+        }
+        List<String> deletingIDs = Arrays.asList(rowIDs);
+        LOG.info("deletingIDs: " + deletingIDs);
         List<String> badNames = new ArrayList<>();
         boolean flag = false;
 
@@ -1251,7 +1293,7 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
                         /*object where*/ where,
                         /*relationship where*/ null,
                         /*limit*/ 0);
-                LOG.info(domainObject.getName(ctx) + " related with " + relatedTasks);
+//                LOG.info(domainObject.getName(ctx) + " related with " + relatedTasks);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -1268,12 +1310,11 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
 
         Map mapMessage = getMessage(badNames, flag);
         if (mapMessage.isEmpty()) {
-            deleteObjects(ctx, deletingIDs);
-        } else {
-            try {
-                emxContextUtil_mxJPO.mqlWarning(ctx, "task has another plan parent");
-            } catch (Exception e) {
-                e.printStackTrace();
+            String operation = (String) argsMap.get("operation");
+            LOG.info("operation: " + operation);
+            if ("delete".equals(operation)) {
+                LOG.info("deleted: " + deletingIDs);
+                deleteObjects(ctx, deletingIDs);
             }
         }
 
@@ -1289,7 +1330,14 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
             e.printStackTrace();
         }
 
-        String[] rowIDs = (String[]) argsMap.get("emxTableRowId");
+//        LOG.info("argsMap: " + argsMap);
+        Map objectMap = (Map) argsMap.get("objectMap");
+        StringList rawIds = (StringList) objectMap.get("objectIds");
+        String[] rowIDs = new String[rawIds.size()];
+        for (int i = 0; i < rawIds.size(); i++) {
+//            LOG.info("index of: " + rawId.indexOf("|") + " clean id: " + rawIds.get(i).substring(0, rawIds.get(i).indexOf("|")));
+            rowIDs[i] = rawIds.get(i).substring(0, rawIds.get(i).indexOf("|"));
+        }
 
         int relationCounter = 0;
         try {
@@ -1318,8 +1366,8 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
         String timeMessage = (
                 timeCostMinutes > 1 ?
                         " This may take a long time (about " + ((timeCostMinutes > 60) ? (int) timeCostMinutes / 60 + " hour(s))" : (int) timeCostMinutes + " minute(s))")
-                        : "");
-        return "More than " + relationCounter + " connections will be terminated. " + timeMessage;
+                        : " This may take less than a minute");
+        return "Trying to terminate more than " + relationCounter + " connections. " + timeMessage;
     }
 
     private Map getMessage(List<String> badNames, boolean flag) {
