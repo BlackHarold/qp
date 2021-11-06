@@ -1148,7 +1148,6 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
     public boolean checkDeleteQPlan(Context ctx, String... args) throws Exception {
 
         Map argsMap = JPO.unpackArgs(args);
-        LOG.info("checkDeleteQPlan argsMap: " + argsMap);
         String objectId = (String) argsMap.get("objectId");
         if (!IMS_QP_Security_mxJPO.isUserAdminOrSuper(ctx) && "SQP".equals(new DomainObject(objectId).getName(ctx))) {
             return false;

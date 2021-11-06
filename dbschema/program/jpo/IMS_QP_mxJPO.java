@@ -12,6 +12,8 @@ import matrix.util.StringList;
 import org.apache.log4j.Logger;
 
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 
 public class IMS_QP_mxJPO extends DomainObject {
@@ -986,35 +988,62 @@ public class IMS_QP_mxJPO extends DomainObject {
     /**
      * It deletes IMS_DEP in the table IMS_QP_QPlan
      */
-    public Map deleteQPlan(Context context,
-                           String[] args
-    ) throws Exception {
+    public Map deleteQPlan(Context ctx, String[] args) throws Exception {
 
         StringBuffer message = new StringBuffer();
         StringBuffer messageDel = new StringBuffer();
         Map mapMessage = new HashMap();
 
-        HashMap paramMap = JPO.unpackArgs(args);
-        String[] rowIDs = (String[]) paramMap.get("emxTableRowId");
-        String[] ids = new String[rowIDs.length];
-        for (int i = 0; i < rowIDs.length; i++) {
-            ids[i] = rowIDs[i].substring(0, rowIDs[i].indexOf("|"));
-        }
+        Map argsMap = JPO.unpackArgs(args);
+        LOG.info("deleteQPlanargsMap: " + argsMap);
+        String[] rowIDs = (String[]) argsMap.get("emxTableRowId");
 
         StringList selects = new StringList();
         selects.add(DomainObject.SELECT_ID);
         selects.add(DomainObject.SELECT_NAME);
+        selects.add(DomainObject.SELECT_OWNER);
         selects.add("from[" + IMS_QP_Constants_mxJPO.relationship_IMS_QP_QPlan2QPTask + "]");
 
-        MapList objectsInfo = DomainObject.getInfo(context, ids, selects);
+        MapList objectsInfo = DomainObject.getInfo(ctx, rowIDs, selects);
+
+        String objectId = (String) argsMap.get("objectId");
+        String type = "", name = "";
+        if (UIUtil.isNotNullAndNotEmpty(objectId)) {
+            DomainObject object = new DomainObject(objectId);
+            type = object.getType(ctx);
+            name = object.getName(ctx);
+        }
+
+        StringBuilder aqpOwnerMessage = new StringBuilder();
+        if (IMS_QP_Constants_mxJPO.type_IMS_QP.equals(type) && "AQP".equals(name)) {
+            MapList filteredByOwnerForAQP = new MapList();
+
+            objectsInfo.forEach((o) -> {
+                Map map = (Map) o;
+                LOG.info("map: " + map);
+                boolean isDepOwner = false;
+                try {
+                    isDepOwner = IMS_QP_Security_mxJPO.isOwnerDepFromQPlan(ctx, (String) map.get(DomainConstants.SELECT_ID));
+                } catch (FrameworkException e) {
+                    e.printStackTrace();
+                }
+                if (!isDepOwner && !IMS_QP_Security_mxJPO.isUserAdminOrSuper(ctx) && ctx.getUser().equals(map.get(DomainObject.SELECT_OWNER))) {
+                    aqpOwnerMessage.append("\nAQP detected: originator can't delete its own plan: " + map.get(DomainObject.SELECT_NAME));
+                } else {
+                    filteredByOwnerForAQP.add(map);
+                }
+            });
+            LOG.info("objectInfo before: " + objectsInfo.size());
+            objectsInfo = filteredByOwnerForAQP;
+            LOG.info("objectInfo after: " + objectsInfo.size());
+        }
 
         List<String> delObjs = new ArrayList<>();
-        for (Object o : objectsInfo) {
+        objectsInfo.forEach((o) -> {
             Map map = (Map) o;
             String tasks = (String) (map.get("from[" + IMS_QP_Constants_mxJPO.relationship_IMS_QP_QPlan2QPTask + "]"));
             getMessage(message, messageDel, delObjs, map, tasks);
-        }
-
+        });
 
         String[] deletion = new String[delObjs.size()];
         for (int i = 0; i < delObjs.size(); i++) {
@@ -1022,7 +1051,7 @@ public class IMS_QP_mxJPO extends DomainObject {
         }
 
         if (deletion.length > 0)
-            DomainObject.deleteObjects(context, deletion);
+            DomainObject.deleteObjects(ctx, deletion);
 
         if (message.length() > 0)
             message.append(" have a task!\n");
@@ -1031,6 +1060,7 @@ public class IMS_QP_mxJPO extends DomainObject {
             message.append(messageDel).append(" was deleted!");
 
 
+        message.append(aqpOwnerMessage);
         mapMessage.put("message", message.toString());
         return mapMessage;
     }
