@@ -1,10 +1,7 @@
 import com.matrixone.apps.domain.DomainConstants;
 import com.matrixone.apps.domain.DomainObject;
 import com.matrixone.apps.domain.DomainRelationship;
-import com.matrixone.apps.domain.util.ContextUtil;
-import com.matrixone.apps.domain.util.EnoviaResourceBundle;
-import com.matrixone.apps.domain.util.FrameworkException;
-import com.matrixone.apps.domain.util.MapList;
+import com.matrixone.apps.domain.util.*;
 import com.matrixone.apps.framework.ui.UIUtil;
 import matrix.db.*;
 import matrix.util.MatrixException;
@@ -1221,7 +1218,6 @@ public class IMS_QP_mxJPO extends DomainObject {
 
         boolean isViewer = IMS_QP_Security_mxJPO.isUserViewerWithChild(ctx);
 
-
         StringBuilder whereStringBuilder = new StringBuilder("");
 
         /**
@@ -1241,11 +1237,16 @@ public class IMS_QP_mxJPO extends DomainObject {
 
             if ("SQP".equals(objectName)) {
                 whereStringBuilder
+                        //не интердисциплинари: pbs2owner тоже
                         .append("(to[IMS_QP_DEP2QPlan].from.attribute[IMS_QP_InterdisciplinaryDEP]==FALSE")
-                        .append("&&from[IMS_QP_QPlan2Object].to.from[IMS_PBS2Owner].to.name==" + ctx.getUser() + ")")
+                        .append("&&")
+                        .append("(from[IMS_QP_QPlan2Object].to.from[IMS_PBS2Owner].to.name==").append(ctx.getUser())
                         .append("||")
-                        .append("(to[IMS_QP_DEP2QPlan].from.attribute[IMS_QP_InterdisciplinaryDEP]==TRUE")
-                        .append("&&to[IMS_QP_DEP2QPlan].from.from[IMS_QP_DEP2Owner].to.name==" + ctx.getUser() + ")");
+                        .append("to[IMS_QP_DEP2QPlan].from.from[IMS_QP_DEP2Owner].to.name==").append(ctx.getUser())
+                        .append("))")
+                        .append("||")
+                        .append("(").append("to[IMS_QP_DEP2QPlan].from.attribute[IMS_QP_InterdisciplinaryDEP]==TRUE")
+                        .append("&&").append("to[IMS_QP_DEP2QPlan].from.from[IMS_QP_DEP2Owner].to.name==").append(ctx.getUser()).append(")");
             }
         }
 

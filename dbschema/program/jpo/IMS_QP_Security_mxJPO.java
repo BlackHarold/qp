@@ -210,14 +210,15 @@ public class IMS_QP_Security_mxJPO {
                 .append("to[IMS_QP_DEP2QPlan].from")
                 .append(".from[IMS_QP_DEP2Owner].to.name")
                 .append(" dump |");
-        String objectOwners;
+        String objectOwners = "";
         try {
             objectOwners = MqlUtil.mqlCommand(context, sb.toString());
         } catch (FrameworkException frameworkException) {
             LOG.error("mql command error: " + frameworkException.getMessage());
             frameworkException.printStackTrace();
-            throw frameworkException;
         }
+
+        LOG.info("isOwnerDepFromQPPlan object owners: " + objectOwners);
         return objectOwners.contains(context.getUser());
     }
 
@@ -911,7 +912,7 @@ public class IMS_QP_Security_mxJPO {
         LOG.info("_stage 1_ isPlanType: " + isPlanType + " from " + from + " owner " + planObject.getOwner(ctx));
         if (isPlanType && "AQP".equals(from) && planObject.getOwner(ctx).getName().equals(ctx.getUser())
                 || isOwnerDepFromQPPlan(ctx, id)) {
-
+            LOG.info("AQP & owner is user || isOwnerDepFromQPlan");
             return true;
         }
 

@@ -1170,11 +1170,12 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
         /**
          * rule for admins
          */
-        if (UIUtil.isNotNullAndNotEmpty(key) && "IMS_QP_QPlan_edit".equals(key)) {
-            if (IMS_QP_Security_mxJPO.currentUserIsQPSuperUser(ctx)) {
-                return true;
-            }
-        }
+
+//        if (UIUtil.isNotNullAndNotEmpty(key) && "IMS_QP_QPlan_edit".equals(key)) {
+//            if (IMS_QP_Security_mxJPO.currentUserIsQPSuperUser(ctx)) {
+//                return true;
+//            }
+//        }
 
         /**
          * rule for viewer
@@ -1195,14 +1196,16 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
          * check is current state `Draft` & Security returned `true`
          */
         if (IMS_QP_Constants_mxJPO.type_IMS_QP_QPlan.equals(type)) {
-            return isDraft(ctx, type, args) && IMS_QP_Security_mxJPO.isOwnerQPlan(ctx, args);
+            return isDraft(ctx, type, args)
+                    && (IMS_QP_Security_mxJPO.isOwnerQPlan(ctx, args) || IMS_QP_Security_mxJPO.isUserAdmin(ctx));
         }
 
         /**
          * check is current state `Draft` & User the task Owner
          */
         if (IMS_QP_Constants_mxJPO.type_IMS_QP_QPTask.equals(type)) {
-            return (isDraft(ctx, type, args) && IMS_QP_Security_mxJPO.isOwnerQPlanFromTask(ctx, args));
+            return isDraft(ctx, type, args)
+                    && (IMS_QP_Security_mxJPO.isOwnerQPlanFromTask(ctx, args) || IMS_QP_Security_mxJPO.isUserAdminOrSuper(ctx));
         }
 
         /**

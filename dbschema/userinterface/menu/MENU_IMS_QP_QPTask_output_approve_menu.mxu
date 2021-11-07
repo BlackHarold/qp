@@ -12,9 +12,10 @@ mxUpdate menu "${NAME}" {
     alt ""
     setting "Access Function" "checkAccess"
     setting "Access Program" "IMS_QualityPlanBase"
-    command "IMS_QP_QPTask_output_approve"
-    command "IMS_QP_QPTask_output_reject"
     setting "key" "output_approve_menu"
+    command "IMS_QP_QPTask_output_approve"
+    command "AEFSeparator"
+    command "IMS_QP_QPTask_output_reject"
     ################################################## Info Start
     property "author" value "The IMS Team"
     property "original name" value "IMS_QP_QPTask_output_approve_menu"
