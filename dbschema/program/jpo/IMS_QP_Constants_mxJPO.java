@@ -5,6 +5,11 @@ public class IMS_QP_Constants_mxJPO {
     private IMS_QP_Constants_mxJPO() {
     }
 
+    //structure level
+    public static final String AQP = "AQP";
+    public static final String SQP = "SQP";
+    public static final String DEP = "DEP";
+
     public static final Object OBJECT_ID = "objectId";
     public static final String ESERVICE_PRODUCTION = "eService Production";
     public static final String ATTRIBUTE_IMS_QP_INTERDISCIPLINARY_DEP = "attribute[IMS_QP_InterdisciplinaryDEP]";

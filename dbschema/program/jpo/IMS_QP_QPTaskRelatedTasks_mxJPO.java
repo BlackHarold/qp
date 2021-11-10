@@ -35,8 +35,6 @@ public class IMS_QP_QPTaskRelatedTasks_mxJPO {
             whereBuilder.setLength(0);
         }
 
-        LOG.info("getRelatedTasks whereBuilder: " + whereBuilder);
-
         if (object != null && IMS_QP_Constants_mxJPO.type_IMS_QP_QPTask.equals(object.getType(ctx))) {
             relatedTasks = object.getRelatedObjects(ctx,
                     /*relationship*/relationships,
@@ -227,7 +225,6 @@ public class IMS_QP_QPTaskRelatedTasks_mxJPO {
                         /*object where*/ where,
                         /*relationship where*/ null,
                         /*limit*/ 0);
-                LOG.info("taskStates: " + taskStates);
             } catch (FrameworkException fe) {
                 LOG.error("error getting related states: " + fe.getMessage());
             }
@@ -247,7 +244,6 @@ public class IMS_QP_QPTaskRelatedTasks_mxJPO {
                     /*object where*/ where,
                     /*relationship where*/ null,
                     /*limit*/ 0);
-            LOG.info("relIdStates: " + relIdStates);
         } catch (FrameworkException fe) {
             LOG.error("error getting relation states: " + fe.getMessage());
         }
@@ -296,7 +292,6 @@ public class IMS_QP_QPTaskRelatedTasks_mxJPO {
                     processMap.put((String) taskMap.get(DomainConstants.SELECT_ID), relMap);
                 }
             }
-        LOG.info("processMap: " + processMap);
 
 //            check table row ids
         for (String taskID : taskIDs) {

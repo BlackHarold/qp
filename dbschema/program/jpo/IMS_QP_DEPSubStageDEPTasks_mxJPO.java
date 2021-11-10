@@ -777,7 +777,6 @@ public class IMS_QP_DEPSubStageDEPTasks_mxJPO {
 
                         return "";
                     } else {
-                        LOG.info("approved states localized");
                         return "Related tasks has 'Approved' states. Check it: " + checkTrigger;
                     }
                 }
@@ -1006,12 +1005,7 @@ public class IMS_QP_DEPSubStageDEPTasks_mxJPO {
 
         StringBuilder sb = new StringBuilder("");
 
-        LOG.info("viewer " + !IMS_QP_Security_mxJPO.isUserViewerWithChild(context));
-        LOG.info(" dep own from plan "+ IMS_QP_Security_mxJPO.isOwnerDepFromQPPlan(context, qpPlanId));
-        LOG.info(" qp own from task? " + IMS_QP_Security_mxJPO.isOwnerQPlanFromTask(context, args));
-        LOG.info(" admin: " + IMS_QP_Security_mxJPO.isUserAdmin(context));
-
-        boolean accessGranted = "AQP".equals(from) ?
+        boolean accessGranted = IMS_QP_Constants_mxJPO.AQP.equals(from) ?
                 !IMS_QP_Security_mxJPO.isUserViewerWithChild(context) && (
                         IMS_QP_Security_mxJPO.isOwnerDepFromQPPlan(context, qpPlanId)
                                 || IMS_QP_Security_mxJPO.isOwnerQPlanFromTask(context, args)

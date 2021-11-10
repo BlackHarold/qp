@@ -1246,14 +1246,7 @@ public class IMS_QP_DEPTask_mxJPO {
                 null);
 
         StringBuilder sb = new StringBuilder("");
-
-        LOG.info(" from " + from
-                + " is viewer: " + !IMS_QP_Security_mxJPO.isUserViewerWithChild(context)
-                + " is dep owner from plan " + IMS_QP_Security_mxJPO.isOwnerDepFromQPPlan(context, qpPlanId)
-                + " is qp owner from task " + IMS_QP_Security_mxJPO.isOwnerQPlanFromTask(context, args)
-                + " is admin " + IMS_QP_Security_mxJPO.isUserAdmin(context)
-        );
-        boolean accessGranted = "AQP".equals(from) ?
+        boolean accessGranted = IMS_QP_Constants_mxJPO.AQP.equals(from) ?
                 !IMS_QP_Security_mxJPO.isUserViewerWithChild(context) && (
                         IMS_QP_Security_mxJPO.isOwnerDepFromQPPlan(context, qpPlanId)
                                 || IMS_QP_Security_mxJPO.isOwnerQPlanFromTask(context, args)

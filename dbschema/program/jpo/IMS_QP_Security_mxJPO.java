@@ -138,7 +138,6 @@ public class IMS_QP_Security_mxJPO {
     public static boolean isOwnerDepFromQPTask(Context context, String[] args) throws Exception {
         boolean access;
         Map argsMap = JPO.unpackArgs(args);
-//        LOG.info("argsMap: " + argsMap);
         String objectId = UIUtil.isNotNullAndNotEmpty((String) argsMap.get("objectId")) ?
                 (String) argsMap.get("objectId") : (String) argsMap.get("parentOID");
         if (UIUtil.isNullOrEmpty(objectId)) {
@@ -149,11 +148,9 @@ public class IMS_QP_Security_mxJPO {
 
         if (UIUtil.isNotNullAndNotEmpty(objectId)) {
             DomainObject object = new DomainObject(objectId);
-            LOG.info("isOwnerDepFromQPTask object type: " + object.getType(context));
             String planId = IMS_QP_Constants_mxJPO.type_IMS_QP_QPlan.equals(object.getType(context)) ?
                     objectId : object.getInfo(context, "to[IMS_QP_QPlan2QPTask].from.id");
             access = IMS_QP_Security_mxJPO.isOwnerDepFromQPPlan(context, planId);
-            LOG.info("isOwnerDepFromQPTask access " + access);
         } else {
             return false;
         }
@@ -208,7 +205,6 @@ public class IMS_QP_Security_mxJPO {
             frameworkException.printStackTrace();
         }
 
-        LOG.info("isOwnerDepFromQPPlan object owners: " + objectOwners);
         return objectOwners.contains(context.getUser());
     }
 
@@ -778,7 +774,6 @@ public class IMS_QP_Security_mxJPO {
             @Override
             public String connect(Context context, String from, String to, String relationship) {
                 try {
-                    LOG.info("connectQPlanOwner: from " + from + "to " + to);
 
                     DomainObject personObject = new DomainObject(to);
                     Person person = new Person(personObject.getName(context));
@@ -790,8 +785,6 @@ public class IMS_QP_Security_mxJPO {
                     LOG.info(String.format("connect %s relationship %s to %s", from, RELATIONSHIP_IMS_PBS2Owner, to));
 
                     DomainRelationship relationshipToOwner = personObject.addRelatedObject(context, new RelationshipType(RELATIONSHIP_IMS_PBS2Owner), true, from);
-
-                    LOG.info("" + relationshipToOwner.getAttributeValues(context));
                 } catch (Exception e) {
                     LOG.error("error connecting: " + from + " to " + to + ": " + e.getMessage());
                     for (StackTraceElement er : e.getStackTrace()) {
@@ -903,11 +896,9 @@ public class IMS_QP_Security_mxJPO {
         /**
          * rule for `AQP` level
          */
-        LOG.info("_stage 1_ isPlanType: " + isPlanType + " from " + from + " owner " + planObject.getOwner(ctx) + " is dep owner: " + isOwnerDepFromQPPlan(ctx, id));
-        if (isPlanType && "AQP".equals(from) &&
+        if (isPlanType && IMS_QP_Constants_mxJPO.AQP.equals(from) &&
                 (planObject.getOwner(ctx).getName().equals(ctx.getUser()) || isOwnerDepFromQPPlan(ctx, id))
         ) {
-            LOG.info("AQP & owner is user || isOwnerDepFromQPlan");
             return true;
         }
 
@@ -918,12 +909,6 @@ public class IMS_QP_Security_mxJPO {
          * rule for `SQP` & Interdisciplinary `IMS_QP_QPlan`
          * that object has not relationship with KKS/PBS
          */
-
-        LOG.info("_stage 2_ isPlanType: " + isPlanType
-                + " from " + from
-                + " isInterdisciplinary " + isInterdisciplinary
-                + " has no connections to PBS " + planObject.getInfo(ctx, "from[IMS_QP_QPlan2Object]").equals("FALSE")
-        );
         if (isPlanType && isInterdisciplinary
                 && planObject.getInfo(ctx, "from[IMS_QP_QPlan2Object]").equals("FALSE")) {
             return isOwnerInterdisciplinaryQPlan(ctx, id);
@@ -933,14 +918,6 @@ public class IMS_QP_Security_mxJPO {
          * rule for `SQP` the Non-Interdisciplinary `IMS_QP_QPlan`
          * that object has relationship with KKS/PBS
          */
-
-        LOG.info("_stage 3_ isPlanType: " + isPlanType
-                + " from " + from
-                + " not isInterdisciplinary " + !isInterdisciplinary
-                + " has any connections to PBS " + planObject.getInfo(ctx, "from[IMS_QP_QPlan2Object]").equals("TRUE")
-                + " owners " + MqlUtil.mqlCommand(ctx, String.format("print bus %s select from[IMS_QP_QPlan2Object].to.from[IMS_PBS2Owner].to.name dump |", id))
-                + " user: " + ctx.getUser()
-        );
         if (isPlanType && !isInterdisciplinary
                 && planObject.getInfo(ctx, "from[IMS_QP_QPlan2Object]").equals("TRUE")) {
 
@@ -967,7 +944,6 @@ public class IMS_QP_Security_mxJPO {
             Map argsMap = new HashMap();
             argsMap.put("parentOID", id);
             String[] args = JPO.packArgs(argsMap);
-            LOG.info("parentOID: " + id);
             isOwnerQPlan = isOwnerQPlan(context, args);
 
         } catch (Exception e) {
@@ -979,7 +955,6 @@ public class IMS_QP_Security_mxJPO {
 
     public static boolean isOwnerQPlanFromTask(Context ctx, String... args) {
         if (IMS_QP_Security_mxJPO.isUserAdmin(ctx)) {
-            LOG.info("return true because user is Admin");
             return true;
         }
 
@@ -1012,7 +987,6 @@ public class IMS_QP_Security_mxJPO {
 
             DomainObject object = null;
             if (domainObject != null) {
-                LOG.info("domain type: " + domainObject.getType(ctx));
                 if (IMS_QP_Constants_mxJPO.type_IMS_QP_QPTask.equals(domainObject.getType(ctx))) {
                     object = domainObject;
                 }
@@ -1031,7 +1005,6 @@ public class IMS_QP_Security_mxJPO {
             }
 
             planObject = new DomainObject(planId);
-            LOG.info(planId + " is kind of " + object.getType(ctx) + " plan : " + planObject.getName(ctx));
 
             //before aspect AQP
             if (planObject != null) {
@@ -1042,10 +1015,9 @@ public class IMS_QP_Security_mxJPO {
                 return false;
             }
 
-            LOG.info("plan id: " + planId + " plan type: " + planType + " from " + from);
             if (IMS_QP_Constants_mxJPO
                     .type_IMS_QP_QPlan.equals(planType)) {
-                if ("AQP".equals(from) && planObject.getOwner(ctx).getName().equals(ctx.getUser())
+                if (IMS_QP_Constants_mxJPO.AQP.equals(from) && planObject.getOwner(ctx).getName().equals(ctx.getUser())
                 ) {
                     return true;
                 } else if (IMS_QP_Security_mxJPO.isOwnerQPlan(ctx, planId)) {
@@ -1080,7 +1052,6 @@ public class IMS_QP_Security_mxJPO {
             }
         }
 
-        LOG.info(isOwnerQPlanFromTask + "|" + isDepOwnerFromQPTask);
         return isOwnerQPlanFromTask || isDepOwnerFromQPTask;
     }
 

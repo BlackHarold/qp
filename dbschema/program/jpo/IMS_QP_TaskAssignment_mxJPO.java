@@ -301,7 +301,6 @@ public class IMS_QP_TaskAssignment_mxJPO {
             }
 
         } else {
-            LOG.info("temp name: " + name);
             throw new MatrixException("error getting temp name for expected result: " + name);
         }
 
@@ -392,7 +391,7 @@ public class IMS_QP_TaskAssignment_mxJPO {
     }
 
     private String getSystemFieldFromForm(String parsedHeader) {
-        if (UIUtil.isNotNullAndNotEmpty(parsedHeader) && parsedHeader.contains("AQP")) {
+        if (UIUtil.isNotNullAndNotEmpty(parsedHeader) && parsedHeader.contains(IMS_QP_Constants_mxJPO.AQP)) {
             return "system2OID";
         } else {
             return "system1OID";
@@ -625,7 +624,7 @@ public class IMS_QP_TaskAssignment_mxJPO {
         return returnList;
     }
 
-    public boolean isQPlanDraft(Context context, String... args) throws MatrixException {
+    public boolean isQPlanDraft(Context context, String... args) {
         Map argsMap = null;
         String objectId = "";
         try {

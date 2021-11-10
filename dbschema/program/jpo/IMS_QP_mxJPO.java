@@ -1012,7 +1012,7 @@ public class IMS_QP_mxJPO extends DomainObject {
         }
 
         StringBuilder aqpOwnerMessage = new StringBuilder();
-        if (IMS_QP_Constants_mxJPO.type_IMS_QP.equals(type) && "AQP".equals(name)) {
+        if (IMS_QP_Constants_mxJPO.type_IMS_QP.equals(type) && IMS_QP_Constants_mxJPO.AQP.equals(name)) {
             MapList filteredByOwnerForAQP = new MapList();
 
             objectsInfo.forEach((o) -> {
@@ -1227,7 +1227,7 @@ public class IMS_QP_mxJPO extends DomainObject {
          */
         if (!isViewer && !IMS_QP_Security_mxJPO.isUserAdminOrSuper(ctx) && IMS_QP_Constants_mxJPO.type_IMS_QP.equals(objectType)) {
 
-            if ("AQP".equals(objectName)) {
+            if (IMS_QP_Constants_mxJPO.AQP.equals(objectName)) {
                 whereStringBuilder
                         .append("owner==" + ctx.getUser())
                         .append("||")
@@ -1235,7 +1235,7 @@ public class IMS_QP_mxJPO extends DomainObject {
                         .append("from[IMS_QP_DEP2Owner].to.name==" + ctx.getUser());
             }
 
-            if ("SQP".equals(objectName)) {
+            if (IMS_QP_Constants_mxJPO.SQP.equals(objectName)) {
                 whereStringBuilder
                         //не интердисциплинари: pbs2owner тоже
                         .append("(to[IMS_QP_DEP2QPlan].from.attribute[IMS_QP_InterdisciplinaryDEP]==FALSE")

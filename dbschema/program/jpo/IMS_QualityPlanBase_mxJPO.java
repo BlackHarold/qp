@@ -149,7 +149,6 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
         try {
             fromObject = new DomainObject(objectId);
             fromMainSystemToDepID = fromObject.getInfo(ctx, "to[IMS_QP_DEP2QPlan].from.id");
-            LOG.info("parent plan object " + fromObject.getInfo(ctx, "name") + " from Main System to Dep IDs: " + fromMainSystemToDepID);
         } catch (Exception e) {
             LOG.error("error get object from main plan dep: " + e.getMessage());
             e.printStackTrace();
@@ -175,7 +174,7 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
             }
 
             systemOwners = UIUtil.isNotNullAndNotEmpty(systemOwners) ? systemOwners : "";
-            if (!parentName.contains("AQP")) {
+            if (!parentName.contains(IMS_QP_Constants_mxJPO.AQP)) {
                 if (!systemOwners.contains(ctx.getUser()) && !"admin_platform".equals(ctx.getUser())) {
                     errorsBuffer.add("" +
                             "user " + ctx.getUser() + " is not from the system owners " + systemOwners +
@@ -247,7 +246,7 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
                     + " to " + ((DomainObject) objectMap.get("system")).getName(ctx));
 
             String depName = IMS_QP_TaskAssignment_mxJPO.connectToDep(ctx, (DomainObject) objectMap.get("fromObject"), planObject);
-            if (((String) objectMap.get("parentName")).contains("AQP")) {
+            if (((String) objectMap.get("parentName")).contains(IMS_QP_Constants_mxJPO.AQP)) {
                 planObject.setName(ctx, newObjectName + "-" + depName);
             }
 
@@ -526,7 +525,7 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
             String userName = ctx.getUser();
 
             if (!IMS_QP_Security_mxJPO.isUserAdmin(ctx)) {
-                if (!form.contains("AQP") && (printOwners == null || !printOwners.contains(userName))) {
+                if (!form.contains(IMS_QP_Constants_mxJPO.AQP) && (printOwners == null || !printOwners.contains(userName))) {
                     LOG.error("throw error: " + String.format("%s does not QPlan owner of %s %s ", userName, systemType, systemName));
                     throw new MatrixException(String.format("%s does not QPlan owner of %s %s ", userName, systemType, systemName));
                 }
@@ -559,11 +558,11 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
 
             //change name for new object mask: QP-PBS /QP-10FAL/ or QP-PBS-DEP /QP-10FAK-DEP-3D/
             String qpPlanName = UIUtil.isNotNullAndNotEmpty(systemName) ? systemName : "";
-            if (form.contains("AQP")) {
+            if (form.contains(IMS_QP_Constants_mxJPO.AQP)) {
                 qpPlanName += "-" + depObject.getName(ctx);
             }
 
-            if (form.contains("SQP") && isInterdisciplinaryDep) {
+            if (form.contains(IMS_QP_Constants_mxJPO.SQP) && isInterdisciplinaryDep) {
                 qpPlanName = depObject.getName(ctx);
             }
 
@@ -643,7 +642,7 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
             LOG.info("has rels from plans: " + relationshipFromQPlan + " dep ids: " + relationshipFromQPlanIds + " deps states ID: " + relationshipFromQPlanInterdisciplinaryAttributes);
         }
 
-        if (form.contains("AQP") && relationshipFromQPlan.contains("TRUE")) {
+        if (form.contains(IMS_QP_Constants_mxJPO.AQP) && relationshipFromQPlan.contains("TRUE")) {
             //check if related plan constains DEP name from form
             LOG.info("rel from plan: " + UIUtil.isNotNullAndNotEmpty(relationshipFromQPlanIds) + " ids: " + relationshipFromQPlanIds + " dep id: " + cleanDepID + " | ");
             if (UIUtil.isNotNullAndNotEmpty(relationshipFromQPlanIds) && relationshipFromQPlanIds.contains(cleanDepID)) {
@@ -886,11 +885,11 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
 
         StringBuilder whereBuilder = new StringBuilder();
 
-        if (UIUtil.isNotNullAndNotEmpty(form) && form.contains("AQP")) {
+        if (UIUtil.isNotNullAndNotEmpty(form) && form.contains(IMS_QP_Constants_mxJPO.AQP)) {
             whereBuilder.append("attribute[IMS_QP_InterdisciplinaryDEP]==TRUE&&name nsmatch '*ExternalInitialData*'");
         }
 
-        if (UIUtil.isNotNullAndNotEmpty(form) && form.contains("SQP")) {
+        if (UIUtil.isNotNullAndNotEmpty(form) && form.contains(IMS_QP_Constants_mxJPO.SQP)) {
             whereBuilder.append("attribute[IMS_QP_InterdisciplinaryDEP]==FALSE||context.user==from[IMS_QP_DEP2Owner].to.name");
         }
 
@@ -1149,7 +1148,7 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
 
         Map argsMap = JPO.unpackArgs(args);
         String objectId = (String) argsMap.get("objectId");
-        if (!IMS_QP_Security_mxJPO.isUserAdminOrSuper(ctx) && "SQP".equals(new DomainObject(objectId).getName(ctx))) {
+        if (!IMS_QP_Security_mxJPO.isUserAdminOrSuper(ctx) && IMS_QP_Constants_mxJPO.SQP.equals(new DomainObject(objectId).getName(ctx))) {
             return false;
         }
 
@@ -1164,7 +1163,6 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
         Map argsMap = JPO.unpackArgs(args);
         Map settings = (Map) argsMap.get("SETTINGS");
         String key = (String) settings.get("key");
-        LOG.info("key: " + key);
 
         /**
          * rule for admins
@@ -1194,15 +1192,9 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
          */
         if (IMS_QP_Constants_mxJPO.type_IMS_QP_QPlan.equals(type)) {
             String from = object.getInfo(ctx, "to[IMS_QP_QP2QPlan].from.name");
-            LOG.info("key: " + key
-                    + " from " + from
-                    + " is Draft: " + isDraft(ctx, type, args)
-                    + " isOwnerDepFromQPlan(ctx, args): " + IMS_QP_Security_mxJPO.isOwnerDepFromQPlan(ctx, objectId)
-                    + " isOwnerQPlan: " + IMS_QP_Security_mxJPO.isOwnerQPlan(ctx, args)
-                    + " isUserAdminOrSuper: " + IMS_QP_Security_mxJPO.currentUserIsQPSuperUser(ctx));
 
             //AQP aspect
-            if ("AQP".equals(from)) {
+            if (IMS_QP_Constants_mxJPO.AQP.equals(from)) {
                 if ("IMS_QP_QPlan_edit".equals(key)) {
                     return isDraft(ctx, type, args)
                             && ((IMS_QP_Security_mxJPO.isOwnerQPlan(ctx, args) || IMS_QP_Security_mxJPO.currentUserIsQPSuperUser(ctx)));
@@ -1215,7 +1207,7 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
             }
 
             //SQP aspect
-            if ("SQP".equals(from)) {
+            if (IMS_QP_Constants_mxJPO.SQP.equals(from)) {
                 if ("IMS_QP_QPlan_edit".equals(key)) {
                     return isDraft(ctx, type, args)
                             && ((IMS_QP_Security_mxJPO.isOwnerQPlan(ctx, args) || IMS_QP_Security_mxJPO.isUserAdmin(ctx)));
@@ -1234,14 +1226,8 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
          */
         if (IMS_QP_Constants_mxJPO.type_IMS_QP_QPTask.equals(type)) {
             String from = object.getInfo(ctx, "to[IMS_QP_QPlan2QPTask].from.to[IMS_QP_QP2QPlan].from.name");
-            LOG.info("key: " + key
-                    + " from " + from
-                    + " is Draft: " + isDraft(ctx, type, args)
-                    + " isOwnerDepFromQPTask(ctx, args): " + IMS_QP_Security_mxJPO.isOwnerDepFromQPTask(ctx, args)
-                    + " isOwnerQPlanFromTask: " + IMS_QP_Security_mxJPO.isOwnerQPlanFromTask(ctx, args)
-                    + " isUserAdminOrSuper: " + IMS_QP_Security_mxJPO.currentUserIsQPSuperUser(ctx));
 
-            if ("AQP".equals(from) && key.contains("_approve_menu")) {
+            if (IMS_QP_Constants_mxJPO.AQP.equals(from) && key.contains("_approve_menu")) {
                 return isDraft(ctx, type, args) &&
                         (
                                 IMS_QP_Security_mxJPO.isOwnerDepFromQPTask(ctx, args) && key.contains("_approve_menu") ||
@@ -1251,7 +1237,7 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
                         );
             }
 
-            if ("SQP".equals(from) && key.contains("_approve_menu")) {
+            if (IMS_QP_Constants_mxJPO.SQP.equals(from) && key.contains("_approve_menu")) {
                 return isDraft(ctx, type, args) &&
                         (
                                 IMS_QP_Security_mxJPO.isOwnerDepFromQPTask(ctx, args) ||
@@ -1260,10 +1246,6 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
                                         IMS_QP_Security_mxJPO.currentUserIsQPSuperUser(ctx)
                         );
             }
-        }
-
-        if (IMS_QP_Constants_mxJPO.type_IMS_QP_QPTask.equals(type)) {
-            LOG.info("==============================ELSE");
         }
 
         /**
@@ -1353,7 +1335,6 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
                         /*object where*/ where,
                         /*relationship where*/ null,
                         /*limit*/ 0);
-//                LOG.info(domainObject.getName(ctx) + " related with " + relatedTasks);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -1390,12 +1371,10 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
             e.printStackTrace();
         }
 
-//        LOG.info("argsMap: " + argsMap);
         Map objectMap = (Map) argsMap.get("objectMap");
         StringList rawIds = (StringList) objectMap.get("objectIds");
         String[] rowIDs = new String[rawIds.size()];
         for (int i = 0; i < rawIds.size(); i++) {
-//            LOG.info("index of: " + rawId.indexOf("|") + " clean id: " + rawIds.get(i).substring(0, rawIds.get(i).indexOf("|")));
             rowIDs[i] = rawIds.get(i).substring(0, rawIds.get(i).indexOf("|"));
         }
 

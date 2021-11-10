@@ -90,12 +90,12 @@ public class IMS_QP_Workbench_mxJPO {
          */
         if (!isViewer && !IMS_QP_Security_mxJPO.isUserAdminOrSuper(ctx) && IMS_QP_Constants_mxJPO.type_IMS_QP.equals(objectType)) {
 
-            if ("AQP".equals(objectName)) {
+            if (IMS_QP_Constants_mxJPO.AQP.equals(objectName)) {
                 whereStringBuilder
                         .append("owner==" + ctx.getUser());
             }
 
-            if ("SQP".equals(objectName)) {
+            if (IMS_QP_Constants_mxJPO.SQP.equals(objectName)) {
                 whereStringBuilder
                         .append("(to[IMS_QP_DEP2QPlan].from.attribute[IMS_QP_InterdisciplinaryDEP]==FALSE")
                         .append("&&from[IMS_QP_QPlan2Object].to.from[IMS_PBS2Owner].to.name==" + ctx.getUser() + ")")
@@ -328,16 +328,11 @@ public class IMS_QP_Workbench_mxJPO {
                 cleanedIds[j] = objectIds.get(j);
             }
 
-            BusinessObjectWithSelectList businessObjectWithSelectList = getReportData(ctx, "SQP", cleanedIds);
+            BusinessObjectWithSelectList businessObjectWithSelectList = getReportData(ctx, IMS_QP_Constants_mxJPO.SQP, cleanedIds);
 
             /*Main check process*/
             boolean checkResult = createCheckReport(ctx, businessObjectWithSelectList);
             checkList.add(checkResult);
-            LOG.info("" +
-                    "type: " + type +
-                    " name " + name +
-                    " count related: " + objectIds.size() +
-                    " check: " + checkResult);
         }
 
         StringBuilder stringBuilder = new StringBuilder();
@@ -403,7 +398,7 @@ public class IMS_QP_Workbench_mxJPO {
             for (int j = 0; j < objectIds.size(); j++) {
                 LinkedHashMap<String, String> taskMap =
                         (LinkedHashMap<String, String>) new IMS_QP_PreparationStatement_Report_mxJPO()
-                                .getPrepare(ctx, /*always SQP*/ "SQP", new String[]{objectIds.get(j)});
+                                .getPrepare(ctx, /*always SQP*/ IMS_QP_Constants_mxJPO.SQP, new String[]{objectIds.get(j)});
 
                 String currentTask = "";
                 if (taskMap != null && !taskMap.isEmpty()) {
@@ -823,7 +818,6 @@ public class IMS_QP_Workbench_mxJPO {
 
         for (String color : resultList) {
             if ("IMS_QP_Purple".equals(color) || "IMS_QP_Yellow".equals(color) || "IMS_QP_Orange".equals(color) || "IMS_QP_Blue".equals(color)) {
-                LOG.info("style: " + color);
                 return true;
             }
         }
@@ -937,12 +931,9 @@ public class IMS_QP_Workbench_mxJPO {
         }
 
         boolean isPlanType = IMS_QP_Constants_mxJPO.type_IMS_QP_QPlan.equals(type);
-        if (isPlanType && "AQP".equals(from)) {
+        if (isPlanType && IMS_QP_Constants_mxJPO.AQP.equals(from)) {
             return true;
         }
-
-
-        LOG.info("type: " + type + " name: " + name);
 
         try {
 
@@ -960,13 +951,6 @@ public class IMS_QP_Workbench_mxJPO {
                 granted = true;
             }
 
-            LOG.info("access workbench tab from " + objectId + " | is admin or su: " + IMS_QP_Security_mxJPO.isUserAdminOrSuper(ctx)
-                    + " qp plan owner: " + IMS_QP_Security_mxJPO.isOwnerQPlan(ctx, objectId)
-                    + " dep owner: " + IMS_QP_Security_mxJPO.isOwnerDepFromQPTask(ctx, args)
-                    + " deviation owner: " + (IMS_QP_Security_mxJPO.isOwnerDepFromQPTask(ctx, args)
-                    || IMS_QP_Security_mxJPO.isOwnerQPlanFromTaskID(ctx, objectId))
-                    + " type is QP: " + type.equals(IMS_QP_Constants_mxJPO.type_IMS_QP)
-            );
         } catch (MatrixException e) {
             LOG.error("error when checking Person: " + e.getMessage());
             e.printStackTrace();
@@ -993,8 +977,6 @@ public class IMS_QP_Workbench_mxJPO {
             e.printStackTrace();
         }
 
-        LOG.info("type " + type + " result granted: " + granted);
-        LOG.info("arguments: " + argsMap);
         return granted;
     }
 
