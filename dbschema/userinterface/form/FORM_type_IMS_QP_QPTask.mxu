@@ -117,8 +117,8 @@ mxUpdate form "${NAME}" {
         setting "Field Type" "programHTMLOutput"
         setting "Registered Suite" "Framework"
         setting "function" "getConnectedExternalDocumentSetHTML"
-        setting "program" "IMS_QP_DEPSubStageDEPTasks"
         setting "key" "doc"
+        setting "program" "IMS_QP_DEPSubStageDEPTasks"
     }
     field {
         name "CheckList"
@@ -129,8 +129,8 @@ mxUpdate form "${NAME}" {
         setting "Field Type" "programHTMLOutput"
         setting "Registered Suite" "Framework"
         setting "function" "getConnectedQPCheckListHTML"
-        setting "program" "IMS_QP_DEPTask"
         setting "key" "cl"
+        setting "program" "IMS_QP_DEPTask"
     }
     field {
         name "select_document"

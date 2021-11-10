@@ -10,7 +10,6 @@
 <%@ page import="java.util.ArrayList" %>
 <%@ page import="java.util.Arrays" %>
 <%@ page import="java.util.Map" %>
-<%@ page import="com.matrixone.apps.domain.util.CASAuthentication" %>
 <%@ page contentType="text/html; charset=UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
@@ -60,9 +59,6 @@
 </head>
 <body>
 <%
-    CASAuthentication casAuthentication = new CASAuthentication("https://nn-3dexpdemo.niaepnn.ru/3dpassport");
-    String authenticate =  casAuthentication.authenticate("admin_platform","Otujdhtg3");
-
     Context context = Framework.getContext(session);
     /**
      *object_id or user_name
@@ -148,11 +144,6 @@
     <tr>
         <th>Атрибут</th>
         <th>Значение</th>
-    </tr>
-    <tr>
-        <td>Auth</td>
-        <td><%=authenticate%>
-        </td>
     </tr>
     <tr>
         <td>Контекст</td>
