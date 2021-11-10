@@ -1163,19 +1163,12 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
 
         Map argsMap = JPO.unpackArgs(args);
         Map settings = (Map) argsMap.get("SETTINGS");
-        LOG.info("argsMap: " + argsMap);
         String key = (String) settings.get("key");
         LOG.info("key: " + key);
 
         /**
          * rule for admins
          */
-
-//        if (UIUtil.isNotNullAndNotEmpty(key) && "IMS_QP_QPlan_edit".equals(key)) {
-//            if (IMS_QP_Security_mxJPO.currentUserIsQPSuperUser(ctx)) {
-//                return true;
-//            }
-//        }
 
         /**
          * rule for viewer
@@ -1189,23 +1182,88 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
          * In `Confirmation process` when toggle selected takes task Ids
          */
         String objectId = (String) argsMap.get("objectId");
+        if (UIUtil.isNullOrEmpty(objectId)) {
+            return false;
+        }
+
         DomainObject object = new DomainObject(objectId);
         String type = object.getType(ctx);
 
         /**
-         * check is current state `Draft` & Security returned `true`
+         * check if current state `Draft` & Security returned `true`
          */
         if (IMS_QP_Constants_mxJPO.type_IMS_QP_QPlan.equals(type)) {
-            return isDraft(ctx, type, args)
-                    && (IMS_QP_Security_mxJPO.isOwnerQPlan(ctx, args) || IMS_QP_Security_mxJPO.isUserAdmin(ctx));
+            String from = object.getInfo(ctx, "to[IMS_QP_QP2QPlan].from.name");
+            LOG.info("key: " + key
+                    + " from " + from
+                    + " is Draft: " + isDraft(ctx, type, args)
+                    + " isOwnerDepFromQPlan(ctx, args): " + IMS_QP_Security_mxJPO.isOwnerDepFromQPlan(ctx, objectId)
+                    + " isOwnerQPlan: " + IMS_QP_Security_mxJPO.isOwnerQPlan(ctx, args)
+                    + " isUserAdminOrSuper: " + IMS_QP_Security_mxJPO.currentUserIsQPSuperUser(ctx));
+
+            //AQP aspect
+            if ("AQP".equals(from)) {
+                if ("IMS_QP_QPlan_edit".equals(key)) {
+                    return isDraft(ctx, type, args)
+                            && ((IMS_QP_Security_mxJPO.isOwnerQPlan(ctx, args) || IMS_QP_Security_mxJPO.currentUserIsQPSuperUser(ctx)));
+                }
+
+                if ("menu_IMS_QP_QPTask".equals(key)) {
+                    return isDraft(ctx, type, args)
+                            && (IMS_QP_Security_mxJPO.isOwnerQPlan(ctx, args));
+                }
+            }
+
+            //SQP aspect
+            if ("SQP".equals(from)) {
+                if ("IMS_QP_QPlan_edit".equals(key)) {
+                    return isDraft(ctx, type, args)
+                            && ((IMS_QP_Security_mxJPO.isOwnerQPlan(ctx, args) || IMS_QP_Security_mxJPO.isUserAdmin(ctx)));
+                }
+
+                if ("menu_IMS_QP_QPTask".equals(key)) {
+                    return isDraft(ctx, type, args)
+                            && IMS_QP_Security_mxJPO.isOwnerQPlan(ctx, args)
+                            /*&& !IMS_QP_Security_mxJPO.isOwnerDepFromQPPlan(ctx, objectId)*/;
+                }
+            }
         }
 
         /**
-         * check is current state `Draft` & User the task Owner
+         * check if current state `Draft` & User the task Owner
          */
         if (IMS_QP_Constants_mxJPO.type_IMS_QP_QPTask.equals(type)) {
-            return isDraft(ctx, type, args)
-                    && (IMS_QP_Security_mxJPO.isOwnerQPlanFromTask(ctx, args) || IMS_QP_Security_mxJPO.isUserAdminOrSuper(ctx));
+            String from = object.getInfo(ctx, "to[IMS_QP_QPlan2QPTask].from.to[IMS_QP_QP2QPlan].from.name");
+            LOG.info("key: " + key
+                    + " from " + from
+                    + " is Draft: " + isDraft(ctx, type, args)
+                    + " isOwnerDepFromQPTask(ctx, args): " + IMS_QP_Security_mxJPO.isOwnerDepFromQPTask(ctx, args)
+                    + " isOwnerQPlanFromTask: " + IMS_QP_Security_mxJPO.isOwnerQPlanFromTask(ctx, args)
+                    + " isUserAdminOrSuper: " + IMS_QP_Security_mxJPO.currentUserIsQPSuperUser(ctx));
+
+            if ("AQP".equals(from) && key.contains("_approve_menu")) {
+                return isDraft(ctx, type, args) &&
+                        (
+                                IMS_QP_Security_mxJPO.isOwnerDepFromQPTask(ctx, args) && key.contains("_approve_menu") ||
+                                        IMS_QP_Security_mxJPO.isOwnerDepFromQPTask(ctx, args) ||
+                                        IMS_QP_Security_mxJPO.isOwnerQPlanFromTask(ctx, args) ||
+                                        IMS_QP_Security_mxJPO.currentUserIsQPSuperUser(ctx)
+                        );
+            }
+
+            if ("SQP".equals(from) && key.contains("_approve_menu")) {
+                return isDraft(ctx, type, args) &&
+                        (
+                                IMS_QP_Security_mxJPO.isOwnerDepFromQPTask(ctx, args) ||
+                                        IMS_QP_Security_mxJPO.isOwnerDepFromQPTask(ctx, args) ||
+                                        IMS_QP_Security_mxJPO.isOwnerQPlanFromTask(ctx, args) ||
+                                        IMS_QP_Security_mxJPO.currentUserIsQPSuperUser(ctx)
+                        );
+            }
+        }
+
+        if (IMS_QP_Constants_mxJPO.type_IMS_QP_QPTask.equals(type)) {
+            LOG.info("==============================ELSE");
         }
 
         /**

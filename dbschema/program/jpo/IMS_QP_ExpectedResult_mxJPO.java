@@ -238,33 +238,28 @@ public class IMS_QP_ExpectedResult_mxJPO {
 
     public boolean checkMenuAccess(Context ctx, String... args) throws Exception {
         Map argsMap = JPO.unpackArgs(args);
-//
         String objectId = (String) argsMap.get("objectId");
         DomainObject domainObject = new DomainObject(objectId);
         String type = domainObject.getType(ctx);
 
+        String from = "";
         if (IMS_QP_Constants_mxJPO.type_IMS_QP_QPTask.equals(type)) {
             String currentState = domainObject.getInfo(ctx, "to[IMS_QP_QPlan2QPTask].from.current");
+            from = domainObject.getInfo(ctx, "to[IMS_QP_QPlan2QPTask].from.to[IMS_QP_QP2QPlan].from.name");
             if (IMS_QP_Security_mxJPO.STATE_DONE.equals(currentState)) {
                 return false;
             }
-
         }
-//        LOG.info("currentState: " + currentState);
-//
 
-        //AQP aspect
-//        if (UIUtil.isNotNullAndNotEmpty(objectId) &&
-//                IMS_QP_Constants_mxJPO.type_IMS_QP_QPTask.equals(type)) {
-//            Map map = new HashMap<>();
-//            map.put("parentOID", objectId);
-        LOG.info("qplan owner " + IMS_QP_Security_mxJPO.isOwnerQPlanFromTask(ctx, args) + " : dep owner " + IMS_QP_Security_mxJPO.isOwnerDepFromQPTask(ctx, args));
-        boolean aspectAccess = IMS_QP_Security_mxJPO.isOwnerQPlanFromTask(ctx, args) || IMS_QP_Security_mxJPO.isOwnerDepFromQPTask(ctx, args);
+        LOG.info("qplan owner " + IMS_QP_Security_mxJPO.isOwnerQPlanFromTask(ctx, args) +
+                " : dep owner " + IMS_QP_Security_mxJPO.isOwnerDepFromQPTask(ctx, args));
+        boolean aspectAccess = "AQP".equals(from) ?
+                IMS_QP_Security_mxJPO.isOwnerQPlanFromTask(ctx, args)
+                        || IMS_QP_Security_mxJPO.isOwnerDepFromQPTask(ctx, args)
+                :
+                IMS_QP_Security_mxJPO.isOwnerQPlanFromTask(ctx, args);
 
         return aspectAccess;
-//        } else {
-//            return checkAccess(ctx, args);
-//        }
     }
 
     public boolean checkOwnerAccess(Context ctx, String... args) {
@@ -303,21 +298,30 @@ public class IMS_QP_ExpectedResult_mxJPO {
                     toId = domainObject.getInfo(ctx, "to[IMS_QP_ExpectedResult2DEPTask].from.id");
                 }
 
-                String toIdType = new DomainObject(toId).getType(ctx);
+                DomainObject toTask = new DomainObject(toId);
+                String toIdType = toTask.getType(ctx);
+                String from = "";
                 if (IMS_QP_Constants_mxJPO.type_IMS_QP_QPTask.equals(toIdType)) {
-                    String qPlanId = new DomainObject(toId).getInfo(ctx, "to[IMS_QP_QPlan2QPTask].from.id");
+                    String qPlanId = toTask.getInfo(ctx, "to[IMS_QP_QPlan2QPTask].from.id");
+                    from = new DomainObject(qPlanId).getInfo(ctx, "to[IMS_QP_QP2QPlan].from");
                     if (UIUtil.isNotNullAndNotEmpty(qPlanId)) {
                         LOG.info("qplan info: " + new DomainObject(qPlanId).getName(ctx));
-                        granted = IMS_QP_Security_mxJPO.isOwnerQPlan(ctx, qPlanId) || IMS_QP_Security_mxJPO.isOwnerDepFromQPPlan(ctx, qPlanId);
+                        if ("AQP".equals(from)) {
+                            granted = IMS_QP_Security_mxJPO.isOwnerQPlan(ctx, qPlanId) || IMS_QP_Security_mxJPO.isOwnerDepFromQPPlan(ctx, qPlanId);
+                        }
+
+                        if ("SQP".equals(from)) {
+                            granted = IMS_QP_Security_mxJPO.isOwnerQPlan(ctx, qPlanId);
+                        }
+
                         LOG.info("granted from qplan: " + granted);
                     }
                 }
 
                 argsMap.put("objectId", objectId);
                 argsMap.put("parentOID", toId);
-            }
 
-            if (IMS_QP_Constants_mxJPO.type_IMS_QP_QPTask.equals(type)) {
+            } else if (IMS_QP_Constants_mxJPO.type_IMS_QP_QPTask.equals(type)) {
                 String qPlanId = new DomainObject(objectId).getInfo(ctx, "to[IMS_QP_QPlan2QPTask].from.id");
                 if (UIUtil.isNotNullAndNotEmpty(qPlanId)) {
                     LOG.info("qplan info: " + new DomainObject(qPlanId).getName(ctx));

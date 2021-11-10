@@ -990,6 +990,9 @@ public class IMS_QP_DEPSubStageDEPTasks_mxJPO {
     public String getConnectedExternalDocumentSetHTML(Context context, String[] args) throws Exception {
         DomainObject qpTaskObject = IMS_KDD_mxJPO.getObjectFromParamMap(args);
 
+        String qpPlanId = qpTaskObject.getInfo(context, "to[IMS_QP_QPlan2QPTask].from.id");
+        String from = qpTaskObject.getInfo(context, "to[IMS_QP_QPlan2QPTask].from.to[IMS_QP_QP2QPlan].from.name");
+
         List<Map> externalDocumentSetMaps = IMS_KDD_mxJPO.getRelatedObjectMaps(
                 context, qpTaskObject,
                 RELATIONSHIP_IMS_QP_QPTask2Fact,
@@ -1003,6 +1006,22 @@ public class IMS_QP_DEPSubStageDEPTasks_mxJPO {
 
         StringBuilder sb = new StringBuilder("");
 
+        LOG.info("viewer " + !IMS_QP_Security_mxJPO.isUserViewerWithChild(context));
+        LOG.info(" dep own from plan "+ IMS_QP_Security_mxJPO.isOwnerDepFromQPPlan(context, qpPlanId));
+        LOG.info(" qp own from task? " + IMS_QP_Security_mxJPO.isOwnerQPlanFromTask(context, args));
+        LOG.info(" admin: " + IMS_QP_Security_mxJPO.isUserAdmin(context));
+
+        boolean accessGranted = "AQP".equals(from) ?
+                !IMS_QP_Security_mxJPO.isUserViewerWithChild(context) && (
+                        IMS_QP_Security_mxJPO.isOwnerDepFromQPPlan(context, qpPlanId)
+                                || IMS_QP_Security_mxJPO.isOwnerQPlanFromTask(context, args)
+                                || IMS_QP_Security_mxJPO.isUserAdmin(context)
+                ) :
+                !IMS_QP_Security_mxJPO.isUserViewerWithChild(context) && (
+                        IMS_QP_Security_mxJPO.isOwnerQPlanFromTask(context, args)
+                                || IMS_QP_Security_mxJPO.isUserAdmin(context)
+                );
+
         if (externalDocumentSetMaps.size() > 0) {
             for (Map externalDocumentSetMap : externalDocumentSetMaps) {
                 if (sb.length() > 0) {
@@ -1011,7 +1030,8 @@ public class IMS_QP_DEPSubStageDEPTasks_mxJPO {
 
                 String externalSystemName = (String) externalDocumentSetMap.get(
                         IMS_KDD_mxJPO.getToNameSelect(IMS_ExternalSystem_mxJPO.RELATIONSHIP_IMS_Object2ExternalSystem));
-                if (!IMS_QP_Security_mxJPO.isUserViewerWithChild(context)) {
+
+                if (accessGranted) {
                     sb.append(IMS_KDD_mxJPO.getDisconnectLinkHTML(
                             PROGRAM_IMS_QP_DEPSubStageDEPTasks, "disconnectExternalDocumentSet",
                             qpTaskObject.getId(context), IMS_KDD_mxJPO.getIdFromMap(externalDocumentSetMap),
@@ -1030,7 +1050,7 @@ public class IMS_QP_DEPSubStageDEPTasks_mxJPO {
                         HtmlEscapers.htmlEscaper().escape(IMS_KDD_mxJPO.getNameFromMap(externalDocumentSetMap))));
             }
         } else {
-            if (!IMS_QP_Security_mxJPO.isUserViewerWithChild(context)) {
+            if (accessGranted) {
                 sb.append(String.format(
                         "<a href=\"javascript:%s\"><img src=\"%s\" title=\"%s\" /></a>",
                         String.format(

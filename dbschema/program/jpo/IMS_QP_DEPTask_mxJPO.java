@@ -1233,6 +1233,9 @@ public class IMS_QP_DEPTask_mxJPO {
     public String getConnectedQPCheckListHTML(Context context, String[] args) throws Exception {
         DomainObject qpTaskObject = IMS_KDD_mxJPO.getObjectFromParamMap(args);
 
+        String qpPlanId = qpTaskObject.getInfo(context, "to[IMS_QP_QPlan2QPTask].from.id");
+        String from = qpTaskObject.getInfo(context, "to[IMS_QP_QPlan2QPTask].from.to[IMS_QP_QP2QPlan].from.name");
+
         Map externalDocumentSetMap = qpTaskObject.getRelatedObject(
                 context,
                 RELATIONSHIP_IMS_QP_QPTask2Fact, true,
@@ -1244,7 +1247,24 @@ public class IMS_QP_DEPTask_mxJPO {
 
         StringBuilder sb = new StringBuilder("");
 
-        if (externalDocumentSetMap != null) {
+        LOG.info(" from " + from
+                + " is viewer: " + !IMS_QP_Security_mxJPO.isUserViewerWithChild(context)
+                + " is dep owner from plan " + IMS_QP_Security_mxJPO.isOwnerDepFromQPPlan(context, qpPlanId)
+                + " is qp owner from task " + IMS_QP_Security_mxJPO.isOwnerQPlanFromTask(context, args)
+                + " is admin " + IMS_QP_Security_mxJPO.isUserAdmin(context)
+        );
+        boolean accessGranted = "AQP".equals(from) ?
+                !IMS_QP_Security_mxJPO.isUserViewerWithChild(context) && (
+                        IMS_QP_Security_mxJPO.isOwnerDepFromQPPlan(context, qpPlanId)
+                                || IMS_QP_Security_mxJPO.isOwnerQPlanFromTask(context, args)
+                                || IMS_QP_Security_mxJPO.isUserAdmin(context)
+                ) :
+                !IMS_QP_Security_mxJPO.isUserViewerWithChild(context) && (
+                        IMS_QP_Security_mxJPO.isOwnerQPlanFromTask(context, args)
+                                || IMS_QP_Security_mxJPO.isUserAdmin(context)
+                );
+
+        if (externalDocumentSetMap != null && externalDocumentSetMap.size() > 0) {
             sb.append(String.format(
                     "<a href=\"javascript:%s\">%s</a>",
                     String.format(
@@ -1252,14 +1272,7 @@ public class IMS_QP_DEPTask_mxJPO {
                             IMS_KDD_mxJPO.getIdFromMap(externalDocumentSetMap)),
                     HtmlEscapers.htmlEscaper().escape(IMS_KDD_mxJPO.getNameFromMap(externalDocumentSetMap))));
         } else {
-            LOG.info("" +
-                    "owner dep: " + IMS_QP_Security_mxJPO.isOwnerDepFromQPTask(context, args) +
-                    " owner qplan: " + IMS_QP_Security_mxJPO.isOwnerQPlanFromTask(context, args) +
-                    " admin: " + IMS_QP_Security_mxJPO.isUserAdmin(context)
-            );
-            if (IMS_QP_Security_mxJPO.isOwnerDepFromQPTask(context, args)
-                    || IMS_QP_Security_mxJPO.isOwnerQPlanFromTask(context, args)
-                    || IMS_QP_Security_mxJPO.isUserAdmin(context)) {
+            if (accessGranted) {
                 sb.append(String.format(
                         "<a href=\"javascript:%s\"><img src=\"%s\" title=\"%s\" /></a>",
                         String.format(
@@ -1345,7 +1358,6 @@ public class IMS_QP_DEPTask_mxJPO {
     public boolean accessDocument(Context ctx, String[] args) throws FrameworkException {
 
         try {
-
             Map argsMap = JPO.unpackArgs(args);
             Map settings = (Map) argsMap.get("SETTINGS");
 
@@ -1372,20 +1384,12 @@ public class IMS_QP_DEPTask_mxJPO {
                     0
             );
             currentState = object.getInfo(ctx, "to[IMS_QP_QPlan2QPTask].from.current");
-            /*String hasAttributes = object.getAttributeValue(ctx, "IMS_QP_ProjectStage") + object.getAttributeValue(ctx, "IMS_QP_Baseline");*/
-            LOG.info(key + " ext doc access: " + (expectedResult.size() != 0));
             List<String> owners = object.getInfoList(ctx, "to[IMS_QP_QPlan2QPTask].from.to[IMS_QP_DEP2QPlan].from.from[IMS_QP_DEP2Owner].to.name");
-            LOG.info(""
-                    + "qp owner from task: " + IMS_QP_Security_mxJPO.isOwnerQPlanFromTask(ctx, args)
-                    + " admin: " + IMS_QP_Security_mxJPO.isUserViewerWithChild(ctx)
-                    + " dep info user: " + owners
-                    + " ctx user: " + ctx.getUser());
             return expectedResult.size() != 0 && (IMS_QP_Security_mxJPO.isOwnerQPlanFromTask(ctx, args)
                     || IMS_QP_Security_mxJPO.isUserAdminOrSuper(ctx)
                     || IMS_QP_Security_mxJPO.isUserViewerWithChild(ctx)
                     || owners.contains(ctx.getUser())
             );
-//            return UIUtil.isNotNullAndNotEmpty(key) && key.equals("doc") && (expectedResult.size() != 0/*||!"Done".equals(currentState)*/)/*|| UIUtil.isNotNullAndNotEmpty(hasAttributes)*/;
 
         } catch (Exception ex) {
             LOG.error("accessDocument error: " + ex.getMessage());
