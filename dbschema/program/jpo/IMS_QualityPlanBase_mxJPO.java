@@ -11,6 +11,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class IMS_QualityPlanBase_mxJPO extends DomainObject {
 
@@ -1341,15 +1342,25 @@ public class IMS_QualityPlanBase_mxJPO extends DomainObject {
 
             for (Object o : relatedTasks) {
                 Map map = (Map) o;
-                if (!map.get(IMS_QP_Constants_mxJPO.PLAN_TO_TASK).equals(mainPlan) && map.get(IMS_QP_Constants_mxJPO.ATTRIBUTE_IMS_QP_DEPTASK_STATUS).equals(IMS_QP_Constants_mxJPO.APPROVED)) {
-                    badNames.add((String) map.get(DomainConstants.SELECT_NAME));
+                if (!map.get(IMS_QP_Constants_mxJPO.PLAN_TO_TASK).equals(mainPlan)
+                        && map.get(IMS_QP_Constants_mxJPO.ATTRIBUTE_IMS_QP_DEPTASK_STATUS)
+                        .equals(IMS_QP_Constants_mxJPO.APPROVED)) {
+                    try {
+                        badNames.add(domainObject.getName(ctx));
+                    } catch (FrameworkException e) {
+                        e.printStackTrace();
+                    }
                     flag = true;
                 }
             }
 
         }
 
-        Map mapMessage = getMessage(badNames, flag);
+        List<String> distinctList = badNames
+                .stream()
+                .distinct()
+                .collect(Collectors.toList());
+        Map mapMessage = getMessage(distinctList, flag);
         if (mapMessage.isEmpty()) {
             String operation = (String) argsMap.get("operation");
             LOG.info("operation: " + operation);
