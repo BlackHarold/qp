@@ -5,9 +5,17 @@
 ################################################################################
 
 mxUpdate menu "${NAME}" {
+    symbolicname "menu_IMS_QP_QPTaskFormToolbar"
     description ""
     label ""
     href ""
     alt ""
+    setting "Access Function" "checkMenuAccess"
+    setting "Access Program" "IMS_QP_ExpectedResult"
     command "IMS_QP_QPTask_edit"
+    ################################################## Info Start
+    property "original name" value "IMS_QP_QPTaskFormToolbar"
+    property "application" value "IMS_QP"
+    property "version" value "1"
+    ################################################## Info End
 }

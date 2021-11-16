@@ -606,24 +606,24 @@ public class IMS_QP_Task_mxJPO {
                         if (qpTaskIdsList.contains(idTask))
                             inRel.setAttributeValue(context,
                                     IMS_QP_Constants_mxJPO.attribute_IMS_QP_DEPTaskStatus, IMS_QP_Constants_mxJPO.APPROVED);
-                        message.append("from " + nameTask + " to " + nameQP + " connection was build \n");
+                        message.append("from " + nameTask + " to " + nameQP + " connection was built \n");
                     }
                 } else if ("OUT".equals(line) && !(UIUtil.isNotNullAndNotEmpty(inQPTaskId) && inQPTaskId.contains(idQPTask))) {
                     DomainRelationship outRel = DomainRelationship.connect(context, new DomainObject(idQPTask), IMS_QP_Constants_mxJPO.relationship_IMS_QP_QPTask2QPTask, new DomainObject(idTask));
                     if (qpTaskIdsList.contains(idTask))
                         outRel.setAttributeValue(context,
                                 IMS_QP_Constants_mxJPO.attribute_IMS_QP_DEPTaskStatus, IMS_QP_Constants_mxJPO.APPROVED);
-                    message.append("from " + nameQP + " to " + nameTask + " connection was build \n");
+                    message.append("from " + nameQP + " to " + nameTask + " connection was built \n");
                 }
             }
         }
     }
 
-    public Vector getQPTaskInput(Context context, String[] args) throws Exception {
+    public Vector getQPTaskInput(Context context, String[] args) {
         return getQPTaskRelatedObjects(context, args, true);
     }
 
-    public Vector getQPTaskOutput(Context context, String[] args) throws Exception {
+    public Vector getQPTaskOutput(Context context, String[] args) {
         return getQPTaskRelatedObjects(context, args, false);
     }
 

@@ -10,6 +10,7 @@ mxUpdate menu "${NAME}" {
     label ""
     href ""
     alt ""
+    setting "Access Expression" "context.user==from[IMS_QP_DEP2Owner].to.name || context.user.isassigned[IMS_Admin]==True || context.user.isassigned[IMS_QP_SuperUser]==True"
     command "IMS_QP_FindAndConnectSystem"
     command "IMS_QP_DisconnectSystem"
     ################################################## Info Start

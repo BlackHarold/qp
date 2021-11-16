@@ -44,7 +44,7 @@ public class IMS_QP_Security_mxJPO {
 
     private static final String PROGRAM_IMS_QP_Security = "IMS_QP_Security";
 
-    private static final String STATE_DONE = "Done";
+    public static final String STATE_DONE = "Done";
 
     public IMS_QP_Security_mxJPO(Context context, String[] args) throws Exception {
     }
@@ -126,20 +126,7 @@ public class IMS_QP_Security_mxJPO {
      * @throws Exception
      */
     public static boolean isOwnerDepFromQPlan(Context context, String objectId) throws FrameworkException {
-        StringBuilder sb = new StringBuilder(String.format("print bus %s select ", objectId))
-                .append("to[IMS_QP_DEP2QPlan].from.")
-                .append("from[IMS_QP_DEP2Owner].to.name")
-                .append(" dump |");
-
-        String objectOwners;
-        try {
-            objectOwners = MqlUtil.mqlCommand(context, sb.toString());
-        } catch (FrameworkException frameworkException) {
-            LOG.error("mql command error: " + frameworkException.getMessage());
-            frameworkException.printStackTrace();
-            throw frameworkException;
-        }
-        return objectOwners.contains(context.getUser()) || isUserAdminOrSuper(context);
+        return isOwnerDepFromQPPlan(context, objectId);
     }
 
     /**
@@ -149,10 +136,27 @@ public class IMS_QP_Security_mxJPO {
      * @throws Exception
      */
     public static boolean isOwnerDepFromQPTask(Context context, String[] args) throws Exception {
-        Map map = JPO.unpackArgs(args);
-        String objectId = UIUtil.isNotNullAndNotEmpty((String) map.get("objectId")) ?
-                (String) map.get("objectId") : (String) map.get("parentOID");
-        return isOwnerDepFromQPTask(context, objectId) || isUserAdminOrSuper(context);
+        boolean access;
+        Map argsMap = JPO.unpackArgs(args);
+        String objectId = UIUtil.isNotNullAndNotEmpty((String) argsMap.get("objectId")) ?
+                (String) argsMap.get("objectId") : (String) argsMap.get("parentOID");
+        if (UIUtil.isNullOrEmpty(objectId)) {
+            Map paramMap = (Map) argsMap.get("paramMap");
+            objectId = (String) paramMap.get("objectId");
+
+        }
+
+        if (UIUtil.isNotNullAndNotEmpty(objectId)) {
+            DomainObject object = new DomainObject(objectId);
+            String planId = IMS_QP_Constants_mxJPO.type_IMS_QP_QPlan.equals(object.getType(context)) ?
+                    objectId : object.getInfo(context, "to[IMS_QP_QPlan2QPTask].from.id");
+            access = IMS_QP_Security_mxJPO.isOwnerDepFromQPPlan(context, planId);
+        } else {
+            return false;
+        }
+
+
+        return access || isUserAdmin(context);
     }
 
     /**
@@ -161,6 +165,7 @@ public class IMS_QP_Security_mxJPO {
      * @return
      * @throws Exception
      */
+    @Deprecated
     public static boolean isOwnerDepFromQPTask(Context context, String objectId) {
         StringBuilder sb = new StringBuilder(String.format("print bus %s select ", objectId));
         sb.append("to[IMS_QP_DEPTask2QPTask].from.");
@@ -186,21 +191,21 @@ public class IMS_QP_Security_mxJPO {
      * @return boolean `isDEPOwner` from QPlan
      * @throws Exception
      */
-    public static boolean isOwnerDepFromQPPlan(Context context, String objectId) throws Exception {
+    public static boolean isOwnerDepFromQPPlan(Context context, String objectId) {
         StringBuilder sb = new StringBuilder(String.format("print bus %s select ", objectId));
         sb
                 .append("to[IMS_QP_DEP2QPlan].from")
                 .append(".from[IMS_QP_DEP2Owner].to.name")
                 .append(" dump |");
-        String objectOwners;
+        String objectOwners = "";
         try {
             objectOwners = MqlUtil.mqlCommand(context, sb.toString());
         } catch (FrameworkException frameworkException) {
             LOG.error("mql command error: " + frameworkException.getMessage());
             frameworkException.printStackTrace();
-            throw frameworkException;
         }
-        return objectOwners.contains(context.getUser()) || isUserAdminOrSuper(context);
+
+        return objectOwners.contains(context.getUser());
     }
 
     private static void checkAccess(Context context, DomainObject depObject) throws Exception {
@@ -493,14 +498,46 @@ public class IMS_QP_Security_mxJPO {
         return currentUserIsDEPOwner(context, new DomainObject(objectId));
     }
 
-    public static boolean isUserViewer(Context context) {
-        Person person = new Person(context.getUser());
+    public static boolean isAdminOrSuperOrViewer(Context ctx) throws MatrixException {
+        Person person = new Person(ctx.getUser());
+        return isUserAdminOrSuper(ctx) || person.isAssigned(ctx, ROLE_IMS_QP_Viewer);
+    }
+
+    public static boolean isUserSupervisor(Context ctx) {
+        Person person = new Person(ctx.getUser());
         try {
-            return person.isAssigned(context, ROLE_IMS_QP_Viewer);
+            return person.isAssigned(ctx, ROLE_IMS_QP_Supervisor);
         } catch (MatrixException e) {
             e.printStackTrace();
         }
+
         return false;
+    }
+
+    public static boolean isUserViewer(Context context) {
+        Person person = new Person(context.getUser());
+
+        try {
+            return person.isAssigned(context, ROLE_IMS_QP_Viewer) &&
+                    !person.isAssigned(context, ROLE_IMS_QP_Supervisor);
+        } catch (MatrixException e) {
+            e.printStackTrace();
+        }
+
+        return false;
+    }
+
+    public static boolean isUserViewerWithChild(Context context) {
+        Person person = new Person(context.getUser());
+
+        boolean isViewer = false;
+        try {
+            isViewer = person.isAssigned(context, ROLE_IMS_QP_Viewer);
+        } catch (MatrixException e) {
+            e.printStackTrace();
+        }
+
+        return isViewer;
     }
 
     @SuppressWarnings("unused")
@@ -737,7 +774,6 @@ public class IMS_QP_Security_mxJPO {
             @Override
             public String connect(Context context, String from, String to, String relationship) {
                 try {
-                    LOG.info("connectQPlanOwner: from " + from + "to " + to);
 
                     DomainObject personObject = new DomainObject(to);
                     Person person = new Person(personObject.getName(context));
@@ -749,8 +785,6 @@ public class IMS_QP_Security_mxJPO {
                     LOG.info(String.format("connect %s relationship %s to %s", from, RELATIONSHIP_IMS_PBS2Owner, to));
 
                     DomainRelationship relationshipToOwner = personObject.addRelatedObject(context, new RelationshipType(RELATIONSHIP_IMS_PBS2Owner), true, from);
-
-                    LOG.info("" + relationshipToOwner.getAttributeValues(context));
                 } catch (Exception e) {
                     LOG.error("error connecting: " + from + " to " + to + ": " + e.getMessage());
                     for (StackTraceElement er : e.getStackTrace()) {
@@ -833,16 +867,11 @@ public class IMS_QP_Security_mxJPO {
         return isOwner;
     }
 
-    private static boolean isOwnerInterdisciplinaryQPlan(Context context, String id) {
-        boolean isOwnerInterdisciplinaryQPlan = false;
-        try {
-            String personNames = MqlUtil.mqlCommand(context, String.format("print bus %s select from[IMS_QP_QPlan2Owner].to.name dump |", id));
-            if (personNames.contains(context.getUser())) isOwnerInterdisciplinaryQPlan = true;
-
-        } catch (Exception e) {
-            LOG.error("error getting owners from QPLan: " + e.getMessage());
-        }
-        return isOwnerInterdisciplinaryQPlan;
+    private static boolean isOwnerInterdisciplinaryQPlan(Context context, String id) throws FrameworkException {
+        String personNames = MqlUtil.mqlCommand(context,
+                String.format("print bus %s select to[IMS_QP_DEP2QPlan].from.from[IMS_QP_DEP2Owner].to.name dump |", id)
+        );
+        return UIUtil.isNotNullAndNotEmpty(personNames) && personNames.contains(context.getUser());
     }
 
     /**
@@ -850,42 +879,53 @@ public class IMS_QP_Security_mxJPO {
      * @param args
      * @return
      */
-    public static boolean isOwnerQPlan(Context ctx, String... args) {
+    public static boolean isOwnerQPlan(Context ctx, String... args) throws Exception {
 
-        Map argsMap;
-        boolean isOwnerQPlan = false;
+        Map argsMap = JPO.unpackArgs(args);
 
-        try {
-            argsMap = JPO.unpackArgs(args);
+        String id = (String) argsMap.get("parentOID");
+        if (UIUtil.isNullOrEmpty(id)) {
+            LOG.info("isOwnerQPlan id: " + id + " return false!");
+            return false;
+        }
+        DomainObject planObject = new DomainObject(id);
+        String type = planObject.getType(ctx);
+        String from = planObject.getInfo(ctx, "to[IMS_QP_QP2QPlan].from.name");
+        boolean isPlanType = IMS_QP_Constants_mxJPO.type_IMS_QP_QPlan.equals(type);
 
-            String id = (String) argsMap.get("parentOID");
-            DomainObject object = new DomainObject(id);
-            String type = object.getType(ctx);
-
-            //rule for AQP level
-            if (IMS_QP_Constants_mxJPO.type_IMS_QP_QPlan.equals(type) &&
-                    "AQP".equals(object.getInfo(ctx, "to[IMS_QP_QP2QPlan].from.name")) &&
-                    !object.getOwner(ctx).getName().equals(ctx.getUser())) {
-                return false;
-            }
-
-            //is interdisciplinary plan
-            if (object.getType(ctx).equals(IMS_QP_Constants_mxJPO.type_IMS_QP_QPlan) && object.getInfo(ctx, "from[IMS_QP_QPlan2Object]").equals("FALSE")) {
-                isOwnerQPlan = isOwnerInterdisciplinaryQPlan(ctx, id);
-            } else {
-                String personNames = MqlUtil.mqlCommand(ctx, String.format("print bus %s select from[IMS_QP_QPlan2Object].to.from[IMS_PBS2Owner].to.name dump |", id));
-                if (object.getType(ctx).equals(IMS_QP_Constants_mxJPO.type_IMS_QP_QPlan)) {
-                    personNames += MqlUtil.mqlCommand(ctx, String.format("print bus %s select from[IMS_QP_QPlan2Object].to.from[IMS_PBS2Owner].to.name dump |", id));
-                }
-                personNames = UIUtil.isNotNullAndNotEmpty(personNames) ? personNames : "";
-                isOwnerQPlan = personNames.contains(ctx.getUser());
-            }
-
-        } catch (Exception e) {
-            LOG.error("error in method isOwnerQPlan: " + e.getMessage());
+        /**
+         * rule for `AQP` level
+         */
+        if (isPlanType && IMS_QP_Constants_mxJPO.AQP.equals(from) &&
+                (planObject.getOwner(ctx).getName().equals(ctx.getUser()) || isOwnerDepFromQPPlan(ctx, id))
+        ) {
+            return true;
         }
 
-        return isOwner(ctx, args) && isOwnerQPlan || isUserAdmin(ctx);
+        String attributeInterdisciplinary = planObject.getInfo(ctx, "to[IMS_QP_DEP2QPlan].from.attribute[IMS_QP_InterdisciplinaryDEP]");
+        boolean isInterdisciplinary = attributeInterdisciplinary.equals("TRUE");
+
+        /**
+         * rule for `SQP` & Interdisciplinary `IMS_QP_QPlan`
+         * that object has not relationship with KKS/PBS
+         */
+        if (isPlanType && isInterdisciplinary
+                && planObject.getInfo(ctx, "from[IMS_QP_QPlan2Object]").equals("FALSE")) {
+            return isOwnerInterdisciplinaryQPlan(ctx, id);
+        }
+
+        /**
+         * rule for `SQP` the Non-Interdisciplinary `IMS_QP_QPlan`
+         * that object has relationship with KKS/PBS
+         */
+        if (isPlanType && !isInterdisciplinary
+                && planObject.getInfo(ctx, "from[IMS_QP_QPlan2Object]").equals("TRUE")) {
+
+            String personNames = MqlUtil.mqlCommand(ctx, String.format("print bus %s select from[IMS_QP_QPlan2Object].to.from[IMS_PBS2Owner].to.name dump |", id));
+            return UIUtil.isNotNullAndNotEmpty(personNames) && personNames.contains(ctx.getUser());
+        }
+
+        return false;
     }
 
     /**
@@ -895,6 +935,10 @@ public class IMS_QP_Security_mxJPO {
      */
     public static boolean isOwnerQPlan(Context context, String id) {
         boolean isOwnerQPlan = false;
+
+        if (UIUtil.isNullOrEmpty(id)) {
+            return false;
+        }
 
         try {
             Map argsMap = new HashMap();
@@ -910,59 +954,106 @@ public class IMS_QP_Security_mxJPO {
     }
 
     public static boolean isOwnerQPlanFromTask(Context ctx, String... args) {
+        if (IMS_QP_Security_mxJPO.isUserAdmin(ctx)) {
+            return true;
+        }
 
         Map argsMap = null;
-        boolean isOwnerQPlanFromTask = false;
-        boolean isDepOwnerFromQPTask = false;
+
+        DomainObject planObject = null;
+        String from = null;
+        String planType = null;
+        String objectId = null;
 
         try {
             argsMap = JPO.unpackArgs(args);
-            String id = (String) argsMap.get("parentOID");
-            DomainObject object = new DomainObject(id);
-
-            //getting target qPlan ID
-            if (object.getType(ctx).equals(IMS_QP_Constants_mxJPO.type_IMS_QP_QPTask)) {
-                id = object.getInfo(ctx, "to[IMS_QP_QPlan2QPTask].from.id");
+            objectId = (String) argsMap.get("objectId");
+            String parentId = (String) argsMap.get("parentOID");
+            if (UIUtil.isNullOrEmpty(objectId)) {
+                Map requestMap = (Map) argsMap.get("requestMap");
+                objectId = (String) requestMap.get("objectId");
+                parentId = (String) requestMap.get("parentOID");
+            }
+            if (UIUtil.isNullOrEmpty(objectId)) {
+                Map paramMap = (Map) argsMap.get("paramMap");
+                objectId = (String) paramMap.get("objectId");
+                parentId = (String) paramMap.get("parentOID");
             }
 
-            //before aspect AQP
-            DomainObject planObject = new DomainObject(id);
-            String planType = planObject.getType(ctx);
+            DomainObject domainObject = null;
+            if (UIUtil.isNotNullAndNotEmpty(objectId)) {
+                domainObject = new DomainObject(objectId);
+            }
 
-            //rule for AQP level
-            if (IMS_QP_Constants_mxJPO.type_IMS_QP_QPlan.equals(planType) &&
-                    "AQP".equals(planObject.getInfo(ctx, "to[IMS_QP_QP2QPlan].from.name")) &&
-                    !planObject.getOwner(ctx).getName().equals(ctx.getUser())) {
+            DomainObject object = null;
+            if (domainObject != null) {
+                if (IMS_QP_Constants_mxJPO.type_IMS_QP_QPTask.equals(domainObject.getType(ctx))) {
+                    object = domainObject;
+                }
+            } else {
+                object = new DomainObject(parentId);
+            }
+
+            //getting target `from` qPlan ID
+            String planId = null;
+            if (object != null) {
+                if (object.getType(ctx).equals(IMS_QP_Constants_mxJPO.type_IMS_QP_QPTask)) {
+                    planId = object.getInfo(ctx, "to[IMS_QP_QPlan2QPTask].from.id");
+                }
+            } else {
+                planId = parentId;
+            }
+
+            planObject = new DomainObject(planId);
+
+            //before aspect AQP
+            if (planObject != null) {
+                planType = planObject.getType(ctx);
+                from = planObject.getInfo(ctx, "to[IMS_QP_QP2QPlan].from.name");
+            } else {
+                LOG.error("error getting qplan object from method isOwnerQPlanFromTask with args: " + argsMap);
                 return false;
             }
 
-            //after aspect AQP
-            if (IMS_QP_Security_mxJPO.isUserAdminOrSuper(ctx)) {
-                return true;
+            if (IMS_QP_Constants_mxJPO
+                    .type_IMS_QP_QPlan.equals(planType)) {
+                if (IMS_QP_Constants_mxJPO.AQP.equals(from) && planObject.getOwner(ctx).getName().equals(ctx.getUser())
+                ) {
+                    return true;
+                } else if (IMS_QP_Security_mxJPO.isOwnerQPlan(ctx, planId)) {
+                    return true;
+                } else {
+                    return false;
+                }
             }
 
             //change ID in args map
-            argsMap.put("parentOID", id);
+            argsMap.put("parentOID", planId);
         } catch (Exception e) {
-            LOG.error("error in method isOwnerQPlan: " + e.getMessage());
+            LOG.error("error in method: " + e.getMessage());
             e.printStackTrace();
         }
-        try {
-            isOwnerQPlanFromTask = isOwnerQPlan(ctx, JPO.packArgs(argsMap));
-        } catch (Exception e) {
 
+        boolean isOwnerQPlanFromTask = false, isDepOwnerFromQPTask = false;
+        try {
+            if (planType.equals(IMS_QP_Constants_mxJPO.type_IMS_QP_QPlan)) {
+                {
+                    argsMap.put("objectId", planObject.getId(ctx));
+                    isOwnerQPlanFromTask = isOwnerQPlan(ctx, JPO.packArgs(argsMap));
+                }
+            }
+        } catch (Exception e) {
+            try {
+                LOG.error("error check owner IMS_Security owner from task for plan: " + planObject.getName(ctx)
+                        + " with message: " + e.getMessage());
+            } catch (FrameworkException ex) {
+                LOG.error("plan identify error: " + ex.getMessage());
+                ex.printStackTrace();
+            }
         }
 
-        try {
-            isDepOwnerFromQPTask = isOwnerDepFromQPTask(ctx, args);
-        } catch (Exception e) {
-
-        }
-
-        LOG.info(isUserAdmin(ctx) + "|" + isOwnerQPlanFromTask + "|" + isDepOwnerFromQPTask);
-        return isUserAdmin(ctx) || isOwnerQPlanFromTask || isDepOwnerFromQPTask;
+        return isOwnerQPlanFromTask || isDepOwnerFromQPTask;
     }
-
 
     /**
      * Method of checking the owner of the task from the received ID object

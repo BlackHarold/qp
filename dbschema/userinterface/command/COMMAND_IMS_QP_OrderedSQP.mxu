@@ -5,13 +5,21 @@
 ################################################################################
 
 mxUpdate command "${NAME}" {
+    symbolicname "command_IMS_QP_OrderedSQP"
     description ""
     label "Order"
     href "${COMMON_DIR}/IMS_QP_OrderedSQP.jsp"
     alt ""
+    setting "Access Expression" "context.user.isassigned[IMS_QP_Viewer]==False"
+    setting "Image" "${COMMON_DIR}/images/IMS_QP_Sort.png"
     setting "Registered Suite" "Framework"
     setting "Row Select" "multi"
     setting "Submit" "true"
     setting "Target Location" "hiddenFrame"
-	setting "Image" "${COMMON_DIR}/images/IMS_QP_Sort.png"
+    ################################################## Info Start
+    property "author" value "The IMS Team"
+    property "original name" value "IMS_QP_OrderedSQP"
+    property "application" value "IMS QP"
+    property "version" value "1"
+    ################################################## Info End
 }

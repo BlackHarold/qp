@@ -69,12 +69,57 @@ public class IMS_QP_Workbench_mxJPO {
             e.printStackTrace();
         }
 
-        String where = "";
-        if (!IMS_QP_Security_mxJPO.isUserAdminOrSuper(ctx)) {
-            where = "from[IMS_QP_QPlan2Owner].to.name==" + ctx.getUser() +
-                    "||from[IMS_QP_QPlan2Object].to.from[IMS_PBS2Owner].to.name==" + ctx.getUser() +
-                    "||to[IMS_QP_DEP2QPlan].from.from[IMS_QP_DEP2Owner].to.name==" + ctx.getUser();
+        String objectType = null;
+        String objectName = null;
+        try {
+            objectType = parent.getType(ctx);
+            objectName = parent.getName(ctx);
+        } catch (FrameworkException e) {
+            LOG.error("framework exception: " + e.getMessage());
+            e.printStackTrace();
         }
+
+        boolean isViewer = IMS_QP_Security_mxJPO.isUserViewerWithChild(ctx);
+
+        StringBuilder whereStringBuilder = new StringBuilder("");
+
+        /**
+         * For `AQP` OR `SQP` level
+         * To show all objects of type `IMS_QP_QPlan` only if user has roles: `IMS_Admin` or `IMS_QP_SuperUser` or `IMS_QP_Viewer`
+         * To show those objects of type `IMS_QP_QPlan` whose owner are
+         */
+        if (!isViewer && !IMS_QP_Security_mxJPO.isUserAdminOrSuper(ctx) && IMS_QP_Constants_mxJPO.type_IMS_QP.equals(objectType)) {
+
+            if (IMS_QP_Constants_mxJPO.AQP.equals(objectName)) {
+                whereStringBuilder
+                        .append("owner==" + ctx.getUser());
+            }
+
+            if (IMS_QP_Constants_mxJPO.SQP.equals(objectName)) {
+                whereStringBuilder
+                        .append("(to[IMS_QP_DEP2QPlan].from.attribute[IMS_QP_InterdisciplinaryDEP]==FALSE")
+                        .append("&&from[IMS_QP_QPlan2Object].to.from[IMS_PBS2Owner].to.name==" + ctx.getUser() + ")")
+                        .append("||")
+                        .append("(to[IMS_QP_DEP2QPlan].from.attribute[IMS_QP_InterdisciplinaryDEP]==TRUE")
+                        .append("&&to[IMS_QP_DEP2QPlan].from.from[IMS_QP_DEP2Owner].to.name==" + ctx.getUser() + ")");
+            }
+        }
+
+        /**
+         * Users who have `IMS_QP_Viewer` type roles can not see `ExternalInitialData` names objects
+         */
+
+        if (isViewer &&
+                IMS_QP_Constants_mxJPO.type_IMS_QP.equals(objectType)) {
+            if (whereStringBuilder.length() > 0) {
+                whereStringBuilder.append("&&");
+            }
+
+            //tree without external initial objects
+            whereStringBuilder
+                    .append("name nsmatch '*ExternalInitialData*'");
+        }
+
 
         MapList items = new MapList();
         try {
@@ -85,7 +130,7 @@ public class IMS_QP_Workbench_mxJPO {
                     /*relationship selects*/ null,
                     /*getTo*/ false, /*getFrom*/ true,
                     /*recurse to level*/ (short) 1,
-                    /*object where*/ where,
+                    /*object where*/ whereStringBuilder.toString(),
                     /*relationship where*/ null,
                     /*limit*/ 0);
         } catch (FrameworkException e) {
@@ -116,7 +161,11 @@ public class IMS_QP_Workbench_mxJPO {
             e.printStackTrace();
         }
 
-        String where = "owner==" + ctx.getUser();
+        String where = "";
+        if (!IMS_QP_Security_mxJPO.isUserViewerWithChild(ctx)) {
+            where = IMS_QP_Security_mxJPO.isUserAdminOrSuper(ctx) ? null : "owner==" + ctx.getUser()
+                    + "||to[IMS_QP_DEP2QPlan].from.from[IMS_QP_DEP2Owner].to.name==" + ctx.getUser();
+        }
 
         MapList items = new MapList();
         try {
@@ -186,6 +235,7 @@ public class IMS_QP_Workbench_mxJPO {
     }
 
     public Vector getColumnPercentage(Context ctx, String[] args) {
+        LOG.info("getColumnPercentage start time");
         Vector result = new Vector();
         Map argsMap = new HashMap();
 
@@ -214,23 +264,21 @@ public class IMS_QP_Workbench_mxJPO {
             e.printStackTrace();
         }
         BusinessObjectWithSelectList businessObjectWithSelectList = getReportData(ctx, key, cleanedIds);
+        LOG.info("key: " + key + " result -> " + businessObjectWithSelectList);
 
-        MapList percentList;
-        percentList = createReport(ctx, businessObjectWithSelectList);
+        List percentList = createReport(ctx, businessObjectWithSelectList);
 
         /*top level Codes by items*/
         for (Object o : percentList) {
-            Map map = (Map) o;
-            for (Object oValue : map.values()) {
-                String s = (String) oValue;
-                result.addElement(s);
-            }
+            result.addElement(o);
         }
+
+        LOG.info("getColumnPercentage finished time");
         return result;
     }
 
     public Vector getColumnCheck(Context ctx, String... args) {
-
+        LOG.info("getColumnCheck start time");
         Vector result = new Vector();
         Map argsMap = new HashMap();
 
@@ -242,19 +290,54 @@ public class IMS_QP_Workbench_mxJPO {
 
         MapList argsList = (MapList) argsMap.get("objectList");
 
-        /*top level Codes by items*/
-        StringBuilder stringBuilder = new StringBuilder();
-        StringList returnList = new StringList();
-        try {
-            returnList = IMS_QP_DEPTask_mxJPO.getFactColumnStyle(ctx, args);
-        } catch (Exception e) {
-            LOG.error("getting color exception: " + e.getMessage());
-            e.printStackTrace();
+        List<Boolean> checkList = new ArrayList<>();
+        for (int i = 0; i < argsList.size(); i++) {
+            List<String> objectIds = new ArrayList<>(); //truncate ids each turn
+            Map map = (Map) argsList.get(i);
+            String objectId = (String) map.get(DomainConstants.SELECT_ID);
+            String type = "", name = "";
+            DomainObject domainObject = null;
+            try {
+                domainObject = new DomainObject(objectId);
+                type = domainObject.getType(ctx);
+                name = domainObject.getName(ctx);
+            } catch (Exception e) {
+                LOG.error("error getting type: " + e.getMessage());
+                e.printStackTrace();
+            }
+
+            //add all ids to the list of plans
+            if (IMS_QP_Constants_mxJPO.type_IMS_QP_QPlan.equals(type)) {
+                objectIds.add(objectId);
+            } else if (IMS_QP_Constants_mxJPO.TYPE_IMS_QP_DEP.equals(type)) {
+                try {
+
+                    objectIds.addAll(
+                            domainObject
+                                    .getInfoList(ctx, "from[IMS_QP_DEP2QPlan].to.id"));
+
+                } catch (Exception e) {
+                    LOG.error("error getting list of QPlan ids");
+                    e.printStackTrace();
+                }
+            }
+
+            //convert ids to array
+            String[] cleanedIds = new String[objectIds.size()];
+            for (int j = 0; j < cleanedIds.length; j++) {
+                cleanedIds[j] = objectIds.get(j);
+            }
+
+            BusinessObjectWithSelectList businessObjectWithSelectList = getReportData(ctx, IMS_QP_Constants_mxJPO.SQP, cleanedIds);
+
+            /*Main check process*/
+            boolean checkResult = createCheckReport(ctx, businessObjectWithSelectList);
+            checkList.add(checkResult);
         }
 
+        StringBuilder stringBuilder = new StringBuilder();
         for (int i = 0; i < argsList.size(); i++) {
-            String color = returnList.get(i);
-            if (!"IMS_QP_Red".equals(color) || !"IMS_QP_Rose".equals(color) || !"IMS_QP_Green".equals(color) || !"".equals(color)) {
+            if (checkList != null && checkList.get(i)) {
                 stringBuilder.setLength(0);
                 String pictureName = "exclamation";
                 stringBuilder
@@ -266,11 +349,12 @@ public class IMS_QP_Workbench_mxJPO {
                 result.addElement(stringBuilder.toString());
             } else result.addElement("");
         }
-
+        LOG.info("getColumnCheck finished time");
         return result;
     }
 
     public Vector getColumnRedCode(Context ctx, String... args) {
+        LOG.info("getColumnRedCode start time");
         Vector result = new Vector();
         Map argsMap = new HashMap();
 
@@ -302,7 +386,6 @@ public class IMS_QP_Workbench_mxJPO {
                 try {
                     DomainObject object = new DomainObject(objectId);
                     StringList listQPlanIds = object.getInfoList(ctx, "from[IMS_QP_DEP2QPlan].to.id");
-                    LOG.info(object.getType(ctx) + " " + object.getName(ctx) + " - deps: " + listQPlanIds);
                     objectIds.addAll(listQPlanIds);
                 } catch (Exception e) {
                     LOG.error("error getting list of QPlan ids");
@@ -315,7 +398,7 @@ public class IMS_QP_Workbench_mxJPO {
             for (int j = 0; j < objectIds.size(); j++) {
                 LinkedHashMap<String, String> taskMap =
                         (LinkedHashMap<String, String>) new IMS_QP_PreparationStatement_Report_mxJPO()
-                                .getPrepare(ctx, /*always SQP*/ "SQP", new String[]{objectIds.get(j)});
+                                .getPrepare(ctx, /*always SQP*/ IMS_QP_Constants_mxJPO.SQP, new String[]{objectIds.get(j)});
 
                 String currentTask = "";
                 if (taskMap != null && !taskMap.isEmpty()) {
@@ -336,6 +419,7 @@ public class IMS_QP_Workbench_mxJPO {
             result.addElement(builder.toString());
         }
 
+        LOG.info("getColumnRedCode finished time");
         return result;
     }
 
@@ -370,16 +454,19 @@ public class IMS_QP_Workbench_mxJPO {
             }
 
             StringList selects = getSelects();
+            StringList relSelect = new StringList("id[connection]");
+            relSelect.addElement("attribute[IMS_QP_DEPTaskStatus]");
 
             MapList relatedObjects = new MapList();
             if (domainObject != null) {
+                String relationshipWhere = "attribute[IMS_QP_DEPTaskStatus]==Approved";
                 try {
                     if (type.equals(IMS_QP_Constants_mxJPO.TYPE_IMS_QP_DEPTask)) {
                         relatedObjects = domainObject.getRelatedObjects(ctx,
                                 /*relationship*/IMS_QP_Constants_mxJPO.relationship_IMS_QP_ExpectedResult2DEPTask,
                                 /*type*/IMS_QP_Constants_mxJPO.type_IMS_QP_ExpectedResult,
                                 /*object attributes*/ selects,
-                                /*relationship selects*/ null,
+                                /*relationship selects*/ relSelect,
                                 /*getTo*/ true, /*getFrom*/ false,
                                 /*recurse to level*/ (short) 1,
                                 /*object where*/ null,
@@ -390,11 +477,11 @@ public class IMS_QP_Workbench_mxJPO {
                                 /*relationship*/IMS_QP_Constants_mxJPO.relationship_IMS_QP_QPTask2QPTask,
                                 /*type*/IMS_QP_Constants_mxJPO.type_IMS_QP_QPTask,
                                 /*object attributes*/ selects,
-                                /*relationship selects*/ null,
+                                /*relationship selects*/ relSelect,
                                 /*getTo*/ true, /*getFrom*/ false,
                                 /*recurse to level*/ (short) 1,
                                 /*object where*/ null,
-                                /*relationship where*/ null,
+                                /*relationship where*/ relationshipWhere,
                                 /*limit*/ 0);
                         if (relatedInputApprovedTasks != null) {
                             for (Object tempRelatedTask : relatedInputApprovedTasks) {
@@ -406,7 +493,7 @@ public class IMS_QP_Workbench_mxJPO {
                                                 /*relationship*/IMS_QP_Constants_mxJPO.relationship_IMS_QP_ExpectedResult2QPTask,
                                                 /*type*/IMS_QP_Constants_mxJPO.type_IMS_QP_ExpectedResult,
                                                 /*object attributes*/ selects,
-                                                /*relationship selects*/ null,
+                                                /*relationship selects*/ relSelect,
                                                 /*getTo*/ false, /*getFrom*/ true,
                                                 /*recurse to level*/ (short) 1,
                                                 /*object where*/ null,
@@ -505,9 +592,9 @@ public class IMS_QP_Workbench_mxJPO {
     int counter;
     int greenCounter;
 
-    private MapList createReport(Context ctx, BusinessObjectWithSelectList reportData) {
+    private List createReport(Context ctx, BusinessObjectWithSelectList reportData) {
 
-        MapList mathResultList = new MapList();
+        List mathResultList = new MapList();
         for (Object o : reportData) {
             counter = 0;
             greenCounter = 0;
@@ -536,8 +623,7 @@ public class IMS_QP_Workbench_mxJPO {
             float mathResult = 100.0f * greenCounter / counter;
             Map<String, String> resultItem = new HashMap<>();
             String value = String.format("%.1f", mathResult);
-            resultItem.put(businessObject.getSelectData("id"), value);
-            mathResultList.add(resultItem);
+            mathResultList.add(value);
 
             try {
                 businessObject.close(ctx);
@@ -549,6 +635,33 @@ public class IMS_QP_Workbench_mxJPO {
 
 
         return mathResultList;
+    }
+
+    private boolean createCheckReport(Context ctx, BusinessObjectWithSelectList reportData) {
+
+        try {
+            for (Object o : reportData) {
+                BusinessObjectWithSelect businessObject = (BusinessObjectWithSelect) o;
+                businessObject.open(ctx);
+
+                /*DEP sheet specified zone*/
+                RelationshipWithSelectItr relItr = getRelationshipsWithItr(ctx, businessObject);
+                List<String> tasksInfo = getQPTaskList(businessObject.getSelectData(DomainObject.SELECT_ID), relItr);
+
+                //check tasks
+                boolean checkFlag = getTaskColorFlags(ctx, tasksInfo);
+
+                businessObject.close(ctx);
+
+                if (checkFlag) {
+                    return true;
+                }
+            }
+        } catch (MatrixException e) {
+            e.printStackTrace();
+        }
+
+        return false;
     }
 
     private RelationshipWithSelectItr getRelationshipsWithItr(Context ctx, BusinessObjectWithSelect businessObject) {
@@ -625,10 +738,6 @@ public class IMS_QP_Workbench_mxJPO {
     }
 
     private void getInfoTasks(Context ctx, List<String> tasksInfo) {
-        Map<List<String>, List<String>> tasksInfoMap = new HashMap<>();
-        List<String> taskCodes = new ArrayList<>();
-        List<String> taskNames = new ArrayList<>();
-
         for (String taskId : tasksInfo) {
 
             // Instantiate the BusinessObject.
@@ -690,6 +799,33 @@ public class IMS_QP_Workbench_mxJPO {
                 }
             }
         }
+    }
+
+    private boolean getTaskColorFlags(Context ctx, List<String> tasksInfo) {
+        StringList resultList = new StringList();
+
+        MapList allPlansToMap = new MapList();
+        for (String taskId : tasksInfo) {
+            Map<String, String> map = new LinkedHashMap();
+            map.put("id", taskId);
+            allPlansToMap.add(map);
+        }
+
+        Map argsMap = new HashMap();
+        argsMap.put("objectList", allPlansToMap);
+        try {
+            resultList = IMS_QP_DEPTask_mxJPO.getFactColumnStyle(ctx, JPO.packArgs(argsMap));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        for (String color : resultList) {
+            if ("IMS_QP_Purple".equals(color) || "IMS_QP_Yellow".equals(color) || "IMS_QP_Orange".equals(color) || "IMS_QP_Blue".equals(color)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private List<String> getRelationshipGroupReportSelects() {
@@ -786,17 +922,21 @@ public class IMS_QP_Workbench_mxJPO {
 
         String objectId = (String) argsMap.get("objectId");
 
-        String type = "", name = "";
+        String type = "", name = "", from = "";
         try {
             DomainObject object = new DomainObject(objectId);
             type = object.getInfo(ctx, DomainConstants.SELECT_TYPE);
             name = object.getInfo(ctx, DomainConstants.SELECT_NAME);
+            from = object.getInfo(ctx, "to[IMS_QP_QP2QPlan].from.name");
         } catch (Exception e) {
             LOG.error("error getting object: " + e.getMessage());
             e.printStackTrace();
         }
 
-        LOG.info("type: " + type + " name: " + name);
+        boolean isPlanType = IMS_QP_Constants_mxJPO.type_IMS_QP_QPlan.equals(type);
+        if (isPlanType && IMS_QP_Constants_mxJPO.AQP.equals(from)) {
+            return true;
+        }
 
         try {
 
@@ -814,13 +954,6 @@ public class IMS_QP_Workbench_mxJPO {
                 granted = true;
             }
 
-            LOG.info("access workbench tab from " + objectId + " | is admin or su: " + IMS_QP_Security_mxJPO.isUserAdminOrSuper(ctx)
-                    + " qp plan owner: " + IMS_QP_Security_mxJPO.isOwnerQPlan(ctx, objectId)
-                    + " dep owner: " + IMS_QP_Security_mxJPO.isOwnerDepFromQPTask(ctx, args)
-                    + " deviation owner: " + (IMS_QP_Security_mxJPO.isOwnerDepFromQPTask(ctx, args)
-                    || IMS_QP_Security_mxJPO.isOwnerQPlanFromTaskID(ctx, objectId))
-                    + " type is QP: " + type.equals(IMS_QP_Constants_mxJPO.type_IMS_QP)
-            );
         } catch (MatrixException e) {
             LOG.error("error when checking Person: " + e.getMessage());
             e.printStackTrace();
@@ -847,8 +980,6 @@ public class IMS_QP_Workbench_mxJPO {
             e.printStackTrace();
         }
 
-        LOG.info("type " + type + " result granted: " + granted);
-        LOG.info("arguments: " + argsMap);
         return granted;
     }
 
@@ -927,6 +1058,7 @@ public class IMS_QP_Workbench_mxJPO {
 
             MapList relatedObjects = new MapList();
             if (domainObject != null) {
+                String relationshipWhere = "attribute[IMS_QP_DEPTaskStatus]==Approved";
                 try {
                     relatedObjects = domainObject.getRelatedObjects(ctx,
                             /*relationship*/IMS_QP_Constants_mxJPO.relationship_IMS_QP_QPTask2QPTask,
@@ -936,7 +1068,7 @@ public class IMS_QP_Workbench_mxJPO {
                             /*getTo*/ true, /*getFrom*/ false,
                             /*recurse to level*/ (short) 1,
                             /*object where*/ null,
-                            /*relationship where*/ null,
+                            /*relationship where*/ relationshipWhere,
                             /*limit*/ 0);
 
                 } catch (FrameworkException e) {

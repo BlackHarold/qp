@@ -301,7 +301,6 @@ public class IMS_QP_TaskAssignment_mxJPO {
             }
 
         } else {
-            LOG.info("temp name: " + name);
             throw new MatrixException("error getting temp name for expected result: " + name);
         }
 
@@ -345,7 +344,7 @@ public class IMS_QP_TaskAssignment_mxJPO {
     /**
      * Deprecated since 17.11.2021 This method is no longer acceptable
      * <p> Use {@link IMS_QualityPlanBase_mxJPO#copyPlan(Context, String...)} instead
-     *
+     * </p>
      * createQPlan(context, args);
      *
      * @param ctx
@@ -392,7 +391,7 @@ public class IMS_QP_TaskAssignment_mxJPO {
     }
 
     private String getSystemFieldFromForm(String parsedHeader) {
-        if (UIUtil.isNotNullAndNotEmpty(parsedHeader) && parsedHeader.contains("AQP")) {
+        if (UIUtil.isNotNullAndNotEmpty(parsedHeader) && parsedHeader.contains(IMS_QP_Constants_mxJPO.AQP)) {
             return "system2OID";
         } else {
             return "system1OID";

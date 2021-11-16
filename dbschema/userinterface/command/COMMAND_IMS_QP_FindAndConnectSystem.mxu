@@ -11,7 +11,6 @@ mxUpdate command "${NAME}" {
     href "${COMMON_DIR}/IMS_QP_SystemSearch.jsp?table=IMS_QP_AllRelatedItems&selection=multiple"
     alt ""
     user "all"
-    setting "Access Expression" "context.user.isassigned[IMS_Admin]==True || context.user.isassigned[IMS_QP_SuperUser]==True"
     setting "Image" "${COMMON_DIR}/images/iconActionAdd.png"
     setting "Popup Modal" "true"
     setting "Popup Size" "MediumTall"

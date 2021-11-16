@@ -3,6 +3,7 @@ import com.matrixone.apps.domain.DomainObject;
 import com.matrixone.apps.domain.DomainRelationship;
 import com.matrixone.apps.domain.util.FrameworkException;
 import com.matrixone.apps.domain.util.MapList;
+import com.matrixone.apps.framework.ui.UIUtil;
 import matrix.db.Context;
 import matrix.db.JPO;
 import matrix.db.MQLCommand;
@@ -19,7 +20,10 @@ public class IMS_QP_QPTaskRelatedTasks_mxJPO {
     private MapList getRelatedTasks(Context ctx, boolean getTo, String... args) throws Exception {
         Map argsMap = JPO.unpackArgs(args);
         String objectId = (String) argsMap.get("objectId");
-        DomainObject object = new DomainObject(objectId);
+        DomainObject object = null;
+        if (UIUtil.isNotNullAndNotEmpty(objectId)) {
+            object = new DomainObject(objectId);
+        }
 
         MapList relatedTasks;
         String relationships = IMS_QP_Constants_mxJPO.relationship_IMS_QP_QPTask2QPTask;
@@ -27,11 +31,11 @@ public class IMS_QP_QPTaskRelatedTasks_mxJPO {
         StringList selects = new StringList(DomainConstants.SELECT_ID);
 
         StringBuilder whereBuilder = new StringBuilder(IMS_QP_Constants_mxJPO.ATTRIBUTE_IMS_QP_DEPTASK_STATUS).append("!='Rejected'");
-        if (IMS_QP_Security_mxJPO.isOwnerDepFromQPTask(ctx, args)) {
+        if (IMS_QP_Security_mxJPO.isOwnerDepFromQPTask(ctx, args) || IMS_QP_Security_mxJPO.isUserAdminOrSuper(ctx)) {
             whereBuilder.setLength(0);
         }
 
-        if (IMS_QP_Constants_mxJPO.type_IMS_QP_QPTask.equals(object.getType(ctx))) {
+        if (object != null && IMS_QP_Constants_mxJPO.type_IMS_QP_QPTask.equals(object.getType(ctx))) {
             relatedTasks = object.getRelatedObjects(ctx,
                     /*relationship*/relationships,
                     /*type*/types,
@@ -221,7 +225,6 @@ public class IMS_QP_QPTaskRelatedTasks_mxJPO {
                         /*object where*/ where,
                         /*relationship where*/ null,
                         /*limit*/ 0);
-                LOG.info("taskStates: " + taskStates);
             } catch (FrameworkException fe) {
                 LOG.error("error getting related states: " + fe.getMessage());
             }
@@ -241,7 +244,6 @@ public class IMS_QP_QPTaskRelatedTasks_mxJPO {
                     /*object where*/ where,
                     /*relationship where*/ null,
                     /*limit*/ 0);
-            LOG.info("relIdStates: " + relIdStates);
         } catch (FrameworkException fe) {
             LOG.error("error getting relation states: " + fe.getMessage());
         }
@@ -290,7 +292,6 @@ public class IMS_QP_QPTaskRelatedTasks_mxJPO {
                     processMap.put((String) taskMap.get(DomainConstants.SELECT_ID), relMap);
                 }
             }
-        LOG.info("processMap: " + processMap);
 
 //            check table row ids
         for (String taskID : taskIDs) {

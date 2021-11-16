@@ -1,80 +1,53 @@
-﻿<%@ page import="java.util.Map" %>
-<%@ page import="java.util.HashMap" %>
-<%@ page import="matrix.db.Context" %>
+﻿<%@ page import="matrix.db.Context" %>
+<%@ page import="com.matrixone.servlet.Framework" %>
+<%@ page contentType="text/html; charset=UTF-8" %>
+<%@ page import="org.apache.log4j.Logger" %>
 <%@ page import="matrix.db.JPO" %>
-<%@ page import="com.matrixone.apps.domain.util.ContextUtil" %>
+<%@ page import="java.util.HashMap" %>
+<%@ page import="java.util.Map" %>
+<%@ page import="java.util.List" %>
+
+<%@ page import="org.apache.log4j.Logger" %>
+<%@ page import="static com.matrixone.apps.common.util.JSPUtil.emxGetParameterValues" %>
 <%@ page import="com.matrixone.apps.framework.ui.UIUtil" %>
-<%@include file="../common/emxNavigatorInclude.inc" %>
-<%@include file="../common/emxNavigatorTopErrorInclude.inc" %>
+<%@ page import="java.util.*" %>
 
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+
+<!DOCTYPE>
 <html>
+<head></head>
 <body>
-<style>
-
-    a.button {
-        font-weight: 700;
-        color: white;
-        text-decoration: none;
-        padding: .8em 5em calc(.8em + 3px);
-        border-radius: 30px;
-        background: rgb(73, 152, 199);
-        box-shadow: 0 -3px rgb(81, 134, 199) inset;
-        transition: 0.2s;
-    }
-
-    a.button:hover {
-        background: rgb(75, 123, 167);
-    }
-
-    a.button:active {
-        background: rgb(75, 123, 167);
-        box-shadow: 0 3px rgb(49, 73, 129) inset;
-    }
-
-    .header {
-        min-width: 640px;
-        height: 44px;
-        color: #d54c98;
-        font-weight: bold;
-        font-size: 24px;
-        border: none;
-    }
-
-    body {
-        margin-top: 60px;
-        font-family: Arial;
-        font-size: 16px;
-        color: #243b77;
-    }
-
-    p {
-        margin-top: 60px;
-        font-size: 16px;
-    }
-</style>
-
+hi
 <%
-    String tableIDs = request.getParameter("emxTableRowId");
-
-    HashMap args = new HashMap();
-    args.put("emxTableRowId", tableIDs);
+    Logger LOG = Logger.getLogger("IMS_QP_DEP");
+    Context context = Framework.getContext(session);
+    LOG.info("objectMap: " + request.getParameter("emxTableRowId"));
+    LOG.info("operation: " + request.getParameter("operation"));
+    Map argsMap = new HashMap();
+    argsMap.put("objectMap", request.getParameter("emxTableRowId"));
+    argsMap.put("operation", request.getParameter("operation"));
 
     try {
-        Map map = JPO.invoke(context, "IMS_QualityPlanBase", new String[]{}, "deleteQPTasks", JPO.packArgs(args), HashMap.class);
-%>
-<script>
-    window.opener.location.reload();
-    window.close();
-</script>
-<%
-
+        LOG.info("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa argsMap: " + argsMap + " context: " + context.getUser());
+//        JPO.invoke(context,)
+        Object o = JPO.invoke(context, "IMS_QualityPlanBase", new String[]{}, "deleteQPTasks", JPO.packArgs(argsMap), Object.class);
+//        List<String> badNames = (List<String>) map.get("array");
+        LOG.info("finally: " + o.getClass().getSimpleName());
     } catch (Exception ex) {
+        LOG.error("error: " + ex.getMessage());
         ex.printStackTrace();
-        emxNavErrorObject.addMessage(ex.toString());
     }
 
+//    }
+//    String[] tableIDs = request.getParameterValues("emxTableRowId");
+//    LOG.info("tableIDs: " + tableIDs);
+//
+//    String tableIDs = request.getParameter("emxTableRowId");
+//
+//    HashMap args = new HashMap();
+//    args.put("emxTableRowId", tableIDs);
+
 %>
-<%@include file="../common/emxNavigatorBottomErrorInclude.inc" %>
-<%@include file="../emxUICommonEndOfPageInclude.inc" %>
 </body>
 </html>

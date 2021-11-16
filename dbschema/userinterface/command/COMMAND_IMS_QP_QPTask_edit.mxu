@@ -10,8 +10,7 @@ mxUpdate command "${NAME}" {
     label "Edit"
     href "${COMMON_DIR}/IMS_QP_QPTask_edit.jsp?form=IMS_QP_QPTask_edit&mode=edit&submitAction=refreshCaller&formHeader='Quality Plan task'&postProcessJPO=IMS_QP_Task:editPostProcess"
     alt ""
-    setting "Access Function" "isOwnerQPlanFromTask"
-    setting "Access Program" "IMS_QP_Security"
+    setting "Access Expression" "to[IMS_QP_QPlan2QPTask].from.current!='Done'"
     setting "Image" "${COMMON_DIR}/images/iconActionEdit.gif"
     setting "Registered Suite" "Framework"
     ################################################## Info Start

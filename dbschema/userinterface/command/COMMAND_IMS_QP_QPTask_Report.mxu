@@ -10,7 +10,7 @@ mxUpdate command "${NAME}" {
     label "Mold QPTask report"
     href "${COMMON_DIR}/IMS_QP_QPTask_Report.jsp"
     alt ""
-    setting "Access Expression" "context.user.isassigned[IMS_Admin]==True || context.user.isassigned[IMS_QP_SuperUser]==True"
+    setting "Access Expression" "name!=AQP&&(context.user.isassigned[IMS_Admin]==True || context.user.isassigned[IMS_QP_SuperUser]==True)"
     setting "Image" "${COMMON_DIR}/images/relationship.png"
     setting "Registered Suite" "Framework"
     setting "Submit" "true"

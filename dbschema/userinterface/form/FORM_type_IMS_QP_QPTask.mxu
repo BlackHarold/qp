@@ -61,7 +61,7 @@ mxUpdate form "${NAME}" {
     }
     field {
         name "IMS_DescriptionRu"
-        label "emxFramework.Attribute.IMS_QP_DescriptionRu"
+        label "DescriptionRu"
         businessobject "$<attribute[attribute_IMS_DescriptionRu]>"
         setting "Editable" "false"
         setting "Field Type" "attribute"
@@ -69,7 +69,7 @@ mxUpdate form "${NAME}" {
     }
     field {
         name "IMS_DescriptionEn"
-        label "emxFramework.Attribute.IMS_QP_DescriptionRu"
+        label "DescriptionEn"
         businessobject "$<attribute[attribute_IMS_DescriptionEn]"
         setting "Editable" "false"
         setting "Field Type" "attribute"
@@ -117,17 +117,19 @@ mxUpdate form "${NAME}" {
         setting "Field Type" "programHTMLOutput"
         setting "Registered Suite" "Framework"
         setting "function" "getConnectedExternalDocumentSetHTML"
+        setting "key" "doc"
         setting "program" "IMS_QP_DEPSubStageDEPTasks"
     }
     field {
         name "CheckList"
         label "CheckList"
-        setting "Access Function" "accessCheckList"
+        setting "Access Function" "accessDocument"
         setting "Access Program" "IMS_QP_DEPTask"
         setting "Editable" "false"
         setting "Field Type" "programHTMLOutput"
         setting "Registered Suite" "Framework"
         setting "function" "getConnectedQPCheckListHTML"
+        setting "key" "cl"
         setting "program" "IMS_QP_DEPTask"
     }
     field {
@@ -139,15 +141,6 @@ mxUpdate form "${NAME}" {
         setting "Registered Suite" "Framework"
         setting "function" "getSelectable"
         setting "program" "IMS_ExternalSystem"
-    }
-    field {
-        name "additional_information"
-        label "Additional information"
-        setting "Access Expression" "attribute[IMS_QP_AdditionalInfo]!=''"
-        businessobject "$<attribute[IMS_QP_AdditionalInfo]"
-        setting "Editable" "false"
-        setting "Field Type" "attribute"
-        setting "Registered Suite" "Framework"
     }
     ################################################## Info Start
     property "author" value "The IMS Team"

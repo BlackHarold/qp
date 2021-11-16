@@ -10,7 +10,7 @@ mxUpdate command "${NAME}" {
     label "Disconnect"
     href "${COMMON_DIR}/IMS_QP_DisconnectSystem.jsp?program=IMS_QP_DEP&function=disconnectSystem"
     alt ""
-    setting "Access Expression" "context.user.isassigned[IMS_Admin]==True || context.user.isassigned[IMS_QP_SuperUser]==True"
+    user "all"
     setting "Image" "${COMMON_DIR}/images/iconActionDelete.gif"
     setting "Registered Suite" "Framework"
     setting "Row Select" "multi"

@@ -95,6 +95,20 @@ mxUpdate table "${NAME}" {
         setting "Width" "200"
     }
     column {
+        name "er_name_en"
+        label "ER name (EN)"
+        businessobject "$<from[IMS_QP_ExpectedResult2QPTask].to.attribute[IMS_Name]>"
+        setting "Editable" "false"
+        setting "Registered Suite" "Framework"
+    }
+    column {
+        name "er_name_ru"
+        label "ER name (RU)"
+        businessobject "$<from[IMS_QP_ExpectedResult2QPTask].to.attribute[IMS_NameRu]>"
+        setting "Editable" "false"
+        setting "Registered Suite" "Framework"
+    }
+    column {
         name "Sort"
         label "emxFramework.Attribute.IMS_SortOrder"
         businessobject "attribute[IMS_SortOrder]"

@@ -11,7 +11,7 @@ mxUpdate form "${NAME}" {
         name "description"
         label "emxComponents.Common.Description"
         businessobject "description"
-        setting "Access Expression" "(to[IMS_QP_QP2QPlan].from.name=='AQP'&&owner==context.user)||to[IMS_QP_QP2QPlan].from.name!='AQP'"
+        setting "Access Expression" "context.user.isassigned[IMS_Admin]==True||to[IMS_QP_QP2QPlan].from.name!='AQP'||current==Draft&&(to[IMS_QP_DEP2QPlan].from.from[IMS_QP_DEP2Owner].to.name==context.user||owner==context.user)"
         setting "Input Type" "textarea"
         setting "Registered Suite" "Components"
     }
@@ -29,7 +29,7 @@ mxUpdate form "${NAME}" {
         label "emxComponents.Common.Owner"
         businessobject "owner"
         range "${COMMON_DIR}/emxFullSearch.jsp?type=PERSON_CHOOSER&showInitialResults=false&selection=single"
-        setting "Access Expression" "to[IMS_QP_QP2QPlan].from.name=='AQP'"
+        setting "Access Expression" "context.user.isassigned[IMS_Admin]==True||(to[IMS_QP_QP2QPlan].from.name=='AQP'&&(context.user.isassigned[IMS_QP_SuperUser]==True||to[IMS_QP_DEP2QPlan].from.from[IMS_QP_DEP2Owner].to.name==context.user))"
         setting "Admin Type" "owner"
         setting "Editable" "true"
         setting "Field Type" "basic"

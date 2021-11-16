@@ -10,7 +10,7 @@ mxUpdate command "${NAME}" {
     label "Mold statement report"
     href "${COMMON_DIR}/IMS_QP_Statement_Report.jsp"
     alt ""
-    setting "Access Expression" "context.user.isassigned[IMS_QP_Viewer]==True||context.user.isassigned[IMS_QP_SuperUser]==True||context.user.isassigned[IMS_Admin]==True"
+    setting "Access Expression" "name!=AQP&&(context.user.isassigned[IMS_QP_Viewer]==True||context.user.isassigned[IMS_QP_SuperUser]==True||context.user.isassigned[IMS_Admin]==True)"
     setting "Image" "${COMMON_DIR}/images/statement.png"
     setting "Registered Suite" "Framework"
     setting "Submit" "true"
