@@ -454,16 +454,19 @@ public class IMS_QP_Workbench_mxJPO {
             }
 
             StringList selects = getSelects();
+            StringList relSelect = new StringList("id[connection]");
+            relSelect.addElement("attribute[IMS_QP_DEPTaskStatus]");
 
             MapList relatedObjects = new MapList();
             if (domainObject != null) {
+                String relationshipWhere = "attribute[IMS_QP_DEPTaskStatus]==Approved";
                 try {
                     if (type.equals(IMS_QP_Constants_mxJPO.TYPE_IMS_QP_DEPTask)) {
                         relatedObjects = domainObject.getRelatedObjects(ctx,
                                 /*relationship*/IMS_QP_Constants_mxJPO.relationship_IMS_QP_ExpectedResult2DEPTask,
                                 /*type*/IMS_QP_Constants_mxJPO.type_IMS_QP_ExpectedResult,
                                 /*object attributes*/ selects,
-                                /*relationship selects*/ null,
+                                /*relationship selects*/ relSelect,
                                 /*getTo*/ true, /*getFrom*/ false,
                                 /*recurse to level*/ (short) 1,
                                 /*object where*/ null,
@@ -474,11 +477,11 @@ public class IMS_QP_Workbench_mxJPO {
                                 /*relationship*/IMS_QP_Constants_mxJPO.relationship_IMS_QP_QPTask2QPTask,
                                 /*type*/IMS_QP_Constants_mxJPO.type_IMS_QP_QPTask,
                                 /*object attributes*/ selects,
-                                /*relationship selects*/ null,
+                                /*relationship selects*/ relSelect,
                                 /*getTo*/ true, /*getFrom*/ false,
                                 /*recurse to level*/ (short) 1,
                                 /*object where*/ null,
-                                /*relationship where*/ null,
+                                /*relationship where*/ relationshipWhere,
                                 /*limit*/ 0);
                         if (relatedInputApprovedTasks != null) {
                             for (Object tempRelatedTask : relatedInputApprovedTasks) {
@@ -490,7 +493,7 @@ public class IMS_QP_Workbench_mxJPO {
                                                 /*relationship*/IMS_QP_Constants_mxJPO.relationship_IMS_QP_ExpectedResult2QPTask,
                                                 /*type*/IMS_QP_Constants_mxJPO.type_IMS_QP_ExpectedResult,
                                                 /*object attributes*/ selects,
-                                                /*relationship selects*/ null,
+                                                /*relationship selects*/ relSelect,
                                                 /*getTo*/ false, /*getFrom*/ true,
                                                 /*recurse to level*/ (short) 1,
                                                 /*object where*/ null,
@@ -1055,6 +1058,7 @@ public class IMS_QP_Workbench_mxJPO {
 
             MapList relatedObjects = new MapList();
             if (domainObject != null) {
+                String relationshipWhere = "attribute[IMS_QP_DEPTaskStatus]==Approved";
                 try {
                     relatedObjects = domainObject.getRelatedObjects(ctx,
                             /*relationship*/IMS_QP_Constants_mxJPO.relationship_IMS_QP_QPTask2QPTask,
@@ -1064,7 +1068,7 @@ public class IMS_QP_Workbench_mxJPO {
                             /*getTo*/ true, /*getFrom*/ false,
                             /*recurse to level*/ (short) 1,
                             /*object where*/ null,
-                            /*relationship where*/ null,
+                            /*relationship where*/ relationshipWhere,
                             /*limit*/ 0);
 
                 } catch (FrameworkException e) {
